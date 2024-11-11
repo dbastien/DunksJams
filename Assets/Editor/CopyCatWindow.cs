@@ -16,10 +16,10 @@ public class CopyCatWindow : EditorWindow
     Vector2 _scrollPos;
 
     [MenuItem("CONTEXT/Component/CopyCat")]
-    static void CopyMenuSelected(MenuCommand command)
+    static void CopyMenuSelected(MenuCommand cmd)
     {
         var win = GetWindow<CopyCatWindow>(true, "CopyCat", true);
-        win.Init(command.context);  // Init with source object
+        win.Init(cmd.context);  // Init w/ source object
     }
 
     void Init(Object src)
@@ -62,29 +62,29 @@ public class CopyCatWindow : EditorWindow
         
         Undo.RecordObject(target, "PasteCat Data");
 
-        var targetFields = target.GetType().GetFields();
-        var targetProps = target.GetType().GetAllProperties().ToArray();
+        var tgtFields = target.GetType().GetFields();
+        var tgtProps = target.GetType().GetAllProperties().ToArray();
         
         for (int i = 0; i < _fieldSelected.Length; ++i)
         {
             if (!_fieldSelected[i] || _fieldVals[i] == null) continue;
-            var sourceField = _fields[i];
-            var targetField = System.Array.Find(targetFields, f => f.Name == sourceField.Name)
-                              ?? (nonHomogeneous ? System.Array.Find(targetFields, f => f.FieldType.IsAssignableTo(sourceField.FieldType)) : null);
+            var srcField = _fields[i];
+            var tgtField = System.Array.Find(tgtFields, f => f.Name == srcField.Name)
+                              ?? (nonHomogeneous ? System.Array.Find(tgtFields, f => f.FieldType.IsAssignableTo(srcField.FieldType)) : null);
 
-            if (targetField == null) continue;
-            targetField.SetValue(target, _fieldVals[i].DeepClone());
+            if (tgtField == null) continue;
+            tgtField.SetValue(target, _fieldVals[i].DeepClone());
         }
 
         for (int i = 0; i < _propSelected.Length; ++i)
         {
             if (!_propSelected[i] || _propVals[i] == null) continue;
-            var sourceProp = _props[i];
-            var targetProp = System.Array.Find(targetProps, p => p.Name == sourceProp.Name)
-                             ?? (nonHomogeneous ? System.Array.Find(targetProps, p => p.PropertyType.IsAssignableTo(sourceProp.PropertyType)) : null);
+            var srcProp = _props[i];
+            var tgtProp = System.Array.Find(tgtProps, p => p.Name == srcProp.Name)
+                             ?? (nonHomogeneous ? System.Array.Find(tgtProps, p => p.PropertyType.IsAssignableTo(srcProp.PropertyType)) : null);
 
-            if (targetProp == null) continue;
-            targetProp.SetValue(target, _propVals[i].DeepClone());
+            if (tgtProp == null) continue;
+            tgtProp.SetValue(target, _propVals[i].DeepClone());
         }
 
         EditorUtility.SetDirty(target);
@@ -95,7 +95,6 @@ public class CopyCatWindow : EditorWindow
     {
         _nonHomogeneous = EditorGUILayout.Toggle("Non-Homogeneous", _nonHomogeneous);
 
-        // Start scroll view
         _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - 50));
 
         EditorGUILayout.LabelField("Fields");
@@ -106,7 +105,7 @@ public class CopyCatWindow : EditorWindow
         for (int i = 0; i < _props.Count; ++i)
             _propSelected[i] = EditorGUILayout.Toggle(_props[i].Name, _propSelected[i]);
 
-        EditorGUILayout.EndScrollView();  // End scroll view
+        EditorGUILayout.EndScrollView();
 
         if (GUILayout.Button("Copy"))
         {

@@ -19,14 +19,6 @@ public class ProgressBarAttribute : PropertyAttribute
 }
 
 [AttributeUsage(AttributeTargets.Field)]
-public class DropdownAttribute : PropertyAttribute
-{
-    public string MethodName { get; }
-
-    public DropdownAttribute(string method) => MethodName = method;
-}
-
-[AttributeUsage(AttributeTargets.Field)]
 public class HeaderColorAttribute : PropertyAttribute
 {
     public Color Color { get; }
