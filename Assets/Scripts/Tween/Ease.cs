@@ -28,11 +28,11 @@ public static class Ease
     public static float QuinticOut(float t) => 1f + --t * t * t * t * t;
     public static float QuinticInOut(float t) => DoEaseInOut(t, QuinticIn, QuinticOut);
 
-    public static float SineIn(float t) => 1f - MathF.Cos(t * MathfConstants.TauDiv4);
-    public static float SineOut(float t) => MathF.Sin(t * MathfConstants.TauDiv4);
-    public static float SineInOut(float t) => -0.5f * (MathF.Cos(MathfConstants.TauDiv2 * t) - 1f);
+    public static float SineIn(float t) => 1f - MathF.Cos(t * MathConsts.TauDiv4);
+    public static float SineOut(float t) => MathF.Sin(t * MathConsts.TauDiv4);
+    public static float SineInOut(float t) => -0.5f * (MathF.Cos(MathConsts.TauDiv2 * t) - 1f);
 
-    public static float SinHalf(float t) => MathF.Sin(t * MathfConstants.TauDiv2);
+    public static float SinHalf(float t) => MathF.Sin(t * MathConsts.TauDiv2);
     public static float Square(float t) => (t < 0.5f) ? 0f : 1f;
     public static float Triangle(float t) => Mathf.Abs((t + .5f) * 2f % 2 - 1f);
     public static float Sawtooth(float t) => (t * 2f) % 1;

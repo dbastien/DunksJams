@@ -3,11 +3,35 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 public static class StringExtensions
 {
-    public static string Join(this IEnumerable<string> s, char c) => string.Join(c, s); 
+    //precompiled regexes
+    public static readonly Lazy<Regex> EmailRegex = new(() => new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> Base64Regex = new(() => new Regex(@"^[a-zA-Z0-9\+/]*={0,2}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> Ipv4Regex = new(() => new Regex(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> Ipv6Regex = new(() => new Regex(@"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> MacAddressRegex = new(() => new Regex(@"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> HexColorRegex = new(() => new Regex(@"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> HexRegex = new(() => new Regex(@"^0x[0-9A-Fa-f]+$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> NumberRegex = new(() => new Regex(@"^-?[0-9]+(?:\.[0-9]+)?$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> IntegerRegex = new(() => new Regex(@"^-?[0-9]+$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> DecimalRegex = new(() => new Regex(@"^-?[0-9]+\.[0-9]+$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> DateRegex = new(() => new Regex(@"^\d{4}-\d{2}-\d{2}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> TimeRegex = new(() => new Regex(@"^\d{2}:\d{2}:\d{2}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> DateTimeRegex = new(() => new Regex(@"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> URLRegex = new(() => new Regex(@"^(https?|ftp)://[^\s/$.?#].[^\s]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase));
+    public static readonly Lazy<Regex> GuidRegex = new(() => new Regex(@"^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> CamelCaseSplitRegex = new(() => new Regex(@"([a-z])([A-Z])", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> CamelCaseRegex = new(() => new Regex(@"(\P{Ll})(\p{Ll})", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> HtmlTagRegex = new(() => new Regex(@"<[^>]*>", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> HtmlEntityRegex = new(() => new Regex(@"&[^;]+;", RegexOptions.Compiled));
+    public static readonly Lazy<Regex> HtmlCommentRegex = new(() => new Regex(@"<!--.*?-->", RegexOptions.Compiled));
+
+    public static string Join(this IEnumerable<string> s, char c) => string.Join(c, s);
     public static string Join(this IEnumerable<object> s, char c) => string.Join(c, s);
+
     public static string Remove(this string s, string r) => s.Replace(r, "");
     public static string RemovePrefix(this string s, string prefix) =>
         s.StartsWithFast(prefix) ? s[prefix.Length..] : s;
@@ -86,11 +110,14 @@ public static class StringExtensions
         return null;
     }
     
-    public static string SplitCamelCase(this string s) =>
-        System.Text.RegularExpressions.Regex.Replace(s, "([a-z])([A-Z])", "$1 $2");
+    public static string SplitCamelCase(this string s) => CamelCaseRegex.Value.Replace(s, "$1 $2");
+    public static string Slugify(this string s) => Regex.Replace(s.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
+    public static string ToTitleCase(this string s) => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(s);
+    public static string ToCamelCase(this string s) => ToTitleCase(s).Replace(" ", "");
+    public static string ToSnakeCase(this string s) => string.Concat(s.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString()));
     public static string Truncate(this string s, int len) => s.Length <= len ? s : s[..len];
-    
+
     //todo: maybe move this somewhere else
     public static List<string> SplitLines(this ReadOnlySpan<char> data)
     {

@@ -8,7 +8,6 @@ public static class GameObjectExtensions
     public static void SetLayerRecursively(this GameObject go, int layer)
     {
         go.layer = layer;
-
         foreach (Transform child in go.transform)
             child.gameObject.SetLayerRecursively(layer);
     }
@@ -16,7 +15,6 @@ public static class GameObjectExtensions
     public static void SetTagRecursively(this GameObject go, string tag)
     {
         go.tag = tag;
-        
         foreach (Transform child in go.transform)
             child.gameObject.SetTagRecursively(tag);
     }

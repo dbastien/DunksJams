@@ -8,7 +8,7 @@ public static class HierarchyIconSettings
 {
     const string SettingsPath = "Preferences/Hierarchy Icons";
     static readonly Dictionary<string, bool> ComponentVisibility = new();
-    private static List<Type> ComponentTypes;
+    static List<Type> ComponentTypes;
 
     static bool AllEnabled
     {

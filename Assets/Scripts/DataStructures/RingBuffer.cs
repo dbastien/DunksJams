@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class RingBuffer<T> : IEnumerable<T>
 {
-    private readonly T[] _buffer;
-    private int _head;
-    private int _tail;
-    private int _size;
+    readonly T[] _buffer;
+    int _head;
+    int _tail;
+    int _size;
 
     public RingBuffer(int capacity)
     {

@@ -15,7 +15,7 @@ public static class GeneralSettingsProvider
         return providers.FirstOrDefault();
     }
 
-    private static SettingsProvider CreateSettingsProviderForSection(Type sectionType)
+    static SettingsProvider CreateSettingsProviderForSection(Type sectionType)
     {
         var sectionAttr = sectionType.GetAttribute<SettingsProviderSectionAttribute>();
         if (sectionAttr == null) return null;
@@ -33,7 +33,7 @@ public static class GeneralSettingsProvider
         };
     }
 
-    private static void DrawSettingsFields(Type settingsType)
+    static void DrawSettingsFields(Type settingsType)
     {
         var membersWithAttributes = settingsType.GetAttributesForMembers<SettingsProviderFieldAttribute>();
         foreach (var (member, fieldAttr) in membersWithAttributes)
@@ -44,7 +44,7 @@ public static class GeneralSettingsProvider
         }
     }
 
-    private static void DrawField(Type fieldType, string label, Func<object> getter, Action<object> setter)
+    static void DrawField(Type fieldType, string label, Func<object> getter, Action<object> setter)
     {
         var value = getter();
         switch (value)

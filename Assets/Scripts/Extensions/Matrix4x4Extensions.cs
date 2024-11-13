@@ -12,7 +12,7 @@ public static class Matrix4X4Extensions
     /// <returns>Matrix for transforming an RGB color in HSV space</returns>
     public static Matrix4x4 CreateHSVTransform(float h, float s, float v)
     {
-        float hr = -h * MathfConstants.TauDiv4;
+        float hr = -h * MathConsts.TauDiv4;
         //float hr = h * Mathf.Deg2Rad;
 
         float vsu = v * s * MathF.Cos(hr);

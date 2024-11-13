@@ -59,7 +59,7 @@ public static class MeshExtensions
 
         var colors = new Color[verts.Length];
         var (minY, maxY) = GetMinMaxY(verts);
-        float range = Mathf.Abs(maxY - minY) > MathfConstants.ZeroTolerance ? 1f / (maxY - minY) : 0f;
+        float range = Mathf.Abs(maxY - minY) > MathConsts.ZeroTolerance ? 1f / (maxY - minY) : 0f;
 
         for (int i = 0; i < verts.Length; ++i)
             colors[i] = Color.Lerp(bottomColor, topColor, (verts[i].y - minY) * range);
@@ -96,6 +96,17 @@ public static class MeshExtensions
             for (int i = currentLength; i < length; ++i) _triIdentity[i] = i;
         }
         return _triIdentity;
+    }
+
+    static (float min, float max) GetMinMaxX(Vector3[] verts)
+    {
+        float minX = float.MaxValue, maxX = float.MinValue;
+        foreach (var v in verts)
+        {
+            if (v.x < minX) minX = v.x;
+            if (v.x > maxX) maxX = v.x;
+        }
+        return (minX, maxX);
     }
 
     static (float min, float max) GetMinMaxY(Vector3[] verts)

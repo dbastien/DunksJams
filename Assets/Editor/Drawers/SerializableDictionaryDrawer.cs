@@ -60,7 +60,7 @@ public class SerializableDictionaryDrawer : PropertyDrawer
         EditorGUI.EndProperty();
     }
 
-    private void RemoveElementAtIndex(SerializedProperty array, int index)
+    void RemoveElementAtIndex(SerializedProperty array, int index)
     {
         array.DeleteArrayElementAtIndex(index);
         if (array.propertyType == SerializedPropertyType.ObjectReference)

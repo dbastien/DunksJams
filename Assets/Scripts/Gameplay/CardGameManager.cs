@@ -88,7 +88,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
 public class CardCollection<T> : ICollection<T> where T : CardBase
 {
-    private readonly List<T> _cards = new();
+    readonly List<T> _cards = new();
 
     public CardCollection() { }
     public CardCollection(IEnumerable<T> cards) => _cards.AddRange(cards);
@@ -140,7 +140,7 @@ public class WarGame : CardGameBase<StandardCard>
             HandleWar(p1Card, p2Card);
     }
 
-    private void HandleWar(StandardCard p1Card, StandardCard p2Card)
+    void HandleWar(StandardCard p1Card, StandardCard p2Card)
     {
         List<StandardCard> warCards = new() { p1Card, p2Card };
         for (int i = 0; i < 3; ++i)

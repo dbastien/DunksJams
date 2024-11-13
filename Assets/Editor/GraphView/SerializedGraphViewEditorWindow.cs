@@ -11,7 +11,7 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
     where TEdge : Edge, new()
 {
     protected TGraphView _graphView;
-    private DropdownField _nodeTypeDropdown;
+    DropdownField _nodeTypeDropdown;
 
     protected virtual void OnEnable()
     {

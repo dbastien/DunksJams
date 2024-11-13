@@ -5,10 +5,10 @@ public class PrecisionStopwatch : IDisposable
 {
     public enum TimeUnit { Seconds, Milliseconds, Microseconds, Nanoseconds }
 
-    private readonly Stopwatch _sw;
-    private readonly Action<string> _onDisposeAction;
-    private readonly TimeUnit _timeUnit;
-    private bool _disposed;
+    readonly Stopwatch _sw;
+    readonly Action<string> _onDisposeAction;
+    readonly TimeUnit _timeUnit;
+    bool _disposed;
 
     public static bool IsHighResolution => Stopwatch.IsHighResolution;
     public static long Frequency => Stopwatch.Frequency;

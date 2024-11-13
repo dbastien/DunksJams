@@ -65,7 +65,7 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
         _heap[i] = item;
     }
 
-    private void ThrowIfEmpty()
+    void ThrowIfEmpty()
     {
         if (_heap.Count == 0) throw new InvalidOperationException("Queue is empty.");
     }

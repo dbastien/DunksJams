@@ -13,7 +13,10 @@ public static class RectExtensions
     public static Vector2 BottomLeft(this Rect r) => new(r.xMin, r.yMin);
     public static Vector2 BottomCenter(this Rect r) => new(r.center.x, r.yMin);
     public static Vector2 BottomRight(this Rect r) => new(r.xMax, r.yMin);
-    
+
+    public static Rect SetPosition(this Rect r, Vector2 newPosition) =>
+        new(newPosition.x, newPosition.y, r.width, r.height);
+
     public static Rect CenterInParent(this Rect r, Rect parent) => 
         new(parent.xMin + (parent.width - r.width) * 0.5f,
             parent.yMin + (parent.height - r.height) * 0.5f,
@@ -70,16 +73,24 @@ public static class RectExtensions
     public static bool ContainsInclusive(this Rect r, Vector2 point) =>
         point.x >= r.xMin && point.x <= r.xMax && point.y >= r.yMin && point.y <= r.yMax;
 
-    public static Rect? OverlapRect(this Rect r, Rect other)
+    public static Rect? Overlap(this Rect r, Rect other)
     {
         float xMin = Mathf.Max(r.xMin, other.xMin);
         float yMin = Mathf.Max(r.yMin, other.yMin);
         float xMax = Mathf.Min(r.xMax, other.xMax);
         float yMax = Mathf.Min(r.yMax, other.yMax);
 
-        if (xMin < xMax && yMin < yMax)
-            return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
-        return null;
+        return xMin < xMax && yMin < yMax ? new Rect(xMin, yMin, xMax - xMin, yMax - yMin) : null;
+    }
+
+    public static Rect ExpandToFit(this Rect r, Rect other)
+    {
+        float xMin = Mathf.Min(r.xMin, other.xMin);
+        float yMin = Mathf.Min(r.yMin, other.yMin);
+        float xMax = Mathf.Max(r.xMax, other.xMax);
+        float yMax = Mathf.Max(r.yMax, other.yMax);
+
+        return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
     }
 
     public static Rect Translate(this Rect r, Vector2 offset) => 

@@ -69,5 +69,5 @@ public class GaussianBlurKernelGeneratorWindow : EditorWindow
 		return res;
 	}
 
-	float Gaussian(float sigma, float x) => MathF.Exp(-x * x / (2 * sigma * sigma)) / (sigma * MathfConstants.TauSqrt);
+	float Gaussian(float sigma, float x) => MathF.Exp(-x * x / (2 * sigma * sigma)) / (sigma * MathConsts.TauSqrt);
 }

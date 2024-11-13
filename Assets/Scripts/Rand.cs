@@ -8,12 +8,14 @@ public static class Rand
     public static bool Bool() => R.value > 0.5f;
     public static bool BoolWithChance(float chance) => R.value < chance;
     public static float Float() => R.value;
+    public static float Radial() => Mathf.Sqrt(Float());
 
     //[0,1)
-    public static float FloatExclusive() => R.value * (1f - MathfConstants.ZeroTolerance);
+    public static float FloatExclusive() => R.value * (1f - MathConsts.ZeroTolerance);
 
     public static float Degree() => R.Range(0f, 360f);
-    public static float Radian() => R.Range(0f, MathfConstants.Tau);
+    public static float Radian() => R.Range(0f, MathConsts.Tau);
+    public static float Rad() => R.Range(0f, MathConsts.Tau);
     public static float Sign() => R.value > 0.5f ? 1f : -1f;
     public static int SignInt() => R.value > 0.5f ? 1 : -1;
 
@@ -139,7 +141,7 @@ public static class Rand
         // Box-Muller transform
         float u1 = FloatExclusive();
         float u2 = Float();
-        return MathF.Sqrt(-2f * MathF.Log(u1)) * MathF.Sin(MathfConstants.Tau * u2);
+        return MathF.Sqrt(-2f * MathF.Log(u1)) * MathF.Sin(MathConsts.Tau * u2);
     }
 
     public static float GaussianRanged(float mean, float stdDev) => mean + Gaussian() * stdDev;
@@ -156,7 +158,7 @@ public static class Rand
     public static float Cauchy(float x0 = 0f, float gamma = 1f)
     {
         float u = FloatExclusive() - 0.5f;
-        return x0 + gamma * MathF.Tan(MathfConstants.TauDiv2 * u);
+        return x0 + gamma * MathF.Tan(MathConsts.TauDiv2 * u);
     }
 
     public static float Exponential(float lambda = 1f) => -MathF.Log(FloatExclusive()) / lambda;

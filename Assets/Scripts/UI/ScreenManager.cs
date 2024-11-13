@@ -4,10 +4,10 @@
 public class ScreenManager : MonoBehaviour
 {
     public enum ScreenType { Title, Options, Game }
-    private ScreenType _currentScreen;
+    ScreenType _currentScreen;
 
-    private GameObject _canvas;
-    private GameObject _currentPanel;
+    GameObject _canvas;
+    GameObject _currentPanel;
 
     void Start()
     {
@@ -29,7 +29,7 @@ public class ScreenManager : MonoBehaviour
         };
     }
 
-    private GameObject CreateTitleScreen()
+    GameObject CreateTitleScreen()
     {
         var panel = UIBuilder.CreatePanel(_canvas.transform, "TitleScreen", new Vector2(800, 600));
         UIBuilder.CreateButton(panel.transform, "Play", () => ShowScreen(ScreenType.Game), color: Color.white, size: new Vector2(160, 40));
@@ -37,13 +37,13 @@ public class ScreenManager : MonoBehaviour
         return panel;
     }
 
-    private GameObject CreateOptionsScreen()
+    GameObject CreateOptionsScreen()
     {
         var panel = UIBuilder.CreatePanel(_canvas.transform, "OptionsScreen", new Vector2(800, 600));
         UIBuilder.CreateButton(panel.transform, "Back", () => ShowScreen(ScreenType.Title), color: Color.white, size: new Vector2(160, 40), position: new Vector2(0, -200));
         return panel;
     }
 
-    private GameObject CreateGameScreen() => 
+    GameObject CreateGameScreen() =>
         UIBuilder.CreatePanel(_canvas.transform, "GameScreen", new Vector2(800, 600));
 }

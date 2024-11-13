@@ -19,7 +19,7 @@ public static class PathUtils
         return files;
     }
 
-    private static void GetFilesRecursively(string dir, List<string> files)
+    static void GetFilesRecursively(string dir, List<string> files)
     {
         foreach (string file in Directory.GetFiles(dir))
             files.Add(file);
@@ -27,4 +27,3 @@ public static class PathUtils
             GetFilesRecursively(d, files);
     }
 }
-

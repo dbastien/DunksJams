@@ -49,11 +49,4 @@ public static class Vector3Extensions
             2 => new(v.x, v.y, val),
             _ => throw new("index out of range")
         };
-    
-    public static Vector3 ClosestPointOnLineSegment(this Vector3 p, Vector3 a, Vector3 b)
-    {
-        var ab = b - a;
-        var t = Vector3.Dot(p - a, ab) / ab.sqrMagnitude;
-        return a + ab * Mathf.Clamp01(t);
-    }
 }

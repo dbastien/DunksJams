@@ -67,7 +67,7 @@ public static class EventManager
         (isImmediate ? _immediateEventQueue : _eventQueue).Enqueue(gameEvent);
     }
     
-    private static void ReleasePooledEvent(GameEvent gameEvent)
+    static void ReleasePooledEvent(GameEvent gameEvent)
     {
         if (eventPools.TryGetValue(gameEvent.GetType(), out var pool)) pool.Release(gameEvent);
     }
@@ -120,7 +120,7 @@ public static class EventManager
         while (_eventQueue.TryDequeue(out var gameEvent)) TriggerEvent(gameEvent);
     }
 
-    private static void RemoveListener(Type eventType, Delegate listener)
+    static void RemoveListener(Type eventType, Delegate listener)
     {
         if (!_listenerLookup.TryGetValue(listener, out var internalListener)) return;
 

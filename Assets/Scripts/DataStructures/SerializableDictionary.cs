@@ -7,8 +7,8 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
 {
     Dictionary<TKey, TValue> _dict = new();
 
-    [SerializeField] private TKey[] _keys;
-    [SerializeField] private TValue[] _values;
+    [SerializeField] TKey[] _keys;
+    [SerializeField] TValue[] _values;
 
     public TValue this[TKey key]
     {

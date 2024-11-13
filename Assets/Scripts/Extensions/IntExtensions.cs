@@ -2,6 +2,9 @@
 
 public static class IntExtensions
 {
+    public static void Swap(ref this int a, ref int b) => (a, b) = (b, a);
+    public static bool IsEven(this int v) => (v & 1) == 0;
+    public static bool IsOdd(this int v) => (v & 1) == 1;
     public static int LeadingZeroCount(this int v)
     {
         if (v == 0) return 32;
@@ -55,5 +58,66 @@ public static class IntExtensions
         int result = 1;
         while (--p >= 0) result *= n;
         return result;
+    }
+
+
+    public static int Wrap(this int v, int min, int max)
+    {
+        int range = max - min + 1;
+        return (v - min) % range + min;
+    }
+
+
+    public static int[] ToDigits(this int v)
+    {
+        int count = v == 0 ? 1 : 1 + (int)Mathf.Log10(v);
+        int[] digits = new int[count];
+        for (int i = count - 1; i >= 0; --i)
+        {
+            digits[i] = v % 10;
+            v /= 10;
+        }
+        return digits;
+    }
+
+    public static int FromDigits(this int[] digits)
+    {
+        int result = 0;
+        for (int i = 0; i < digits.Length; ++i)
+        {
+            result *= 10;
+            result += digits[i];
+        }
+        return result;
+    }
+
+    public static int Reverse(this int v)
+    {
+        int result = 0;
+        while (v > 0)
+        {
+            result = result * 10 + v % 10;
+            v /= 10;
+        }
+        return result;
+    }
+
+    public static int RotateLeft(this int v, int n)
+    {
+        n %= 32;
+        return (v << n) | (v >> (32 - n));
+    }
+
+    public static int RotateRight(this int v, int n)
+    {
+        n %= 32;
+        return (v >> n) | (v << (32 - n));
+    }
+
+    public static int Fibonacci(this int n)
+    {
+        int a = 0, b = 1;
+        while (--n > 0) { int temp = a + b; a = b; b = temp; }
+        return b;
     }
 }

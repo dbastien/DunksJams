@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 [ExecuteInEditMode]
+[RequireComponent(typeof(Camera))]
 public class ProjectionController : MonoBehaviour
 {
     public enum ProjectionType 
@@ -16,6 +17,7 @@ public class ProjectionController : MonoBehaviour
     public Vector2 customObliqueShear = new (1, 1);        // Custom shearing values for custom oblique
     [Range(0, 90)] public float dimetricAngleX = 42f;
     [Range(0, 90)] public float dimetricAngleY = 7f;
+    public bool dynamicUpdates = false;
 
     Camera _camera;
     ProjectionType _currentProjection;
@@ -26,12 +28,16 @@ public class ProjectionController : MonoBehaviour
         _currentProjection = projectionType;
         ApplyProjection();
     }
-    
+
+    void OnValidate()
+    {
+        if (!dynamicUpdates) ApplyProjection();
+    }
+
     void Update()
     {
-        if (!_camera || projectionType == _currentProjection) return;
         _currentProjection = projectionType;
-        ApplyProjection();
+        if (dynamicUpdates) ApplyProjection();
     }
 
     void ApplyProjection()

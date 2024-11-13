@@ -104,7 +104,7 @@ public class SineWaveNode : WaveformNodeBase<AnimationCurve>
         for (int i = 0; i <= _sampleCount; ++i)
         {
             float time = i * step;
-            float value = _params.Amplitude * MathF.Sin(MathfConstants.Tau * _params.Frequency * time);
+            float value = _params.Amplitude * MathF.Sin(MathConsts.Tau * _params.Frequency * time);
             curve.AddKey(time, value);
         }
         return curve;
