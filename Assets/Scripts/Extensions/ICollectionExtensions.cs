@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public static class ICollectionExtensions
 {
@@ -18,8 +17,11 @@ public static class ICollectionExtensions
     
     public static void RemoveMatching<T>(this ICollection<T> c, Predicate<T> match)
     {
-        List<T> itemsToRemove = c.Where(i => match(i)).ToList();
-        foreach (T item in itemsToRemove) c.Remove(item);
+        var itemsToRemove = new List<T>();
+        foreach (var item in c)
+            if (match(item)) itemsToRemove.Add(item);
+
+        foreach (var item in itemsToRemove) c.Remove(item);
     }
     
     public static bool TryAdd<T>(this ICollection<T> c, T item)
@@ -31,10 +33,23 @@ public static class ICollectionExtensions
 
     public static T GetOrAdd<T>(this ICollection<T> c, Func<T, bool> predicate, Func<T> newItem)
     {
-        var item = c.FirstOrDefault(predicate);
-        if (item != null) return item;
-        item = newItem();
-        c.Add(item);
-        return item;
+        foreach (var item in c)
+            if (predicate(item)) return item;
+
+        var newItemInstance = newItem();
+        c.Add(newItemInstance);
+        return newItemInstance;
+    }
+
+    public static bool TogglePresence<T>(this ICollection<T> c, T newItem)
+    {
+        if (c.Contains(newItem))
+        {
+            c.Remove(newItem);
+            return false;
+        }
+
+        c.Add(newItem);
+        return true;
     }
 }

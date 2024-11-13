@@ -125,6 +125,9 @@ public static class IEnumerableExtensions
 
     public static T MostFrequent<T>(this IEnumerable<T> e) =>
         e.GroupBy(x => x).MaxBy(g => g.Count()).Key;
+
+    public static T LeastFrequent<T>(this IEnumerable<T> e) =>
+        e.GroupBy(x => x).MinBy(g => g.Count()).Key;
     
     public static IEnumerable<T> ExceptBy<T, TKey>(this IEnumerable<T> e, IEnumerable<T> other, Func<T, TKey> key) =>
         e.Where(item => !other.Select(key).Contains(key(item)));

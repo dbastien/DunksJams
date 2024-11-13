@@ -1,21 +1,19 @@
 ﻿using System;
 using UnityEngine;
 
-//todo: add "ref this" as well as "this" methods
-
 public static class Vector3Extensions
 {
-    public static Vector3 LerpUnclamped(this Vector3 l, Vector3 r, float t) => l + t * (r - l);
-
     public static Vector3 Abs(this Vector3 v) => new(MathF.Abs(v.x), MathF.Abs(v.y), MathF.Abs(v.z));
     public static Vector3 Round(this Vector3 v) => new(MathF.Round(v.x), MathF.Round(v.y), MathF.Round(v.z));
-    public static Vector3 Floor(this Vector3 v) => new(MathF.Floor(v.x), MathF.Floor(v.y), MathF.Floor(v.z));
     public static Vector3 Ceil(this Vector3 v) => new(Mathf.Ceil(v.x), Mathf.Ceil(v.y), Mathf.Ceil(v.z));
+    public static Vector3 Floor(this Vector3 v) => new(MathF.Floor(v.x), MathF.Floor(v.y), MathF.Floor(v.z));
 
     public static Vector3 Clamp(this Vector3 v, Vector3 min, Vector3 max) =>
         new(Mathf.Clamp(v.x, min.x, max.x),
             Mathf.Clamp(v.y, min.y, max.y),
             Mathf.Clamp(v.z, min.z, max.z));
+
+    public static Vector3 LerpUnclamped(this Vector3 l, Vector3 r, float t) => Vector3.LerpUnclamped(l, r, t);
 
     public static Vector3 Scaled(this Vector3 v, Vector3 scale) => 
         new(v.x * scale.x, v.y * scale.y, v.z * scale.z);

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class ProjectionController : MonoBehaviour

@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-//todo: add "ref this" as well as "this" methods
-
 public static class Vector2Extensions
 {
     public static Vector2 LerpUnclamped(this Vector2 l, Vector2 r, float t) => l + t * (r - l);

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 
 public static class StackFrameExtensions
 {

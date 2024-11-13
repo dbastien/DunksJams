@@ -4,9 +4,10 @@ using System.Linq;
 public static class FloatExtensions
 {
     public static float Abs(this float f) => MathF.Abs(f);
+    public static bool IsNaN(this float f) => float.IsNaN(f);
     public static float Remap01(this float x, float min, float max) => (x - min) / (max - min);
     public static float Remap(this float x, float minIn, float maxIn, float minOut, float maxOut) => minOut + (maxOut - minOut) * x.Remap01(minIn, maxIn);
-    
+
     public static void NormalizeHalfMatrix(this float[] m)
     {	
         float s = m[0] + 2 * m.Skip(1).Sum();

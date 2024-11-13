@@ -20,7 +20,13 @@ public static class ReflectionUtils
     static Lazy<IEnumerable<Type>> _allTypes = new(() => AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()));
 
     static readonly char[] _delims = { ',', '[' };
-    
+
+    public static Type GetTypeByName(string name) =>
+        _allTypes.Value.FirstOrDefault(t => t.Name.Equals(name, StringComparison.Ordinal));
+
+    public static IEnumerable<Type> GetTypesWithFlags(BindingFlags flags) =>
+        _allTypes.Value.Where(t => t.IsClass && t.GetFields(flags).Any());
+
     public static List<Type> GetNonGenericDerivedTypes<T>() =>
         _derivedCache.GetOrAdd(typeof(T), _ =>
             _allTypes.Value.Where(t => t.IsSubclassOf(typeof(T)) && !t.IsAbstract).ToList());
@@ -261,7 +267,12 @@ public static class ReflectionUtils
             if (targetType == typeof(Vector3)) return ParseVector3(value);
             if (targetType.IsEnum) return Enum.Parse(targetType, value);
 
-            // Add other specific conversions as needed
+            // Handle nullable types
+            if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (string.IsNullOrEmpty(value)) return null;
+                targetType = Nullable.GetUnderlyingType(targetType);
+            }
         }
         catch (Exception ex)
         {
@@ -280,9 +291,9 @@ public static class ReflectionUtils
         }
     }
     
-    static object GetDefault(Type targetType) => targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+    public static object GetDefault(Type targetType) => targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
 
-    // Parses a Vector3 from a string in the format "(x, y, z)"
+    //"(x, y, z)"
     static Vector3 ParseVector3(string value)
     {
         value = value.Trim('(', ')');

@@ -43,9 +43,7 @@ public static class RectExtensions
         return rects;
     }
     
-    /// <summary>
-    /// Calculates signed depth of intersection between two rects.
-    /// </summary>
+    /// <summary> Calculates signed depth of intersection between two rects. </summary>
     public static Vector2 GetIntersectionDepth(this Rect r, Rect other)
     {
         float halfWidthA = r.width * 0.5f;

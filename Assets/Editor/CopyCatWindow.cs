@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEditor.Rendering;
 
 public class CopyCatWindow : EditorWindow
 {

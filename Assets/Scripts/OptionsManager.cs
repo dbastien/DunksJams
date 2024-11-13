@@ -1,6 +1,4 @@
-﻿using System;
-
-public class OptionsManager
+﻿public class OptionsManager
 {
     
 }
