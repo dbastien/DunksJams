@@ -280,7 +280,7 @@ public static class ReflectionUtils
             return GetDefault(targetType);
         }
 
-        // Use Convert.ChangeType as a fallback for general-purpose conversion
+        // Convert.ChangeType fallback for general conversion
         try
         {
             return Convert.ChangeType(value, targetType);

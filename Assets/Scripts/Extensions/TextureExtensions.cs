@@ -108,15 +108,15 @@ public static class Texture2DExtensions
 
                 int nX0 = x * 2;
                 int nX1 = nX0 + 1;
-                int nY0 = (y * 2) * outWidth;
+                int nY0 = y * 2 * outWidth;
                 int nY1 = (y * 2 + 1) * outWidth;
 
                 if (B != H && D != F)
                 {
-                    outPixels[nX0 + nY0] = (D == B) ? D : E;
-                    outPixels[nX1 + nY0] = (B == F) ? F : E;
-                    outPixels[nX0 + nY1] = (D == H) ? D : E;
-                    outPixels[nX1 + nY1] = (H == F) ? F : E;
+                    outPixels[nX0 + nY0] = D == B ? D : E;
+                    outPixels[nX1 + nY0] = B == F ? F : E;
+                    outPixels[nX0 + nY1] = D == H ? D : E;
+                    outPixels[nX1 + nY1] = H == F ? F : E;
                 }
                 else
                 {
@@ -161,16 +161,16 @@ public static class Texture2DExtensions
                 Color E = pixels[x + yIndex];
 
                 // Surrounding pixels with bounds checking
-                Color A = (x > 0 && y > 0) ? pixels[x - 1 + yIndexPrev] : blank;
-                Color B = (y > 0) ? pixels[x + yIndexPrev] : blank;
-                Color C = (x < width - 1 && y > 0) ? pixels[x + 1 + yIndexPrev] : blank;
+                Color A = x > 0 && y > 0 ? pixels[x - 1 + yIndexPrev] : blank;
+                Color B = y > 0 ? pixels[x + yIndexPrev] : blank;
+                Color C = x < width - 1 && y > 0 ? pixels[x + 1 + yIndexPrev] : blank;
 
-                Color D = (x > 0) ? pixels[x - 1 + yIndex] : blank;
-                Color F = (x < width - 1) ? pixels[x + 1 + yIndex] : blank;
+                Color D = x > 0 ? pixels[x - 1 + yIndex] : blank;
+                Color F = x < width - 1 ? pixels[x + 1 + yIndex] : blank;
 
-                Color G = (x > 0 && y < height - 1) ? pixels[x - 1 + yIndexNext] : blank;
-                Color H = (y < height - 1) ? pixels[x + yIndexNext] : blank;
-                Color I = (x < width - 1 && y < height - 1) ? pixels[x + 1 + yIndexNext] : blank;
+                Color G = x > 0 && y < height - 1 ? pixels[x - 1 + yIndexNext] : blank;
+                Color H = y < height - 1 ? pixels[x + yIndexNext] : blank;
+                Color I = x < width - 1 && y < height - 1 ? pixels[x + 1 + yIndexNext] : blank;
 
                 int nX0 = x * 3;
                 int nX1 = nX0 + 1;
@@ -179,17 +179,17 @@ public static class Texture2DExtensions
                 // Scale3X
                 if (B != H && D != F)
                 {
-                    outPixels[nX0 + nY0] = (D == B) ? D : E;
-                    outPixels[nX1 + nY0] = ((D == B && E != C) || (B == F && E != A)) ? B : E;
-                    outPixels[nX2 + nY0] = (B == F) ? F : E;
+                    outPixels[nX0 + nY0] = D == B ? D : E;
+                    outPixels[nX1 + nY0] = (D == B && E != C) || (B == F && E != A) ? B : E;
+                    outPixels[nX2 + nY0] = B == F ? F : E;
 
-                    outPixels[nX0 + nY1] = ((D == B && E != G) || (D == H && E != A)) ? D : E;
+                    outPixels[nX0 + nY1] = (D == B && E != G) || (D == H && E != A) ? D : E;
                     outPixels[nX1 + nY1] = E;
-                    outPixels[nX2 + nY1] = ((B == F && E != I) || (H == F && E != C)) ? F : E;
+                    outPixels[nX2 + nY1] = (B == F && E != I) || (H == F && E != C) ? F : E;
 
-                    outPixels[nX0 + nY2] = (D == H) ? D : E;
-                    outPixels[nX1 + nY2] = ((D == H && E != I) || (H == F && E != G)) ? H : E;
-                    outPixels[nX2 + nY2] = (H == F) ? F : E;
+                    outPixels[nX0 + nY2] = D == H ? D : E;
+                    outPixels[nX1 + nY2] = (D == H && E != I) || (H == F && E != G) ? H : E;
+                    outPixels[nX2 + nY2] = H == F ? F : E;
                 }
                 else
                 {

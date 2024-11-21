@@ -19,11 +19,11 @@ public static class TransformExtensions
     public static void FlipX(this Transform t) => t.localScale = new(-t.localScale.x, t.localScale.y, t.localScale.z);
     public static void FlipY(this Transform t) => t.localScale = new(t.localScale.x, -t.localScale.y, t.localScale.z);
     public static void FlipZ(this Transform t) => t.localScale = new(t.localScale.x, t.localScale.y, -t.localScale.z);
-    
+
     public static void ResetTransform(this Transform t)
     {
-        t.position = Vector3.zero;
-        t.rotation = Quaternion.identity;
+        t.localPosition = Vector3.zero;
+        t.localRotation = Quaternion.identity;
         t.localScale = Vector3.one;
     }
     
@@ -88,6 +88,9 @@ public static class TransformExtensions
     
     public static Vector3 ToScreenSpace(this Transform t, Camera cam) =>
         cam.WorldToScreenPoint(t.position);
+
+    public static Vector3 ToWorldSpace(this Transform t, Camera cam, Vector3 screenPos) =>
+        cam.ScreenToWorldPoint(screenPos);
 
     public static void AlignTo(this Transform t, Transform target) =>
         t.rotation = target.rotation;

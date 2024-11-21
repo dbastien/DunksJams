@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+//todo: largely untested
 public class ObjectiveManager
 {
     public enum ObjectiveStatus { InProgress, Completed, Failed }

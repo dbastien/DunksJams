@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+//todo: largely untested
 public class Inventory<T>
 {
     readonly Dictionary<T, int> _items = new(); // T could be an Item type or ID

@@ -190,10 +190,9 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         }
     }
 
-    void SaveDependencies()
-    {
-        //todo: do the to
-    }
+
+    //todo: do the to
+    void SaveDependencies() { }
 
     void ChangePlatform(AssetImporterPlatform p) { }
 

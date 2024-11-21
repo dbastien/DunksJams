@@ -5,7 +5,7 @@ using UnityEngine;
 public sealed class ConcurrentArrayPool<T>
 {
     const int MaxArraysPerBucket = 64;
-    const int MaxBuckets = 18;
+    const int MaxBuckets = 16;
     static readonly T[] _emptyArray = Array.Empty<T>();
     public static readonly ConcurrentArrayPool<T> Shared = new();
 
@@ -16,12 +16,12 @@ public sealed class ConcurrentArrayPool<T>
     {
         for (int i = 0; i < _buckets.Length; ++i)
         {
-            _buckets[i] = new MinimumQueue<T[]>(4);  // small initial size
+            _buckets[i] = new MinimumQueue<T[]>(4);
             _locks[i] = new SpinLock(false);  // no thread-owner tracking for lower overhead
         }
     }
 
-    /// <summary> Rents a cleared array of at least the specified length. </summary>
+    /// <summary> Rent cleared array w/ at least the specified length </summary>
     public T[] RentCleared(int minLen)
     {
         T[] rentedArray = Rent(minLen);
@@ -29,17 +29,17 @@ public sealed class ConcurrentArrayPool<T>
         return rentedArray;
     }
 
-    /// <summary> Rents an array of at least the specified length. </summary>
+    /// <summary> Rent array w/ at least the specified length </summary>
     public T[] Rent(int minLen)
     {
         Debug.Assert(minLen >= 0, "Array length must be non-negative.");
 
         if (minLen == 0) return _emptyArray;
 
-        int size = CalculateSize(minLen);
+        int size = minLen.NextPowerOfTwoAtLeast();
         int index = GetQueueIndex(size);
 
-        if (index < 0 || index >= MaxBuckets) return new T[size];  // Fallback if index is invalid
+        if (index < 0 || index >= MaxBuckets) return new T[size];
 
         // Avoid lock if bucket is empty
         if (_buckets[index].Count == 0) return new T[size];  
@@ -57,7 +57,7 @@ public sealed class ConcurrentArrayPool<T>
         }
     }
 
-    /// <summary> Returns an array to the pool for reuse. </summary>
+    /// <summary> Returns an array to the pool </summary>
     public void Return(T[] array)
     {
         if (array == null) throw new ArgumentNullException(nameof(array));
@@ -84,15 +84,12 @@ public sealed class ConcurrentArrayPool<T>
         }
     }
 
-    /// <summary> Calculates the smallest power of 2 >= size. </summary>
-    static int CalculateSize(int size) => 1 << (31 - (size - 1 | 7).LeadingZeroCount());
-
-    /// <summary> Maps array size to bucket index based on power-of-2 increments. </summary>
+    /// <summary> Map array size to bucket index based on power-of-2 increments </summary>
     static int GetQueueIndex(int size) => size switch
     {
         8 => 0, 16 => 1, 32 => 2, 64 => 3, 128 => 4, 256 => 5,
         512 => 6, 1024 => 7, 2048 => 8, 4096 => 9, 8192 => 10,
         16384 => 11, 32768 => 12, 65536 => 13, 131072 => 14,
-        262144 => 15, 524288 => 16, 1048576 => 17, _ => -1
+        262144 => 15, _ => -1
     };
 }

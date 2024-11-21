@@ -13,7 +13,7 @@ public class SaveSystem
     public SaveSystem(string saveDir = null)
     {
         _saveDir = saveDir ?? Path.Combine(Application.persistentDataPath, "Saves");
-        Directory.CreateDirectory(_saveDir); // Ensure the directory exists
+        Directory.CreateDirectory(_saveDir);
     }
 
     public void Save<T>(T data, string fileName = DefaultFileName)
@@ -21,7 +21,7 @@ public class SaveSystem
         string filePath = Path.Combine(_saveDir, fileName);
         try
         {
-            string json = JsonUtility.ToJson(data, true); // Pretty print for readability
+            string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(filePath, json);
             OnSaveSuccess?.Invoke();
         }

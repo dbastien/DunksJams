@@ -97,7 +97,7 @@ public class MaterialBrowserWindow : AssetBrowserWindow<MaterialBrowserTreeView,
     protected virtual void SaveKeywords()
     {
         List<MaterialBrowserTreeView.TreeViewItem> rows = treeView.AllItems;
-        using var file = new StreamWriter(outPath);
+        using StreamWriter file = new(outPath);
         foreach (MaterialBrowserTreeView.TreeViewItem r in rows.Where(r => treeView.DoesItemMatchSearch(r)))
             file.WriteLine($"{r.AssetPath},{string.Join(',', r.Mat.enabledKeywords)}");
     }
@@ -161,10 +161,8 @@ public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeV
         return guids.ToArray();
     }
 
-    protected override void AddAsset(ref int id, string guid, string path)
-    {
+    protected override void AddAsset(ref int id, string guid, string path) =>
         AllItems.Add(new(id++, guid, path, AssetDatabase.LoadAssetAtPath<Material>(path)));
-    }
 
     public override void FindReferences()
     {

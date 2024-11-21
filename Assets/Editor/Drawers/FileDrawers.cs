@@ -10,24 +10,14 @@ public abstract class BasePathDrawer : PropertyDrawer
     {
         if (prop.propertyType != SerializedPropertyType.String) throw new ArgumentException();
 
-        rect.width -= 30;
-        EditorGUI.PropertyField(rect, prop, label);
+        float btnWidth = 30f;
+        EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width - btnWidth, rect.height), prop, label);
 
-        rect.x += rect.width;
-        rect.width = 30.0f;
-
-        if (GUI.Button(rect, "…"))
+        if (GUI.Button(new Rect(rect.x + rect.width - btnWidth, rect.y, btnWidth, rect.height), "…"))
         {
             string path = GetPath();
-            if (string.IsNullOrEmpty(path)) return;
-
-            if (path.StartsWith(Application.dataPath))
-            {
-                path = path.Substring(Application.dataPath.Length);
-                path = path.Replace("/", "\\");
-            }
-
-            prop.stringValue = path;
+            if (!string.IsNullOrEmpty(path) && path.StartsWith(Application.dataPath))
+                prop.stringValue = path[(Application.dataPath.Length + 1)..].Replace("/", "\\");
         }
     }
 
@@ -37,17 +27,17 @@ public abstract class BasePathDrawer : PropertyDrawer
 [CustomPropertyDrawer(typeof(OpenLocalFileAttribute))]
 public class OpenLocalFileDrawer : BasePathDrawer
 {
-    protected override string GetPath() => EditorUtility.OpenFilePanel("Select a file", Application.dataPath, string.Empty);
+    protected override string GetPath() => EditorUtility.OpenFilePanel("Select a file", Application.dataPath, "");
 }
 
 [CustomPropertyDrawer(typeof(OpenLocalFolderAttribute))]
 public class OpenLocalFolderDrawer : BasePathDrawer
 {
-    protected override string GetPath() => EditorUtility.OpenFolderPanel("Select a folder", Application.dataPath, string.Empty);
+    protected override string GetPath() => EditorUtility.OpenFolderPanel("Select a folder", Application.dataPath, "");
 }
 
 [CustomPropertyDrawer(typeof(SaveLocalFileAttribute))]
 public class SaveLocalFileDrawer : BasePathDrawer
 {
-    protected override string GetPath() => EditorUtility.SaveFilePanel("Select a file", Application.dataPath, string.Empty, string.Empty);
+    protected override string GetPath() => EditorUtility.SaveFilePanel("Select a file", Application.dataPath, "", "");
 }

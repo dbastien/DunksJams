@@ -5,17 +5,15 @@ public static class Color32Extensions
     public static Color32 PremultiplyAlpha(this Color32 c)
     {
         float alphaFactor = c.a / 255f;
-        byte r = (byte)(c.r * alphaFactor);
-        byte g = (byte)(c.g * alphaFactor);
-        byte b = (byte)(c.b * alphaFactor);
-        return new(r, g, b, c.a);
+        return new(
+            (byte)(c.r * alphaFactor),
+            (byte)(c.g * alphaFactor),
+            (byte)(c.b * alphaFactor),
+            c.a);
     }
 
-    public static Color32 AdjustAlpha(this Color32 c, float alphaMultiplier)
-    {
-        byte newAlpha = (byte)Mathf.Clamp(c.a * alphaMultiplier, 0, 255);
-        return new(c.r, c.g, c.b, newAlpha);
-    }
+    public static Color32 AdjustAlpha(this Color32 c, float alphaMultiplier) =>
+        new(c.r, c.g, c.b, (byte)Mathf.Clamp(c.a * alphaMultiplier, 0, 255));
 
     // Luminance formula (ITU-R BT.709)
     public static float Brightness(this Color32 c) => (0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b) / 255f;
@@ -38,14 +36,15 @@ public static class Color32Extensions
         return (max - min) / max;
     }
 
-    public static Color32 AdjustBrightness(this Color32 c, float brightnessFactor)
+    public static Color32 AdjustBrightness(this Color32 c, float brightness, float max = 2f)
     {
-        // Adjust range as needed
-        brightnessFactor = Mathf.Clamp(brightnessFactor, 0f, 10f);
-        byte r = (byte)Mathf.Clamp(c.r * brightnessFactor, 0, 255);
-        byte g = (byte)Mathf.Clamp(c.g * brightnessFactor, 0, 255);
-        byte b = (byte)Mathf.Clamp(c.b * brightnessFactor, 0, 255);
-        return new(r, g, b, c.a);
+        brightness = Mathf.Clamp(brightness, 0f, max);
+        return new(
+            (byte)Mathf.Clamp(c.r * brightness, 0, 255),
+            (byte)Mathf.Clamp(c.g * brightness, 0, 255),
+            (byte)Mathf.Clamp(c.b * brightness, 0, 255),
+            c.a
+        );
     }
 
     public static Color32 AdjustHue(this Color32 c, float hueShift)
@@ -63,18 +62,26 @@ public static class Color32Extensions
         return Color.HSVToRGB(h, s, v);;
     }
 
-    public static Color32 Invert(this Color32 c) => new((byte)(255 - c.r), (byte)(255 - c.g), (byte)(255 - c.b), c.a);
-
-    public static Color32 Lerp(this Color32 a, Color32 b, float t)
+    public static Color32 AdjustContrast(this Color32 c, float contrast)
     {
-        t = Mathf.Clamp01(t);
+        contrast = Mathf.Clamp(contrast, -1f, 1f);
+        float f = 1f + contrast, mid = 128f;
+
         return new(
-            (byte)(a.r + (b.r - a.r) * t),
-            (byte)(a.g + (b.g - a.g) * t),
-            (byte)(a.b + (b.b - a.b) * t),
-            (byte)(a.a + (b.a - a.a) * t)
+            (byte)Mathf.Clamp(mid + f * (c.r - mid), 0, 255),
+            (byte)Mathf.Clamp(mid + f * (c.g - mid), 0, 255),
+            (byte)Mathf.Clamp(mid + f * (c.b - mid), 0, 255),
+            c.a
         );
     }
+
+    public static Color32 Grayscale(this Color32 c)
+    {
+        byte gray = (byte)(0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b);
+        return new(gray, gray, gray, c.a);
+    }
+
+    public static Color32 Invert(this Color32 c) => new((byte)(255 - c.r), (byte)(255 - c.g), (byte)(255 - c.b), c.a);
 
     public static bool IsApproximatelyEqual(this Color32 a, Color32 b, byte tolerance = 10) =>
         Mathf.Abs(a.r - b.r) <= tolerance &&

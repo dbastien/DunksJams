@@ -130,11 +130,9 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
         LabelWarn ??= ColorStyle(EditorStyles.label, Color.yellow);
         LabelOK ??= ColorStyle(EditorStyles.label, Color.green);
 
-        if (LabelDiminish == null)
-        {
-            LabelDiminish = ColorStyle(EditorStyles.label, Color.grey);
-            LabelDiminish.fontStyle = FontStyle.Italic;            
-        }
+        if (LabelDiminish != null) return;
+        LabelDiminish = ColorStyle(EditorStyles.label, Color.grey);
+        LabelDiminish.fontStyle = FontStyle.Italic;
     }
     
     protected void OnSortingChanged(MultiColumnHeader colHeader) => Sort(GetRows());
@@ -187,8 +185,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
     void CellGUI(Rect rect, int col, T t)
     {
         CenterRectUsingSingleLineHeight(ref rect);
-        var column = (Column)multiColumnHeader.GetColumn(col);
-        column.draw?.Invoke(rect, t);
+        ((Column)multiColumnHeader.GetColumn(col)).draw?.Invoke(rect, t);
     }
 
     protected override void KeyEvent()

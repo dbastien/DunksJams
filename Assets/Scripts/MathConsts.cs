@@ -1,44 +1,96 @@
-﻿using System;
-using UnityEngine;
-
-public static class MathConsts
+﻿public static class MathConsts
 {
-    public const float ZeroTolerance = 1e-6f;   // Float epsilon
-    public const float Tau = Mathf.PI * 2.0f;   // 360º (2π)
+    public const float PosInf = float.PositiveInfinity;
+    public const float NegInf = float.NegativeInfinity;
+
+    // Precision/Epsilon constants
+    public const float Epsilon_Rounding = 1e-2f;
+    public const float Epsilon_Normal = 1e-3f;
+    public const float Epsilon_Physics = 1e-3f;
+    public const float Epsilon_Angle = 1e-3f;
+    public const float Epsilon_Color = 1e-3f;
+    public const float Epsilon_Scale = 1e-4f;
+    public const float Epsilon_Graphics = 1e-4f;
+    public const float Epsilon_Raycast = 1e-4f;
+    public const float Epsilon_LowPrecision = 1e-5f;
+    public const float Epsilon_Vector = 1e-6f;
+    public const float Epsilon_Inverse = 1e-6f;
+    public const float Epsilon_Float = 1e-6f;
+    public const float Epsilon_HighPrecision = 1e-7f;
+    public const float Epsilon_UltraPrecision = 1e-8f;
+    public const float Epsilon_Nano = 1e-9f;
+    public const float Epsilon_SmallestFloatDifference = 1.1920928955078125e-7f; // Updated to match float precision
+
+    // Thresholds
+    public const float Threshold_VectorAlignment = 0.999999f; // Improved to reflect near-parallel precision
+
+    // Tau/Pi-related constants
+    public const float Tau = 6.283185307179586f;
+    public const float Tau_Sqrt = 2.5066282746310007f; // √Tau
+    public const float Tau_Inverse = 0.15915494309189535f; // 1/Tau
+    public const float Pi = 3.141592653589793f;
+
+    // Fractional Tau
+    public const float Tau_Div2 = 3.141592653589793f;
+    public const float Tau_Div3 = 2.0943951023931953f;
+    public const float Tau_Div4 = 1.5707963267948966f;
+    public const float Tau_Div5 = 1.2566370614359173f;
+    public const float Tau_Div6 = 1.0471975511965976f;
+    public const float Tau_Div7 = 0.8975979010256552f;
+    public const float Tau_Div8 = 0.7853981633974483f;
+    public const float Tau_Div12 = 0.5235987755982988f;
+
+    // Conversion factors
+    public const float Conversion_Deg2Rad = 0.017453292519943295f; // π/180
+    public const float Conversion_Rad2Deg = 57.29577951308232f; // 180/π
+
+    // Math constants
+    public const float E = 2.718281828459045f;
+    public const float Log2E = 1.4426950408889634f;
+    public const float Log10E = 0.4342944819032518f;
+    public const float Sqrt2 = 1.4142135623730951f;
+    public const float Sqrt3 = 1.7320508075688772f;
+
+    // Inverse values
+    public const float Inverse_255 = 0.00392156862745098f;
+    public const float Inverse_64 = 0.015625f;
+    public const float Inverse_32 = 0.03125f;
+    public const float Inverse_16 = 0.0625f;
+    public const float Inverse_8 = 0.125f;
+
+    // Famous mathematical constants
+    public const float EulerGamma = 0.5772156649015329f;
+    public const float Catalan = 0.915965594177219f;
+    public const float Feigenbaum_Delta = 4.66920160910299f;
+    public const float Feigenbaum_Alpha = 2.502907875095892f;
+    public const float Glaisher = 1.2824271291006226f;
+    public const float Khinchin = 2.685452001065306f;
+    public const float Lemniscate = 2.6220575542921198f;
+    public const float Omega = 0.567143290409784f;
+    public const float RamanujanSoldner = 1.451369234883381f;
+    public const float Plastic = 1.324717957244746f;
+    public const float Mertens = 0.2614972128476428f;
+    public const float Niven = 1.7052111401053678f;
+    public const float PorterKnobloch = 1.186569110415625f;
+    public const float LiebSquareIce = 1.539600717839002f;
+    public const float ErdosBorwein = 1.6066951524152918f;
+    public const float FransenRobinson = 2.807770242028519f;
+    public const float GoldenRatio = 1.618033988749895f;
+    public const float SilverRatio = 2.414213562373095f;
+
+    // Special aliases
+    public const float ε = Epsilon_Float;
     public const float τ = Tau;
-    public const float TauDiv2 = Mathf.PI;      // 180º (π)
-    public const float TauDiv3 = Tau / 3.0f;    // 120º
-    public const float TauDiv4 = Tau / 4.0f;    // 90º (π/2)
-    public const float TauDiv5 = Tau / 5.0f;    // 72º
-    public const float TauDiv6 = Tau / 6.0f;    // 60º
-    public const float TauDiv7 = Tau / 7.0f;    // ~51.43º
-    public const float TauDiv8 = Tau / 8.0f;    // 45º
-    public const float TauDiv12 = Tau / 12.0f;  // 30º
-    public const float TauInv = 1.0f / Tau;
-    public const float TauSqrt = 2.506628f;     // √τ (≈ 2.50663)
-    public const float Deg2Rad = Tau / 360.0f;  // º to radians
-    public const float º2Rad   = Deg2Rad;
-    public const float Rad2Deg = 360.0f / Tau;  // Radians to º
-    public const float Rad2º   = Rad2Deg;
-
-    public const float E = (float)Math.E;       // Euler's number (e)
-    public const float e = E;
-    public const float Log2E = 1.44269504089f;  // Log base 2 of e
-    public const float Log10E = 0.43429448190f; // Log base 10 of e
-
-    public const float Sqrt2 = 1.41421356237f;
-    public const float Sqrt3 = 1.73205080757f;
-    
-    public const float EulerGamma = 0.5772156649f;          // Euler-Mascheroni constant
-    public const float GoldenRatio = 1.6180339887f;         // φ
+    public const float π = Pi;
     public const float φ = GoldenRatio;
-    public const float SilverRatio = 2.41421356237f;        // δS
-    public const float ApéryConstant = 1.20206f;            // ζ(3)
-    public const float KhinchinConstant = 2.6854520010f;    // Related to continued fractions
-    public const float GlaisherConstant = 1.2824271291f;    // Appears in series/zeta functions
-    public const float PlasticNumber = 1.3247179572f;       // Root of x^3 = x + 1
-    public const float LemniscateConstant = 2.62205755429f; // Elliptic integrals
-    public const float FeigenbaumDelta = 4.6692016091f;     // Bifurcation ratio (chaos theory)
-    public const float FeigenbaumAlpha = 2.5029078750f;     // Scaling ratio (chaos theory)
-    public const float CatalanConstant = 0.9159655942f;     // Appears in combinatorics
+    public const float δS = SilverRatio;
+    public const float e = E;
+    public const float γ = EulerGamma;
+    public const float δ = Feigenbaum_Delta;
+    public const float α = Feigenbaum_Alpha;
+    public const float A = Glaisher;
+    public const float K = Khinchin;
+    public const float Ω = Omega;
+    public const float R = RamanujanSoldner;
+    public const float P = Plastic;
 }

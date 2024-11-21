@@ -1,20 +1,24 @@
 using UnityEngine;
 
-public struct Circle2D
+[System.Serializable]
+public struct Circle2D : IShape2D
 {
     public Vector2 Center;
     public float Radius;
 
-    float? _radiusSquared;
+    public bool Contains(Vector2 p) => (Center - p).sqrMagnitude <= Radius * Radius;
 
-    public float RadiusSquared => _radiusSquared ??= Radius * Radius;
-    
-    public bool IsPointInside(Vector2 point)
+    public Vector2 NearestPoint(Vector2 p)
     {
-        float xD = Center.x - point.x;
-        float yD = Center.y - point.y;
+        var d = p - Center;
+        return Center + d.normalized * Mathf.Min(Radius, d.magnitude);
+    }
 
-        float distanceSquared = xD * xD + yD * yD;
-        return distanceSquared <= RadiusSquared;
+    public void DrawGizmos() => Gizmos.DrawWireSphere(Center, Radius);
+
+    public bool Intersects(Circle2D c)
+    {
+        var rSum = Radius + c.Radius;
+        return (Center - c.Center).sqrMagnitude <= rSum * rSum;
     }
 }

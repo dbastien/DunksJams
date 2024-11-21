@@ -54,4 +54,35 @@ public static class CameraExtensions
         cam.fieldOfView = 60f;
         cam.transform.rotation = Quaternion.Euler(xAngle, yAngle, zAngle);
     }
+
+    public static void SetupDepth(this Camera cam,
+        float apexOffsetZ, float maxDist, float radiusStart, float radiusEnd,
+        Vector3 fwd, Vector3 scale, bool scalable, Quaternion localRot, bool scaleNearClip)
+    {
+        if (!scalable) scale = new(1f, 1f, scale.z);
+        bool isCone = apexOffsetZ >= 0f;
+        float offset = Mathf.Max(0f, apexOffsetZ);
+
+        cam.orthographic = !isCone;
+        cam.transform.localPosition = fwd * -offset;
+
+        var rot = localRot;
+        if (scale.z < 0f) rot *= Quaternion.Euler(0f, 180f, 0f);
+        cam.transform.localRotation = rot;
+
+        if (Mathf.Approximately(scale.y * scale.z, 0f)) return;
+
+        float nearScale = scaleNearClip ? scale.z : 1f;
+        cam.nearClipPlane = Mathf.Max(offset * scale.z, (isCone ? 0.1f : 0f) * nearScale);
+
+        float farScale = scalable ? scale.z : 1f;
+        cam.farClipPlane = maxDist + offset * farScale;
+
+        cam.aspect = Mathf.Abs(scale.x / scale.y);
+
+        if (isCone)
+            cam.fieldOfView = 2f * Mathf.Rad2Deg * Mathf.Atan2(radiusEnd * scale.y, cam.farClipPlane);
+        else
+            cam.orthographicSize = radiusStart * scale.y;
+    }
 }

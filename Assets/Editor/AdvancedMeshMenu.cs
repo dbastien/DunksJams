@@ -43,7 +43,7 @@ public static class AdvancedMeshMenu
 
     static Mesh CreatePrism(int sides, float size)
     {
-        var mesh = new Mesh();
+        Mesh mesh = new();
         var verts = new Vector3[sides * 2];
         var tris = new int[sides * 12];
         float angleStep = 2 * MathF.PI / sides;
@@ -80,83 +80,83 @@ public static class AdvancedMeshMenu
         return SetupMesh(new(), verts, tris);
     }
 
-    static Mesh CreateGrid(float size, int resolution)
+    static Mesh CreateGrid(float size, int res)
     {
-        var verts = new Vector3[(resolution + 1) * (resolution + 1)];
-        var tris = new int[resolution * resolution * 6];
-        float step = size / resolution;
+        var verts = new Vector3[(res + 1) * (res + 1)];
+        var tris = new int[res * res * 6];
+        float step = size / res;
 
-        for (int i = 0, y = 0; y <= resolution; ++y)
-            for (int x = 0; x <= resolution; ++x, ++i)
+        for (int i = 0, y = 0; y <= res; ++y)
+            for (int x = 0; x <= res; ++x, ++i)
                 verts[i] = new(x * step, 0, y * step);
 
-        for (int ti = 0, vi = 0, y = 0; y < resolution; ++y, ++vi)
-            for (int x = 0; x < resolution; ++x, ti += 6, ++vi)
-                AddQuad(tris, ti, vi, vi + 1, vi + resolution + 1, vi + resolution + 2);
+        for (int ti = 0, vi = 0, y = 0; y < res; ++y, ++vi)
+            for (int x = 0; x < res; ++x, ti += 6, ++vi)
+                AddQuad(tris, ti, vi, vi + 1, vi + res + 1, vi + res + 2);
 
         return SetupMesh(new(), verts, tris);
     }
 
-    static Mesh CreateHelix(float size, int resolution)
+    static Mesh CreateHelix(float size, int res)
     {
-        var verts = new Vector3[resolution * 2];
-        var tris = new int[(resolution - 1) * 6];
-        float angleStep = 360f / resolution;
-        float heightStep = size / resolution;
+        var verts = new Vector3[res * 2];
+        var tris = new int[(res - 1) * 6];
+        float angleStep = 360f / res;
+        float heightStep = size / res;
 
-        for (int i = 0; i < resolution; ++i)
+        for (int i = 0; i < res; ++i)
         {
             float angle = i * angleStep * Mathf.Deg2Rad;
             verts[i] = new(MathF.Cos(angle), i * heightStep, MathF.Sin(angle));
-            verts[i + resolution] = new(MathF.Cos(angle), (i + 1) * heightStep, MathF.Sin(angle));
+            verts[i + res] = new(MathF.Cos(angle), (i + 1) * heightStep, MathF.Sin(angle));
         }
 
-        for (int i = 0, ti = 0; i < resolution - 1; ++i, ti += 6)
-            AddQuad(tris, ti, i, i + 1, i + resolution, i + resolution + 1);
+        for (int i = 0, ti = 0; i < res - 1; ++i, ti += 6)
+            AddQuad(tris, ti, i, i + 1, i + res, i + res + 1);
 
         return SetupMesh(new(), verts, tris);
     }
 
-    static Mesh CreateTorus(float size, int resolution)
+    static Mesh CreateTorus(float size, int res)
     {
-        var verts = new Vector3[resolution * resolution];
-        var tris = new int[resolution * resolution * 6];
+        var verts = new Vector3[res * res];
+        var tris = new int[res * res * 6];
         float ringRadius = size / 4;
         float tubeRadius = size / 8;
-        float ringStep = 360f / resolution;
-        float tubeStep = 360f / resolution;
+        float ringStep = 360f / res;
+        float tubeStep = 360f / res;
 
-        for (int ring = 0; ring < resolution; ++ring)
+        for (int ring = 0; ring < res; ++ring)
         {
             float ringAngle = ring * ringStep * Mathf.Deg2Rad;
             Vector3 ringCenter = new(MathF.Cos(ringAngle) * ringRadius, 0, MathF.Sin(ringAngle) * ringRadius);
 
-            for (int tube = 0; tube < resolution; ++tube)
+            for (int tube = 0; tube < res; ++tube)
             {
                 float tubeAngle = tube * tubeStep * Mathf.Deg2Rad;
-                verts[ring * resolution + tube] = ringCenter + new Vector3(MathF.Cos(tubeAngle) * tubeRadius, MathF.Sin(tubeAngle) * tubeRadius, 0);
+                verts[ring * res + tube] = ringCenter + new Vector3(MathF.Cos(tubeAngle) * tubeRadius, MathF.Sin(tubeAngle) * tubeRadius, 0);
             }
         }
 
-        for (int ring = 0, ti = 0; ring < resolution; ++ring)
-            for (int tube = 0; tube < resolution; tube++, ti += 6)
-                AddQuad(tris, ti, ring * resolution + tube, ring * resolution + (tube + 1) % resolution, (ring + 1) % resolution * resolution + tube, (ring + 1) % resolution * resolution + (tube + 1) % resolution);
+        for (int ring = 0, ti = 0; ring < res; ++ring)
+            for (int tube = 0; tube < res; tube++, ti += 6)
+                AddQuad(tris, ti, ring * res + tube, ring * res + (tube + 1) % res, (ring + 1) % res * res + tube, (ring + 1) % res * res + (tube + 1) % res);
 
         return SetupMesh(new(), verts, tris);
     }
 
-    static Mesh CreateGeodesicDome(float radius, int resolution)
+    static Mesh CreateGeodesicDome(float radius, int res)
     {
-        var verts = new Vector3[(resolution + 1) * (resolution + 1)];
-        var tris = new int[resolution * resolution * 6];
+        var verts = new Vector3[(res + 1) * (res + 1)];
+        var tris = new int[res * res * 6];
 
-        for (int lat = 0; lat <= resolution; ++lat)
+        for (int lat = 0; lat <= res; ++lat)
         {
-            float theta = Mathf.PI * lat / resolution;
-            for (int lon = 0; lon <= resolution; ++lon)
+            float theta = Mathf.PI * lat / res;
+            for (int lon = 0; lon <= res; ++lon)
             {
-                float phi = 2 * Mathf.PI * lon / resolution;
-                verts[lat * (resolution + 1) + lon] = new(
+                float phi = 2 * Mathf.PI * lon / res;
+                verts[lat * (res + 1) + lon] = new(
                     radius * MathF.Sin(theta) * MathF.Cos(phi),
                     radius * MathF.Cos(theta),
                     radius * MathF.Sin(theta) * MathF.Sin(phi)
@@ -164,29 +164,17 @@ public static class AdvancedMeshMenu
             }
         }
 
-        for (int lat = 0, ti = 0; lat < resolution; ++lat)
-            for (int lon = 0; lon < resolution; ++lon, ti += 6)
-                AddQuad(tris, ti, lat * (resolution + 1) + lon, lat * (resolution + 1) + lon + 1, (lat + 1) * (resolution + 1) + lon, (lat + 1) * (resolution + 1) + lon + 1);
+        for (int lat = 0, ti = 0; lat < res; ++lat)
+            for (int lon = 0; lon < res; ++lon, ti += 6)
+                AddQuad(tris, ti, lat * (res + 1) + lon, lat * (res + 1) + lon + 1, (lat + 1) * (res + 1) + lon, (lat + 1) * (res + 1) + lon + 1);
 
         return SetupMesh(new(), verts, tris);
     }
 
-    static void AddQuad(int[] tris, int index, int v0, int v1, int v2, int v3)
-    {
-        tris[index] = v0;
-        tris[index + 1] = v1;
-        tris[index + 2] = v2;
-        tris[index + 3] = v2;
-        tris[index + 4] = v1;
-        tris[index + 5] = v3;
-    }
+    static void AddQuad(int[] tris, int i, int v0, int v1, int v2, int v3) =>
+        (tris[i], tris[i + 1], tris[i + 2], tris[i + 3], tris[i + 4], tris[i + 5]) = (v0, v1, v2, v2, v1, v3);
 
-    static void AddTriangle(int[] tris, int index, int v0, int v1, int v2)
-    {
-        tris[index] = v0;
-        tris[index + 1] = v1;
-        tris[index + 2] = v2;
-    }
+    static void AddTriangle(int[] tris, int i, int v0, int v1, int v2) => (tris[i], tris[i + 1], tris[i + 2]) = (v0, v1, v2);
 
     static Mesh SetupMesh(Mesh mesh, Vector3[] verts, int[] tris)
     {

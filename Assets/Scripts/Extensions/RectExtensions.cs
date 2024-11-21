@@ -14,8 +14,8 @@ public static class RectExtensions
     public static Vector2 BottomCenter(this Rect r) => new(r.center.x, r.yMin);
     public static Vector2 BottomRight(this Rect r) => new(r.xMax, r.yMin);
 
-    public static Rect SetPosition(this Rect r, Vector2 newPosition) =>
-        new(newPosition.x, newPosition.y, r.width, r.height);
+    public static Rect SetPosition(this Rect r, Vector2 newPos) =>
+        new(newPos.x, newPos.y, r.width, r.height);
 
     public static Rect CenterInParent(this Rect r, Rect parent) => 
         new(parent.xMin + (parent.width - r.width) * 0.5f,
@@ -46,7 +46,7 @@ public static class RectExtensions
         return rects;
     }
     
-    /// <summary> Calculates signed depth of intersection between two rects. </summary>
+    /// <summary> Calculate signed depth of intersect of two rects. </summary>
     public static Vector2 GetIntersectionDepth(this Rect r, Rect other)
     {
         float halfWidthA = r.width * 0.5f;
@@ -54,17 +54,17 @@ public static class RectExtensions
         float halfWidthB = other.width * 0.5f;
         float halfHeightB = other.height * 0.5f;
 
-        // current and min non-intersecting distances between centers
-        float distX = (r.xMin + halfWidthA) - (other.xMin + halfWidthB);
-        float distY = (r.yMin + halfHeightA) - (other.yMin + halfHeightB);
+        // current and min non-intersect distances of centers
+        float distX = r.xMin + halfWidthA - (other.xMin + halfWidthB);
+        float distY = r.yMin + halfHeightA - (other.yMin + halfHeightB);
         float minDistX = halfWidthA + halfWidthB;
         float minDistY = halfHeightA + halfHeightB;
 
-        // no intersection
+        // no intersect
         if (MathF.Abs(distX) >= minDistX || MathF.Abs(distY) >= minDistY)
             return Vector2.zero;
 
-        // intersection depth
+        // intersect depth
         float depthX = distX > 0 ? minDistX - distX : -minDistX - distX;
         float depthY = distY > 0 ? minDistY - distY : -minDistY - distY;
         return new(depthX, depthY);

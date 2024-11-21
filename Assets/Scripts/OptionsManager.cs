@@ -4,24 +4,19 @@ using System;
 [Serializable]
 public class OptionsManager
 {
-    // Display
     public int resolutionIndex = 0;
     public bool isFullscreen = true;
 
-    // Graphics
     public int graphicsQuality = 2;
     public bool vsyncEnabled = true;
 
-    // Audio
     [Range(0f, 1f)] public float masterVolume = 1f;
     [Range(0f, 1f)] public float musicVolume = 1f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    // Gameplay
     [Range(0.1f, 10f)] public float mouseSensitivity = 1f;
     public bool invertYAxis;
 
-    // Defaults
     readonly int defaultResolutionIndex = 0;
     readonly bool defaultFullscreen = true;
     readonly float defaultMasterVolume = 1f;
@@ -32,22 +27,17 @@ public class OptionsManager
     readonly float defaultMouseSensitivity = 1f;
     readonly bool defaultInvertYAxis = false;
 
-    // Events for UI or other components to subscribe to
     public event Action OnSettingsChanged;
 
     public void ApplySettings()
     {
-        // Apply display
         Resolution resolution = Screen.resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, isFullscreen);
 
-        // Apply graphics
         QualitySettings.SetQualityLevel(graphicsQuality);
         QualitySettings.vSyncCount = vsyncEnabled ? 1 : 0;
 
-        // Apply audio
         AudioListener.volume = masterVolume;
-        // Assuming you have a separate audio manager for music and SFX, you would apply those here as well
 
         OnSettingsChanged?.Invoke();
     }

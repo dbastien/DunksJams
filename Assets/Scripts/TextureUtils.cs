@@ -20,7 +20,7 @@ public static class TextureUtils
             {
                 for (var x = 0; x < texture.width; ++x)
                 {
-                    int outIndex = (pos.x + x) + (pos.y + y) * size.x;
+                    int outIndex = pos.x + x + (pos.y + y) * size.x;
                     outPixels[outIndex] = pixels[x + y * texture.width];
                 }
             }

@@ -4,11 +4,8 @@ using UnityEngine;
 //todo: largely untested
 public class Health : MonoBehaviour
 {
-    public enum DamageType { Physical, Fire, Poison }
-    public enum StatusEffect { Poison, Burn }
-
     [ToggleHeader("useDeath", "Death")] public bool useDeath = true;
-    
+
     [Header("HP")]
     public int maxHP = 100;
     public int HPModifier;
@@ -24,10 +21,10 @@ public class Health : MonoBehaviour
     [ShowIf("useShield")] public bool shieldRegenerates = true;
     [ShowIf("useShield")] public float shieldRegenRate = 10f;
     [ShowIf("useShield")] public int shieldModifier;
-    
+
     [ToggleHeader("useRegen", "Regeneration")] public bool useRegen;
     [ShowIf("useRegen")] public float regenRate = 5f;
-    
+
     [ToggleHeader("useInvulnerability", "Invulnerability")] public bool useInvulnerability = true;
     [ShowIf("useInvulnerability")] public float invulnerabilityTime = 2f;
 
@@ -41,16 +38,15 @@ public class Health : MonoBehaviour
     [Header("Status Effects")]
     public float poisonDamagePerSecond = 3f;
     public float burnDamagePerSecond = 6f;
-    public float statusEffectDuration = 5f;
 
     public int MaxHPEffective => maxHP + HPModifier;
     public int MaxShieldEffective => maxShield + shieldModifier;
-    
-    bool _isInvulnerable, _isDead;
-    float _currentHP, _currentShield, _invulnerabilityTimer;
 
-    List<StatusEffectInstance> _activeStatusEffects = new();
-    
+    private bool _isInvulnerable, _isDead;
+    private float _currentHP, _currentShield, _invulnerabilityTimer;
+
+    private readonly List<StatusEffectInstance> _activeStatusEffects = new();
+
     public event System.Action<int> OnHPChanged, OnShieldChanged;
     public event System.Action<StatusEffect> OnStatusEffectApplied;
     public event System.Action OnDeath;
@@ -59,19 +55,16 @@ public class Health : MonoBehaviour
     public class StatusEffectInstance
     {
         public StatusEffect effectType;
-        public float timer;
+        public float timer; // -1 indicates a permanent effect
     }
 
     void Start() => ResetHP();
 
     void Update()
     {
-        if (!useInvulnerability ||
-            (_isInvulnerable && (_invulnerabilityTimer -= Time.deltaTime) <= 0))
-        {
+        if (_isInvulnerable && (_invulnerabilityTimer -= Time.deltaTime) <= 0)
             _isInvulnerable = false;
-        }
-        
+
         if (useRegen && _currentHP < MaxHPEffective)
             _currentHP = Mathf.Min(_currentHP + regenRate * Time.deltaTime, MaxHPEffective);
 
@@ -81,18 +74,16 @@ public class Health : MonoBehaviour
         UpdateStatusEffects();
         OnHPChanged?.Invoke(Mathf.FloorToInt(_currentHP));
     }
-    
+
     public void TakeDamage(float dam, DamageType damType = DamageType.Physical)
     {
         if (_isInvulnerable || _isDead) return;
 
         dam = ApplyResistance(dam, damType);
 
-        if (useCritHit && 
-            Random.value <= critChance) dam *= critMultiplier;
+        if (useCritHit && Random.value <= critChance) dam *= critMultiplier;
 
-        if (useArmor && 
-            armor > 0 && damType == DamageType.Physical) dam = Mathf.Max(0, dam - armor);
+        if (useArmor && armor > 0 && damType == DamageType.Physical) dam = Mathf.Max(0, dam - armor);
 
         if (useShield && _currentShield > 0)
         {
@@ -100,7 +91,7 @@ public class Health : MonoBehaviour
 
             _currentShield -= dam;
             OnShieldChanged?.Invoke(Mathf.FloorToInt(_currentShield = Mathf.Max(0, _currentShield)));
-            
+
             if (_currentShield <= 0) dam = -_currentShield; // Apply remaining damage to HP
             else return; // No HP damage if shield absorbed all
         }
@@ -109,10 +100,18 @@ public class Health : MonoBehaviour
 
         if (_currentHP <= 0 && useDeath) Die();
 
-        if (useInvulnerability)
-            EnableInvulnerability(invulnerabilityTime);
+        if (useInvulnerability) EnableInvulnerability(invulnerabilityTime);
     }
-    
+
+    public void EnableInvulnerability(float duration)
+    {
+        if (duration <= 0) return;
+
+        _isInvulnerable = true;
+        _invulnerabilityTimer = duration;
+        Debug.Log($"Invulnerability enabled for {duration} seconds.");
+    }
+
     public void RestoreShield(float amount)
     {
         if (!useShield) return;
@@ -120,45 +119,56 @@ public class Health : MonoBehaviour
         OnShieldChanged?.Invoke(Mathf.FloorToInt(_currentShield));
     }
 
-    public void ApplyStatusEffect(StatusEffect effect)
+    public void ApplyStatusEffect(StatusEffect effect, float duration = -1f)
     {
         if (_isDead) return;
-        _activeStatusEffects.Add(new() { effectType = effect, timer = statusEffectDuration });
-        OnStatusEffectApplied?.Invoke(effect);
+
+        var existingEffect = _activeStatusEffects.Find(e => e.effectType == effect);
+
+        if (existingEffect != null)
+        {
+            if (existingEffect.timer == -1 || duration == -1)
+                return; // Ignore re-adding a permanent effect
+            existingEffect.timer = duration; // Refresh duration for timed effects
+        }
+        else
+        {
+            _activeStatusEffects.Add(new StatusEffectInstance { effectType = effect, timer = duration });
+            OnStatusEffectApplied?.Invoke(effect);
+        }
     }
 
-    public void EnableInvulnerability(float duration)
-    {
-        _isInvulnerable = true;
-        _invulnerabilityTimer = duration;
-    }
+    public void RemoveStatusEffect(StatusEffect effect) =>
+        _activeStatusEffects.RemoveAll(e => e.effectType == effect);
 
-    void UpdateStatusEffects()
+    private void UpdateStatusEffects()
     {
         for (int i = _activeStatusEffects.Count - 1; i >= 0; --i)
         {
             var effect = _activeStatusEffects[i];
-            effect.timer -= Time.deltaTime;
+            if (effect.timer > 0)
+                effect.timer -= Time.deltaTime;
 
             if (effect.effectType == StatusEffect.Poison)
                 TakeDamage(poisonDamagePerSecond * Time.deltaTime, DamageType.Poison);
             else if (effect.effectType == StatusEffect.Burn)
                 TakeDamage(burnDamagePerSecond * Time.deltaTime, DamageType.Fire);
 
-            if (effect.timer <= 0) _activeStatusEffects.RemoveAt(i);
+            if (effect.timer == 0)
+                _activeStatusEffects.RemoveAt(i);
         }
     }
-    
-    float ApplyResistance(float dam, DamageType damType) => 
+
+    private float ApplyResistance(float dam, DamageType damType) =>
         resistances.TryGetValue(damType, out float resistance) ? dam * (1 - resistance) : dam;
 
-    void Die()
+    private void Die()
     {
         _isDead = true;
         _isInvulnerable = false;
         OnDeath?.Invoke();
     }
-    
+
     public void ResetHP()
     {
         _currentShield = useShield ? MaxShieldEffective : 0;
@@ -168,13 +178,13 @@ public class Health : MonoBehaviour
         SetHP(MaxHPEffective);
         OnShieldChanged?.Invoke(Mathf.FloorToInt(_currentShield));
     }
-    
+
     public void Heal(float amount)
     {
         if (_isDead) return;
         ChangeHP(amount);
     }
-    
+
     public void ChangeHP(float amount)
     {
         var newHP = Mathf.Clamp(_currentHP + amount, 0, MaxHPEffective);
@@ -182,7 +192,7 @@ public class Health : MonoBehaviour
         _currentHP = newHP;
         OnHPChanged?.Invoke(Mathf.FloorToInt(_currentHP));
     }
-    
-    public void SetHP(float val) => 
+
+    public void SetHP(float val) =>
         ChangeHP(Mathf.Clamp(val, 0, MaxHPEffective) - _currentHP);
 }

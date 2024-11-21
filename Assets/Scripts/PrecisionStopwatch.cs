@@ -11,7 +11,7 @@ public class PrecisionStopwatch : IDisposable
     bool _disposed;
 
     public static bool IsHighResolution => Stopwatch.IsHighResolution;
-    public static long Frequency => Stopwatch.Frequency;
+    public static long Freq => Stopwatch.Frequency;
 
     public PrecisionStopwatch() : this(TimeUnit.Milliseconds, null, startImmediately: false) { }
     public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately) { }
@@ -37,10 +37,10 @@ public class PrecisionStopwatch : IDisposable
     public long ElapsedTicks => _sw.ElapsedTicks;
     public TimeSpan Elapsed => _sw.Elapsed;
 
-    public double ElapsedSeconds => ElapsedTicks / (double)Frequency;
-    public double ElapsedMilliseconds => ElapsedTicks * (1000.0 / Frequency);
-    public double ElapsedMicroseconds => ElapsedTicks * (1_000_000.0 / Frequency);
-    public double ElapsedNanoseconds => ElapsedTicks * (1_000_000_000.0 / Frequency);
+    public double ElapsedSeconds => ElapsedTicks / (double)Freq;
+    public double ElapsedMilliseconds => ElapsedTicks * (1000.0 / Freq);
+    public double ElapsedMicroseconds => ElapsedTicks * (1_000_000.0 / Freq);
+    public double ElapsedNanoseconds => ElapsedTicks * (1_000_000_000.0 / Freq);
 
     public double GetElapsedTime(TimeUnit unit) => unit switch
     {

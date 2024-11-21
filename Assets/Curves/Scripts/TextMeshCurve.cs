@@ -38,7 +38,7 @@ public class TextMeshCurve : MonoBehaviour
 
         float boundsMinX = _textComponent.bounds.min.x;
         float boundsMaxX = _textComponent.bounds.max.x;
-        float boundsDelta = (boundsMaxX - boundsMinX);
+        float boundsDelta = boundsMaxX - boundsMinX;
 
         float animScaledTime = _timeElapsed * animationSpeed;
 

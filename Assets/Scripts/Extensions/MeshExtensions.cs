@@ -25,14 +25,14 @@ public static class MeshExtensions
             }
         }
         mesh.vertices = flatVerts;
-        mesh.triangles = GetIdentityArray(tris.Length);
+        mesh.triangles = GetIdentityIntArray(tris.Length);
         mesh.normals = normals;
     }
     
-    public static void Extrude(this Mesh mesh, float dist)
+    public static void Extrude(this Mesh m, float dist)
     {
-        var verts = mesh.vertices;
-        var normals = mesh.normals;
+        var verts = m.vertices;
+        var normals = m.normals;
         if (verts == null || normals == null) return;
 
         int vertCount = verts.Length;
@@ -41,59 +41,59 @@ public static class MeshExtensions
         for (int i = 0; i < vertCount; ++i)
             newVerts[i + vertCount] = verts[i] + normals[i] * dist;
 
-        var tris = mesh.triangles;
+        var tris = m.triangles;
         var newTris = new int[tris.Length * 2];
         Array.Copy(tris, newTris, tris.Length);
         for (int i = 0; i < tris.Length; ++i)
             newTris[i + tris.Length] = tris[i] + vertCount;
 
-        mesh.vertices = newVerts;
-        mesh.triangles = newTris;
-        mesh.RecalculateNormals();
+        m.vertices = newVerts;
+        m.triangles = newTris;
+        m.RecalculateNormals();
     }
 
-    public static void ApplyVerticalGradient(this Mesh mesh, Color topColor, Color bottomColor)
+    public static void ApplyVerticalGradient(this Mesh m, Color topColor, Color bottomColor)
     {
-        var verts = mesh.vertices;
+        var verts = m.vertices;
         if (verts == null) return;
 
         var colors = new Color[verts.Length];
         var (minY, maxY) = GetMinMaxY(verts);
-        float range = Mathf.Abs(maxY - minY) > MathConsts.ZeroTolerance ? 1f / (maxY - minY) : 0f;
+        float range = Mathf.Abs(maxY - minY) > MathConsts.Epsilon_Float ? 1f / (maxY - minY) : 0f;
 
         for (int i = 0; i < verts.Length; ++i)
             colors[i] = Color.Lerp(bottomColor, topColor, (verts[i].y - minY) * range);
 
-        mesh.colors = colors;
+        m.colors = colors;
     }
 
-    public static void MakeUniqueVertices(this Mesh mesh)
+    public static void MakeUniqueVertices(this Mesh m)
     {
-        var verts = mesh.vertices;
-        var tris = mesh.triangles;
+        var verts = m.vertices;
+        var tris = m.triangles;
         if (verts == null || tris == null) return;
 
         var uniqueVerts = new Vector3[tris.Length];
-        var newTris = GetIdentityArray(tris.Length);
+        var newTris = GetIdentityIntArray(tris.Length);
 
         for (int i = 0; i < tris.Length; ++i)
             uniqueVerts[i] = verts[tris[i]];
 
-        mesh.vertices = uniqueVerts;
-        mesh.triangles = newTris;
-        mesh.RecalculateNormals();
+        m.vertices = uniqueVerts;
+        m.triangles = newTris;
+        m.RecalculateNormals();
     }
     
     static Vector3 GetTriangleNormal(Vector3 v1, Vector3 v2, Vector3 v3) =>
         Vector3.Cross(v2 - v1, v3 - v1).normalized;
 
-    static int[] GetIdentityArray(int length)
+    static int[] GetIdentityIntArray(int length)
     {
-        int currentLength = _triIdentity.Length;
-        if (currentLength != length) 
+        int curLength = _triIdentity.Length;
+        if (curLength != length)
         {
             Array.Resize(ref _triIdentity, length);
-            for (int i = currentLength; i < length; ++i) _triIdentity[i] = i;
+            for (int i = curLength; i < length; ++i) _triIdentity[i] = i;
         }
         return _triIdentity;
     }

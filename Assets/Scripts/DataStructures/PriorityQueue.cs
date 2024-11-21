@@ -7,6 +7,7 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
     readonly List<T> _heap = new();
 
     public int Count => _heap.Count;
+    public void Clear() => _heap.Clear();
 
     public void Enqueue(T item)
     {

@@ -49,7 +49,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
     protected int PlayerCount { get; }
     protected int MaxRounds { get; }
     protected List<CardCollection<TCard>> PlayerDecks;
-    protected abstract CardCollection<TCard> CreateDeck();    public virtual void PlayTurn(int playerIndex) => DLog.Log($"Player {playerIndex + 1}'s turn.");
+    protected abstract CardCollection<TCard> CreateDeck();    public virtual void PlayTurn(int playerIdx) => DLog.Log($"Player {playerIdx + 1}'s turn.");
     public virtual bool IsGameOver() => false;
     public virtual void ShowScores() => DLog.Log("Scores not implemented.");
     public virtual void Dispose() => DLog.Log("Game disposed.");
@@ -122,7 +122,7 @@ public class WarGame : CardGameBase<StandardCard>
 
     protected override CardCollection<StandardCard> CreateDeck() => StandardCardDeck.CreateDeck();
 
-    public override void PlayTurn(int playerIndex)
+    public override void PlayTurn(int playerIdx)
     {
         if (IsGameOver()) return;
 
@@ -174,7 +174,7 @@ public class UnoGame : CardGameBase<UnoGame.UnoCard>
         public Rank CardRank { get; }
         public bool IsWild => CardColor == Color.Wild;
         
-        static string GetCardName(Color color, Rank rank) => color == Color.Wild ? $"{rank} (Wild)" : $"{color} {rank}";
+        static string GetCardName(Color c, Rank rank) => c == Color.Wild ? $"{rank} (Wild)" : $"{c} {rank}";
         
         public UnoCard(Color c, Rank r) : base(GetCardName(c, r)) => (CardColor, CardRank) = (c, r);
     }

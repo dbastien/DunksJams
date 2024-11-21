@@ -2,10 +2,9 @@
 
 public static class SpatialMath2D
 {
-    public static Vector2 ClosestPointOnLineSegment(Vector2 p, Vector2 a, Vector2 b)
-    {
-        var ab = b - a;
-        var t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
-        return a + ab * Mathf.Clamp01(t);
-    }
+    public static float AngleBetweenPoints(Vector2 a, Vector2 b) =>
+        Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
+
+    public static Vector2 ReflectPointAcrossLine(Vector2 p, Vector2 a, Vector2 b) =>
+        LineSegment2D.ClosestPointOnLineSegment(p, a, b) * 2 - p;
 }

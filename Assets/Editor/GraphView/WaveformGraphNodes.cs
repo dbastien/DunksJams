@@ -24,9 +24,7 @@ public class WaveformParameters
     }
 }
 
-public class WaveformNodeBase : SerializedGraphNode
-{
-}
+public class WaveformNodeBase : SerializedGraphNode { }
 
 public abstract class WaveformNodeBase<T> : WaveformNodeBase, IDataPort<T>
 {

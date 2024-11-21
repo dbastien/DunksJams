@@ -28,14 +28,14 @@ public static class Ease
     public static float QuinticOut(float t) => 1f + --t * t * t * t * t;
     public static float QuinticInOut(float t) => DoEaseInOut(t, QuinticIn, QuinticOut);
 
-    public static float SineIn(float t) => 1f - MathF.Cos(t * MathConsts.TauDiv4);
-    public static float SineOut(float t) => MathF.Sin(t * MathConsts.TauDiv4);
-    public static float SineInOut(float t) => -0.5f * (MathF.Cos(MathConsts.TauDiv2 * t) - 1f);
+    public static float SineIn(float t) => 1f - MathF.Cos(t * MathConsts.Tau_Div4);
+    public static float SineOut(float t) => MathF.Sin(t * MathConsts.Tau_Div4);
+    public static float SineInOut(float t) => -0.5f * (MathF.Cos(MathConsts.Tau_Div2 * t) - 1f);
 
-    public static float SinHalf(float t) => MathF.Sin(t * MathConsts.TauDiv2);
-    public static float Square(float t) => (t < 0.5f) ? 0f : 1f;
+    public static float SinHalf(float t) => MathF.Sin(t * MathConsts.Tau_Div2);
+    public static float Square(float t) => t < 0.5f ? 0f : 1f;
     public static float Triangle(float t) => Mathf.Abs((t + .5f) * 2f % 2 - 1f);
-    public static float Sawtooth(float t) => (t * 2f) % 1;
+    public static float Sawtooth(float t) => t * 2f % 1;
 
     public static float ExponentialIn(float t) => t is 0f ? 0f : Mathf.Pow(2f, 10f * (t - 1f));
     public static float ExponentialOut(float t) => t is 1f ? 1f : 1f - Mathf.Pow(2f, -10f * t);
@@ -49,10 +49,10 @@ public static class Ease
     public static float BounceEaseIn(float t) => 1f - BounceEaseOut(1f - t);
     public static float BounceEaseOut(float t) => t switch
     {
-        < 4f / 11f => (121f * t * t) / 16f,
-        < 8f / 11f => ((363f / 40f) * t * t) - ((99f / 10f) * t) + (17f / 5f),
-        < 9f / 10f => ((4356f / 361f) * t * t) - ((35442f / 1805f) * t) + (16061f / 1805f),
-        _ => ((54f / 5f) * t * t) - ((513f / 25f) * t) + (268f / 25f)
+        < 4f / 11f => 121f * t * t / 16f,
+        < 8f / 11f => 363f / 40f * t * t - 99f / 10f * t + 17f / 5f,
+        < 9f / 10f => 4356f / 361f * t * t - 35442f / 1805f * t + 16061f / 1805f,
+        _ => 54f / 5f * t * t - 513f / 25f * t + 268f / 25f
     };
     public static float BounceEaseInOut(float t) => DoEaseInOut(t, BounceEaseIn, BounceEaseOut);
 

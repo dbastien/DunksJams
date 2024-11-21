@@ -1,33 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
 public static class StringExtensions
 {
     //precompiled regexes
-    public static readonly Lazy<Regex> EmailRegex = new(() => new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> Base64Regex = new(() => new Regex(@"^[a-zA-Z0-9\+/]*={0,2}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> Ipv4Regex = new(() => new Regex(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> Ipv6Regex = new(() => new Regex(@"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> MacAddressRegex = new(() => new Regex(@"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> HexColorRegex = new(() => new Regex(@"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> HexRegex = new(() => new Regex(@"^0x[0-9A-Fa-f]+$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> NumberRegex = new(() => new Regex(@"^-?[0-9]+(?:\.[0-9]+)?$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> IntegerRegex = new(() => new Regex(@"^-?[0-9]+$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> DecimalRegex = new(() => new Regex(@"^-?[0-9]+\.[0-9]+$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> DateRegex = new(() => new Regex(@"^\d{4}-\d{2}-\d{2}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> TimeRegex = new(() => new Regex(@"^\d{2}:\d{2}:\d{2}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> DateTimeRegex = new(() => new Regex(@"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> URLRegex = new(() => new Regex(@"^(https?|ftp)://[^\s/$.?#].[^\s]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase));
-    public static readonly Lazy<Regex> GuidRegex = new(() => new Regex(@"^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> CamelCaseSplitRegex = new(() => new Regex(@"([a-z])([A-Z])", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> CamelCaseRegex = new(() => new Regex(@"(\P{Ll})(\p{Ll})", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> HtmlTagRegex = new(() => new Regex(@"<[^>]*>", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> HtmlEntityRegex = new(() => new Regex(@"&[^;]+;", RegexOptions.Compiled));
-    public static readonly Lazy<Regex> HtmlCommentRegex = new(() => new Regex(@"<!--.*?-->", RegexOptions.Compiled));
+    public const RegexOptions Compiled = RegexOptions.Compiled;
+    public static readonly Lazy<Regex> EmailRegex = new(() => new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", Compiled));
+    public static readonly Lazy<Regex> Base64Regex = new(() => new(@"^[a-zA-Z0-9\+/]*={0,2}$", Compiled));
+    public static readonly Lazy<Regex> Ipv4Regex = new(() => new(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", Compiled));
+    public static readonly Lazy<Regex> Ipv6Regex = new(() => new(@"^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$", Compiled));
+    public static readonly Lazy<Regex> MacAddressRegex = new(() => new(@"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", Compiled));
+    public static readonly Lazy<Regex> HexColorRegex = new(() => new(@"^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$", Compiled));
+    public static readonly Lazy<Regex> HexRegex = new(() => new(@"^0x[0-9A-Fa-f]+$", Compiled));
+    public static readonly Lazy<Regex> NumberRegex = new(() => new(@"^-?[0-9]+(?:\.[0-9]+)?$", Compiled));
+    public static readonly Lazy<Regex> IntegerRegex = new(() => new(@"^-?[0-9]+$", Compiled));
+    public static readonly Lazy<Regex> DecimalRegex = new(() => new(@"^-?[0-9]+\.[0-9]+$", Compiled));
+    public static readonly Lazy<Regex> DateRegex = new(() => new(@"^\d{4}-\d{2}-\d{2}$", Compiled));
+    public static readonly Lazy<Regex> TimeRegex = new(() => new(@"^\d{2}:\d{2}:\d{2}$", Compiled));
+    public static readonly Lazy<Regex> DateTimeRegex = new(() => new(@"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", Compiled));
+    public static readonly Lazy<Regex> URLRegex = new(() => new(@"^(https?|ftp)://[^\s/$.?#].[^\s]*$", Compiled | RegexOptions.IgnoreCase));
+    public static readonly Lazy<Regex> GuidRegex = new(() => new(@"^[{(]?[0-9a-fA-F]{8}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{4}[-]?[0-9a-fA-F]{12}[)}]?$", Compiled));
+    public static readonly Lazy<Regex> CamelCaseSplitRegex = new(() => new(@"([a-z])([A-Z])", Compiled));
+    public static readonly Lazy<Regex> CamelCaseRegex = new(() => new(@"(\P{Ll})(\p{Ll})", Compiled));
+    public static readonly Lazy<Regex> HtmlTagRegex = new(() => new(@"<[^>]*>", Compiled));
+    public static readonly Lazy<Regex> HtmlEntityRegex = new(() => new(@"&[^;]+;", Compiled));
+    public static readonly Lazy<Regex> HtmlCommentRegex = new(() => new(@"<!--.*?-->", Compiled));
 
     public static string Join(this IEnumerable<string> s, char c) => string.Join(c, s);
     public static string Join(this IEnumerable<object> s, char c) => string.Join(c, s);
@@ -48,9 +48,19 @@ public static class StringExtensions
     }
     
     public static string CsvSafe(this string s) => s.Replace(',', ' ');
-    public static bool IsAllDigits(this string s) => s.All(char.IsDigit);
-    public static bool IsAllLetters(this string s) => s.All(char.IsLetter);
-    
+
+    public static bool IsAllDigits(this string s)
+    {
+        foreach (char c in s) if (!char.IsDigit(c)) return false;
+        return true;
+    }
+
+    public static bool IsAllLetters(this string s)
+    {
+        foreach (char c in s) if (!char.IsLetter(c)) return false;
+        return true;
+    }
+
     public static bool IsPalindrome(this string s)
     {
         for (int i = 0, j = s.Length - 1; i < j; ++i, --j)
@@ -94,20 +104,16 @@ public static class StringExtensions
         return (bp < 0 && a.Length >= b.Length) || 
                (ap < 0 && b.Length >= a.Length);
     }
-    
-    public static float[] To3Floats(this string s)
+
+    public static float[] ToNFloats(this string s, int n)
     {
         string[] parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length != 3) return null;
+        if (parts.Length != n) return null;
 
-        if (float.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float x) &&
-            float.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float y) &&
-            float.TryParse(parts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float z))
-        {
-            return new[] { x, y, z };
-        }
-
-        return null;
+        var result = new float[n];
+        for (int i = 0; i < n; i++)
+            if (!float.TryParse(parts[i], NumberStyles.Any, CultureInfo.InvariantCulture, out result[i])) return null;
+        return result;
     }
     
     public static string SplitCamelCase(this string s) => CamelCaseRegex.Value.Replace(s, "$1 $2");
@@ -115,7 +121,18 @@ public static class StringExtensions
 
     public static string ToTitleCase(this string s) => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(s);
     public static string ToCamelCase(this string s) => ToTitleCase(s).Replace(" ", "");
-    public static string ToSnakeCase(this string s) => string.Concat(s.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString()));
+
+    public static string ToSnakeCase(this string s)
+    {
+        var sb = new StringBuilder(s.Length + 5);
+        for (int i = 0; i < s.Length; ++i)
+        {
+            if (i > 0 && char.IsUpper(s[i]) && !char.IsWhiteSpace(s[i - 1])) sb.Append('_');
+            sb.Append(char.ToLowerInvariant(s[i]));
+        }
+        return sb.ToString();
+    }
+
     public static string Truncate(this string s, int len) => s.Length <= len ? s : s[..len];
 
     //todo: maybe move this somewhere else
@@ -129,13 +146,13 @@ public static class StringExtensions
             if (data[i] != '\n') continue;
 
             var slice = data[start..i];
-            if (slice.Length > 0 && slice[^1] == '\r') // Handle \r\n
+            if (slice.Length > 0 && slice[^1] == '\r')
                 slice = slice[..^1];
             lines.Add(slice.ToString());
             start = i + 1;
         }
 
-        if (start < data.Length) // Handle final line without newline
+        if (start < data.Length)
             lines.Add(data[start..].Trim().ToString());
 
         return lines;

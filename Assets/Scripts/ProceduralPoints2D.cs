@@ -25,11 +25,11 @@ public static class ProceduralPoints2D
         Vector2Extensions.SinCos(rad - spread + 2f * spread * Rand.Float());
 
     public static Vector2 InHemisphere(float rad) =>
-        Vector2Extensions.SinCos(rad - MathConsts.TauDiv2 + Rand.Rad());
+        Vector2Extensions.SinCos(rad - MathConsts.Tau_Div2 + Rand.Rad());
 
-    public static Vector2 OnHemisphere(float rad) => Vector2Extensions.SinCos(rad - MathConsts.TauDiv2);
+    public static Vector2 OnHemisphere(float rad) => Vector2Extensions.SinCos(rad - MathConsts.Tau_Div2);
 
-    public static Vector2 InRectangle(float width, float height) => 
+    public static Vector2 InRectangle(float width, float height) =>
         new(Rand.Float() * width - width * 0.5f,
             Rand.Float() * height - height * 0.5f);
 
@@ -223,77 +223,77 @@ public static class ProceduralPoints2D
         return new(r * MathF.Cos(theta), r * MathF.Sin(theta));
     }
 
-    public static Vector2 InOnFloral(float amplitude, int petalCount, float thetaMin, float thetaMax)
+    public static Vector2 InOnFloral(float amp, int petalCount, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        float r = amplitude * MathF.Cos(petalCount * theta);
+        float r = amp * MathF.Cos(petalCount * theta);
         return new(r * MathF.Cos(theta), r * MathF.Sin(theta));
     }
 
-    public static Vector2 InOnSineWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnSineWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Sin(freq * theta));
+        return new(theta, amp * MathF.Sin(freq * theta));
     }
 
-    public static Vector2 InOnCosineWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnCosineWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Cos(freq * theta));
+        return new(theta, amp * MathF.Cos(freq * theta));
     }
 
-    public static Vector2 InOnTangentWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnTangentWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Tan(freq * theta));
+        return new(theta, amp * MathF.Tan(freq * theta));
     }
 
-    public static Vector2 InOnCosecantWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnCosecantWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude / MathF.Sin(freq * theta));
+        return new(theta, amp / MathF.Sin(freq * theta));
     }
 
-    public static Vector2 InOnSecantWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnSecantWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude / MathF.Cos(freq * theta));
+        return new(theta, amp / MathF.Cos(freq * theta));
     }
 
-    public static Vector2 InOnCotangentWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnCotangentWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude / MathF.Tan(freq * theta));
+        return new(theta, amp / MathF.Tan(freq * theta));
     }
 
-    public static Vector2 InOnHyperbolicSineWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnHyperbolicSineWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Sinh(freq * theta));
+        return new(theta, amp * MathF.Sinh(freq * theta));
     }
 
-    public static Vector2 InOnHyperbolicCosineWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnHyperbolicCosineWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Cosh(freq * theta));
+        return new(theta, amp * MathF.Cosh(freq * theta));
     }
 
-    public static Vector2 InOnHyperbolicCosecantWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnHyperbolicCosecantWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude / MathF.Sinh(freq * theta));
+        return new(theta, amp / MathF.Sinh(freq * theta));
     }
 
-    public static Vector2 InOnHyperbolicTangentWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnHyperbolicTangentWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude * MathF.Tanh(freq * theta));
+        return new(theta, amp * MathF.Tanh(freq * theta));
     }
 
-    public static Vector2 InOnHyperbolicSecantWave(float amplitude, float freq, float thetaMin, float thetaMax)
+    public static Vector2 InOnHyperbolicSecantWave(float amp, float freq, float thetaMin, float thetaMax)
     {
         float theta = Mathf.Lerp(thetaMin, thetaMax, Rand.Float());
-        return new(theta, amplitude / MathF.Cosh(freq * theta));
+        return new(theta, amp / MathF.Cosh(freq * theta));
     }
 
     public static Vector2 InOnHyperbolicCotangentWave(float amplitude, float freq, float thetaMin, float thetaMax)

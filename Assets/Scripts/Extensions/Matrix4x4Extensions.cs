@@ -12,7 +12,7 @@ public static class Matrix4X4Extensions
     /// <returns>Matrix for transforming an RGB color in HSV space</returns>
     public static Matrix4x4 CreateHSVTransform(float h, float s, float v)
     {
-        float hr = -h * MathConsts.TauDiv4;
+        float hr = -h * MathConsts.Tau_Div4;
         //float hr = h * Mathf.Deg2Rad;
 
         float vsu = v * s * MathF.Cos(hr);
@@ -20,17 +20,17 @@ public static class Matrix4X4Extensions
 
         return new()
         {
-            m00 = (.299f * v) + (.701f * vsu) + (.168f * vsw),
-            m10 = (.587f * v) - (.587f * vsu) + (.330f * vsw),
-            m20 = (.114f * v) - (.114f * vsu) - (.497f * vsw),
+            m00 = .299f * v + .701f * vsu + .168f * vsw,
+            m10 = .587f * v - .587f * vsu + .330f * vsw,
+            m20 = .114f * v - .114f * vsu - .497f * vsw,
 
-            m01 = (.299f * v) - (.299f * vsu) - (.328f * vsw),
-            m11 = (.587f * v) + (.413f * vsu) + (.035f * vsw),
-            m21 = (.114f * v) - (.114f * vsu) + (.292f * vsw),
+            m01 = .299f * v - .299f * vsu - .328f * vsw,
+            m11 = .587f * v + .413f * vsu + .035f * vsw,
+            m21 = .114f * v - .114f * vsu + .292f * vsw,
 
-            m02 = (.299f * v) - (.300f * vsu) + (1.25f * vsw),
-            m12 = (.587f * v) - (.588f * vsu) - (1.05f * vsw),
-            m22 = (.114f * v) + (.886f * vsu) - (.203f * vsw),
+            m02 = .299f * v - .300f * vsu + 1.25f * vsw,
+            m12 = .587f * v - .588f * vsu - 1.05f * vsw,
+            m22 = .114f * v + .886f * vsu - .203f * vsw,
 
             m33 = 1
         };
@@ -120,7 +120,7 @@ public static class Matrix4X4Extensions
         {
             m00 = scale.x * cos, m01 = scale.y * -sin, m03 = translation.x,
             m10 = scale.x * sin, m11 = scale.y *  cos, m13 = translation.y,
-            m22 = 1, // Z-axis scaling
+            m22 = 1, // Z-axis scale
             m33 = 1  // Homogeneous coordinate
         };
     }
