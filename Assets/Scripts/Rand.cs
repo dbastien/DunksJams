@@ -130,7 +130,7 @@ public static class Rand
         MathF.Exp(Gaussian() * stdDev + mean);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float LogNormalRanged(float mean, float stdDev) => mean + LogNormal(stdDev);
+    public static float LogNormalRanged(float mean, float stdDev) => LogNormal(mean, stdDev);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Cauchy(float x0 = 0f, float gamma = 1f)
