@@ -9,7 +9,7 @@ PhysicsMaterial:
   m_Name: Metal
   serializedVersion: 2
   m_DynamicFriction: 0.2
-  m_StaticFriction: 0.4
-  m_Bounciness: 0.1
-  m_FrictionCombine: 0
-  m_BounceCombine: 2
+  m_StaticFriction: 0.3
+  m_Bounciness: 0.4
+  m_FrictionCombine: 2
+  m_BounceCombine: 0
