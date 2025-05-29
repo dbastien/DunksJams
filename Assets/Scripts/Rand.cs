@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -33,7 +32,7 @@ public static class Rand
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float NextFloat() => (NextRaw() & 0xFFFFFF) / 16777216f;
+    static float NextFloat() => (float)((NextRaw() >> 40) * (1.0 / (1 << 24)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Bool() => NextFloat() > 0.5f;
@@ -60,9 +59,6 @@ public static class Rand
     public static float Degree() => FloatRanged(0f, 360f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Radian() => FloatRanged(0f, MathConsts.Tau);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Rad() => FloatRanged(0f, MathConsts.Tau);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,34 +80,25 @@ public static class Rand
     public static Color ColorWithAlpha() => new(NextFloat(), NextFloat(), NextFloat(), NextFloat());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T Element<T>(T[] array) =>
-        array.Length == 0 ? default : array[IntRanged(0, array.Length)];
-
+    public static T Element<T>(T[] array) => array.Length == 0 ? default : array[IntRanged(0, array.Length)];
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T Element<T>(IEnumerable<T> enumerable)
-    {
-        var array = enumerable as T[] ?? enumerable.ToArray();
-        return array.Length == 0 ? default : Element(array);
-    }
-
+    public static T Element<T>(IList<T> list) => list.Count == 0 ? default : list[IntRanged(0, list.Count)];
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Shuffle<T>(IList<T> list)
     {
-        for (var i = 0; i < list.Count; ++i)
-        {
-            int j = IntRanged(i, list.Count);
-            (list[i], list[j]) = (list[j], list[i]);
-        }
+        // fisher-yates
+        for (int i = list.Count - 1; i > 0; --i)
+            (list[i], list[IntRanged(0, i + 1)]) = (list[IntRanged(0, i + 1)], list[i]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Shuffle<T>(Span<T> span)
     {
-        for (var i = 0; i < span.Length; ++i)
-        {
-            int j = IntRanged(i, span.Length);
-            (span[i], span[j]) = (span[j], span[i]);
-        }
+        // fisher-yates
+        for (int i = span.Length - 1; i > 0; --i)
+            (span[i], span[IntRanged(0, i + 1)]) = (span[IntRanged(0, i + 1)], span[i]);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,10 +115,7 @@ public static class Rand
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float LogNormal(float mean = 0f, float stdDev = 1f) =>
         MathF.Exp(Gaussian() * stdDev + mean);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float LogNormalRanged(float mean, float stdDev) => mean + LogNormal(stdDev);
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Cauchy(float x0 = 0f, float gamma = 1f)
     {
