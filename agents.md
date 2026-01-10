@@ -4,7 +4,7 @@
 
 **Project Name**: DunksJams  
 **Type**: Unity Game Development Project  
-**Engine Version**: Unity (Universal Render Pipeline)
+**Engine Version**: Unity 6000 (Universal Render Pipeline)
 
 This is a Unity game development project with custom systems and patterns. When assisting with code, follow the established conventions and patterns found in this codebase.
 
@@ -179,7 +179,7 @@ Custom data structures available:
 - **Avoid namespaces**: Most code is in global namespace unless necessary
 - **Follow underscore convention**: Private fields must have underscore prefix
 - **Use modern C#**: Prefer expression-bodied members and modern syntax
-- **Unity 2021+ features**: Can use modern Unity APIs like `FindFirstObjectByType<T>()`
+- **Unity 6000 features**: Can use modern Unity APIs like `FindFirstObjectByType<T>()`
 - **Comment style**: Use `//` for comments, `//todo:` for todos
 - **Custom menu items**: Use `‽` character in menu paths: `[MenuItem("GameObject/3D Object/‽/...")]`
 
