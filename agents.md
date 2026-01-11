@@ -23,8 +23,8 @@ This is a Unity game development project with custom systems and patterns. When 
 - **Methods**: PascalCase (`ResetGame`, `InitInternal`)
 - **Private fields**: underscore prefix + camelCase (`_score`, `_isGameOver`)
 - **Local variables**: camelCase (`meshFilter`, `angleStep`)
-- **Constants**: camelCase with const (`const float _fontSize = 12`)
-- **Events**: PascalCase with `On` prefix (`OnScoreChanged`, `OnGameOver`)
+- **Constants**: camelCase
+- **Unity Events**: PascalCase with `On` prefix (`OnScoreChanged`, `OnGameOver`)
 
 ### Unity-Specific Patterns
 - Use `[DisallowMultipleComponent]` for singleton MonoBehaviour classes
