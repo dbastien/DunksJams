@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
-using Unity.Logging;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Debug = UnityEngine.Debug;
@@ -16,13 +18,6 @@ public static class DLog
     public static bool IsColorEnabled = true;
     public static bool IsCallerInfoEnabled = true;
     
-    static readonly List<string> IgnoredMethods = new()
-    {
-        "UnityEngine.DebugLogHandler",
-        "DLog",
-        "System.Diagnostics.StackTrace"
-    };
-    
     //todo: better colors
     static readonly string InfoColor = "#FFFFFF";
     static readonly string WarningColor = "#FFCC00"; // Soft yellow
@@ -33,37 +28,86 @@ public static class DLog
     
     static readonly ILogger Logger = Debug.unityLogger;
 
-    //todo: BufferedSink, AnalyticsSink, RemoteSink, FileSink
-    static readonly List<ILogSink> LogSinks = new() { new ConsoleSink() };
+    public static bool IsFileLoggingEnabled = true;
+    
+    //todo: BufferedSink, AnalyticsSink, RemoteSink
+    static readonly List<ILogSink> LogSinks = new() { new ConsoleSink(), new FileSink() };
+    
     public interface ILogSink
     {
-        public void Log(LogType logType, string message, Object context);
+        void Log(LogType logType, string message, Object context);
     }
+    
     public class ConsoleSink : ILogSink
     {
-        public void Log(LogType logType, string msg, Object context) => Debug.unityLogger.Log(logType, (object)msg, context);
+        public void Log(LogType logType, string msg, Object context) => 
+            Debug.unityLogger.Log(logType, (object)msg, context);
     }
     
-    //public static void Log(object message) => Debug.unityLogger.Log(LogType.Log, message);
-
-    [HideInStackTrace]
-    public static void Log(string msg, Object ctx = null, bool timestamp = false) =>
-        Log(LogType.Log, msg, ctx, timestamp);
+    public class FileSink : ILogSink
+    {
+        static readonly Regex ColorTagRegex = new(@"<color=[^>]*>|</color>", RegexOptions.Compiled);
+        readonly string _logFilePath;
+        readonly object _lock = new();
+        
+        public FileSink()
+        {
+            string logDir = Path.Combine(Application.persistentDataPath, "Logs");
+            Directory.CreateDirectory(logDir);
+            _logFilePath = Path.Combine(logDir, $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt");
+        }
+        
+        public void Log(LogType logType, string msg, Object context)
+        {
+            if (!IsFileLoggingEnabled) return;
+            
+            // Strip color tags for file output
+            string cleanMsg = ColorTagRegex.Replace(msg, "");
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string logLevel = logType.ToString().ToUpper();
+            string contextName = context != null ? $" [{context.name}]" : "";
+            
+            string line = $"[{timestamp}] [{logLevel}]{contextName} {cleanMsg}";
+            
+            lock (_lock)
+            {
+                try
+                {
+                    File.AppendAllText(_logFilePath, line + Environment.NewLine);
+                }
+                catch (Exception ex)
+                {
+                    // Fallback to console if file write fails - avoid infinite loop
+                    Debug.LogWarning($"FileSink failed to write: {ex.Message}");
+                }
+            }
+        }
+        
+        public string GetLogFilePath() => _logFilePath;
+    }
     
     [HideInStackTrace]
-    public static void LogW(string msg, Object ctx = null, bool timestamp = false) =>
-        LogInternal(LogType.Warning, msg, ctx, timestamp);
+    public static void Log(string msg, Object ctx = null, bool timestamp = false, bool fullStack = false,
+        [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "") =>
+        LogImpl(LogType.Log, msg, ctx, timestamp, fullStack, file, line, member);
     
     [HideInStackTrace]
-    public static void LogE(string msg, Object ctx = null, bool timestamp = false) => 
-        Log(LogType.Error, msg, ctx, timestamp);
+    public static void LogW(string msg, Object ctx = null, bool timestamp = false, bool fullStack = false,
+        [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "") =>
+        LogImpl(LogType.Warning, msg, ctx, timestamp, fullStack, file, line, member);
+    
+    [HideInStackTrace]
+    public static void LogE(string msg, Object ctx = null, bool timestamp = false, bool fullStack = false,
+        [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "") => 
+        LogImpl(LogType.Error, msg, ctx, timestamp, fullStack, file, line, member);
     
     [HideInStackTrace]
     public static void LogException(Exception ex, Object ctx = null) => Logger.LogException(ex, ctx);
     
     [HideInStackTrace]
-    public static void LogExceptionComplete(Exception ex, Object ctx = null) => 
-        Log(LogType.Exception, FormatExceptionComplete(ex), ctx, timestamp: true);
+    public static void LogExceptionComplete(Exception ex, Object ctx = null,
+        [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "") => 
+        LogImpl(LogType.Exception, FormatExceptionComplete(ex), ctx, timestamp: true, fullStack: true, file, line, member);
     
     //handles inner exceptions as well
     [HideInStackTrace]
@@ -81,34 +125,34 @@ public static class DLog
     }
 
     [HideInStackTrace]
-    static void Log(LogType logType, string msg, Object ctx, bool timestamp)
+    static void LogImpl(LogType logType, string msg, Object ctx, bool timestamp, bool fullStack,
+        string file, int line, string member)
     {
         if (!IsLoggingEnabled) return;
         
-        string caller = IsCallerInfoEnabled ? GetCallerInfo() : "";
+        string caller = "";
+        if (IsCallerInfoEnabled)
+        {
+            caller = fullStack 
+                ? GetFullStackInfo() 
+                : $"{Path.GetFileName(file)}:{line} ({member})";
+        }
+        
         string time = timestamp && IsTimestampEnabled ? $"[{DateTime.Now:HH:mm:ss}] " : "";
      
-        string msgFormatted = $"{Colorize(time, TimeColor)} {Colorize(caller, CallerColor)} {Colorize(msg, GetColor(logType))}";
-        Logger.Log(logType, (object)msgFormatted, ctx);
-        //foreach (ILogSink sink in LogSinks) sink.Log(logType, msg, context);
-    }
-    
-    [HideInStackTrace]
-    static void LogInternal(LogType logType, string msg, Object ctx, bool timestamp)
-    {
-        string callerInfo = IsCallerInfoEnabled ? Colorize(GetCallerInfo(), CallerColor) : "";
-        string time = timestamp && IsTimestampEnabled ? Colorize($"[{DateTime.Now:HH:mm:ss}] ", TimeColor) : "";
-        string message = Colorize(msg, GetColor(logType));
-    
-        string msgFormatted = $"{time}{callerInfo} {message}";
-
-        Debug.unityLogger.logHandler.LogFormat(logType, ctx, "{0}", msgFormatted);
+        string msgFormatted = $"{Colorize(time, TimeColor)}{Colorize(caller, CallerColor)} {Colorize(msg, GetColor(logType))}";
+        
+        foreach (ILogSink sink in LogSinks) 
+            sink.Log(logType, msgFormatted, ctx);
     }
 
     [HideInStackTrace]
-    static string GetCallerInfo()
+    static string GetFullStackInfo()
     {
         var trace = new StackTrace(true);
+        var sb = new StringBuilder();
+        bool first = true;
+        
         foreach (var frame in trace.GetFrames())
         {
             var fileName = frame.GetFileName();
@@ -118,10 +162,12 @@ public static class DLog
                 !fileName.Contains("DLog.cs") &&
                 method.GetCustomAttribute<HideInStackTrace>() == null)
             {
-                return $"{System.IO.Path.GetFileName(fileName)}:{frame.GetFileLineNumber()} ({frame.GetMethod().Name})";
+                if (!first) sb.Append(" <- ");
+                sb.Append($"{Path.GetFileName(fileName)}:{frame.GetFileLineNumber()} ({method.Name})");
+                first = false;
             }
         }
-        return "";
+        return sb.ToString();
     }
     
     [HideInStackTrace]
@@ -138,9 +184,10 @@ public static class DLog
     };
 
     [HideInStackTrace]
-    public static void Time(Action action, string label = null)
+    public static void Time(Action action, string label = null,
+        [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
     {
-        string timingLabel = label ?? GetCallerInfo();
+        string timingLabel = label ?? $"{Path.GetFileName(file)}:{line} ({member})";
         var stopwatch = Stopwatch.StartNew();
 
         action();

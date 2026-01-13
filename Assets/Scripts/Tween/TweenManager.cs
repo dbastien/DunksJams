@@ -56,5 +56,13 @@ public class TweenManager : SingletonBehavior<TweenManager>
         return null;
     }
     
-    public List<ITween> GetByTag(string tag) => _tweens.Where(t => t.Tag == tag).ToList();
+    public List<ITween> GetByTag(string tag, List<ITween> result = null)
+    {
+        result ??= new List<ITween>();
+        result.Clear();
+        foreach (var tween in _tweens)
+            if (tween.Tag == tag)
+                result.Add(tween);
+        return result;
+    }
 }

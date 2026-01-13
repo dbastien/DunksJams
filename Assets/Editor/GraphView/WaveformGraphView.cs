@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -6,7 +6,7 @@ using UnityEditor.Experimental.GraphView;
 public class WaveformEditorWindow : SerializedGraphViewEditorWindow<WaveformGraphView, WaveformNodeBase, Edge>
 {
     [MenuItem("‽/Waveform Editor")]
-    public static void ShowWindow() => GetWindow<DialogueEditorWindow>();
+    public static void ShowWindow() => GetWindow<WaveformEditorWindow>();
     protected override string GetWindowTitle() => "Waveform Editor";
     protected override string GetGraphViewName() => "WaveformGraph";
 }

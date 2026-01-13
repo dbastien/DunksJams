@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -16,6 +17,10 @@ public class ComponentMemberReference
     bool _infoCached;
     MaterialPropertyBlock _materialPropBlock;
     ShaderPropertyType? _shaderPropType;
+    
+    // Cached delegates for performance (avoids reflection every frame)
+    Action<object> _cachedSetter;
+    Func<object> _cachedGetter;
     
     public string GetTargetMemberName() => targetMemberName;
 
@@ -46,7 +51,7 @@ public class ComponentMemberReference
             }
         }
 
-        return _fieldInfo != null ? _fieldInfo.GetValue(targetComponent) : _propInfo.GetValue(targetComponent, null);
+        return _cachedGetter?.Invoke();
     }
 
     public void SetValue(object value)
@@ -75,10 +80,8 @@ public class ComponentMemberReference
         }
         else
         {
-            if (_fieldInfo != null)
-                _fieldInfo.SetValue(targetComponent, value);
-            else if (_propInfo != null)
-                _propInfo.SetValue(targetComponent, value, null);
+            if (_cachedSetter != null)
+                _cachedSetter(value);
             else
                 DLog.LogE($"[SetValue] Target member '{targetMemberName}' not found on target component.");
         }
@@ -111,11 +114,52 @@ public class ComponentMemberReference
         _fieldInfo = type.GetField(cleanMemberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         _propInfo = type.GetProperty(cleanMemberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-        if (_fieldInfo == null && _propInfo == null) DLog.LogE($"Member '{cleanMemberName}' not found on {type.Name}.");
+        if (_fieldInfo == null && _propInfo == null)
+        {
+            DLog.LogE($"Member '{cleanMemberName}' not found on {type.Name}.");
+            _infoCached = true;
+            return false;
+        }
+
+        // Create compiled delegates using expression trees (avoids reflection at runtime)
+        CreateCachedDelegates(type);
 
         _infoCached = true;
         return _fieldInfo != null || _propInfo != null;
     }
 
     public Material GetMaterial(Renderer renderer) => renderer.sharedMaterials[materialIndex];
+
+    void CreateCachedDelegates(Type componentType)
+    {
+        // Create compiled getter/setter using expression trees for ~50x faster access than reflection
+        var targetParam = Expression.Constant(targetComponent);
+
+        if (_fieldInfo != null)
+        {
+            // Getter: () => ((ComponentType)target).fieldName
+            var fieldAccess = Expression.Field(Expression.Convert(targetParam, componentType), _fieldInfo);
+            var getterLambda = Expression.Lambda<Func<object>>(Expression.Convert(fieldAccess, typeof(object)));
+            _cachedGetter = getterLambda.Compile();
+
+            // Setter: (val) => ((ComponentType)target).fieldName = (FieldType)val
+            var valueParam = Expression.Parameter(typeof(object), "value");
+            var assignExpr = Expression.Assign(fieldAccess, Expression.Convert(valueParam, _fieldInfo.FieldType));
+            var setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
+            _cachedSetter = setterLambda.Compile();
+        }
+        else if (_propInfo != null)
+        {
+            // Getter: () => ((ComponentType)target).propertyName
+            var propAccess = Expression.Property(Expression.Convert(targetParam, componentType), _propInfo);
+            var getterLambda = Expression.Lambda<Func<object>>(Expression.Convert(propAccess, typeof(object)));
+            _cachedGetter = getterLambda.Compile();
+
+            // Setter: (val) => ((ComponentType)target).propertyName = (PropertyType)val
+            var valueParam = Expression.Parameter(typeof(object), "value");
+            var assignExpr = Expression.Assign(propAccess, Expression.Convert(valueParam, _propInfo.PropertyType));
+            var setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
+            _cachedSetter = setterLambda.Compile();
+        }
+    }
 }

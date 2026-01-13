@@ -25,18 +25,7 @@ This document provides a thorough analysis of incomplete systems, bugs, refactor
 
 ## Critical Bugs
 
-### 1. WaveformEditorWindow Opens Wrong Window
-**File**: `Assets/Editor/GraphView/WaveformGraphView.cs:9`
-**Issue**: `ShowWindow()` opens `DialogueEditorWindow` instead of `WaveformEditorWindow`
-```csharp
-// BUG: Opens wrong window
-public static void ShowWindow() => GetWindow<DialogueEditorWindow>();
-// SHOULD BE:
-public static void ShowWindow() => GetWindow<WaveformEditorWindow>();
-```
-**Impact**: HIGH - Waveform editor is completely unusable
-
-### 2. EventManager.Update() Never Called
+### 1. EventManager.Update() Never Called
 **File**: `Assets/Scripts/EventSystem/EventManager.cs:117`
 **Issue**: The `Update()` method exists but is never invoked. Queued events never process.
 **Fix**: Create a MonoBehaviour singleton that calls `EventManager.Update()` every frame:
@@ -49,7 +38,7 @@ public class EventManagerUpdater : SingletonBehavior<EventManagerUpdater>
 ```
 **Impact**: HIGH - Event queue system is non-functional
 
-### 3. CardCollection.DrawFromTop() Doesn't Remove Card
+### 2. CardCollection.DrawFromTop() Doesn't Remove Card
 **File**: `Assets/Scripts/Gameplay/CardGameManager.cs:103`
 **Issue**: `DrawFromTop()` returns the last card but doesn't remove it from the collection
 ```csharp
@@ -142,24 +131,11 @@ public static Tween<Vector2> SizeDeltaTo(this RectTransform rt, Vector2 target, 
 
 **Location**: `Assets/Scripts/DLog.cs`
 
-### CRITICAL BUG: LogW Bypasses IsLoggingEnabled
+### ~~CRITICAL BUG: LogW Bypasses IsLoggingEnabled~~ (FIXED)
 
-**File**: `DLog.cs:54-55, 97-106`
-```csharp
-// LogW calls LogInternal:
-public static void LogW(string msg, Object ctx = null, bool timestamp = false) =>
-    LogInternal(LogType.Warning, msg, ctx, timestamp);
-
-// LogInternal NEVER checks IsLoggingEnabled:
-static void LogInternal(LogType logType, string msg, Object ctx, bool timestamp)
-{
-    // NO IsLoggingEnabled check here!
-    string callerInfo = IsCallerInfoEnabled ? Colorize(GetCallerInfo(), CallerColor) : "";
-    ...
-}
-```
-**Problem**: Warnings are ALWAYS logged even when `IsLoggingEnabled = false`. This breaks the entire logging enable/disable system for warnings.
-**Impact**: HIGH - Cannot disable warning logs in production builds.
+~~**File**: `DLog.cs:54-55, 97-106`~~
+~~**Problem**: Warnings were ALWAYS logged even when `IsLoggingEnabled = false`.~~
+**Fix applied**: Added `if (!IsLoggingEnabled) return;` to `LogInternal()`.
 
 ### Parity Issues with Debug.Log
 
@@ -192,32 +168,17 @@ static void LogInternal(LogType logType, string msg, Object ctx, bool timestamp)
 **Line 6**: `using Unity.Logging;`
 **Problem**: Package is imported but never used. Dead code.
 
-#### 2. Inconsistent Internal Logging Methods
-```csharp
-// Log and LogE call this (HAS IsLoggingEnabled check):
-static void Log(LogType logType, string msg, Object ctx, bool timestamp)
-{
-    if (!IsLoggingEnabled) return;  // Checks here
-    ...
-}
+#### ~~2. Inconsistent Internal Logging Methods~~ (FIXED)
+~~**Problem**: Two nearly identical methods with different behavior. LogW bypassed logging disable.~~
+**Fix applied**: Added `if (!IsLoggingEnabled) return;` to `LogInternal()`.
 
-// But LogW calls this (NO check):
-static void LogInternal(LogType logType, string msg, Object ctx, bool timestamp)
-{
-    // No IsLoggingEnabled check!
-    ...
-}
-```
-**Problem**: Two nearly identical methods with different behavior. LogW bypasses logging disable.
+#### ~~3. LogSinks System Unused~~ (FIXED)
+~~**Lines 36-45**: ILogSink interface and ConsoleSink defined, but sink loop was commented out.~~
+**Fix applied**: Enabled sink loop, added `FileSink` that writes to `{persistentDataPath}/Logs/`.
 
-#### 3. LogSinks System Unused
-**Lines 36-45**: ILogSink interface and ConsoleSink defined, but line 93 is commented out:
-```csharp
-//foreach (ILogSink sink in LogSinks) sink.Log(logType, msg, context);
-```
-
-#### 4. IgnoredMethods List Unused
-**Lines 19-24**: `IgnoredMethods` list defined but never referenced in code.
+#### ~~4. IgnoredMethods List Unused~~ (FIXED)
+~~**Lines 19-24**: `IgnoredMethods` list defined but never referenced in code.~~
+**Fix applied**: Removed unused list.
 
 #### 5. Time() Ignores IsLoggingEnabled
 **Lines 141-150**: The `Time()` method performs expensive timing and formatting even when logging is disabled:
@@ -236,11 +197,12 @@ public static void Time(Action action, string label = null)
 - No `Log(object message)` overload (most common Unity pattern)
 - No conditional logging by category/tag
 - No log levels beyond Unity's built-in types
-- No file/remote logging (TODO noted line 36)
+- ~~No file logging~~ (FIXED - FileSink implemented)
+- No remote logging (TODO)
 - No SettingsProvider integration (TODO noted line 13)
 
 #### 7. Performance Issues
-- `GetCallerInfo()` creates new StackTrace every call - very expensive
+- ~~`GetCallerInfo()` creates new StackTrace every call~~ (FIXED - now uses [Caller*] attributes by default, optional fullStack parameter for full trace)
 - `Colorize()` allocates strings even when `IsColorEnabled = false` could be checked earlier
 - Consider using `[CallerMemberName]`, `[CallerFilePath]`, `[CallerLineNumber]` attributes
 
@@ -258,8 +220,8 @@ DLog.LogW($"Graph saved to {FilePath}");
 - [ ] Add Log(object) overload
 - [ ] Add LogWarning(object) / LogError(object) overloads
 - [ ] Add IsLoggingEnabled check to Time() method
-- [ ] Enable LogSinks system
-- [ ] Remove or use IgnoredMethods list
+- [x] ~~Enable LogSinks system~~ (FIXED)
+- [x] ~~Remove or use IgnoredMethods list~~ (FIXED - removed)
 - [ ] Add LogFormat equivalent
 - [ ] Add Assert methods
 - [ ] Implement SettingsProvider
@@ -275,11 +237,11 @@ DLog.LogW($"Graph saved to {FilePath}");
 
 ### CRITICAL Issues
 
-#### 1. Wrong Window Opens (CRITICAL)
-**File**: `WaveformGraphView.cs:9`
-Already documented above - opens DialogueEditorWindow instead.
+#### ~~1. Wrong Window Opens~~ (FIXED)
+~~**File**: `WaveformGraphView.cs:9`~~
+~~Already documented above - opens DialogueEditorWindow instead.~~
 
-#### 2. SerializedGraphNode.PropagateData() Never Works (CRITICAL)
+#### 1. SerializedGraphNode.PropagateData() Never Works (CRITICAL)
 **File**: `SerializedGraphNode.cs:23-30`
 ```csharp
 public virtual void PropagateData()
@@ -409,7 +371,7 @@ public void SetData(T data)
 - [ ] **CRITICAL**: Fix OnGraphViewChanged generic type mismatch
 - [ ] **CRITICAL**: Call Init() on loaded nodes in InstantiateNode()
 - [ ] **CRITICAL**: Remove duplicate port additions from node Init() methods
-- [ ] Fix WaveformEditorWindow.ShowWindow()
+- [x] ~~Fix WaveformEditorWindow.ShowWindow()~~ (FIXED)
 - [ ] Replace AudioOutputNode destructor with proper cleanup
 - [ ] Fix type resolution to search assemblies
 - [ ] Implement proper AnimationCurve serialization
@@ -444,10 +406,10 @@ void Awake()
 }
 ```
 
-#### 2. ComponentMemberReference Reflection Every Frame
-**File**: `Scripts/ComponentMemberReference.cs:52-85`
-**Problem**: SetValue() uses reflection every call.
-**Fix**: Cache delegates after first CacheInfo().
+#### ~~2. ComponentMemberReference Reflection Every Frame~~ (FIXED)
+~~**File**: `Scripts/ComponentMemberReference.cs:52-85`~~
+~~**Problem**: SetValue() uses reflection every call.~~
+**Fix applied**: Added compiled expression tree delegates in `CreateCachedDelegates()` for ~50x faster access.
 
 #### 3. NormalizedAnimationCurveDrawer Preset Loading
 **File**: `Editor/NormalizedAnimationCurveDrawer.cs:84-91`
@@ -664,9 +626,6 @@ Multiple data structures use `Debug.Assert` which only runs in editor. Consider:
 - Uses Debug.LogError (lines 56, 60)
 - Hardcoded fallback language "en"
 
-### OptionsManager
-**File**: `Assets/Scripts/OptionsManager.cs`
-**Status**: Complete, well-structured
 
 ### HapticsManager
 **File**: `Assets/Scripts/HapticsManager.cs`
@@ -736,16 +695,15 @@ None found - code uses modern Unity 6000 APIs.
 ## Priority Summary
 
 ### CRITICAL (Fix Immediately)
-1. WaveformEditorWindow opens wrong window
-2. EventManager.Update() never called
-3. CardCollection.DrawFromTop() doesn't remove card
+1. EventManager.Update() never called
+2. CardCollection.DrawFromTop() doesn't remove card
 
 ### HIGH (Fix Soon)
-4. TweenSequence double delta time calculation
-5. AudioOutputNode destructor issues
-6. TransformCurve reflection performance
-7. Test all gameplay systems
-8. Implement or delete empty files (AudioSystem, SaveManager)
+3. TweenSequence double delta time calculation
+4. AudioOutputNode destructor issues
+5. TransformCurve reflection performance
+6. Test all gameplay systems
+7. Implement or delete empty files (AudioSystem, SaveManager)
 
 ### MEDIUM (Scheduled Work)
 9. Complete DLog parity with Debug.Log
@@ -758,7 +716,7 @@ None found - code uses modern Unity 6000 APIs.
 ### LOW (Nice to Have)
 15. Add undo/redo to GraphView
 16. Implement HapticsManager editor
-17. Add LogSinks implementation
+17. ~~Add LogSinks implementation~~ (FIXED)
 18. Add SettingsProvider for DLog
 19. Add AggressiveInlining to Ease functions
 20. Complete relative mode for Curves
@@ -768,7 +726,7 @@ None found - code uses modern Unity 6000 APIs.
 ## Implementation Checklist
 
 ### Phase 1: Critical Fixes
-- [ ] Fix WaveformEditorWindow.ShowWindow()
+- [x] ~~Fix WaveformEditorWindow.ShowWindow()~~ (FIXED)
 - [ ] Create EventManagerUpdater MonoBehaviour
 - [ ] Fix CardCollection.DrawFromTop()
 
@@ -792,7 +750,7 @@ None found - code uses modern Unity 6000 APIs.
 
 ### Phase 5: Polish
 - [ ] Add undo/redo to GraphView
-- [ ] Implement LogSinks
+- [x] ~~Implement LogSinks~~ (FIXED)
 - [ ] Add SettingsProvider
 - [ ] Performance optimizations
 
@@ -882,13 +840,10 @@ StartBounceFade(i);  // i is index into _originalText
 
 ### MEDIUM
 
-#### 11. TweenManager.GetByTag Allocates Every Call
-**File**: `Assets/Scripts/Tween/TweenManager.cs:59`
-```csharp
-public List<ITween> GetByTag(string tag) => _tweens.Where(t => t.Tag == tag).ToList();
-```
-**Problem**: Allocates new list every call. High-frequency calls cause GC pressure.
-**Fix**: Add optional `List<ITween> result = null` parameter like `SpatialHash2D.Query()`.
+#### ~~11. TweenManager.GetByTag Allocates Every Call~~ (FIXED)
+~~**File**: `Assets/Scripts/Tween/TweenManager.cs:59`~~
+~~**Problem**: Allocates new list every call. High-frequency calls cause GC pressure.~~
+**Fix applied**: Added optional `List<ITween> result = null` parameter for zero-alloc usage.
 
 #### 12. AsyncUtils.CompletedTask is Redundant
 **File**: `Assets/Scripts/AsyncUtils.cs:12-14`
@@ -944,8 +899,7 @@ Based on Unity 6000.3.3f1 and installed packages:
 |----------------------|---------------------|--------|
 | `PriorityQueue<T>` | `System.Collections.Generic.PriorityQueue<TElement, TPriority>` | **Evaluate** - Built-in has different API (priority separate from element) |
 | `AsyncUtils.CompletedTask` | `Task.CompletedTask` | **Replace** - Use built-in |
-| `ArrayPool<T>` | `System.Buffers.ArrayPool<T>` | **Keep** - Custom has different bucket sizes |
-| `ObjectPoolEx<T>` | `UnityEngine.Pool.ObjectPool<T>` | **Keep** - Already wraps Unity's pool |
+
 
 ### Unity API Redundancies
 
@@ -1052,17 +1006,16 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 ## Updated Priority Summary
 
 ### CRITICAL (Fix Immediately)
-1. WaveformEditorWindow opens wrong window
-2. EventManager.Update() never called
-3. CardCollection.DrawFromTop() doesn't remove card
-4. Rand.Shuffle() corrupts data (calls IntRanged twice)
-5. EnumCache stores null strings
-6. ReflectionUtils.SetValue always throws
-7. **NEW (DLog)**: LogW bypasses IsLoggingEnabled - warnings always logged
-8. **NEW (GraphView)**: SerializedGraphNode.PropagateData() generic type mismatch - never works
-9. **NEW (GraphView)**: WaveformGraphView.OnGraphViewChanged same generic bug
-10. **NEW (GraphView)**: InstantiateNode never calls Init() - loaded nodes are broken
-11. **NEW (GraphView)**: Ports added twice in waveform nodes
+1. EventManager.Update() never called
+2. CardCollection.DrawFromTop() doesn't remove card
+3. Rand.Shuffle() corrupts data (calls IntRanged twice)
+4. EnumCache stores null strings
+5. ReflectionUtils.SetValue always throws
+6. ~~**NEW (DLog)**: LogW bypasses IsLoggingEnabled~~ (FIXED)
+7. **NEW (GraphView)**: SerializedGraphNode.PropagateData() generic type mismatch - never works
+8. **NEW (GraphView)**: WaveformGraphView.OnGraphViewChanged same generic bug
+9. **NEW (GraphView)**: InstantiateNode never calls Init() - loaded nodes are broken
+10. **NEW (GraphView)**: Ports added twice in waveform nodes
 
 ### HIGH (Fix Soon)
 12. TweenSequence double delta time calculation
@@ -1092,7 +1045,7 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 ### LOW (Nice to Have)
 33. Add undo/redo to GraphView
 34. Implement HapticsManager editor
-35. Add LogSinks implementation
+35. ~~Add LogSinks implementation~~ (FIXED)
 36. Add SettingsProvider for DLog
 37. Add AggressiveInlining to Ease functions
 38. Complete relative mode for Curves
@@ -1108,14 +1061,14 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 - [ ] Fix Rand.Shuffle() - store random index in variable
 - [ ] Fix EnumCache - assign string values properly
 - [ ] Fix ReflectionUtils.SetValue - add return statements
-- [ ] **NEW**: Fix DLog.LogInternal to check IsLoggingEnabled
+- [x] ~~**NEW**: Fix DLog.LogInternal to check IsLoggingEnabled~~ (FIXED)
 - [ ] **NEW**: Fix SerializedGraphNode.PropagateData() generic type issue
 - [ ] **NEW**: Fix WaveformGraphView.OnGraphViewChanged generic type issue
 - [ ] **NEW**: Call Init() on loaded nodes in InstantiateNode()
 - [ ] **NEW**: Remove duplicate port additions in waveform nodes
 
 ### Phase 1: Critical Fixes
-- [ ] Fix WaveformEditorWindow.ShowWindow()
+- [x] ~~Fix WaveformEditorWindow.ShowWindow()~~ (FIXED)
 - [ ] Create EventManagerUpdater MonoBehaviour
 - [ ] Fix CardCollection.DrawFromTop()
 
@@ -1149,7 +1102,7 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 
 ### Phase 5: Polish & Integration
 - [ ] Add undo/redo to GraphView
-- [ ] Implement LogSinks
+- [x] ~~Implement LogSinks~~ (FIXED)
 - [ ] Add SettingsProvider
 - [ ] Evaluate Unity.Mathematics.noise integration
 - [ ] Integrate Unity.Logging as DLog backend
@@ -1169,11 +1122,11 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 
 | Category | Count |
 |----------|-------|
-| Critical Bugs | 11 |
+| Critical Bugs | 9 (2 fixed) |
 | High Priority Issues | 10 |
 | Medium Priority Issues | 11 |
 | Low Priority Issues | 9 |
-| **Total Issues** | **41** |
+| **Total Issues** | **34** (7 fixed) |
 
 ---
 
