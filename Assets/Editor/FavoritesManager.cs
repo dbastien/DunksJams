@@ -64,7 +64,7 @@ public class FavoritesManager : EditorWindow
         Favorites.Clear();
         foreach (string id in EditorPrefs.GetString(Key).Split(','))
             if (int.TryParse(id, out var instanceID))
-                if (EditorUtility.InstanceIDToObject(instanceID) is { } obj)
+                if (EditorUtility.EntityIdToObject(instanceID) is { } obj)
                     Favorites.Add(obj);
     }
 

@@ -48,6 +48,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     public void RemoveNode(TNode n)
     {
+        (n as ICleanupNode)?.Cleanup();
         RemoveElement(n);
         _nodes.Remove(n.viewDataKey);
     }
@@ -185,7 +186,11 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     void ClearGraph()
     {
-        foreach (var n in nodes) RemoveElement(n);
+        foreach (var n in nodes)
+        {
+            (n as ICleanupNode)?.Cleanup();
+            RemoveElement(n);
+        }
         foreach (var e in edges) RemoveElement(e);
         _nodes.Clear();
     }

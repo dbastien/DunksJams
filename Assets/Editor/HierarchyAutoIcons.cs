@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -93,7 +93,7 @@ public static class HierarchyAutoIcons
 
     static void OnHierarchyItemGUI(int instanceID, Rect selectionRect)
     {
-        GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+        GameObject obj = EditorUtility.EntityIdToObject(instanceID) as GameObject;
         if (!obj) return;
 
         HashSet<Texture> displayedIcons = new();

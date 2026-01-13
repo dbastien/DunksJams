@@ -105,3 +105,12 @@ public interface IPropagatingNode
 {
     void PropagateData();
 }
+
+/// <summary>
+/// Interface for nodes that need cleanup when removed from the graph.
+/// Called by SerializedGraphView.RemoveNode() and ClearGraph().
+/// </summary>
+public interface ICleanupNode
+{
+    void Cleanup();
+}

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FlowFieldPathfinder2D
@@ -18,6 +18,15 @@ public class FlowFieldPathfinder2D
     {
         ComputeFlowField(goal, allowDiag);
         return TracePath(start, goal);
+    }
+
+    /// <summary>
+    /// Find path using a pre-allocated list to avoid allocation. Clears the list before use.
+    /// </summary>
+    public void FindPath(Vector2Int start, Vector2Int goal, List<Vector2Int> result, bool allowDiag = false)
+    {
+        ComputeFlowField(goal, allowDiag);
+        TracePath(start, goal, result);
     }
 
     private void ComputeFlowField(Vector2Int goal, bool allowDiag)
@@ -66,8 +75,15 @@ public class FlowFieldPathfinder2D
 
     private List<Vector2Int> TracePath(Vector2Int start, Vector2Int goal)
     {
-        //todo: adjust initial size, also consider renting an array
-        var path = new List<Vector2Int>(32) { start };
+        var path = new List<Vector2Int>(32);
+        TracePath(start, goal, path);
+        return path;
+    }
+
+    private void TracePath(Vector2Int start, Vector2Int goal, List<Vector2Int> path)
+    {
+        path.Clear();
+        path.Add(start);
         var current = start;
 
         while (current != goal)
@@ -80,8 +96,6 @@ public class FlowFieldPathfinder2D
             current += new Vector2Int(Mathf.RoundToInt(flow.x), Mathf.RoundToInt(flow.y));
             path.Add(current);
         }
-
-        return path;
     }
 
     public void UpdateObstacle(Vector2Int pos, bool isObstacle) =>

@@ -4,38 +4,6 @@ This document provides a thorough analysis of incomplete systems, bugs, refactor
 
 ---
 
-## Table of Contents
-1. [Critical Bugs](#critical-bugs)
-2. [Tween System](#tween-system)
-3. [DLog System](#dlog-system)
-4. [Node-Based Systems (GraphView)](#node-based-systems-graphview)
-5. [Curves System](#curves-system)
-6. [Event System](#event-system)
-7. [Gameplay Systems](#gameplay-systems)
-8. [UI System](#ui-system)
-9. [AI and Pathfinding](#ai-and-pathfinding)
-10. [Data Structures](#data-structures)
-11. [Utility Systems](#utility-systems)
-12. [Empty/Stub Systems](#emptystub-systems)
-13. [Code Quality Issues](#code-quality-issues)
-14. [Unity API Redundancies](#unity-api-redundancies)
-15. [Priority Summary](#priority-summary)
-
----
-
-## Critical Bugs
-
-### 1. ~~EventManager.Update() Never Called~~ ✅ FIXED
-**File**: `Assets/Scripts/EventSystem/EventManagerUpdater.cs`
-**Fix**: Created `EventManagerUpdater` singleton that calls `EventManager.Update()` every frame.
-
-### 2. ~~CardCollection.DrawFromTop() Doesn't Remove Card~~ ✅ FIXED
-**File**: `Assets/Scripts/Gameplay/CardGameManager.cs:103`
-**Fix**: `DrawFromTop()` now removes the card from the collection before returning it.
-**Impact**: HIGH - Card game logic is broken
-
----
-
 ## Tween System
 
 **Location**: `Assets/Scripts/Tween/`
@@ -85,14 +53,6 @@ public static Tween<Vector2> SizeDeltaTo(this RectTransform rt, Vector2 target, 
 **File**: `Ease.cs:6`
 **TODO**: `[MethodImpl(MethodImplOptions.AggressiveInlining)]` should be added to simple functions.
 
-### Recommended Actions
-- [ ] Fix TweenParallel removal during iteration
-- [ ] Add Vector2, Vector4, Rect, int interpolators
-- [ ] Add RectTransform extension methods
-- [ ] Add null target handling
-- [ ] Add From() methods
-- [ ] Add AggressiveInlining to Ease functions
-
 ---
 
 ## DLog System
@@ -133,51 +93,18 @@ public static Tween<Vector2> SizeDeltaTo(this RectTransform rt, Vector2 target, 
 #### 4. Performance Issues
 - `Colorize()` allocates strings even when `IsColorEnabled = false` could be checked earlier
 
-#### 5. ~~SaveGraph Uses LogW for Success~~ ✅ FIXED
-Already uses `DLog.Log()` for success message.
-
-### Recommended Actions
-- [ ] Remove unused `using Unity.Logging;` import
-- [ ] Unify Log and LogInternal methods into single implementation
-- [ ] Add Log(object) overload
-- [ ] Add LogWarning(object) / LogError(object) overloads
-- [ ] Add IsLoggingEnabled check to Time() method
-- [ ] Add LogFormat equivalent
-- [ ] Add Assert methods
-- [ ] Implement SettingsProvider
-- [ ] Fix SaveGraph to use Log instead of LogW
-
 ---
 
 ## Node-Based Systems (GraphView)
 
 **Location**: `Assets/Editor/GraphView/`
 
-### CRITICAL Issues
-
-#### 1. ~~SerializedGraphNode.PropagateData() Never Works~~ ✅ FIXED
-Added non-generic `IDataPort` interface with `GetDataAsObject()`/`SetDataFromObject()`. Base class now iterates all ports correctly. Removed redundant overrides from `DialogueNode`, `DialogueNodeChoice`, and `WaveformNodeBase<T>`.
-
-#### 2. ~~WaveformGraphView.OnGraphViewChanged Same Bug~~ ✅ FIXED
-Now uses non-generic `IDataPort` interface for edge data propagation.
-
 ### HIGH Issues
 
-#### 3. AudioOutputNode Destructor Issues
-**File**: `WaveformGraphNodes.cs:122-125`
-```csharp
-~AudioOutputNode()
-{
-    if (_audioSource != null) Object.DestroyImmediate(_audioSource.gameObject);
-}
-```
-**Problems**:
-- Destructor in Unity is unreliable (finalizer thread)
-- DestroyImmediate in finalizer is dangerous
-- Can cause crashes
-**Fix**: Implement proper cleanup via OnDestroy or disposal pattern.
+#### 1. ~~AudioOutputNode Destructor Issues~~ ✅ FIXED
+Replaced dangerous C# finalizer with `ICleanupNode` interface. `Cleanup()` is called by `SerializedGraphView.RemoveNode()` and `ClearGraph()`.
 
-#### 4. Type Resolution Fails
+#### 2. Type Resolution Fails
 **File**: `SerializedGraphView.cs:152-158`
 ```csharp
 var type = Type.GetType(typeName);
@@ -185,7 +112,7 @@ var type = Type.GetType(typeName);
 **Problem**: `Type.GetType()` without assembly-qualified name won't find types in different assemblies.
 **Fix**: Search assemblies or store full type name.
 
-#### 5. AnimationCurve Serialization Loss
+#### 3. AnimationCurve Serialization Loss
 **File**: `SerializedGraphView.cs:108`
 ```csharp
 nd.fields.Add(new() { name = fi.Name, val = fi.GetValue(n)?.ToString() ?? "" });
@@ -195,15 +122,15 @@ nd.fields.Add(new() { name = fi.Name, val = fi.GetValue(n)?.ToString() ?? "" });
 
 ### MEDIUM Issues
 
-#### 6. No Undo/Redo Support (DEFERRED - Feature Request)
+#### 4. No Undo/Redo Support (DEFERRED - Feature Request)
 **Problem**: Graph modifications don't register with Unity's undo system.
 **Status**: Requires significant architectural changes. Track as future feature.
 
-#### 7. Inconsistent Init() Call Order
+#### 5. Inconsistent Init() Call Order
 **Problem**: Some nodes call `base.Init()` first, others call it last.
 **Impact**: May cause subtle bugs depending on what base.Init() does.
 
-#### 8. DataPort.SetData Logs Every Time
+#### 6. DataPort.SetData Logs Every Time
 **File**: `SerializedGraphNode.cs:69-73`
 ```csharp
 public void SetData(T data)
@@ -214,16 +141,6 @@ public void SetData(T data)
 ```
 **Problem**: Logs on every data set - noisy and potential performance issue.
 
-### Recommended Actions
-- [x] **CRITICAL**: Fix PropagateData() generic type mismatch - used non-generic interface
-- [x] **CRITICAL**: Fix OnGraphViewChanged generic type mismatch
-- [ ] Replace AudioOutputNode destructor with proper cleanup
-- [ ] Fix type resolution to search assemblies
-- [ ] Implement proper AnimationCurve serialization
-- [ ] Add cleanup interface for nodes
-- [ ] Standardize Init() call order
-- [ ] Remove or make optional the SetData logging
-
 ---
 
 ## Curves System
@@ -232,15 +149,7 @@ public void SetData(T data)
 
 ### Performance Issues
 
-#### 1. TransformCurve Uses Reflection Every Frame
-**File**: `Scripts/TransformCurve.cs:76`
-```csharp
-CurveTarget.SetValue(transform, interpolatedValue, null);
-```
-**Problem**: PropertyInfo.SetValue uses reflection, called every Update().
-**Fix**: Cache delegate or use expression trees.
-
-#### 2. NormalizedAnimationCurveDrawer Preset Loading
+#### 1. NormalizedAnimationCurveDrawer Preset Loading
 **File**: `Editor/NormalizedAnimationCurveDrawer.cs:84-91`
 **Problem**: Loads presets only on script reload, not on asset database refresh.
 **Fix**: Subscribe to AssetDatabase callbacks.
@@ -256,7 +165,6 @@ All relative mode code is commented out.
 **Problem**: Paths are hardcoded, will break if folder structure changes.
 
 ### Recommended Actions
-- [ ] Cache reflection delegates in TransformCurve
 - [ ] Subscribe to AssetDatabase.importPackageCompleted
 - [ ] Implement relative mode
 - [ ] Use AssetDatabase.FindAssets for curve paths
@@ -269,21 +177,17 @@ All relative mode code is commented out.
 
 ### Issues
 
-#### 1. Update Never Called (CRITICAL)
-Already documented above.
-
-#### 2. Uses Debug.LogError
+#### 1. Uses Debug.LogError
 **File**: `EventManager.cs:103`
 Should use `DLog.LogE()`.
 
-#### 3. No Event Prioritization
+#### 2. No Event Prioritization
 **Problem**: Events process in FIFO order, no priority system.
 
-#### 4. No Event Cancellation
+#### 3. No Event Cancellation
 **Problem**: Can't cancel an event mid-propagation.
 
 ### Recommended Actions
-- [ ] Create EventManagerUpdater MonoBehaviour
 - [ ] Replace Debug.LogError with DLog.LogE
 - [ ] Add priority system (optional)
 - [ ] Add event cancellation support (optional)
@@ -307,7 +211,7 @@ All marked "largely untested":
 | ObjectiveManager | ObjectiveManager.cs | Untested | Not a MonoBehaviour |
 | Inventory | Inventory.cs | Untested | Capacity checks items not slots |
 | SaveSystem | SaveSystem.cs | Untested | Uses Debug.Log for errors |
-| CardGameManager | CardGameManager.cs | Broken | DrawFromTop bug, Debug.Log usage |
+| CardGameManager | CardGameManager.cs | Untested | Debug.Log usage |
 
 ### Specific Issues
 
@@ -320,7 +224,6 @@ All marked "largely untested":
 
 ### Recommended Actions
 - [ ] Test all gameplay systems
-- [ ] Fix CardCollection.DrawFromTop()
 - [ ] Remove duplicate StatusEffectInstance from Health.cs
 - [ ] Fix Inventory capacity logic
 - [ ] Add object pooling to Projectile
@@ -359,17 +262,6 @@ Passes null font, relies on default.
 #### Nested Class Issue
 **File**: `SteeringBehaviorSystem.cs:166-182`
 **Problem**: Idle and Align are nested inside Separation - likely a copy-paste error.
-
-### Pathfinding
-**Location**: `Assets/AI/Pathfinding/`
-
-#### FlowFieldPathfinder2D TODO
-**File**: `FlowFieldPathFinder2D.cs:69`
-Consider renting an array instead of allocating.
-
-### Recommended Actions
-- [ ] Move Idle and Align classes outside Separation
-- [ ] Implement array pooling for pathfinding
 
 ---
 
@@ -429,6 +321,24 @@ Multiple data structures use `Debug.Assert` which only runs in editor. Consider:
 | EventManager.cs | 103 | 1 |
 | **Total** | | **17** |
 
+### TreeView API Deprecation (18 warnings)
+
+Unity 6 deprecated non-generic TreeView APIs. Need to migrate to generic versions:
+
+| Old API | New API |
+|---------|---------|
+| `TreeView` | `TreeView<int>` |
+| `TreeViewItem` | `TreeViewItem<int>` |
+| `TreeViewState` | `TreeViewState<int>` |
+
+**Affected Files**:
+- `AssetBrowserTreeView.cs` (10 usages)
+- `AssetBrowserTreeViewItem.cs` (1 usage)
+- `AssetBrowserWindow.cs` (1 usage)
+- `SceneBrowser.cs`, `ShaderBrowser.cs`, `ModelBrowser.cs`, `MaterialBrowser.cs`, `TextureBrowser.cs`, `ScriptBrowser.cs` (1 each)
+
+**Effort**: Medium - requires updating class hierarchy and method signatures across AssetBrowser system.
+
 ---
 
 ## Unity API Redundancies
@@ -451,122 +361,3 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 
 ---
 
-## Priority Summary
-
-### CRITICAL (Fix Immediately)
-1. ~~EventManager.Update() never called~~ ✅
-2. ~~CardCollection.DrawFromTop() doesn't remove card~~ ✅
-3. ~~SerializedGraphNode.PropagateData() generic type mismatch~~ ✅
-4. ~~WaveformGraphView.OnGraphViewChanged same generic bug~~ ✅
-
-### HIGH (Fix Soon)
-5. AudioOutputNode destructor issues
-6. TransformCurve reflection performance
-7. Test all gameplay systems
-8. Implement or delete empty files
-9. AlignDistributeSnapWindow crashes when nothing selected
-10. SimplexNoise uses uninitialized random
-11. WorleyNoise uses wrong Random class
-12. DLog Time() method ignores IsLoggingEnabled
-
-### MEDIUM (Scheduled Work)
-13. Complete DLog parity with Debug.Log
-14. Add Vector2/RectTransform tween support
-15. Fix GraphView type resolution
-16. Fix AnimationCurve serialization
-17. Replace all Debug.Log with DLog (17 instances)
-18. Add proper Curves performance caching
-19. TextEffects character index mismatch
-20. DataPort.SetData logs on every call
-21. Inconsistent Init() call order in nodes
-
-### LOW (Nice to Have)
-22. Add undo/redo to GraphView (deferred - major feature)
-23. Implement HapticsManager editor
-24. Add SettingsProvider for DLog
-25. Add AggressiveInlining to Ease functions
-26. Complete relative mode for Curves
-27. Evaluate Unity.Mathematics.noise integration
-28. Integrate Unity.Logging with DLog
-
----
-
-## Implementation Checklist
-
-### Phase 0: Critical Bug Fixes
-- [x] Fix SerializedGraphNode.PropagateData() generic type issue
-- [x] Fix WaveformGraphView.OnGraphViewChanged generic type issue
-
-### Phase 1: Critical Fixes
-- [ ] Create EventManagerUpdater MonoBehaviour
-- [ ] Fix CardCollection.DrawFromTop()
-
-### Phase 2: Core System Fixes
-- [ ] Replace AudioOutputNode destructor
-- [ ] Cache reflection in TransformCurve
-- [ ] Fix Health.cs duplicate StatusEffectInstance
-- [ ] Fix AlignDistributeSnapWindow null check
-- [ ] Fix noise generators random usage
-- [ ] Remove unused Unity.Logging import from DLog
-- [ ] Add IsLoggingEnabled check to Time() method
-
-### Phase 3: Feature Completion
-- [ ] Add Vector2 tween support
-- [ ] Add RectTransform extensions
-- [ ] Implement AnimationCurve serialization for GraphView
-- [ ] Add DLog.Log(object) overload
-- [ ] Fix TextEffects character indexing
-
-### Phase 4: Code Quality
-- [ ] Replace 17+ Debug.Log instances with DLog
-- [ ] Add tests for gameplay systems
-- [ ] Delete or implement empty files
-- [ ] Fix nested class issues in SteeringBehaviorSystem
-- [ ] Make DataPort.SetData logging optional
-- [ ] Standardize Init() call order in graph nodes
-
-### Phase 5: Polish & Integration
-- [ ] Add undo/redo to GraphView
-- [ ] Add SettingsProvider
-- [ ] Evaluate Unity.Mathematics.noise integration
-- [ ] Integrate Unity.Logging as DLog backend
-
----
-
-## Summary Statistics
-
-| Category | Count |
-|----------|-------|
-| Critical Bugs | 4 |
-| High Priority Issues | 8 |
-| Medium Priority Issues | 9 |
-| Low Priority Issues | 7 |
-| **Total Issues** | **28** |
-| **Fixed This Session** | **16** |
-
----
-
-## Fixed Issues (This Session)
-
-1. WaveformEditorWindow.ShowWindow() - wrong window type
-2. LogW bypasses IsLoggingEnabled
-3. Rand.Shuffle() corrupts data - double IntRanged call
-4. EnumCache stores null strings
-5. ReflectionUtils.SetValue always throws - missing else
-6. TweenSequence double delta time calculation
-7. TweenManager.GetByTag allocates every call
-8. AsyncUtils.CompletedTask redundant
-9. A* Pathfinding global static state
-10. ComponentMemberReference reflection every frame
-11. LogSinks system unused
-12. IgnoredMethods list unused
-13. InstantiateNode never calls Init()
-14. Ports added twice in waveform nodes
-15. Data propagation not automatic in AnimationCurveNode
-16. DLog StackTrace performance (CallerInfo attributes)
-
----
-
-*Document generated: 2024*
-*Project: DunksJams*
-*Unity Version: 6000.3.3f1*

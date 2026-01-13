@@ -102,7 +102,7 @@ public class SineWaveNode : WaveformNodeBase<AnimationCurve>
     }
 }
 
-public class AudioOutputNode : WaveformNodeBase<AnimationCurve>
+public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
 {
     public float Duration { get; set; } = 2f;
 
@@ -112,12 +112,14 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>
 
     public AudioOutputNode() { }
 
-    ~AudioOutputNode()
+    public void Cleanup()
     {
-        if (_audioSource != null) Object.DestroyImmediate(_audioSource.gameObject);
+        if (_audioSource != null)
+        {
+            Object.DestroyImmediate(_audioSource.gameObject);
+            _audioSource = null;
+        }
     }
-
-    //todo: maybe add a cleanup to all our nodes and then in this one we destroy the audio source
 
     public override void Init(Vector2 pos, Vector2 size = default)
     {
