@@ -57,8 +57,7 @@ public class TweenSequence : ITween
     {
         if (IsComplete || _isPaused || _isCancelled) return;
 
-        deltaTime *= TimeScale;
-        deltaTime = IgnoreTimeScale ? Time.unscaledDeltaTime * TimeScale : deltaTime;
+        deltaTime = IgnoreTimeScale ? Time.unscaledDeltaTime * TimeScale : deltaTime * TimeScale;
         _sequenceTime += deltaTime;
 
         foreach ((float atPosition, ITween tween) in _tweens)

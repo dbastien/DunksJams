@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -145,6 +145,10 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
                 DLog.LogW($"Failed to set field '{fd.name}' on node '{nd.nodeType}': {ex.Message}");
             }
         }
+
+        // Initialize the node (creates ports, UI, etc.)
+        if (n is SerializedGraphNode sgn)
+            sgn.Init(nd.pos);
 
         AddElement(n);
     }

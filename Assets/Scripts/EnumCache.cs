@@ -19,7 +19,8 @@ public static class EnumCache<T> where T : Enum
         for (int i = 0; i < Values.Length; ++i)
         {
             var val = Values[i];
-            var valString = Strings[i];
+            var valString = val.ToString();
+            Strings[i] = valString;
             Cache[val] = valString;
             sb.AppendLine($"{val}: \"{valString}\"");
         }

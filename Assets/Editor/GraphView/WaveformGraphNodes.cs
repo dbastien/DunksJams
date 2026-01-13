@@ -54,15 +54,17 @@ public class AnimationCurveNode : WaveformNodeBase<AnimationCurve>
         title = "Animation Curve";
         extensionContainer.Add(new IMGUIContainer(Draw));
         _outPort = CreatePort<AnimationCurve>("Out", Direction.Output);
-        outputContainer.Add(_outPort);
         Data = new AnimationCurve();
         base.Init(pos, size);
     }
 
     void Draw()
     {
-        if (_params.Draw()) PropagateData();
+        bool changed = _params.Draw();
+        EditorGUI.BeginChangeCheck();
         Data = EditorGUILayout.CurveField(Data, GUILayout.Height(100));
+        if (EditorGUI.EndChangeCheck()) changed = true;
+        if (changed) PropagateData();
     }
 }
 
@@ -79,7 +81,6 @@ public class SineWaveNode : WaveformNodeBase<AnimationCurve>
         title = "Sine Wave";
         extensionContainer.Add(new IMGUIContainer(Draw));
         _outPort = CreatePort<AnimationCurve>("Out", Direction.Output);
-        outputContainer.Add(_outPort);
         base.Init(pos, size);
 
         Data = GenerateSineWave();
@@ -139,7 +140,6 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>
 
         extensionContainer.Add(new IMGUIContainer(Draw));
         _inPort = CreatePort<AnimationCurve>("In", Direction.Input);
-        inputContainer.Add(_inPort);
         base.Init(pos, size);
     }
 

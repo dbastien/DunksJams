@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AStarPathfinder
 {
-    static readonly PriorityQueue<AStarNode> GlobalOpenSet = new();
-    static readonly HashSet<Vector2Int> GlobalClosedSet = new();
-    static readonly Dictionary<Vector2Int, AStarNode> GlobalOpenSetLookup = new();
+    readonly PriorityQueue<AStarNode> _openSet = new();
+    readonly HashSet<Vector2Int> _closedSet = new();
+    readonly Dictionary<Vector2Int, AStarNode> _openSetLookup = new();
 
     public delegate float HeuristicFunc(Vector2Int a, Vector2Int b);
 
@@ -19,41 +19,41 @@ public class AStarPathfinder
 
         heuristic ??= Vector2IntExtensions.ManhattanDistance;
 
-        GlobalOpenSet.Clear();
-        GlobalClosedSet.Clear();
-        GlobalOpenSetLookup.Clear();
+        _openSet.Clear();
+        _closedSet.Clear();
+        _openSetLookup.Clear();
 
         var startNode = new AStarNode(start, 0, heuristic(start, goal), null);
-        GlobalOpenSet.Enqueue(startNode);
-        GlobalOpenSetLookup[start] = startNode;
+        _openSet.Enqueue(startNode);
+        _openSetLookup[start] = startNode;
 
         var neighbors = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(8);
         try
         {
-            while (GlobalOpenSet.Count > 0)
+            while (_openSet.Count > 0)
             {
-                var current = GlobalOpenSet.Dequeue();
-                GlobalOpenSetLookup.Remove(current.Position);
+                var current = _openSet.Dequeue();
+                _openSetLookup.Remove(current.Position);
 
                 if (current.Position == goal)
                     return ReconstructPath(current);
 
-                GlobalClosedSet.Add(current.Position);
+                _closedSet.Add(current.Position);
 
                 int neighborCount = GridHelper2D.GetValidNeighbors(current.Position, grid, neighbors, allowDiag);
                 for (int i = 0; i < neighborCount; ++i)
                 {
                     var neighbor = neighbors[i];
-                    if (GlobalClosedSet.Contains(neighbor)) continue;
+                    if (_closedSet.Contains(neighbor)) continue;
 
                     float g = current.G + GridHelper2D.GetCost(neighbor, grid);
                     float h = heuristic(neighbor, goal);
 
-                    if (!GlobalOpenSetLookup.TryGetValue(neighbor, out var existingNode) || g < existingNode.G)
+                    if (!_openSetLookup.TryGetValue(neighbor, out var existingNode) || g < existingNode.G)
                     {
                         var neighborNode = new AStarNode(neighbor, g, h, current);
-                        GlobalOpenSet.Enqueue(neighborNode);
-                        GlobalOpenSetLookup[neighbor] = neighborNode;
+                        _openSet.Enqueue(neighborNode);
+                        _openSetLookup[neighbor] = neighborNode;
                     }
                 }
             }

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using System.Linq;
 using System.Reflection;
 using CurveType = ComponentMemberReferenceCurve.CurveType;
-using ShaderPropertyType = UnityEditor.ShaderUtil.ShaderPropertyType;
+using ShaderPropertyType = UnityEngine.Rendering.ShaderPropertyType;
 
 [CustomEditor(typeof(ComponentMemberReferenceCurve))]
 public class ComponentMemberReferenceCurveEditor : Editor
@@ -172,13 +173,13 @@ public class ComponentMemberReferenceCurveEditor : Editor
         if (!material) return Array.Empty<string>();
 
         Shader shader = material.shader;
-        int propCount = ShaderUtil.GetPropertyCount(shader);
+        int propCount = shader.GetPropertyCount();
         System.Collections.Generic.List<string> validProperties = new();
 
         for (var i = 0; i < propCount; ++i)
         {
-            ShaderPropertyType propType = ShaderUtil.GetPropertyType(shader, i);
-            if (IsShaderPropertyValid(propType)) validProperties.Add(ShaderUtil.GetPropertyName(shader, i));
+            ShaderPropertyType propType = shader.GetPropertyType(i);
+            if (IsShaderPropertyValid(propType)) validProperties.Add(shader.GetPropertyName(i));
         }
 
         return validProperties.ToArray();
@@ -210,7 +211,7 @@ public class ComponentMemberReferenceCurveEditor : Editor
                     return;
                 }
                 
-                ShaderPropertyType propertyType = ShaderUtil.GetPropertyType(shader, propertyIndex);
+                ShaderPropertyType propertyType = shader.GetPropertyType(propertyIndex);
                 switch (propertyType)
                 {
                     case ShaderPropertyType.Color:

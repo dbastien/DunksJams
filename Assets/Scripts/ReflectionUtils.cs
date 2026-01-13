@@ -167,7 +167,7 @@ public static class ReflectionUtils
     {
         if (mi is PropertyInfo prop) prop.SetValue(inst, val);
         else if (mi is FieldInfo field) field.SetValue(inst, val);
-        throw new InvalidOperationException("Member is not a property or field.");
+        else throw new InvalidOperationException("Member is not a property or field.");
     }
 
     public static object GetValue(this MemberInfo mi, object inst) =>

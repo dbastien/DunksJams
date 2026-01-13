@@ -1,9 +1,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using UnityEditor;
 using UnityEngine;
-using ShaderPropertyType = UnityEditor.ShaderUtil.ShaderPropertyType;
+using UnityEngine.Rendering;
+using ShaderPropertyType = UnityEngine.Rendering.ShaderPropertyType;
 
 [Serializable]
 public class ComponentMemberReference
@@ -35,7 +35,7 @@ public class ComponentMemberReference
             Material material = GetMaterial(renderer);
             if (material && _shaderPropType.HasValue)
             {
-                ShaderPropertyType propertyType = ShaderUtil.GetPropertyType(material.shader, material.shader.FindPropertyIndex(targetMemberName));
+                ShaderPropertyType propertyType = material.shader.GetPropertyType(material.shader.FindPropertyIndex(targetMemberName));
         
                 switch (propertyType)
                 {
@@ -105,7 +105,7 @@ public class ComponentMemberReference
             Material mat = GetMaterial(renderer);
             if (mat && mat.HasProperty(cleanMemberName))
             {
-                _shaderPropType = ShaderUtil.GetPropertyType(mat.shader, mat.shader.FindPropertyIndex(cleanMemberName));
+                _shaderPropType = mat.shader.GetPropertyType(mat.shader.FindPropertyIndex(cleanMemberName));
                 _infoCached = true;
                 return true;
             }

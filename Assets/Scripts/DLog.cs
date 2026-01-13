@@ -160,7 +160,7 @@ public static class DLog
 
             if (fileName != null &&
                 !fileName.Contains("DLog.cs") &&
-                method.GetCustomAttribute<HideInStackTrace>() == null)
+                method.GetCustomAttribute<HideInStackTraceAttribute>() == null)
             {
                 if (!first) sb.Append(" <- ");
                 sb.Append($"{Path.GetFileName(fileName)}:{frame.GetFileLineNumber()} ({method.Name})");

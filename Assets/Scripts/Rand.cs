@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -90,7 +90,10 @@ public static class Rand
     {
         // fisher-yates
         for (int i = list.Count - 1; i > 0; --i)
-            (list[i], list[IntRanged(0, i + 1)]) = (list[IntRanged(0, i + 1)], list[i]);
+        {
+            int j = IntRanged(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,7 +101,10 @@ public static class Rand
     {
         // fisher-yates
         for (int i = span.Length - 1; i > 0; --i)
-            (span[i], span[IntRanged(0, i + 1)]) = (span[IntRanged(0, i + 1)], span[i]);
+        {
+            int j = IntRanged(0, i + 1);
+            (span[i], span[j]) = (span[j], span[i]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

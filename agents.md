@@ -202,4 +202,176 @@ When implementing features:
 
 ---
 
+## Unity Log Locations
+
+### Editor Logs
+- **Windows**: `%LOCALAPPDATA%\Unity\Editor\Editor.log`
+- **macOS**: `~/Library/Logs/Unity/Editor.log`
+- **Previous session**: `Editor-prev.log` in same directory
+
+### Player Logs
+- **Windows**: `%USERPROFILE%\AppData\LocalLow\<CompanyName>\<ProductName>\Player.log`
+- **macOS**: `~/Library/Logs/<CompanyName>/<ProductName>/Player.log`
+- **Linux**: `~/.config/unity3d/<CompanyName>/<ProductName>/Player.log`
+
+### DLog File Output
+- Custom logs written to: `Application.persistentDataPath/Logs/`
+- Windows: `%USERPROFILE%\AppData\LocalLow\<CompanyName>\<ProductName>\Logs\`
+
+---
+
+## Important Unity Paths
+
+| Path | Purpose | Writable |
+|------|---------|----------|
+| `Application.persistentDataPath` | Save data, logs, user files | Yes |
+| `Application.streamingAssetsPath` | Read-only bundled assets | No (build) |
+| `Application.dataPath` | Assets folder (Editor only) | Editor only |
+| `Application.temporaryCachePath` | Temporary files | Yes |
+
+---
+
+## Running Tests
+
+### Edit Mode Tests
+- Location: `Assets/Tests/Editor/`
+- Run via: **Window > General > Test Runner** (Edit Mode tab)
+- Tests use `TestBase` helper class for assertions
+
+### Test Categories
+- **Core**: Rand, EnumCache, Combinatorics, ReflectionUtils
+- **DataStructures**: RingBuffer, PriorityQueue, Deque, LRUCache
+- **Extensions**: Int, Float, String
+- **Tween**: Ease functions
+
+### Test Helpers
+- `TestBase` - Base class with `Eq()`, `True()`, `False()`, `Approx()`, `InRange()`, `Throws<T>()`
+- `H` (TestHelpers) - Collection helpers: `H.Seq()`, `H.Contains()`, `H.Count()`, `H.Empty()`
+
+---
+
+## Key Unity Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `com.unity.test-framework` | 1.4.6 | Unit testing |
+| `com.unity.inputsystem` | 1.17.0 | New Input System |
+| `com.unity.entities` | 1.4.2 | ECS (optional use) |
+| `com.unity.logging` | 1.3.10 | Structured logging (not currently integrated) |
+| `com.unity.render-pipelines.universal` | 17.3.0 | URP rendering |
+
+---
+
+## Editor vs Runtime Code
+
+### Conditional Compilation
+```csharp
+#if UNITY_EDITOR
+    // Editor-only code (menus, gizmos, inspector extensions)
+    UnityEditor.EditorApplication.isPlaying = false;
+#endif
+
+#if !UNITY_EDITOR
+    // Build-only code
+#endif
+
+#if UNITY_INCLUDE_TESTS
+    // Test code only
+#endif
+```
+
+### Editor Scripts Location
+- `Assets/Editor/` - Custom inspectors, editor windows, menu items
+- Not included in builds
+
+---
+
+## Triggering Recompilation & Checking Errors
+
+### How Unity Recompiles
+Unity automatically recompiles scripts when:
+1. **Unity regains focus** after external file changes
+2. **AssetDatabase.Refresh()** is called from editor code
+3. **Files are saved** from within Unity's code editor
+
+### Triggering Recompile from External Tools
+Since Unity only auto-refreshes on focus:
+
+**Normal workflow**: Edit a `.cs` file → ask user to switch to Unity → Unity detects changes and recompiles. File edits automatically update modification times.
+
+**Force recompile without code changes** (rare):
+```powershell
+# Touch asmdef to trigger recompile when Unity gets focus
+(Get-Item "Assets/Scripts/GameCode.asmdef").LastWriteTime = Get-Date
+```
+
+**Limitation**: Unity must have focus for recompilation to occur. There is no way to force a recompile while Unity is in the background without using batch mode.
+
+### Checking for Compilation Errors
+
+**Read the Unity Editor log and filter for errors:**
+```powershell
+# Check for recent C# compilation errors (Windows)
+Get-Content "$env:LOCALAPPDATA\Unity\Editor\Editor.log" -Tail 200 | Select-String "error CS"
+
+# Check for fresh compilation results
+Get-Content "$env:LOCALAPPDATA\Unity\Editor\Editor.log" -Tail 100 | Select-String "##### ExitCode|error CS|Asset Pipeline Refresh"
+```
+
+**Exit codes in log:**
+- `##### ExitCode\n0` - Compilation succeeded
+- `##### ExitCode\n1` - Compilation failed (look for `error CS` lines above)
+
+### Common Assembly Reference Issues
+When using `.asmdef` files, ensure correct assembly names:
+- Input System: `Unity.InputSystem`
+- TextMeshPro: `Unity.TextMeshPro`
+- Entities/DOTS: `Unity.Entities`
+- Collections: `Unity.Collections`
+- Mathematics: `Unity.Mathematics`
+
+Find package assembly names:
+```powershell
+# List all asmdef files in a package
+cmd /c "dir /s /b Library\PackageCache\com.unity.inputsystem*\*.asmdef"
+```
+
+---
+
+## Debugging Tips
+
+### Common Debug Commands
+- `Debug.Break()` - Pause editor when hit
+- `DLog.Time(() => { ... })` - Measure execution time
+
+### Finding Objects at Runtime
+```csharp
+// Unity 6000+ preferred methods
+FindFirstObjectByType<T>()      // Single object
+FindObjectsByType<T>(sortMode)  // Multiple objects
+
+// Avoid (deprecated in Unity 6000)
+FindObjectOfType<T>()
+FindObjectsOfType<T>()
+```
+
+### Inspector Debugging
+- Click lock icon to keep Inspector on one object
+- Right-click component header > Debug to see private fields
+
+---
+
+## Build Configuration
+
+### Project Settings
+- Company Name: (check ProjectSettings/ProjectSettings.asset)
+- Product Name: DunksJams
+- Scripting Backend: IL2CPP recommended for builds
+
+### Scripting Define Symbols
+Add via: **Project Settings > Player > Scripting Define Symbols**
+- `ENABLE_LOGGING` - Enable DLog in builds (if implemented)
+
+---
+
 **Remember**: When in doubt, search the codebase for similar patterns and match the existing style. Consistency is more important than perfect adherence to external style guides.

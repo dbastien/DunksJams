@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,9 +9,6 @@ public static class AsyncUtils
 {
     static readonly WaitForEndOfFrame _endOfFrame = new();
     static readonly WaitForFixedUpdate _fixedUpdate = new();
-    static readonly Task _completedTask = Task.FromResult(true);
-
-    public static Task CompletedTask => _completedTask;
 
     public static IEnumerator Delay(float seconds, CancellationToken token)
     {
