@@ -101,7 +101,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         var nd = new NodeData
         {
             guid = n.viewDataKey,
-            nodeType = n.GetType().Name,
+            nodeType = n.GetType().AssemblyQualifiedName,
             pos = n.GetPosition().position
         };
 

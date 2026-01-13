@@ -1,10 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 //todo: largely untested
 public class Inventory<T>
 {
     readonly Dictionary<T, int> _items = new(); // T could be an Item type or ID
+    
+    /// <summary>Capacity is slot-based (unique item types), not total quantity.</summary>
     public int Capacity { get; private set; }
     public int ItemCount => _items.Count;
 

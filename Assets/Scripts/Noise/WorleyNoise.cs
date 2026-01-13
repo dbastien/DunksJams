@@ -1,40 +1,32 @@
-﻿using UnityEngine;
+using Unity.Mathematics;
 
 public static class WorleyNoise
 {
-    static readonly Vector2[,] precomputedOffsets;
-
-    static WorleyNoise()
+    /// <summary>2D Worley/Cellular noise. Returns F1 (distance to nearest point), [0, ~1].</summary>
+    public static float Worley2D(float x, float y)
     {
-        int seed = 42; // Example seed
-        Random.InitState(seed);
-        precomputedOffsets = new Vector2[3, 3];
-        for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j)
-            precomputedOffsets[i, j] = new(Random.value, Random.value);
+        // noise.cellular returns float2(F1, F2) - distances to nearest and second-nearest points
+        return noise.cellular(new float2(x, y)).x;
     }
 
-    public static float Worley2D(float x, float y, int cells = 5)
+    /// <summary>2D Worley noise with cell count control.</summary>
+    public static float Worley2D(float x, float y, int cells)
     {
-        float minDistSq = float.MaxValue;
-        float cellSize = 1f / cells;
-        int px = Mathf.FloorToInt(x * cells), py = Mathf.FloorToInt(y * cells);
-
-        for (int i = -1; i <= 1; ++i)
-        {
-            for (int j = -1; j <= 1; ++j)
-            {
-                int xi = (px + i + cells) % cells;
-                int yi = (py + j + cells) % cells;
-
-                float cx = (px + i + precomputedOffsets[xi % 3, yi % 3].x) * cellSize;
-                float cy = (py + j + precomputedOffsets[xi % 3, yi % 3].y) * cellSize;
-
-                float dx = cx - x, dy = cy - y;
-                float distSq = dx * dx + dy * dy;
-                minDistSq = Mathf.Min(minDistSq, distSq);
-            }
-        }
-        return Mathf.Sqrt(minDistSq);
+        return noise.cellular(new float2(x * cells, y * cells)).x;
     }
+
+    /// <summary>3D Worley/Cellular noise. Returns F1 (distance to nearest point).</summary>
+    public static float Worley3D(float x, float y, float z)
+    {
+        return noise.cellular(new float3(x, y, z)).x;
+    }
+}
+
+public class WorleyNoiseGenerator : INoiseGenerator
+{
+    public float Frequency { get; set; } = 1f;
+
+    public float GetValue(float x) => WorleyNoise.Worley2D(x * Frequency, 0);
+    public float GetValue(float x, float y) => WorleyNoise.Worley2D(x * Frequency, y * Frequency);
+    public float GetValue(float x, float y, float z) => WorleyNoise.Worley3D(x * Frequency, y * Frequency, z * Frequency);
 }

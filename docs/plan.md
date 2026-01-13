@@ -101,17 +101,6 @@ public static Tween<Vector2> SizeDeltaTo(this RectTransform rt, Vector2 target, 
 
 ### HIGH Issues
 
-#### 1. ~~AudioOutputNode Destructor Issues~~ ✅ FIXED
-Replaced dangerous C# finalizer with `ICleanupNode` interface. `Cleanup()` is called by `SerializedGraphView.RemoveNode()` and `ClearGraph()`.
-
-#### 2. Type Resolution Fails
-**File**: `SerializedGraphView.cs:152-158`
-```csharp
-var type = Type.GetType(typeName);
-```
-**Problem**: `Type.GetType()` without assembly-qualified name won't find types in different assemblies.
-**Fix**: Search assemblies or store full type name.
-
 #### 3. AnimationCurve Serialization Loss
 **File**: `SerializedGraphView.cs:108`
 ```csharp
@@ -171,29 +160,6 @@ All relative mode code is commented out.
 
 ---
 
-## Event System
-
-**Location**: `Assets/Scripts/EventSystem/`
-
-### Issues
-
-#### 1. Uses Debug.LogError
-**File**: `EventManager.cs:103`
-Should use `DLog.LogE()`.
-
-#### 2. No Event Prioritization
-**Problem**: Events process in FIFO order, no priority system.
-
-#### 3. No Event Cancellation
-**Problem**: Can't cancel an event mid-propagation.
-
-### Recommended Actions
-- [ ] Replace Debug.LogError with DLog.LogE
-- [ ] Add priority system (optional)
-- [ ] Add event cancellation support (optional)
-
----
-
 ## Gameplay Systems
 
 **Location**: `Assets/Scripts/Gameplay/`
@@ -217,10 +183,6 @@ All marked "largely untested":
 
 #### Health.cs Duplicate Class
 **Lines 54-59**: Defines own `StatusEffectInstance` class, but `StatusEffectSystem.cs` already has one with more features.
-
-#### Inventory Capacity Bug
-**File**: `Inventory.cs:18`
-**Problem**: `ItemCount` counts unique items, not total quantity. Capacity should check total items.
 
 ### Recommended Actions
 - [ ] Test all gameplay systems
@@ -347,7 +309,13 @@ Unity 6 deprecated non-generic TreeView APIs. Need to migrate to generic version
 
 | Custom System | Unity Alternative | Recommendation |
 |---------------|-------------------|----------------|
-| Noise generators | Unity.Mathematics.noise | Evaluate switching |
+| Noise generators | Unity.Mathematics.noise | **Keep abstraction, optionally use internally** |
+
+**Noise Evaluation:** ✅ REFACTORED
+- `INoiseGenerator` abstraction kept - Unity.Mathematics lacks this
+- `FBMNoise` (octave layering) and generator classes kept - add real value
+- `SimplexNoise` and `WorleyNoise` refactored to use `Unity.Mathematics.noise` internally
+- Fixes initialization bugs, adds Burst compatibility, reduces code by ~100 lines
 
 ### Unity.Logging Integration Opportunity
 
