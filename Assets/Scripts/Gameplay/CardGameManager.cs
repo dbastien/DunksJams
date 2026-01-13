@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,8 +99,13 @@ public class CardCollection<T> : ICollection<T> where T : CardBase
 
     public void Shuffle() => Rand.Shuffle(_cards);
     
-    //todo: doesn't seem to really draw
-    public T DrawFromTop() => _cards.Count > 0 ? _cards[^1] : throw new InvalidOperationException("No cards left.");
+    public T DrawFromTop()
+    {
+        if (_cards.Count == 0) throw new InvalidOperationException("No cards left.");
+        T card = _cards[^1];
+        _cards.RemoveAt(_cards.Count - 1);
+        return card;
+    }
     public T PeekTop() => _cards.Count > 0 ? _cards[^1] : throw new InvalidOperationException("No cards left.");
     
     public int Count => _cards.Count;

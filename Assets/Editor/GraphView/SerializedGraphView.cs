@@ -80,7 +80,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         };
 
         File.WriteAllText(FilePath, JsonUtility.ToJson(gd, true));
-        DLog.LogW($"Graph saved to {FilePath}");
+        DLog.Log($"Graph saved to {FilePath}");
     }
 
     public void LoadGraph()

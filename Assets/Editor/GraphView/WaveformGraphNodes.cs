@@ -31,17 +31,9 @@ public abstract class WaveformNodeBase<T> : WaveformNodeBase, IDataPort<T>
     protected T Data;
 
     public T GetData() => Data;
+    public object GetDataAsObject() => Data;
     public void SetData(T data) => Data = data;
-
-    public override void PropagateData()
-    {
-        foreach (var output in outputContainer.Children().OfType<DataPort<T>>())
-        {
-            foreach (Edge edge in output.connections)
-                if (edge.input is IDataPort<T> inputPort)
-                    inputPort.SetData(Data);
-        }
-    }
+    public void SetDataFromObject(object data) => SetData((T)data);
 }
 
 public class AnimationCurveNode : WaveformNodeBase<AnimationCurve>

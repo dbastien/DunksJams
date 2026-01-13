@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -128,8 +128,10 @@ public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeV
             Errors.Clear();
             Warnings.Clear();
 
+#pragma warning disable CS0618 // No modern equivalent for shader message APIs
             int n = ShaderUtil.GetShaderMessageCount(Mat.shader);
             ShaderMessage[] msgs = n > 0 ? ShaderUtil.GetShaderMessages(Mat.shader) : null;
+#pragma warning restore CS0618
             for (var i = 0; i < n; ++i)
                 (msgs[i].severity == ShaderCompilerMessageSeverity.Error ? Errors : Warnings).Add(msgs[i]);
             

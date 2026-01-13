@@ -25,35 +25,13 @@ This document provides a thorough analysis of incomplete systems, bugs, refactor
 
 ## Critical Bugs
 
-### 1. EventManager.Update() Never Called
-**File**: `Assets/Scripts/EventSystem/EventManager.cs:117`
-**Issue**: The `Update()` method exists but is never invoked. Queued events never process.
-**Fix**: Create a MonoBehaviour singleton that calls `EventManager.Update()` every frame:
-```csharp
-public class EventManagerUpdater : SingletonBehavior<EventManagerUpdater>
-{
-    protected override void InitInternal() => DontDestroyOnLoad(gameObject);
-    void Update() => EventManager.Update();
-}
-```
-**Impact**: HIGH - Event queue system is non-functional
+### 1. ~~EventManager.Update() Never Called~~ ✅ FIXED
+**File**: `Assets/Scripts/EventSystem/EventManagerUpdater.cs`
+**Fix**: Created `EventManagerUpdater` singleton that calls `EventManager.Update()` every frame.
 
-### 2. CardCollection.DrawFromTop() Doesn't Remove Card
+### 2. ~~CardCollection.DrawFromTop() Doesn't Remove Card~~ ✅ FIXED
 **File**: `Assets/Scripts/Gameplay/CardGameManager.cs:103`
-**Issue**: `DrawFromTop()` returns the last card but doesn't remove it from the collection
-```csharp
-// CURRENT (broken):
-public T DrawFromTop() => _cards.Count > 0 ? _cards[^1] : throw new InvalidOperationException("No cards left.");
-
-// SHOULD BE:
-public T DrawFromTop()
-{
-    if (_cards.Count == 0) throw new InvalidOperationException("No cards left.");
-    T card = _cards[^1];
-    _cards.RemoveAt(_cards.Count - 1);
-    return card;
-}
-```
+**Fix**: `DrawFromTop()` now removes the card from the collection before returning it.
 **Impact**: HIGH - Card game logic is broken
 
 ---
@@ -155,12 +133,8 @@ public static Tween<Vector2> SizeDeltaTo(this RectTransform rt, Vector2 target, 
 #### 4. Performance Issues
 - `Colorize()` allocates strings even when `IsColorEnabled = false` could be checked earlier
 
-#### 5. SaveGraph Uses LogW for Success
-**File**: `SerializedGraphView.cs:83`
-```csharp
-DLog.LogW($"Graph saved to {FilePath}");
-```
-**Problem**: Success message logged as warning. Should be `DLog.Log()`.
+#### 5. ~~SaveGraph Uses LogW for Success~~ ✅ FIXED
+Already uses `DLog.Log()` for success message.
 
 ### Recommended Actions
 - [ ] Remove unused `using Unity.Logging;` import
@@ -181,31 +155,11 @@ DLog.LogW($"Graph saved to {FilePath}");
 
 ### CRITICAL Issues
 
-#### 1. SerializedGraphNode.PropagateData() Never Works (CRITICAL)
-**File**: `SerializedGraphNode.cs:23-30`
-```csharp
-public virtual void PropagateData()
-{
-    foreach (var output in outputContainer.Children().OfType<DataPort<object>>())
-    {
-        foreach (Edge edge in output.connections)
-            (edge.input as IDataPort<object>)?.SetData(output.GetData());
-    }
-}
-```
-**Problem**: Casts to `DataPort<object>` which NEVER matches `DataPort<AnimationCurve>` or `DataPort<string>`!
-Generic types are invariant in C# - `DataPort<AnimationCurve>` is NOT a `DataPort<object>`.
-**Impact**: CRITICAL - Base PropagateData() never propagates any data. Only works if subclass overrides.
+#### 1. ~~SerializedGraphNode.PropagateData() Never Works~~ ✅ FIXED
+Added non-generic `IDataPort` interface with `GetDataAsObject()`/`SetDataFromObject()`. Base class now iterates all ports correctly. Removed redundant overrides from `DialogueNode`, `DialogueNodeChoice`, and `WaveformNodeBase<T>`.
 
-#### 2. WaveformGraphView.OnGraphViewChanged Same Bug
-**File**: `WaveformGraphView.cs:24-29`
-```csharp
-if (e.output is not IDataPort<object> outPort) continue;
-var data = outPort.GetData();
-(e.input as IDataPort<object>)?.SetData(data);
-```
-**Problem**: Same generic type mismatch. `DataPort<AnimationCurve>` is NOT `IDataPort<object>`.
-**Impact**: CRITICAL - Edge data propagation never works.
+#### 2. ~~WaveformGraphView.OnGraphViewChanged Same Bug~~ ✅ FIXED
+Now uses non-generic `IDataPort` interface for edge data propagation.
 
 ### HIGH Issues
 
@@ -261,8 +215,8 @@ public void SetData(T data)
 **Problem**: Logs on every data set - noisy and potential performance issue.
 
 ### Recommended Actions
-- [ ] **CRITICAL**: Fix PropagateData() generic type mismatch - use non-generic interface or reflection
-- [ ] **CRITICAL**: Fix OnGraphViewChanged generic type mismatch
+- [x] **CRITICAL**: Fix PropagateData() generic type mismatch - used non-generic interface
+- [x] **CRITICAL**: Fix OnGraphViewChanged generic type mismatch
 - [ ] Replace AudioOutputNode destructor with proper cleanup
 - [ ] Fix type resolution to search assemblies
 - [ ] Implement proper AnimationCurve serialization
@@ -500,10 +454,10 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 ## Priority Summary
 
 ### CRITICAL (Fix Immediately)
-1. EventManager.Update() never called
-2. CardCollection.DrawFromTop() doesn't remove card
-3. SerializedGraphNode.PropagateData() generic type mismatch
-4. WaveformGraphView.OnGraphViewChanged same generic bug
+1. ~~EventManager.Update() never called~~ ✅
+2. ~~CardCollection.DrawFromTop() doesn't remove card~~ ✅
+3. ~~SerializedGraphNode.PropagateData() generic type mismatch~~ ✅
+4. ~~WaveformGraphView.OnGraphViewChanged same generic bug~~ ✅
 
 ### HIGH (Fix Soon)
 5. AudioOutputNode destructor issues
@@ -540,8 +494,8 @@ The project includes `com.unity.logging 1.3.10` but DLog doesn't use it. Unity.L
 ## Implementation Checklist
 
 ### Phase 0: Critical Bug Fixes
-- [ ] Fix SerializedGraphNode.PropagateData() generic type issue
-- [ ] Fix WaveformGraphView.OnGraphViewChanged generic type issue
+- [x] Fix SerializedGraphNode.PropagateData() generic type issue
+- [x] Fix WaveformGraphView.OnGraphViewChanged generic type issue
 
 ### Phase 1: Critical Fixes
 - [ ] Create EventManagerUpdater MonoBehaviour

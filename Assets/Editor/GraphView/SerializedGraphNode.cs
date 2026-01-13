@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -22,10 +22,10 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
 
     public virtual void PropagateData()
     {
-        foreach (var output in outputContainer.Children().OfType<DataPort<object>>())
+        foreach (var output in outputContainer.Children().OfType<IDataPort>())
         {
-            foreach (Edge edge in output.connections)
-                (edge.input as IDataPort<object>)?.SetData(output.GetData());
+            foreach (Edge edge in ((Port)output).connections)
+                (edge.input as IDataPort)?.SetDataFromObject(output.GetDataAsObject());
         }
     }
 
@@ -45,7 +45,13 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
     }
 }
 
-public interface IDataPort<T>
+public interface IDataPort
+{
+    object GetDataAsObject();
+    void SetDataFromObject(object data);
+}
+
+public interface IDataPort<T> : IDataPort
 {
     T GetData();
     void SetData(T data);
@@ -65,12 +71,15 @@ public class DataPort<T> : Port, IDataPort<T>
     }
 
     public T GetData() => _data;
+    public object GetDataAsObject() => _data;
 
     public void SetData(T data)
     {
         _data = data;
         DLog.Log($"{portName} received data: {data}");
     }
+
+    public void SetDataFromObject(object data) => SetData((T)data);
 }
 
 public class DefaultEdgeConnectorListener : IEdgeConnectorListener

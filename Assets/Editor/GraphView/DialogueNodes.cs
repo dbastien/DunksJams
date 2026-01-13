@@ -1,17 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public abstract class DialogueNodeBase : SerializedGraphNode, IPropagatingNode
-{
-    public abstract override void PropagateData();
-}
+public abstract class DialogueNodeBase : SerializedGraphNode { }
 
-public class DialogueNode : DialogueNodeBase
-{
-    public override void PropagateData() { }
-}
+public class DialogueNode : DialogueNodeBase { }
 
 public class DialogueNodeChoice : DialogueNode
 {
@@ -41,11 +35,4 @@ public class DialogueNodeChoice : DialogueNode
         Refresh();
     }
 
-    public override void PropagateData()
-    {
-        foreach (var port in outputContainer.Children().OfType<DataPort<string>>())
-            foreach (Edge con in port.connections)
-                if (con.input is IDataPort<string> input)
-                    input.SetData(port.GetData()); 
-    }
 }

@@ -23,9 +23,8 @@ public class WaveformGraphView : SerializedGraphView<WaveformNodeBase, Edge>
 
         foreach (Edge e in change.edgesToCreate)
         {
-            if (e.output is not IDataPort<object> outPort) continue;
-            var data = outPort.GetData();
-            (e.input as IDataPort<object>)?.SetData(data);
+            if (e.output is not IDataPort outPort) continue;
+            (e.input as IDataPort)?.SetDataFromObject(outPort.GetDataAsObject());
             (e.input.node as IPropagatingNode)?.PropagateData();
         }
 

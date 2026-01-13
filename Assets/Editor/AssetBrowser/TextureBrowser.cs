@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 public class TextureBrowserWindow : AssetBrowserWindow<TextureBrowserTreeView, TextureBrowserTreeView.TreeViewItem>
@@ -60,11 +61,11 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
 
     static void ExtractTexturesFromMaterial(Material mat, HashSet<Texture> uniqueTextures)
     {
-        int propCount = ShaderUtil.GetPropertyCount(mat.shader);
+        int propCount = mat.shader.GetPropertyCount();
         for (var i = 0; i < propCount; ++i)
         {
-            if (ShaderUtil.GetPropertyType(mat.shader, i) != ShaderUtil.ShaderPropertyType.TexEnv) continue;
-            Texture tex = mat.GetTexture(ShaderUtil.GetPropertyName(mat.shader, i));
+            if (mat.shader.GetPropertyType(i) != ShaderPropertyType.Texture) continue;
+            Texture tex = mat.GetTexture(mat.shader.GetPropertyName(i));
             if (tex) uniqueTextures.Add(tex);
         }
     }

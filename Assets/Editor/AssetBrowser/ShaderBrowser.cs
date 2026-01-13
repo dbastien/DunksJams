@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -64,7 +64,9 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
             Errors.Clear();
             Warnings.Clear();
 
+#pragma warning disable CS0618 // No modern equivalent for GetShaderData
             Data = ShaderUtil.GetShaderData(Shader);
+#pragma warning restore CS0618
             
             HasShadowCasterPass = ShaderUtilWrapper.HasShadowCasterPass(Shader);
             IsSRPBatcherCompatible = ShaderUtilWrapper.IsSRPBatcherCompatible(Shader);
@@ -103,8 +105,10 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
                 if (!string.IsNullOrEmpty(name)) PropNames.Add(name);
             }
 
+#pragma warning disable CS0618 // No modern equivalent for shader message APIs
             int n = ShaderUtil.GetShaderMessageCount(Shader);
             ShaderMessage[] msgs = n > 0 ? ShaderUtil.GetShaderMessages(Shader) : null;
+#pragma warning restore CS0618
             for (var i = 0; i < n; ++i)
                 (msgs[i].severity == ShaderCompilerMessageSeverity.Error ? Errors : Warnings).Add(msgs[i]);
             
