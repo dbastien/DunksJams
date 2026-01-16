@@ -154,11 +154,11 @@ rectTransform.TweenAnchoredPosition(new Vector2(100, 50), 1f, EaseType.BackOut);
 rectTransform.TweenSizeDelta(new Vector2(200, 100), 0.8f, t => t * t); // Custom easing
 
 // Discrete value tweening (generic - any int property)
-TweenInt(0, 1000, 2f, value => scoreText.text = value.ToString(), EaseType.Linear);
+ToInt(0, 1000, 2f, value => scoreText.text = value.ToString(), EaseType.Linear);
 Tweening.To(() => score, x => score = x, 1000, 2f, EaseType.CubicOut);
 
 // Rect tweening (generic - any Rect property)
-TweenRect(currentRect, targetRect, 1f, rect => uiElement.rect = rect, EaseType.CubicOut);
+ToRect(currentRect, targetRect, 1f, rect => uiElement.rect = rect, EaseType.CubicOut);
 Tweening.To(() => uiElement.rect, rect => uiElement.rect = rect, targetRect, 1f, t => 1 - (1-t)*(1-t));
 ```
 

@@ -71,18 +71,18 @@ public static class TweenExtensions
 
     // ===== GENERIC STATIC METHODS =====
 
-    // Int tweening - generic for any int property
-    public static Tween<int> TweenInt(int startValue, int endValue, float duration, Action<int> setter, EaseType easeType) =>
+    // Int tweening - generic for any int property (follows Tweening.To pattern)
+    public static Tween<int> ToInt(int startValue, int endValue, float duration, Action<int> setter, EaseType easeType) =>
         AddTween(new Tween<int>(startValue, endValue, duration, null, setter, LerpInt).SetEase(easeType));
 
-    public static Tween<int> TweenInt(int startValue, int endValue, float duration, Action<int> setter, Func<float, float> customEase) =>
+    public static Tween<int> ToInt(int startValue, int endValue, float duration, Action<int> setter, Func<float, float> customEase) =>
         AddTween(new Tween<int>(startValue, endValue, duration, customEase, setter, LerpInt));
 
-    // Rect tweening - generic for any Rect property
-    public static Tween<Rect> TweenRect(Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType) =>
+    // Rect tweening - generic for any Rect property (follows Tweening.To pattern)
+    public static Tween<Rect> ToRect(Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType) =>
         AddTween(new Tween<Rect>(startValue, endValue, duration, null, setter, LerpRect).SetEase(easeType));
 
-    public static Tween<Rect> TweenRect(Rect startValue, Rect endValue, float duration, Action<Rect> setter, Func<float, float> customEase) =>
+    public static Tween<Rect> ToRect(Rect startValue, Rect endValue, float duration, Action<Rect> setter, Func<float, float> customEase) =>
         AddTween(new Tween<Rect>(startValue, endValue, duration, customEase, setter, LerpRect));
 
     // ===== INTERPOLATION HELPERS =====
