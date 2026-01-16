@@ -17,11 +17,11 @@ public class Tween<T> : ITween, IPoolable
     
     T _startValue;
     T _endValue;
-    readonly float _duration;
+    float _duration;
     EaseType _easeType = EaseType.Linear;
     Func<float, float> _customEase;
-    readonly Action<T> _onUpdateValue;
-    readonly Func<T, T, float, T> _interpolator;
+    Action<T> _onUpdateValue;
+    Func<T, T, float, T> _interpolator;
 
     float _elapsedTime;
     bool _isPaused;
