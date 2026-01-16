@@ -50,6 +50,37 @@ public static class TweenExtensions
     public static Tween<Vector3> ScaleBy(this Transform t, Vector3 scaleOffset, float d, EaseType e) =>
         AddTween(new Tween<Vector3>(t.localScale, t.localScale + scaleOffset, d, null, v => t.localScale = v, Vector3.Lerp).SetEase(e));
 
+    // Support for missing types: Vector2, int, Rect
+
+    // Vector2 interpolation helper
+    static Vector2 LerpVector2(Vector2 a, Vector2 b, float t) => Vector2.Lerp(a, b, t);
+
+    // Rect interpolation helper (interpolate each component)
+    static Rect LerpRect(Rect a, Rect b, float t) => new Rect(
+        Mathf.Lerp(a.x, b.x, t),
+        Mathf.Lerp(a.y, b.y, t),
+        Mathf.Lerp(a.width, b.width, t),
+        Mathf.Lerp(a.height, b.height, t)
+    );
+
+    // Int interpolation helper (lerp and round)
+    static int LerpInt(int a, int b, float t) => Mathf.RoundToInt(Mathf.Lerp(a, b, t));
+
+    // Vector2 tweening extensions
+    public static Tween<Vector2> TweenAnchoredPosition(this RectTransform rt, Vector2 target, float d, EaseType e) =>
+        AddTween(new Tween<Vector2>(rt.anchoredPosition, target, d, null, v => rt.anchoredPosition = v, LerpVector2).SetEase(e));
+
+    public static Tween<Vector2> TweenSizeDelta(this RectTransform rt, Vector2 target, float d, EaseType e) =>
+        AddTween(new Tween<Vector2>(rt.sizeDelta, target, d, null, v => rt.sizeDelta = v, LerpVector2).SetEase(e));
+
+    // Int tweening extensions (useful for discrete values like score, health, etc.)
+    public static Tween<int> TweenInt(this object target, int startValue, int endValue, float duration, Action<int> setter, EaseType easeType) =>
+        AddTween(new Tween<int>(startValue, endValue, duration, null, setter, LerpInt).SetEase(easeType));
+
+    // Rect tweening extensions (useful for UI layout changes)
+    public static Tween<Rect> TweenRect(this object target, Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType) =>
+        AddTween(new Tween<Rect>(startValue, endValue, duration, null, setter, LerpRect).SetEase(easeType));
+
     static Tween<T> AddTween<T>(Tween<T> tween)
     {
         TweenManager.Instance.Add(tween);

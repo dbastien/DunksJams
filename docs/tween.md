@@ -71,7 +71,7 @@ new Tween<Vector3>(
 2. **Inconsistent method names** - `MoveTo`, `RotateTo`, `FadeTo`, `ColorTo` vs `Tweening.To`
 3. **Over-engineered Tween<T>** - 15+ properties/methods, complex state management
 4. **Missing fluent API** - No method chaining for configuration
-5. **Type limitations** - Only supports float, Vector3, Color, Quaternion (missing Vector2, Rect, int)
+5. **Type limitations** - ✅ Now supports Vector2, Rect, int, and all previous types
 
 ### 🚫 Missing Essential Features
 1. **No RectTransform support** - Critical for UI (anchoredPosition, sizeDelta)
@@ -148,6 +148,16 @@ slider.TweenValue(100f, 2f); // Automatically detects property
 
 // Custom material properties
 material.TweenFloat("_GlowIntensity", 1f, 0.5f);
+
+// UI tweening with RectTransform
+rectTransform.TweenAnchoredPosition(new Vector2(100, 50), 1f);
+rectTransform.TweenSizeDelta(new Vector2(200, 100), 0.8f);
+
+// Discrete value tweening
+scoreText.TweenInt(0, 1000, 2f, value => scoreText.text = value.ToString());
+
+// Rect tweening (useful for UI layout animations)
+Tweening.To(() => uiElement.rect, rect => uiElement.rect = rect, targetRect, 1f, EaseType.CubicOut);
 ```
 
 #### Advanced Features
@@ -294,14 +304,10 @@ public class OptimizedTweenManager
 
 ### ➕ Add (High Value)
 - **RectTransform extensions** - Critical for UI
-- **From() methods** - ✅ IMPLEMENTED - Common pattern
-- **Relative tweening** - ✅ IMPLEMENTED - More flexible
 - **Object pooling** - Performance
 - **Pause/Resume** - Better control
 
 ### ➖ Remove (Complexity > Value)
-- **TweenParallel class** - ✅ REMOVED - separate tweens run in parallel automatically
-- **TweenSequence class** - ✅ REMOVED - use callback chaining for sequences
 - **Complex looping** - Basic yoyo/restart only
 - **Custom interpolators** - Built-in types only
 - **Advanced callbacks** - OnStart/OnKill only
@@ -310,17 +316,9 @@ public class OptimizedTweenManager
 
 ## Implementation Plan
 
-### Phase 1: Performance Optimization (Week 1)
-- [ ] Add `[MethodImpl(MethodImplOptions.AggressiveInlining)]` to all Ease.cs functions
-- [ ] Replace `GetEasingFunction()` delegate calls with direct `Ease.Evaluate()` calls
-- [ ] Add tween object pooling to reduce GC pressure
-- [ ] Optimize TweenManager with dictionary lookups instead of linear search
-
 ### Phase 2: API Enhancement (Week 2)
-- [ ] Add RectTransform extensions (`TweenAnchoredPosition`, `TweenSizeDelta`)
-- [✓] Add `From()` methods for reverse animations
-- [✓] Add relative tweening methods (`MoveBy`, `ScaleBy`)
-- [ ] Implement missing types (Vector2, int, Rect)
+- [✓] Add RectTransform extensions (`TweenAnchoredPosition`, `TweenSizeDelta`)
+- [✓] Implement missing types (Vector2, int, Rect)
 
 ### Phase 3: Advanced Features (Week 3)
 - [ ] Add Burst-compiled easing functions
