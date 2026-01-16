@@ -153,13 +153,13 @@ material.TweenFloat("_GlowIntensity", 1f, 0.5f);
 rectTransform.TweenAnchoredPosition(new Vector2(100, 50), 1f, EaseType.BackOut);
 rectTransform.TweenSizeDelta(new Vector2(200, 100), 0.8f, t => t * t); // Custom easing
 
-// Discrete value tweening
-scoreText.TweenInt(0, 1000, 2f, value => scoreText.text = value.ToString(), EaseType.Linear);
+// Discrete value tweening (generic - any int property)
+TweenInt(0, 1000, 2f, value => scoreText.text = value.ToString(), EaseType.Linear);
 Tweening.To(() => score, x => score = x, 1000, 2f, EaseType.CubicOut);
 
-// Rect tweening (useful for UI layout animations)
-Tweening.To(() => uiElement.rect, rect => uiElement.rect = rect, targetRect, 1f, EaseType.CubicOut);
-Tweening.To(() => uiElement.rect, rect => uiElement.rect = rect, targetRect, 1f, t => 1 - (1-t)*(1-t)); // Custom ease
+// Rect tweening (generic - any Rect property)
+TweenRect(currentRect, targetRect, 1f, rect => uiElement.rect = rect, EaseType.CubicOut);
+Tweening.To(() => uiElement.rect, rect => uiElement.rect = rect, targetRect, 1f, t => 1 - (1-t)*(1-t));
 ```
 
 #### Advanced Features
