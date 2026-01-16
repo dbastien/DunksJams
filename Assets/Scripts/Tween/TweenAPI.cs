@@ -181,6 +181,54 @@ public static class TweenAPI
         return AddTween(tween);
     }
 
+    // Quaternion tweening
+    public static Tween<Quaternion> TweenTo(Quaternion startValue, Quaternion endValue, float duration, Action<Quaternion> setter, EaseType easeType)
+    {
+        var tween = _quaternionPool.Get();
+        tween.Initialize(startValue, endValue, duration, null, setter, Quaternion.Slerp);
+        tween.SetEase(easeType);
+        return AddTween(tween);
+    }
+
+    public static Tween<Quaternion> TweenTo(Quaternion startValue, Quaternion endValue, float duration, Action<Quaternion> setter, Func<float, float> customEase)
+    {
+        var tween = _quaternionPool.Get();
+        tween.Initialize(startValue, endValue, duration, customEase, setter, Quaternion.Slerp);
+        return AddTween(tween);
+    }
+
+    public static Tween<Quaternion> TweenFrom(Quaternion currentValue, Quaternion startValue, float duration, Action<Quaternion> setter, EaseType easeType)
+    {
+        var tween = _quaternionPool.Get();
+        tween.Initialize(startValue, currentValue, duration, null, setter, Quaternion.Slerp);
+        tween.SetEase(easeType);
+        return AddTween(tween);
+    }
+
+    public static Tween<Quaternion> TweenFrom(Quaternion currentValue, Quaternion startValue, float duration, Action<Quaternion> setter, Func<float, float> customEase)
+    {
+        var tween = _quaternionPool.Get();
+        tween.Initialize(startValue, currentValue, duration, customEase, setter, Quaternion.Slerp);
+        return AddTween(tween);
+    }
+
+    public static Tween<Quaternion> TweenBy(Quaternion currentValue, Quaternion offset, float duration, Action<Quaternion> setter, EaseType easeType)
+    {
+        var tween = _quaternionPool.Get();
+        var targetValue = currentValue * offset;
+        tween.Initialize(currentValue, targetValue, duration, null, setter, Quaternion.Slerp);
+        tween.SetEase(easeType);
+        return AddTween(tween);
+    }
+
+    public static Tween<Quaternion> TweenBy(Quaternion currentValue, Quaternion offset, float duration, Action<Quaternion> setter, Func<float, float> customEase)
+    {
+        var tween = _quaternionPool.Get();
+        var targetValue = currentValue * offset;
+        tween.Initialize(currentValue, targetValue, duration, customEase, setter, Quaternion.Slerp);
+        return AddTween(tween);
+    }
+
     // Rect tweening
     public static Tween<Rect> TweenTo(Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType)
     {
