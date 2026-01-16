@@ -10,10 +10,10 @@ public static class Tweening
             startValue,
             endValue,
             duration,
-            Ease.GetEasingFunction(easeType),
+            null,
             setter,
             Mathf.Lerp
-        );
+        ).SetEase(easeType);
         TweenManager.Instance.Add(tween);
         return tween;
     }
@@ -25,10 +25,10 @@ public static class Tweening
             startValue,
             endValue,
             duration,
-            Ease.GetEasingFunction(easeType),
+            null,
             setter,
             Vector3.Lerp
-        );
+        ).SetEase(easeType);
         TweenManager.Instance.Add(tween);
         return tween;
     }
@@ -40,10 +40,10 @@ public static class Tweening
             startValue,
             endValue,
             duration,
-            Ease.GetEasingFunction(easeType),
+            null,
             setter,
             Color.Lerp
-        );
+        ).SetEase(easeType);
         TweenManager.Instance.Add(tween);
         return tween;
     }
@@ -55,10 +55,10 @@ public static class Tweening
             startValue,
             endValue,
             duration,
-            Ease.GetEasingFunction(easeType),
+            null,
             setter,
             Quaternion.Lerp
-        );
+        ).SetEase(easeType);
         TweenManager.Instance.Add(tween);
         return tween;
     }

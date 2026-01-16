@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Tween<T> : ITween
+public class Tween<T> : TweenCore, ITween
 {
     public bool IsComplete { get; private set; }
     public float Delay { get; private set; }
@@ -18,7 +18,8 @@ public class Tween<T> : ITween
     T _startValue;
     T _endValue;
     readonly float _duration;
-    Func<float, float> _easingFunction;
+    EaseType _easeType = EaseType.Linear;
+    Func<float, float> _customEase;
     readonly Action<T> _onUpdateValue;
     readonly Func<T, T, float, T> _interpolator;
 
@@ -52,7 +53,7 @@ public class Tween<T> : ITween
         _startValue = startValue;
         _endValue = endValue;
         _duration = duration;
-        _easingFunction = easingFunction;
+        _customEase = easingFunction;
         _onUpdateValue = onUpdateValue;
         _interpolator = interpolator;
         _elapsedTime = 0f;
@@ -101,22 +102,40 @@ public class Tween<T> : ITween
 
     public Tween<T> SetEase(EaseType easeType)
     {
-        _easingFunction = Ease.GetEasingFunction(easeType);
+        _easeType = easeType;
+        _customEase = null;
         return this;
     }
 
     public Tween<T> SetEase(AnimationCurve animCurve)
     {
         _customEase = animCurve.Evaluate;
-        _easingFunction = _customEase;
         return this;
     }
 
     public Tween<T> SetEase(Func<float, float> customEase)
     {
         _customEase = customEase;
-        _easingFunction = _customEase;
         return this;
+    }
+
+    public float Evaluate(float t)
+    {
+        if (_customEase != null)
+            return _customEase(t);
+        else
+            return Ease.Evaluate(_easeType, t);
+    }
+
+    public override void Reset()
+    {
+        _elapsedTime = 0f;
+        _isPaused = false;
+        _isCancelled = false;
+        _hasStarted = false;
+        _completedLoops = 0;
+        _delayElapsed = 0f;
+        IsComplete = false;
     }
 
     public Tween<T> OnStart(Action callback)
@@ -165,7 +184,7 @@ public class Tween<T> : ITween
 
         _elapsedTime += deltaTime;
         float t = Mathf.Clamp01(_elapsedTime / _duration);
-        float easedT = _easingFunction(t);
+        float easedT = Evaluate(t);
 
         T currentValue = _interpolator(_startValue, _endValue, easedT);
         _onUpdate?.Invoke();
