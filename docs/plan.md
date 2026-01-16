@@ -10,9 +10,9 @@ This document provides a thorough analysis of incomplete systems, bugs, refactor
 
 ### Issues Found
 
-#### 1. TweenParallel Removed ✅
-**Status**: `TweenParallel.cs` has been deleted.
-**Reason**: Parallel execution happens automatically with separate tweens. TweenParallel added unnecessary complexity and had iteration bugs without providing essential functionality.
+#### 1. Tween Composites Removed ✅
+**Status**: Both `TweenParallel.cs` and `TweenSequence.cs` have been deleted.
+**Reason**: Parallel execution happens automatically with separate tweens. Sequencing can be done with callback chaining. Both classes added unnecessary complexity and maintenance burden without essential functionality.
 
 #### 2. Missing Type Support
 **File**: `Tween.cs:183`, `Tweening.cs`
