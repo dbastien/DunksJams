@@ -2,11 +2,43 @@
 
 ## Project Overview
 
-**Project Name**: DunksJams  
-**Type**: Unity Game Development Project  
+**Project Name**: DunksJams
+**Type**: Unity Game Development Project
 **Engine Version**: Unity 6000 (Universal Render Pipeline)
 
 This is a Unity game development project with custom systems and patterns. When assisting with code, follow the established conventions and patterns found in this codebase.
+
+## ⚠️ Critical Agent Guidelines
+
+**ALWAYS ASK BEFORE large refactors or architectural changes.**
+
+## Best Practices for AI Assistants
+
+### When Adding New Code
+1. **Follow existing patterns**: Look for similar functionality and match the style
+2. **Use established systems**: Prefer EventManager over direct references, use SingletonBehavior for managers
+3. **Add logging**: Use `DLog.Log()` with descriptive messages
+4. **Consider performance**: Use object pooling for frequently instantiated objects
+5. **Make it Unity-friendly**: Use serialized fields, attributes, and Inspector-friendly code
+
+### When Modifying Existing Code
+1. **Preserve style**: Match existing code style and naming conventions
+2. **Maintain interfaces**: Don't break existing public APIs without checking usages
+3. **Update related code**: Check for other classes that might need updates
+4. **Test impact**: Consider what systems depend on the code you're changing
+
+### When Searching for Code
+1. Use semantic search for finding functionality: "How does the score system work?"
+2. Use grep for exact matches: class names, method names, specific strings
+3. Check `Assets/Scripts/` structure to locate related files
+4. Look for similar patterns in existing code before creating new ones
+
+### Common Tasks
+- **Creating a new manager**: Inherit from `SingletonBehavior<T>`, implement `InitInternal()`
+- **Adding events**: Create event class inheriting `GameEvent`, use `EventManager.AddListener<T>()`
+- **Creating UI**: Use `ScreenManager` patterns, check `UIComponents.cs` for utilities
+- **Adding AI behavior**: Check `SteeringBehaviorSystem` and `FSM` patterns
+- **Creating game objects procedurally**: See `AdvancedMeshMenu.cs` for mesh generation examples
 
 ## Code Style Conventions
 
@@ -145,34 +177,6 @@ Custom data structures available:
 - Uses Unity's Input System (`InputSystem_Actions.inputactions`)
 - New Input System patterns preferred over legacy Input
 
-## Best Practices for AI Assistants
-
-### When Adding New Code
-1. **Follow existing patterns**: Look for similar functionality and match the style
-2. **Use established systems**: Prefer EventManager over direct references, use SingletonBehavior for managers
-3. **Add logging**: Use `DLog.Log()` with descriptive messages
-4. **Consider performance**: Use object pooling for frequently instantiated objects
-5. **Make it Unity-friendly**: Use serialized fields, attributes, and Inspector-friendly code
-
-### When Modifying Existing Code
-1. **Preserve style**: Match existing code style and naming conventions
-2. **Maintain interfaces**: Don't break existing public APIs without checking usages
-3. **Update related code**: Check for other classes that might need updates
-4. **Test impact**: Consider what systems depend on the code you're changing
-
-### When Searching for Code
-1. Use semantic search for finding functionality: "How does the score system work?"
-2. Use grep for exact matches: class names, method names, specific strings
-3. Check `Assets/Scripts/` structure to locate related files
-4. Look for similar patterns in existing code before creating new ones
-
-### Common Tasks
-- **Creating a new manager**: Inherit from `SingletonBehavior<T>`, implement `InitInternal()`
-- **Adding events**: Create event class inheriting `GameEvent`, use `EventManager.AddListener<T>()`
-- **Creating UI**: Use `ScreenManager` patterns, check `UIComponents.cs` for utilities
-- **Adding AI behavior**: Check `SteeringBehaviorSystem` and `FSM` patterns
-- **Creating game objects procedurally**: See `AdvancedMeshMenu.cs` for mesh generation examples
-
 ## Important Notes
 
 - **Don't use `Debug.Log()`**: Always use `DLog.Log()` instead
@@ -206,13 +210,10 @@ When implementing features:
 
 ### Editor Logs
 - **Windows**: `%LOCALAPPDATA%\Unity\Editor\Editor.log`
-- **macOS**: `~/Library/Logs/Unity/Editor.log`
 - **Previous session**: `Editor-prev.log` in same directory
 
 ### Player Logs
 - **Windows**: `%USERPROFILE%\AppData\LocalLow\<CompanyName>\<ProductName>\Player.log`
-- **macOS**: `~/Library/Logs/<CompanyName>/<ProductName>/Player.log`
-- **Linux**: `~/.config/unity3d/<CompanyName>/<ProductName>/Player.log`
 
 ### DLog File Output
 - Custom logs written to: `Application.persistentDataPath/Logs/`
