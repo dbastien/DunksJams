@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public static class RectExtensions
@@ -103,6 +103,20 @@ public static class RectExtensions
         return new(r.center.x - newWidth / 2, r.center.y - newHeight / 2, newWidth, newHeight);
     }
     
-    public static Rect ResizeByPadding(this Rect r, float amount) => 
+    public static Rect ResizeByPadding(this Rect r, float amount) =>
         new(r.xMin - amount, r.yMin - amount, r.width + 2 * amount, r.height + 2 * amount);
+
+    /// <summary>
+    /// Linearly interpolates between two Rects.
+    /// </summary>
+    public static Rect Lerp(Rect a, Rect b, float t)
+    {
+        t = Mathf.Clamp01(t);
+        return new Rect(
+            Mathf.Lerp(a.x, b.x, t),
+            Mathf.Lerp(a.y, b.y, t),
+            Mathf.Lerp(a.width, b.width, t),
+            Mathf.Lerp(a.height, b.height, t)
+        );
+    }
 }

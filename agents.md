@@ -11,6 +11,8 @@ This is a Unity game development project with custom systems and patterns. When 
 ## ⚠️ Critical Agent Guidelines
 
 **ALWAYS ASK BEFORE large refactors or architectural changes.**
+Don't reinvent the wheel - check if something already exists in the codebase before creating it.
+You're in Windows, use powershell.
 
 ## Best Practices for AI Assistants
 

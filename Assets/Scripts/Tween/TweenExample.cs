@@ -9,7 +9,7 @@ public class TweenExample : MonoBehaviour
         if (!TweenManager.Instance) new GameObject("TweenManager").AddComponent<TweenManager>();
 
         // Tweening a Transform's position with method chaining and custom ease function
-        targetTransform.MoveTo(new(5f, 0f, 0f), 2f, EaseType.CubicInOut)
+        TweenAPI.TweenTo(targetTransform.position, new Vector3(5f, 0f, 0f), 2f, pos => targetTransform.position = pos, EaseType.CubicInOut)
             .SetDelay(1f)
             .SetLoops(2, TweenLoopType.PingPong)
             .SetId("MoveTween")
@@ -17,22 +17,19 @@ public class TweenExample : MonoBehaviour
             .OnUpdate(() => DLog.Log("Movement Tween Updating"))
             .OnComplete(() => DLog.Log("Movement Tween Completed"));
 
-        // Tweening any property using Tweening.To
+        // Tweening any property using generic TweenTo
         float myFloat = 0f;
-        Tweening.To(() => myFloat, x => myFloat = x, 10f, 5f, EaseType.Linear)
+        TweenAPI.TweenTo(myFloat, 10f, 5f, x => myFloat = x, EaseType.Linear)
             .OnUpdate(() => DLog.Log($"myFloat value: {myFloat}"));
 
         // Using a custom easing function
         float CustomEase(float t) => t * t * t;
-        targetTransform.MoveTo(new(-5f, 0f, 0f), 2f, CustomEase).SetId("CustomEaseTween");
+        TweenAPI.TweenTo(targetTransform.position, new Vector3(-5f, 0f, 0f), 2f, pos => targetTransform.position = pos, CustomEase).SetId("CustomEaseTween");
 
-        // Creating a sequence
-        var sequence = new TweenSequence()
-            .Append(targetTransform.MoveTo(new(0f, 5f, 0f), 2f, EaseType.SineInOut))
-            .Append(targetTransform.RotateTo(Quaternion.Euler(0f, 180f, 0f), 2f, EaseType.SineInOut))
-            .SetId("MySequence");
-
-        TweenManager.Instance.Add(sequence);
+        // For complex sequences, use callback chaining instead
+        TweenAPI.TweenTo(targetTransform.position, new Vector3(0f, 5f, 0f), 2f, pos => targetTransform.position = pos, EaseType.SineInOut)
+            .OnComplete(() =>
+                TweenAPI.TweenTo(targetTransform.rotation, Quaternion.Euler(0f, 180f, 0f), 2f, rot => targetTransform.rotation = rot, EaseType.SineInOut));
 
         // Global controls
         // Pause all tweens with the ID "MoveTween" after 3 seconds

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public static class IntExtensions
 {
@@ -119,5 +119,14 @@ public static class IntExtensions
         int a = 0, b = 1;
         while (--n > 0) { int temp = a + b; a = b; b = temp; }
         return b;
+    }
+
+    /// <summary>
+    /// Linearly interpolates between two integers.
+    /// </summary>
+    public static int Lerp(int a, int b, float t)
+    {
+        t = Mathf.Clamp01(t);
+        return Mathf.RoundToInt(Mathf.Lerp(a, b, t));
     }
 }

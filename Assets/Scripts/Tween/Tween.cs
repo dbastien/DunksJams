@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Tween<T> : TweenCore, ITween
+public class Tween<T> : ITween, IPoolable
 {
     public bool IsComplete { get; private set; }
     public float Delay { get; private set; }
@@ -39,10 +39,23 @@ public class Tween<T> : TweenCore, ITween
     Action _onStepComplete;
     Action _onRewind;
 
-    // Custom easing function
-    Func<float, float> _customEase;
+    public Tween()
+    {
+        // Default constructor for pooling
+    }
 
     public Tween(
+        T startValue,
+        T endValue,
+        float duration,
+        Func<float, float> easingFunction,
+        Action<T> onUpdateValue,
+        Func<T, T, float, T> interpolator)
+    {
+        Initialize(startValue, endValue, duration, easingFunction, onUpdateValue, interpolator);
+    }
+
+    public void Initialize(
         T startValue,
         T endValue,
         float duration,
@@ -60,6 +73,26 @@ public class Tween<T> : TweenCore, ITween
         IsComplete = false;
         _isPaused = false;
         _isCancelled = false;
+        _hasStarted = false;
+        _completedLoops = 0;
+        _delayElapsed = 0f;
+
+        // Reset callbacks
+        _onStart = null;
+        _onUpdate = null;
+        _onComplete = null;
+        _onStepComplete = null;
+        _onRewind = null;
+
+        // Reset configuration
+        Delay = 0f;
+        Loops = 1;
+        LoopType = TweenLoopType.Loop;
+        Id = null;
+        Tag = null;
+        IgnoreTimeScale = false;
+        TimeScale = 1f;
+        _easeType = EaseType.Linear;
     }
 
     // Method chaining for setting options
@@ -127,7 +160,7 @@ public class Tween<T> : TweenCore, ITween
             return Ease.Evaluate(_easeType, t);
     }
 
-    public override void Reset()
+    public void Reset()
     {
         _elapsedTime = 0f;
         _isPaused = false;
@@ -227,6 +260,7 @@ public class Tween<T> : TweenCore, ITween
         {
             IsComplete = true;
             _onComplete?.Invoke();
+            ReturnToPool();
         }
     }
 
@@ -252,5 +286,23 @@ public class Tween<T> : TweenCore, ITween
     {
         _isCancelled = true;
         IsComplete = true;
+        ReturnToPool();
+    }
+
+    // IPoolable implementation
+    public void OnPoolGet() { }
+    public void OnPoolRelease() { }
+
+    // Pool management
+    void ReturnToPool()
+    {
+        // Return to appropriate pool based on type
+        if (this is Tween<float>) TweenAPI.ReturnToFloatPool(this as Tween<float>);
+        else if (this is Tween<Vector2>) TweenAPI.ReturnToVector2Pool(this as Tween<Vector2>);
+        else if (this is Tween<Vector3>) TweenAPI.ReturnToVector3Pool(this as Tween<Vector3>);
+        else if (this is Tween<Color>) TweenAPI.ReturnToColorPool(this as Tween<Color>);
+        else if (this is Tween<int>) TweenAPI.ReturnToIntPool(this as Tween<int>);
+        else if (this is Tween<Rect>) TweenAPI.ReturnToRectPool(this as Tween<Rect>);
+        else if (this is Tween<Quaternion>) TweenAPI.ReturnToQuaternionPool(this as Tween<Quaternion>);
     }
 }
