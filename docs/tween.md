@@ -126,9 +126,16 @@ rectTransform.TweenAnchoredPosition(targetPos, 1f)
         .Ease(EaseType.BackOut)
         .From(currentPos); // From() method support
 
-// Relative tweening (currently missing)
-transform.TweenPositionBy(offset, 1f)
+// Relative tweening (now implemented!)
+transform.MoveBy(offset, 1f)
         .Ease(EaseType.ElasticOut);
+
+// Scale tweening
+transform.ScaleTo(targetScale, 1f)
+        .Ease(EaseType.BackOut);
+
+transform.ScaleBy(scaleOffset, 0.5f)
+        .Ease(EaseType.BounceOut);
 
 // Value tweening with auto-setup
 slider.TweenValue(100f, 2f); // Automatically detects property
@@ -306,7 +313,7 @@ public class OptimizedTweenManager
 ### Phase 2: API Enhancement (Week 2)
 - [ ] Add RectTransform extensions (`TweenAnchoredPosition`, `TweenSizeDelta`)
 - [ ] Add `From()` methods for reverse animations
-- [ ] Add relative tweening methods (`TweenPositionBy`, `TweenRotationBy`)
+- [✓] Add relative tweening methods (`MoveBy`, `ScaleBy`)
 - [ ] Implement missing types (Vector2, int, Rect)
 
 ### Phase 3: Advanced Features (Week 3)

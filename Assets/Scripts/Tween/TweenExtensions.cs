@@ -18,6 +18,19 @@ public static class TweenExtensions
     public static Tween<Color> ColorTo(this SpriteRenderer sr, Color target, float d, EaseType e) =>
         AddTween(new Tween<Color>(sr.color, target, d, null, v => sr.color = v, Color.Lerp).SetEase(e));
 
+    // Relative tweening methods
+    public static Tween<Vector3> MoveBy(this Transform t, Vector3 offset, float d, EaseType e) =>
+        AddTween(new Tween<Vector3>(t.position, t.position + offset, d, null, v => t.position = v, Vector3.Lerp).SetEase(e));
+
+    public static Tween<Vector3> MoveBy(this Transform t, Vector3 offset, float d, Func<float, float> e) =>
+        AddTween(new Tween<Vector3>(t.position, t.position + offset, d, e, v => t.position = v, Vector3.Lerp));
+
+    public static Tween<Vector3> ScaleTo(this Transform t, Vector3 target, float d, EaseType e) =>
+        AddTween(new Tween<Vector3>(t.localScale, target, d, null, v => t.localScale = v, Vector3.Lerp).SetEase(e));
+
+    public static Tween<Vector3> ScaleBy(this Transform t, Vector3 scaleOffset, float d, EaseType e) =>
+        AddTween(new Tween<Vector3>(t.localScale, t.localScale + scaleOffset, d, null, v => t.localScale = v, Vector3.Lerp).SetEase(e));
+
     static Tween<T> AddTween<T>(Tween<T> tween)
     {
         TweenManager.Instance.Add(tween);
