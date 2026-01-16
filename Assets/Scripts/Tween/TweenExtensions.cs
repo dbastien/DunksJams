@@ -70,16 +70,28 @@ public static class TweenExtensions
     public static Tween<Vector2> TweenAnchoredPosition(this RectTransform rt, Vector2 target, float d, EaseType e) =>
         AddTween(new Tween<Vector2>(rt.anchoredPosition, target, d, null, v => rt.anchoredPosition = v, LerpVector2).SetEase(e));
 
+    public static Tween<Vector2> TweenAnchoredPosition(this RectTransform rt, Vector2 target, float d, Func<float, float> e) =>
+        AddTween(new Tween<Vector2>(rt.anchoredPosition, target, d, e, v => rt.anchoredPosition = v, LerpVector2));
+
     public static Tween<Vector2> TweenSizeDelta(this RectTransform rt, Vector2 target, float d, EaseType e) =>
         AddTween(new Tween<Vector2>(rt.sizeDelta, target, d, null, v => rt.sizeDelta = v, LerpVector2).SetEase(e));
+
+    public static Tween<Vector2> TweenSizeDelta(this RectTransform rt, Vector2 target, float d, Func<float, float> e) =>
+        AddTween(new Tween<Vector2>(rt.sizeDelta, target, d, e, v => rt.sizeDelta = v, LerpVector2));
 
     // Int tweening extensions (useful for discrete values like score, health, etc.)
     public static Tween<int> TweenInt(this object target, int startValue, int endValue, float duration, Action<int> setter, EaseType easeType) =>
         AddTween(new Tween<int>(startValue, endValue, duration, null, setter, LerpInt).SetEase(easeType));
 
+    public static Tween<int> TweenInt(this object target, int startValue, int endValue, float duration, Action<int> setter, Func<float, float> customEase) =>
+        AddTween(new Tween<int>(startValue, endValue, duration, customEase, setter, LerpInt));
+
     // Rect tweening extensions (useful for UI layout changes)
     public static Tween<Rect> TweenRect(this object target, Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType) =>
         AddTween(new Tween<Rect>(startValue, endValue, duration, null, setter, LerpRect).SetEase(easeType));
+
+    public static Tween<Rect> TweenRect(this object target, Rect startValue, Rect endValue, float duration, Action<Rect> setter, Func<float, float> customEase) =>
+        AddTween(new Tween<Rect>(startValue, endValue, duration, customEase, setter, LerpRect));
 
     static Tween<T> AddTween<T>(Tween<T> tween)
     {

@@ -94,6 +94,21 @@ public static class Tweening
         return tween;
     }
 
+    public static Tween<Vector2> To(Func<Vector2> getter, Action<Vector2> setter, Vector2 endValue, float duration, Func<float, float> customEase)
+    {
+        Vector2 startValue = getter();
+        var tween = new Tween<Vector2>(
+            startValue,
+            endValue,
+            duration,
+            customEase,
+            setter,
+            LerpVector2
+        );
+        TweenManager.Instance.Add(tween);
+        return tween;
+    }
+
     public static Tween<int> To(Func<int> getter, Action<int> setter, int endValue, float duration, EaseType easeType)
     {
         int startValue = getter();
@@ -109,6 +124,21 @@ public static class Tweening
         return tween;
     }
 
+    public static Tween<int> To(Func<int> getter, Action<int> setter, int endValue, float duration, Func<float, float> customEase)
+    {
+        int startValue = getter();
+        var tween = new Tween<int>(
+            startValue,
+            endValue,
+            duration,
+            customEase,
+            setter,
+            LerpInt
+        );
+        TweenManager.Instance.Add(tween);
+        return tween;
+    }
+
     public static Tween<Rect> To(Func<Rect> getter, Action<Rect> setter, Rect endValue, float duration, EaseType easeType)
     {
         Rect startValue = getter();
@@ -120,6 +150,21 @@ public static class Tweening
             setter,
             LerpRect
         ).SetEase(easeType);
+        TweenManager.Instance.Add(tween);
+        return tween;
+    }
+
+    public static Tween<Rect> To(Func<Rect> getter, Action<Rect> setter, Rect endValue, float duration, Func<float, float> customEase)
+    {
+        Rect startValue = getter();
+        var tween = new Tween<Rect>(
+            startValue,
+            endValue,
+            duration,
+            customEase,
+            setter,
+            LerpRect
+        );
         TweenManager.Instance.Add(tween);
         return tween;
     }
