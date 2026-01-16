@@ -18,6 +18,25 @@ public static class TweenExtensions
     public static Tween<Color> ColorTo(this SpriteRenderer sr, Color target, float d, EaseType e) =>
         AddTween(new Tween<Color>(sr.color, target, d, null, v => sr.color = v, Color.Lerp).SetEase(e));
 
+    // From tweening methods (tween from start value to current value)
+    public static Tween<Vector3> MoveFrom(this Transform t, Vector3 startPos, float d, EaseType e) =>
+        AddTween(new Tween<Vector3>(startPos, t.position, d, null, v => t.position = v, Vector3.Lerp).SetEase(e));
+
+    public static Tween<Vector3> MoveFrom(this Transform t, Vector3 startPos, float d, Func<float, float> e) =>
+        AddTween(new Tween<Vector3>(startPos, t.position, d, e, v => t.position = v, Vector3.Lerp));
+
+    public static Tween<Quaternion> RotateFrom(this Transform t, Quaternion startRot, float d, EaseType e) =>
+        AddTween(new Tween<Quaternion>(startRot, t.rotation, d, null, v => t.rotation = v, Quaternion.Lerp).SetEase(e));
+
+    public static Tween<Vector3> ScaleFrom(this Transform t, Vector3 startScale, float d, EaseType e) =>
+        AddTween(new Tween<Vector3>(startScale, t.localScale, d, null, v => t.localScale = v, Vector3.Lerp).SetEase(e));
+
+    public static Tween<float> FadeFrom(this CanvasGroup cg, float startAlpha, float d, EaseType e) =>
+        AddTween(new Tween<float>(startAlpha, cg.alpha, d, null, v => cg.alpha = v, Mathf.Lerp).SetEase(e));
+
+    public static Tween<Color> ColorFrom(this SpriteRenderer sr, Color startColor, float d, EaseType e) =>
+        AddTween(new Tween<Color>(startColor, sr.color, d, null, v => sr.color = v, Color.Lerp).SetEase(e));
+
     // Relative tweening methods
     public static Tween<Vector3> MoveBy(this Transform t, Vector3 offset, float d, EaseType e) =>
         AddTween(new Tween<Vector3>(t.position, t.position + offset, d, null, v => t.position = v, Vector3.Lerp).SetEase(e));

@@ -123,8 +123,14 @@ transform.TweenPosition(targetPos, 1f)
 
 // RectTransform support (currently missing)
 rectTransform.TweenAnchoredPosition(targetPos, 1f)
-        .Ease(EaseType.BackOut)
-        .From(currentPos); // From() method support
+        .Ease(EaseType.BackOut);
+
+// From() methods (now implemented!)
+transform.MoveFrom(startPos, 1f)
+        .Ease(EaseType.SineIn);
+
+canvasGroup.FadeFrom(0f, 0.5f)
+        .Ease(EaseType.Linear);
 
 // Relative tweening (now implemented!)
 transform.MoveBy(offset, 1f)
@@ -288,8 +294,8 @@ public class OptimizedTweenManager
 
 ### ➕ Add (High Value)
 - **RectTransform extensions** - Critical for UI
-- **From() methods** - Common pattern
-- **Relative tweening** - More flexible
+- **From() methods** - ✅ IMPLEMENTED - Common pattern
+- **Relative tweening** - ✅ IMPLEMENTED - More flexible
 - **Object pooling** - Performance
 - **Pause/Resume** - Better control
 
@@ -312,7 +318,7 @@ public class OptimizedTweenManager
 
 ### Phase 2: API Enhancement (Week 2)
 - [ ] Add RectTransform extensions (`TweenAnchoredPosition`, `TweenSizeDelta`)
-- [ ] Add `From()` methods for reverse animations
+- [✓] Add `From()` methods for reverse animations
 - [✓] Add relative tweening methods (`MoveBy`, `ScaleBy`)
 - [ ] Implement missing types (Vector2, int, Rect)
 
