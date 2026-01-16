@@ -139,7 +139,7 @@ public static class TweenAPI
     public static Tween<int> TweenTo(int startValue, int endValue, float duration, Action<int> setter, EaseType easeType)
     {
         var tween = _intPool.Get();
-        tween.Initialize(startValue, endValue, duration, null, setter, int.Lerp);
+        tween.Initialize(startValue, endValue, duration, null, setter, IntExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -147,14 +147,14 @@ public static class TweenAPI
     public static Tween<int> TweenTo(int startValue, int endValue, float duration, Action<int> setter, Func<float, float> customEase)
     {
         var tween = _intPool.Get();
-        tween.Initialize(startValue, endValue, duration, customEase, setter, int.Lerp);
+        tween.Initialize(startValue, endValue, duration, customEase, setter, IntExtensions.Lerp);
         return AddTween(tween);
     }
 
     public static Tween<int> TweenFrom(int currentValue, int startValue, float duration, Action<int> setter, EaseType easeType)
     {
         var tween = _intPool.Get();
-        tween.Initialize(startValue, currentValue, duration, null, setter, int.Lerp);
+        tween.Initialize(startValue, currentValue, duration, null, setter, IntExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -162,14 +162,14 @@ public static class TweenAPI
     public static Tween<int> TweenFrom(int currentValue, int startValue, float duration, Action<int> setter, Func<float, float> customEase)
     {
         var tween = _intPool.Get();
-        tween.Initialize(startValue, currentValue, duration, customEase, setter, int.Lerp);
+        tween.Initialize(startValue, currentValue, duration, customEase, setter, IntExtensions.Lerp);
         return AddTween(tween);
     }
 
     public static Tween<int> TweenBy(int currentValue, int offset, float duration, Action<int> setter, EaseType easeType)
     {
         var tween = _intPool.Get();
-        tween.Initialize(currentValue, currentValue + offset, duration, null, setter, int.Lerp);
+        tween.Initialize(currentValue, currentValue + offset, duration, null, setter, IntExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -177,7 +177,7 @@ public static class TweenAPI
     public static Tween<int> TweenBy(int currentValue, int offset, float duration, Action<int> setter, Func<float, float> customEase)
     {
         var tween = _intPool.Get();
-        tween.Initialize(currentValue, currentValue + offset, duration, customEase, setter, int.Lerp);
+        tween.Initialize(currentValue, currentValue + offset, duration, customEase, setter, IntExtensions.Lerp);
         return AddTween(tween);
     }
 
@@ -185,7 +185,7 @@ public static class TweenAPI
     public static Tween<Rect> TweenTo(Rect startValue, Rect endValue, float duration, Action<Rect> setter, EaseType easeType)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(startValue, endValue, duration, null, setter, Rect.Lerp);
+        tween.Initialize(startValue, endValue, duration, null, setter, RectExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -193,14 +193,14 @@ public static class TweenAPI
     public static Tween<Rect> TweenTo(Rect startValue, Rect endValue, float duration, Action<Rect> setter, Func<float, float> customEase)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(startValue, endValue, duration, customEase, setter, Rect.Lerp);
+        tween.Initialize(startValue, endValue, duration, customEase, setter, RectExtensions.Lerp);
         return AddTween(tween);
     }
 
     public static Tween<Rect> TweenFrom(Rect currentValue, Rect startValue, float duration, Action<Rect> setter, EaseType easeType)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(startValue, currentValue, duration, null, setter, Rect.Lerp);
+        tween.Initialize(startValue, currentValue, duration, null, setter, RectExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -208,14 +208,14 @@ public static class TweenAPI
     public static Tween<Rect> TweenFrom(Rect currentValue, Rect startValue, float duration, Action<Rect> setter, Func<float, float> customEase)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(startValue, currentValue, duration, customEase, setter, Rect.Lerp);
+        tween.Initialize(startValue, currentValue, duration, customEase, setter, RectExtensions.Lerp);
         return AddTween(tween);
     }
 
     public static Tween<Rect> TweenBy(Rect currentValue, Rect offset, float duration, Action<Rect> setter, EaseType easeType)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(currentValue, new Rect(currentValue.x + offset.x, currentValue.y + offset.y, currentValue.width + offset.width, currentValue.height + offset.height), duration, null, setter, Rect.Lerp);
+        tween.Initialize(currentValue, new Rect(currentValue.x + offset.x, currentValue.y + offset.y, currentValue.width + offset.width, currentValue.height + offset.height), duration, null, setter, RectExtensions.Lerp);
         tween.SetEase(easeType);
         return AddTween(tween);
     }
@@ -223,7 +223,7 @@ public static class TweenAPI
     public static Tween<Rect> TweenBy(Rect currentValue, Rect offset, float duration, Action<Rect> setter, Func<float, float> customEase)
     {
         var tween = _rectPool.Get();
-        tween.Initialize(currentValue, new Rect(currentValue.x + offset.x, currentValue.y + offset.y, currentValue.width + offset.width, currentValue.height + offset.height), duration, customEase, setter, Rect.Lerp);
+        tween.Initialize(currentValue, new Rect(currentValue.x + offset.x, currentValue.y + offset.y, currentValue.width + offset.width, currentValue.height + offset.height), duration, customEase, setter, RectExtensions.Lerp);
         return AddTween(tween);
     }
 
