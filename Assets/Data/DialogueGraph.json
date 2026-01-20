@@ -1,0 +1,41 @@
+{
+    "nodes": [
+        {
+            "guid": "b3863a4a-687c-4d85-b5f1-68697f3225bd",
+            "nodeType": "DialogueNode",
+            "pos": {
+                "x": 62.28571319580078,
+                "y": 49.71428680419922
+            },
+            "fields": []
+        },
+        {
+            "guid": "dc39db2e-494e-400f-853c-d1803b4eac80",
+            "nodeType": "DialogueNodeChoice",
+            "pos": {
+                "x": 148.0,
+                "y": 186.8571319580078
+            },
+            "fields": []
+        },
+        {
+            "guid": "56b86c62-dd0e-45ac-a04a-c4522ff8e484",
+            "nodeType": "DialogueNodeChoice",
+            "pos": {
+                "x": 200.0,
+                "y": 149.7142791748047
+            },
+            "fields": []
+        },
+        {
+            "guid": "1822bf49-329a-4b89-9a49-2af8c6f8495a",
+            "nodeType": "DialogueNode",
+            "pos": {
+                "x": 200.0,
+                "y": 149.7142791748047
+            },
+            "fields": []
+        }
+    ],
+    "edges": []
+}

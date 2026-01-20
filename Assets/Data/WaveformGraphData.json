@@ -1,0 +1,30 @@
+{
+    "nodes": [
+        {
+            "guid": "632886c7-0e00-40e4-b87e-db52170188a7",
+            "nodeType": "AudioOutputNode, GameCode.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "pos": {
+                "x": 283.5,
+                "y": 48.5
+            },
+            "fields": []
+        },
+        {
+            "guid": "3207455a-b294-43e4-ab33-7ff96dcbb6ff",
+            "nodeType": "AnimationCurveNode, GameCode.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "pos": {
+                "x": 57.0,
+                "y": 93.5
+            },
+            "fields": []
+        }
+    ],
+    "edges": [
+        {
+            "sourceNodeGUID": "3207455a-b294-43e4-ab33-7ff96dcbb6ff",
+            "sourcePortName": "Out",
+            "targetNodeGUID": "632886c7-0e00-40e4-b87e-db52170188a7",
+            "targetPortName": "In"
+        }
+    ]
+}
