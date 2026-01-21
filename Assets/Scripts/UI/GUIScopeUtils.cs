@@ -43,6 +43,17 @@ public struct GUIColorScope : IDisposable
     public void Dispose() => GUI.color = _prev;
 }
 
+public struct GuiChangedScope : IDisposable
+{
+	private bool _saved;
+	public GuiChangedScope(bool? setChangedTo = null)
+	{
+		_saved = GUI.changed;
+		if (setChangedTo.HasValue) GUI.changed = setChangedTo.Value;
+	} 
+	public void Dispose() => GUI.changed = _saved;
+}
+
 public struct GUIFontSizeScope : IDisposable
 {
     readonly int _prev;
