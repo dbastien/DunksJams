@@ -66,12 +66,6 @@ public static class ProceduralColor
         );
     }
 
-    public static Color ColorLerp(Color a, Color b, float t, Func<float, float>? easing = null)
-    {
-        t = easing != null ? easing(t) : t;
-        return Color.Lerp(a, b, t);
-    }
-
     public static Color MultiColorGradient(Color[] colors, float t)
     {
         if (colors.Length == 0) return Color.black;

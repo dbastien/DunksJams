@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public static class PathUtils
+public static class IOUtils
 {
     static readonly string _projectRoot = Application.dataPath[..^7];
     public static string ProjectRootFolder => _projectRoot;
