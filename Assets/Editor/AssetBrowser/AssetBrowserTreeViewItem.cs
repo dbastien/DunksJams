@@ -41,7 +41,7 @@ public class AssetBrowserTreeViewItem : TreeViewItem
 
     protected virtual void Rebuild()
     {
-        WriteTime = File.GetLastWriteTime($"{PathUtils.ProjectRootFolder}/{AssetPath}");
+        WriteTime = File.GetLastWriteTime($"{IOUtils.ProjectRootFolder}/{AssetPath}");
         WriteTimeAsString = WriteTime.ToString(TimeFormat);
     }
     

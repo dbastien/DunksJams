@@ -335,7 +335,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
 
     void CopyAssetPathsToClipboard()
     {
-        string paths = GetSelectionT().Select(a => $"{PathUtils.ProjectRootFolder}/{a?.AssetPath}").Join('\n');
+        string paths = GetSelectionT().Select(a => $"{IOUtils.ProjectRootFolder}/{a?.AssetPath}").Join('\n');
         EditorGUIUtility.systemCopyBuffer = paths;
     }
 

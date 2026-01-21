@@ -91,8 +91,8 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         if (GUILayout.Button(new GUIContent("…", "Select folder to search"), GUILayout.Width(22)))
         {
             string absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
-            if (absPath.StartsWithFast(PathUtils.ProjectRootFolder)) assetPath = absPath[PathUtils.ProjectRootFolder.Length..];
-            else if (!string.IsNullOrEmpty(absPath)) DLog.LogE($"Asset path must start with {PathUtils.ProjectRootFolder}");
+            if (absPath.StartsWithFast(IOUtils.ProjectRootFolder)) assetPath = absPath[IOUtils.ProjectRootFolder.Length..];
+            else if (!string.IsNullOrEmpty(absPath)) DLog.LogE($"Asset path must start with {IOUtils.ProjectRootFolder}");
         }
 
         if (GUILayout.Button("Find", GUILayout.Width(40)))
@@ -144,7 +144,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     protected void SavePanel(SaveFunction func)
     {
-        string dir = string.IsNullOrEmpty(outPath) ? PathUtils.ProjectRootFolder : System.IO.Path.GetDirectoryName(outPath);
+        string dir = string.IsNullOrEmpty(outPath) ? IOUtils.ProjectRootFolder : System.IO.Path.GetDirectoryName(outPath);
         outPath = EditorUtility.SaveFilePanel("Save rows to csv file", dir, typeof(TTree).Name + func.GetMethodInfo().Name, "csv");
         if (!string.IsNullOrEmpty(outPath)) func();
     }
