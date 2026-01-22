@@ -1,4 +1,3 @@
-// Assets/Scripts/DLog.cs
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,9 +11,6 @@ using Debug = UnityEngine.Debug;
 
 public static class DLog
 {
-    // ----------------------------
-    // Settings
-    // ----------------------------
     public static bool IsLoggingEnabled = Debug.isDebugBuild;
     public static bool IsTimestampEnabled = true;
     public static bool IsColorEnabled = true;
@@ -26,13 +22,11 @@ public static class DLog
         Full   // slow: StackTrace walk
     }
 
-    // “optimize to just the top level caller based on a setting”
     public static CallerInfoMode CallerMode = CallerInfoMode.Top;
 
     public static bool IsTimingEnabled = true;
     public static bool IsFileLoggingEnabled = true;
 
-    // Unity logger passthrough
     public static LogType FilterLogType
     {
         get => Debug.unityLogger.filterLogType;
@@ -44,21 +38,14 @@ public static class DLog
         get => Debug.unityLogger.logEnabled;
         set => Debug.unityLogger.logEnabled = value;
     }
-
-    // ----------------------------
-    // Colors
-    // ----------------------------
+    
     private const string InfoColor      = "#E6E6E6";
     private const string WarningColor   = "#FFCC00";
     private const string ErrorColor     = "#FF5555";
     private const string ExceptionColor = "#FF55FF";
-
     private const string TimeColor   = "#80FFFF";
     private const string CallerColor = "#90EE90";
-
-    // ----------------------------
-    // Sinks
-    // ----------------------------
+    
     public interface ILogSink
     {
         void Log(LogType logType, string message, Object context);
@@ -66,11 +53,8 @@ public static class DLog
 
     private sealed class ConsoleSink : ILogSink
     {
-        public void Log(LogType logType, string message, Object context)
-        {
-            // Unity 6: disambiguate ILogger overloads by forcing (object) for message.
+        public void Log(LogType logType, string message, Object context) => 
             Debug.unityLogger.Log(logType, (object)message, context);
-        }
     }
 
     private sealed class FileSink : ILogSink
@@ -138,10 +122,8 @@ public static class DLog
         new ConsoleSink(),
         new FileSink()
     };
-
-    // ----------------------------
+    
     // Hyperlink formatting
-    // ----------------------------
     // We use a custom scheme so we never collide with Unity’s own URL/path handlers.
     public static string DLogLink(string pathOrAssetPath, int lineNumber, string displayText = null)
     {
@@ -175,13 +157,16 @@ public static class DLog
         => Debug.unityLogger.LogException(ex, ctx);
 
     [HideInStackTrace]
-    public static void LogFormat(string format, params object[] args) => Log(string.Format(format, args));
+    public static void LogFormat(string format, params object[] args) => 
+        Log(string.Format(format, args));
 
     [HideInStackTrace]
-    public static void LogWFormat(string format, params object[] args) => LogW(string.Format(format, args));
+    public static void LogWFormat(string format, params object[] args) => 
+        LogW(string.Format(format, args));
 
     [HideInStackTrace]
-    public static void LogEFormat(string format, params object[] args) => LogE(string.Format(format, args));
+    public static void LogEFormat(string format, params object[] args) => 
+        LogE(string.Format(format, args));
 
     [HideInStackTrace]
     public static void Time(Action action, string label = null,
@@ -199,11 +184,7 @@ public static class DLog
         string where = label ?? $"{Path.GetFileName(file)}:{line} ({member})";
         LogTiming($"{where} took {sw.ElapsedMilliseconds}ms", ctx: null, timestamp: true, file: file, line: line, member: member);
     }
-
-    // ----------------------------
-    // Internal impl
-    // ----------------------------
-
+    
     private static string s_projectRoot;
     private static string ProjectRoot
     {

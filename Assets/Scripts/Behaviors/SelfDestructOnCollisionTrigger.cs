@@ -2,8 +2,5 @@
 
 public class SelfDestructOnCollisionTrigger : MonoBehaviour
 {
-    public void OnTriggerEnter(Collider other)
-    {
-        Object.Destroy(this.gameObject);
-    }
+    public void OnTriggerEnter(Collider other) => Destroy(gameObject);
 }

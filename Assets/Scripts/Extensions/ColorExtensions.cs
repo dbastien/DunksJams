@@ -2,35 +2,49 @@
 
 public static class ColorExtensions
 {
-    public static Color Sub(this Color c, float value) => new Color(c.r - value, c.g - value, c.b - value, c.a);
-    public static Color Add(this Color c, float value) => new Color(c.r + value, c.g + value, c.b + value, c.a);
+    public static Color Sub(this Color c, float val) => new(c.r - val, c.g - val, c.b - val, c.a);
+    public static Color Add(this Color c, float val) => new(c.r + val, c.g + val, c.b + val, c.a);
 
     public static Color LerpUnclamped(this Color l, Color r, float t) => l + t * (r - l);
-    public static Color PremultiplyAlpha(this Color c) => new Color(c.r * c.a, c.g * c.a, c.b * c.a, c.a);
+    public static Color PremultiplyAlpha(this Color c) => new(c.r * c.a, c.g * c.a, c.b * c.a, c.a);
 
     public static float PerceivedBrightness(this Color c) => 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
     public static bool IsDarkerThan(this Color c, float threshold = 0.1f) => c.PerceivedBrightness() < threshold;
     public static bool IsLighterThan(this Color c, float threshold = 0.9f) => c.PerceivedBrightness() > threshold;
 
-    public static Color Min(this Color a, Color b) => new Color(
+    public static Color Min(this Color a, Color b) => new(
         Mathf.Min(a.r, b.r),
         Mathf.Min(a.g, b.g),
         Mathf.Min(a.b, b.b),
         Mathf.Min(a.a, b.a)
     );
 
-    public static Color Max(this Color a, Color b) => new Color(
+    public static Color Max(this Color a, Color b) => new(
         Mathf.Max(a.r, b.r),
         Mathf.Max(a.g, b.g),
         Mathf.Max(a.b, b.b),
         Mathf.Max(a.a, b.a)
     );
 
-    public static Color Max(this Color c, float v) => new Color(
+    public static Color Max(this Color c, float v) => new(
         Mathf.Max(c.r, v),
         Mathf.Max(c.g, v),
         Mathf.Max(c.b, v),
         Mathf.Max(c.a, v)
+    );
+    
+    public static Color Div(Color n, Color d) => new(
+        n.r / d.r,
+        n.g / d.g,
+        n.b / d.b,
+        n.a / d.a
+    );
+    
+    public static Color Saturate(Color c) => new(
+        Mathf.Clamp01(c.r),
+        Mathf.Clamp01(c.g),
+        Mathf.Clamp01(c.b),
+        Mathf.Clamp01(c.a)
     );
 
     public static float MaxRgb(this Color c) => Mathf.Max(c.r, Mathf.Max(c.g, c.b));
@@ -43,7 +57,7 @@ public static class ColorExtensions
     public static Color BlendSoftLight(this Color a, Color b)
     {
         // (1 - 2b) * a^2 + 2b * a
-        // Need Color.one instead of "1f - color".
+        // Need Color.white instead of "1f - color".
         return (Color.white - 2f * b) * (a * a) + (2f * b) * a;
     }
 
@@ -55,7 +69,7 @@ public static class ColorExtensions
         // 1 - (1 - b) / a
         // Clamp + avoid div-by-zero per channel.
         var denom = a.Max(float.Epsilon);
-        return saturate(Color.white - Div(Color.white - b, denom));
+        return Saturate(Color.white - Div(Color.white - b, denom));
     }
 
     public static Color BlendLinearBurn(this Color a, Color b) => (a + b).Sub(1f);
@@ -68,7 +82,7 @@ public static class ColorExtensions
     {
         // b / (1 - a)
         var denom = (Color.white - a).Max(float.Epsilon);
-        return saturate(Div(b, denom));
+        return Saturate(Div(b, denom));
     }
 
     public static Color BlendLinearDodge(this Color a, Color b) => a + b;
@@ -78,24 +92,101 @@ public static class ColorExtensions
     {
         // b / a
         var denom = a.Max(float.Epsilon);
-        return saturate(Div(b, denom));
+        return Saturate(Div(b, denom));
+    }
+    
+    public static Color[] MonochromaticPalette(this Color col, int count = 5)
+    {
+        Color.RGBToHSV(col, out float h, out _, out _);
+        var palette = new Color[count];
+
+        for (var i = 0; i < count; ++i)
+        {
+            var s = Mathf.Lerp(0.3f, 1f, (float)i / (count - 1));
+            var v = Mathf.Lerp(0.9f, 0.3f, (float)i / (count - 1));
+            palette[i] = Color.HSVToRGB(h, s, v);
+        }
+
+        return palette;
     }
 
-    // ---------------------------
-    // Internal math helpers
-    // ---------------------------
+    public static Color[] ComplementaryPalette(this Color col)
+    {
+        Color.RGBToHSV(col, out float h, out float s, out float v);
+        return new[]
+        {
+            Color.HSVToRGB(h, s, v),
+            Color.HSVToRGB(Mathf.Repeat(h + 0.5f, 1f), s, v)
+        };
+    }
 
-    private static Color saturate(Color c) => new Color(
-        Mathf.Clamp01(c.r),
-        Mathf.Clamp01(c.g),
-        Mathf.Clamp01(c.b),
-        Mathf.Clamp01(c.a)
-    );
+    public static Color[] AnalogousPalette(this Color col, int count = 5)
+    {
+        Color.RGBToHSV(col, out float h, out float s, out float v);
+        var palette = new Color[count];
 
-    private static Color Div(Color n, Color d) => new Color(
-        n.r / d.r,
-        n.g / d.g,
-        n.b / d.b,
-        n.a / d.a
-    );
+        float hueStep = 30f / 360f;
+
+        for (int i = 0; i < count; i++)
+        {
+            float hueOffset = (i - count / 2) * hueStep;
+            palette[i] = Color.HSVToRGB(Mathf.Repeat(h + hueOffset, 1f), s, v);
+        }
+
+        return palette;
+    }
+
+    public static Color[] TriadicPalette(this Color col)
+    {
+        Color.RGBToHSV(col, out float h, out float s, out float v);
+        return new[]
+        {
+            Color.HSVToRGB(h, s, v),
+            Color.HSVToRGB(Mathf.Repeat(h + 1f/3f, 1f), s, v),
+            Color.HSVToRGB(Mathf.Repeat(h + 2f/3f, 1f), s, v)
+        };
+    }
+    
+    public static Color HueShift(this Color color, float hueShiftDegrees)
+    {
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        h = Mathf.Repeat(h + hueShiftDegrees / 360f, 1f);
+        return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
+    }
+
+    public static Color SaturationAdjust(this Color color, float saturationMultiplier)
+    {
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        s = Mathf.Clamp01(s * saturationMultiplier);
+        return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
+    }
+
+    public static Color BrightnessAdjust(this Color color, float brightnessMultiplier)
+    {
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        v = Mathf.Clamp01(v * brightnessMultiplier);
+        return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
+    }
+    
+    public static Color BlendColors(params Color[] colors)
+    {
+        if (colors.Length == 0) return Color.black;
+        if (colors.Length == 1) return colors[0];
+
+        Color result = colors[0];
+        for (int i = 1; i < colors.Length; i++)
+        {
+            result = Color.Lerp(result, colors[i], 1f / (i + 1));
+        }
+        return result;
+    }
+
+    public static Color WithAlpha(this Color color, float alpha) =>
+        new(color.r, color.g, color.b, alpha);
+
+    public static bool IsApproximatelyDark(this Color color, float threshold = 0.1f) => 
+        color.PerceivedBrightness() < threshold;
+        
+    public static bool IsApproximatelyLight(this Color color, float threshold = 0.9f) => 
+        color.PerceivedBrightness() > threshold;
 }

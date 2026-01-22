@@ -2,7 +2,7 @@
 
 [ExecuteAlways]
 [RequireComponent(typeof(Camera))]
-public sealed class ProjectionController : MonoBehaviour
+public sealed class AdvancedProjectionBehaviour : MonoBehaviour
 {
     public enum ProjectionType
     {
@@ -78,10 +78,6 @@ public sealed class ProjectionController : MonoBehaviour
 
     private void ApplyProjection()
     {
-        // Important: reset to default unless you're intentionally overriding with custom matrices.
-        // Your extension methods should ideally handle this internally.
-        // If they don't, consider calling _cam.ResetProjectionMatrix() here in the non-custom cases.
-
         switch (projectionType)
         {
             case ProjectionType.Orthographic:          _cam.SetOrthographic(); break;
