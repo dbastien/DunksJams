@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-/// <summary>
-/// Utilitiies / helpers for Unity's AssetDatabase
-/// </summary>
+/// <summary> Utilitiies / helpers for Unity's AssetDatabase </summary>
 public static class AssetDatabaseUtils
 {
     public static List<T> FindAssetsByType<T>() where T : Object
     {
-        var guids = AssetDatabase.FindAssets(string.Format("t:{0}", typeof(T)), null);
+        var guids = AssetDatabase.FindAssets($"t:{typeof(T)}", null);
         var assets = new List<T>(guids.Length);
 
         foreach (var guid in guids)
         {
-            Debug.Log(guid);
-
             var assetPath = AssetDatabase.GUIDToAssetPath(guid);
 
             T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
@@ -36,9 +29,9 @@ public static class AssetDatabaseUtils
 
     public static List<T> FindAndLoadAssets<T>() where T : Object
     {
-        var guids = AssetDatabaseUtils.FindAssetGUIDs<T>();
+        var guids = FindAssetGUIDs<T>();
 
-        return AssetDatabaseUtils.LoadAssetsByGUIDs<T>(guids);
+        return LoadAssetsByGUIDs<T>(guids);
     }
 
     public static string[] FindAssetGUIDs<T>() where T : Object
@@ -66,7 +59,7 @@ public static class AssetDatabaseUtils
     public static List<T> LoadAssetsByGUIDs<T>(string[] guids) where T : Object
     {
         var assets = new List<T>(guids.Length);
-        assets.AddRange(guids.Select(AssetDatabaseUtils.LoadAssetByGUID<T>).Where(asset => asset != null));
+        assets.AddRange(guids.Select(LoadAssetByGUID<T>).Where(asset => asset != null));
         return assets;
     }
 }

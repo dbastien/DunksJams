@@ -175,7 +175,7 @@ public class Separation : NeighborBasedBehavior
         public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
         {
             if (!target) return Vector3.zero;
-            Rigidbody targetRb = target.GetComponent<Rigidbody>();
+            var targetRb = target.GetComponent<Rigidbody>();
             return targetRb ? SeekVelocity(agent, target.position + targetRb.linearVelocity) : Vector3.zero;
         }
     }

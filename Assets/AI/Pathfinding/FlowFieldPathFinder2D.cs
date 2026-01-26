@@ -8,9 +8,7 @@ public class FlowFieldPathfinder2D
 
     public FlowFieldPathfinder2D(int[,] grid)
     {
-        if (grid == null) throw new System.ArgumentNullException(nameof(grid));
-
-        _grid = grid;
+        _grid = grid ?? throw new System.ArgumentNullException(nameof(grid));
         _flowField = new Vector2[grid.GetLength(0), grid.GetLength(1)];
     }
 
