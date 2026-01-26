@@ -1,35 +1,47 @@
+using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-/// <summary>Eager: selects the canonical instance in Awake and runs InitInternal() immediately.</summary>
-[DisallowMultipleComponent]
-public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : SingletonEagerBehaviour<T>
+[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+public sealed class SingletonAutoCreateAttribute : Attribute
 {
-    private static T _instance;
-    private static bool _quitting;
+}
 
-    private bool _initialized;
+[DisallowMultipleComponent]
+public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonBehaviour<T>
+{
+    static T _instance;
+    static bool _quitting;
+    static readonly bool _autoCreate = Attribute.IsDefined(typeof(T), typeof(SingletonAutoCreateAttribute), true);
 
-    /// <summary>Override to keep the singleton across scene loads.</summary>
+    bool _initialized;
+
     protected virtual bool PersistAcrossScenes => false;
-
-    /// <summary>Override to auto-create a singleton if none exists when Instance is accessed.</summary>
-    protected virtual bool AutoCreateWhenMissing => false;
+    protected virtual bool InitOnAwake => true;
 
     public static T Instance
     {
         get
         {
             if (_quitting) return null;
+
             if (_instance != null)
             {
                 _instance.EnsureInit();
                 return _instance;
             }
-            return FindOrCreateAndInit();
+
+            _instance = FindFirstObjectByType<T>();
+            if (_instance != null)
+            {
+                _instance.EnsureInit();
+                return _instance;
+            }
+
+            return _autoCreate ? CreateAndInit() : null;
         }
     }
 
@@ -38,7 +50,8 @@ public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : Singl
         if (_instance == null)
         {
             _instance = (T)this;
-            EnsureInit();
+
+            if (InitOnAwake) EnsureInit();
 
             if (PersistAcrossScenes)
                 DontDestroyOnLoad(gameObject);
@@ -56,27 +69,29 @@ public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : Singl
         if (_instance == this) _instance = null;
     }
 
-    private static T FindOrCreateAndInit()
-    {
-        _instance = FindFirstObjectByType<T>();
-        if (_instance == null)
-        {
-            // Instance getter can't call virtuals, so we do a conservative approach:
-            // If you want AutoCreateWhenMissing, set it via a derived class helper
-            // (see notes below). For the common case, we keep Instance strict here.
-            //
-            // If you prefer auto-create without virtuals, use SingletonEagerAutoCreate<T> variant.
-            return null;
-        }
-
-        _instance.EnsureInit();
-        return _instance;
-    }
-
-    // If you want strict support for AutoCreateWhenMissing, call this from derived class:
     protected static T CreateIfMissing()
     {
-        if (_instance != null || _quitting) return _instance;
+        if (_quitting) return null;
+
+        if (_instance != null)
+        {
+            _instance.EnsureInit();
+            return _instance;
+        }
+
+        _instance = FindFirstObjectByType<T>();
+        if (_instance != null)
+        {
+            _instance.EnsureInit();
+            return _instance;
+        }
+
+        return CreateAndInit();
+    }
+
+    static T CreateAndInit()
+    {
+        if (_quitting) return null;
 
         var go = new GameObject(typeof(T).Name);
         _instance = go.AddComponent<T>();
@@ -88,14 +103,14 @@ public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : Singl
         return _instance;
     }
 
-    private void EnsureInit()
+    void EnsureInit()
     {
         if (_initialized) return;
         _initialized = true;
         InitInternal();
     }
 
-    private void DestroyDuplicate()
+    void DestroyDuplicate()
     {
 #if UNITY_EDITOR
         if (!Application.isPlaying) DestroyImmediate(gameObject);
@@ -108,9 +123,8 @@ public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : Singl
     protected abstract void InitInternal();
 
 #if UNITY_EDITOR
-    // Reset statics when entering play mode when Domain Reload is disabled.
     [InitializeOnEnterPlayMode]
-    private static void OnEnterPlayMode(EnterPlayModeOptions options)
+    static void OnEnterPlayMode(EnterPlayModeOptions options)
     {
         if ((options & EnterPlayModeOptions.DisableDomainReload) != 0)
         {
@@ -119,4 +133,10 @@ public abstract class SingletonEagerBehaviour<T> : MonoBehaviour where T : Singl
         }
     }
 #endif
+}
+
+/// <summary>Eager: selects the canonical instance in Awake and runs InitInternal() immediately.</summary>
+public abstract class SingletonEagerBehaviour<T> : SingletonBehaviour<T> where T : SingletonEagerBehaviour<T>
+{
+    protected sealed override bool InitOnAwake => true;
 }

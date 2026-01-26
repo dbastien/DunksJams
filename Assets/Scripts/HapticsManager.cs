@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Haptics;
-using System.Threading.Tasks;
 
 //todo: add editor, and visualizer with real-time waveform and pad state info
 public static class HapticsManager
 {
     static readonly Dictionary<int, Gamepad> _pads = new();
+    static readonly WaitForSecondsRealtime _curveTick = new(0.01f);
     static float GlobalIntensity { get; set; } = 1f;
     static bool _isInitialized;
 
@@ -45,31 +46,31 @@ public static class HapticsManager
     public static void SetGlobalIntensity(float intensity) =>
         GlobalIntensity = Mathf.Clamp01(intensity);
 
-    public static async void PlayHaptic(Gamepad pad, HapticPreset preset)
+    public static void PlayHaptic(Gamepad pad, HapticPreset preset)
     {
         if (IsGhostDevice(pad) || pad is not IDualMotorRumble rumble) return;
 
         if (preset.LowFreqCurve != null && preset.HighFreqCurve != null)
-            await PlayCurveHaptic(pad, rumble, preset);
+            StartHapticCoroutine(PlayCurveHaptic(pad, rumble, preset));
         else
             SimpleRumble(pad, rumble, preset.LowFreq, preset.HighFreq, preset.Seconds);
     }
 
-    // feedback based on animation curves (async loop).
-    static async Task PlayCurveHaptic(Gamepad pad, IDualMotorRumble rumble, HapticPreset preset)
+    // feedback based on animation curves (coroutine loop).
+    static IEnumerator PlayCurveHaptic(Gamepad pad, IDualMotorRumble rumble, HapticPreset preset)
     {
-        float startTime = Time.time;
+        float startTime = Time.unscaledTime;
 
-        while (Time.time - startTime < preset.Seconds)
+        while (Time.unscaledTime - startTime < preset.Seconds)
         {
             if (IsGhostDevice(pad)) break;
 
-            float t = (Time.time - startTime) / preset.Seconds;
+            float t = (Time.unscaledTime - startTime) / preset.Seconds;
             float low = preset.LowFreqCurve.Evaluate(t) * GlobalIntensity;
             float high = preset.HighFreqCurve.Evaluate(t) * GlobalIntensity;
 
             rumble.SetMotorSpeeds(low, high);
-            await Task.Delay(10);  // Prevent frame spam
+            yield return _curveTick;
         }
 
         rumble.ResetHaptics();
@@ -80,12 +81,13 @@ public static class HapticsManager
         if (IsGhostDevice(pad)) return;
 
         rumble.SetMotorSpeeds(low * GlobalIntensity, high * GlobalIntensity);
-        StopRumbleAfterDuration(rumble, seconds);
+        StartHapticCoroutine(StopRumbleAfterDuration(rumble, seconds));
     }
 
-    static async void StopRumbleAfterDuration(IDualMotorRumble rumble, float seconds)
+    static IEnumerator StopRumbleAfterDuration(IDualMotorRumble rumble, float seconds)
     {
-        await Task.Delay((int)(seconds * 1000));
+        if (seconds > 0f)
+            yield return new WaitForSecondsRealtime(seconds);
         rumble.ResetHaptics();
     }
 
@@ -105,6 +107,13 @@ public static class HapticsManager
             if (!IsGhostDevice(pad)) ResetHaptics(pad);
 
         _pads.Clear();
+    }
+
+    static void StartHapticCoroutine(IEnumerator routine)
+    {
+        var runner = AsyncRunner.Instance;
+        if (runner == null) return;
+        runner.StartCoroutine(routine);
     }
 
     [CreateAssetMenu(fileName = "NewHapticPreset", menuName = "‽/HapticPreset")]

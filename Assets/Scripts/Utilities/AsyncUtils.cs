@@ -55,8 +55,10 @@ public static class AsyncUtils
     }
 }
 
+[SingletonAutoCreate]
 [DisallowMultipleComponent]
 public class AsyncRunner : SingletonEagerBehaviour<AsyncRunner>
 {
-    protected override void InitInternal() => DontDestroyOnLoad(gameObject);
+    protected override bool PersistAcrossScenes => true;
+    protected override void InitInternal() { }
 }

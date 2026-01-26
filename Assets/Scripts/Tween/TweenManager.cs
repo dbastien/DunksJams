@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+[SingletonAutoCreate]
 public class TweenManager : SingletonEagerBehaviour<TweenManager>
 {
     readonly List<ITween> _tweens = new();

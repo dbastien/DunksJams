@@ -17,9 +17,10 @@ public class DevConsole : SingletonEagerBehaviour<DevConsole>
     Font _font;
     const int _fontSize = 12;
 
+    protected override bool PersistAcrossScenes => true;
+
     protected override void InitInternal()
     {
-        DontDestroyOnLoad(gameObject);
         DiscoverCommands();
         RegisterBuiltInCommands();
         DLog.Log("DevConsole initialized. Press `~` to toggle.");
