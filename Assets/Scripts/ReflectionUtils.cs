@@ -276,7 +276,7 @@ public static class ReflectionUtils
         }
         catch (Exception ex)
         {
-            Debug.LogWarning($"Failed to convert '{value}' to type '{targetType.Name}': {ex.Message}");
+            DLog.LogW($"Failed to convert '{value}' to type '{targetType.Name}': {ex.Message}");
             return GetDefault(targetType);
         }
 

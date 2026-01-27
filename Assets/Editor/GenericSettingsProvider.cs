@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -92,7 +92,7 @@ public static class GeneralSettingsProvider
             }
         }
     
-        Debug.LogWarning($"Setting '{settingName}' not found.");
+        DLog.LogW($"Setting '{settingName}' not found.");
         return null;
     }
 

@@ -9,7 +9,7 @@ public class TestCompilationWarnings : MonoBehaviour
     void Start()
     {
         return;
-        Debug.Log("This code is unreachable");
+        DLog.Log("This code is unreachable");
     }
 
     // CS0219: Variable assigned but never used

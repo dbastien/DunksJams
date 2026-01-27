@@ -851,6 +851,7 @@ public sealed class DLogConsole : EditorWindow
             return;
         }
 
-        Debug.LogWarning($"DLogConsole: Could not open '{filePath}' at line {line}");
+        DLog.LogW($"DLogConsole: Could not open '{filePath}' at line {line}");
     }
 }
+

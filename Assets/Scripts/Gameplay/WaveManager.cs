@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -51,7 +51,7 @@ public class WaveManager : MonoBehaviour
     {
         if (_currentWaveIndex >= waves.Count)
         {
-            Debug.Log("All waves completed!");
+            DLog.Log("All waves completed!");
             OnAllWavesCompleted?.Invoke(_currentWaveIndex);
             return;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -27,7 +27,7 @@ public class SaveSystem
         }
         catch (Exception e)
         {
-            Debug.LogError($"Save failed: {e.Message}");
+            DLog.LogE($"Save failed: {e.Message}");
             OnSaveError?.Invoke(e.Message);
         }
     }
@@ -47,7 +47,7 @@ public class SaveSystem
         }
         catch (Exception e)
         {
-            Debug.LogError($"Load failed: {e.Message}");
+            DLog.LogE($"Load failed: {e.Message}");
             OnLoadError?.Invoke(e.Message);
             return default;
         }

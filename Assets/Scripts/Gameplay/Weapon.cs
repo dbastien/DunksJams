@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 //todo: largely untested
@@ -59,7 +59,7 @@ public class Weapon : MonoBehaviour
 
         if (useAmmo && _currentAmmo <= 0)
         {
-            Debug.Log("Out of ammo!");
+            DLog.Log("Out of ammo!");
             if (!infiniteAmmo) Reload();
             return;
         }
@@ -172,7 +172,7 @@ public class Weapon : MonoBehaviour
         if (useCriticalHits && UnityEngine.Random.value <= critChance)
         {
             damage *= critMultiplier;
-            Debug.Log("Critical hit!");
+            DLog.Log("Critical hit!");
         }
 
         return damage;
@@ -182,7 +182,7 @@ public class Weapon : MonoBehaviour
     {
         if (!useAmmo || infiniteAmmo || _currentAmmo >= maxAmmo) return;
 
-        Debug.Log("Reloading...");
+        DLog.Log("Reloading...");
         OnReloadStarted?.Invoke();
         Invoke(nameof(FinishReload), reloadTime);
     }

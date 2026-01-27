@@ -109,7 +109,7 @@ public class Health : MonoBehaviour
 
         _isInvulnerable = true;
         _invulnerabilityTimer = duration;
-        Debug.Log($"Invulnerability enabled for {duration} seconds.");
+        DLog.Log($"Invulnerability enabled for {duration} seconds.");
     }
 
     public void RestoreShield(float amount)

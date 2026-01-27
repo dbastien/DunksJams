@@ -39,7 +39,7 @@ public class FindReferencesInAssetsWindow : EditorWindow
         var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
         if (asset == null)
         {
-            Debug.LogError("Couldn't load asset!");
+            DLog.LogE("Couldn't load asset!");
             return;
         }
 
@@ -99,3 +99,4 @@ public class FindReferencesInAssetsWindow : EditorWindow
         return countFound;
     }
 }
+

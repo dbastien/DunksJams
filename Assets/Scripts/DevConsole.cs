@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,7 +97,7 @@ public class DevConsole : SingletonEagerBehaviour<DevConsole>
 
         // Only retrieve command if _historyIndex is valid
         string command = _historyIndex == -1 ? "" : _commandHistory.GetRecent(_historyIndex);
-        Debug.Log($"NavigateCommandHistory: direction={direction}, _historyIndex={_historyIndex}, command='{command}'");
+        DLog.Log($"NavigateCommandHistory: direction={direction}, _historyIndex={_historyIndex}, command='{command}'");
 
         _input = command; // Assign retrieved command to _input
         _shouldFocus = true;
@@ -190,3 +190,4 @@ public class DevConsole : SingletonEagerBehaviour<DevConsole>
     void Log(string message) => _history.Add(message);
     void LogError(string msg) => _history.Add($"<color=red>Error:</color> {msg}");
 }
+

@@ -30,7 +30,7 @@ public class FindUnusedAssetsInFolderWindow : EditorWindow
             FindAllShaderReferences();
             FindAllMaterialReferences();
             var td = System.DateTime.Now - t1; 
-            Debug.Log("Completed in: " + td.TotalSeconds);
+            DLog.Log("Completed in: " + td.TotalSeconds);
         }        
     }
 
@@ -162,3 +162,4 @@ public class FindUnusedAssetsInFolderWindow : EditorWindow
         }
     }    
 }
+

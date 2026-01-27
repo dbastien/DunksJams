@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -53,11 +53,11 @@ public static class DataUtils
         }
         catch (HttpRequestException e)
         {
-            Debug.LogError($"Network error while fetching Google Sheets data: {e.Message}");
+            DLog.LogE($"Network error while fetching Google Sheets data: {e.Message}");
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to parse Google Sheets data: {e.Message}");
+            DLog.LogE($"Failed to parse Google Sheets data: {e.Message}");
         }
         return new();
     }
