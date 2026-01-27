@@ -18,6 +18,24 @@ public class RingBuffer<T> : IEnumerable<T>
 
     public int Capacity => _buffer.Length;
     public int Count => _size;
+    public bool IsFull => _size == Capacity;
+
+    public T[] ItemsOrdered
+    {
+        get
+        {
+            var result = new T[_size];
+            if (_size == 0) return result;
+
+            int firstSegment = Math.Min(_size, Capacity - _head);
+            Array.Copy(_buffer, _head, result, 0, firstSegment);
+            int remaining = _size - firstSegment;
+            if (remaining > 0)
+                Array.Copy(_buffer, 0, result, firstSegment, remaining);
+
+            return result;
+        }
+    }
     
     public T this[int index]
     {
@@ -59,6 +77,42 @@ public class RingBuffer<T> : IEnumerable<T>
     {
         Debug.Assert(_size != 0);
         return _buffer[(_tail - 1 + Capacity) % Capacity];
+    }
+
+    public bool TryGetItem(int index, out T item, T defaultValue = default)
+    {
+        if (index < 0 || index >= _size)
+        {
+            item = defaultValue;
+            return false;
+        }
+
+        item = _buffer[(_head + index) % Capacity];
+        return true;
+    }
+
+    public bool TryGetOldest(out T oldest, T defaultValue = default)
+    {
+        if (_size == 0)
+        {
+            oldest = defaultValue;
+            return false;
+        }
+
+        oldest = _buffer[_head];
+        return true;
+    }
+
+    public bool TryGetNewest(out T newest, T defaultValue = default)
+    {
+        if (_size == 0)
+        {
+            newest = defaultValue;
+            return false;
+        }
+
+        newest = _buffer[(_tail - 1 + Capacity) % Capacity];
+        return true;
     }
     
     public void Skip(int count = 1)
