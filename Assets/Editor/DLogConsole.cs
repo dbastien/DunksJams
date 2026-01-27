@@ -396,6 +396,20 @@ public sealed class DLogConsole : EditorWindow
     [MenuItem("Window/DLog Console")]
     public static void ShowWindow() => GetWindow<DLogConsole>("DLog Console");
 
+    public static void ManualCheckCompilationWarnings()
+    {
+        if (EditorApplication.isCompiling)
+        {
+            DLog.Log("Compilation in progress; warnings will be captured automatically.");
+            return;
+        }
+
+        DLog.Log("Requesting script compilation to collect warnings...");
+        CompilationPipeline.RequestScriptCompilation();
+    }
+
+    public static void TestLogWarning() => DLog.LogW("DLog Console test warning.");
+
     private Vector2 _scroll;
     private bool _autoScroll = true;
     private string _filter = "";
