@@ -9,9 +9,14 @@ public class CardCollection<T> : ICollection<T> where T : CardBase
     public CardCollection() { }
     public CardCollection(IEnumerable<T> cards) => _cards.AddRange(cards);
 
+    public IReadOnlyList<T> Cards => _cards;
+
+    public T this[int index] => _cards[index];
+
     public void Add(T card) => _cards.Add(card);
     public void AddRange(IEnumerable<T> cards) => _cards.AddRange(cards);
     public bool Remove(T card) => _cards.Remove(card);
+    public void RemoveAt(int index) => _cards.RemoveAt(index);
 
     public void Shuffle() => Rand.Shuffle(_cards);
 

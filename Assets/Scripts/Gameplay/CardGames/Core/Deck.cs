@@ -7,12 +7,14 @@ public sealed class Deck<T> where T : CardBase
     public CardCollection<T> DrawPile { get; }
     public CardCollection<T> DiscardPile { get; }
     public bool AutoRecycleDiscard { get; set; }
+    public bool KeepTopDiscardOnRecycle { get; set; }
 
-    public Deck(IEnumerable<T> cards = null, bool autoRecycleDiscard = false)
+    public Deck(IEnumerable<T> cards = null, bool autoRecycleDiscard = false, bool keepTopDiscardOnRecycle = false)
     {
         DrawPile = new CardCollection<T>(cards ?? Enumerable.Empty<T>());
         DiscardPile = new CardCollection<T>();
         AutoRecycleDiscard = autoRecycleDiscard;
+        KeepTopDiscardOnRecycle = keepTopDiscardOnRecycle;
     }
 
     public int Count => DrawPile.Count;
@@ -44,8 +46,14 @@ public sealed class Deck<T> where T : CardBase
 
     public void RecycleDiscardIntoDraw()
     {
+        bool keepTop = KeepTopDiscardOnRecycle && DiscardPile.Count > 0;
+        T top = keepTop ? DiscardPile.DrawFromTop() : null;
+
         DrawPile.AddRange(DiscardPile);
         DiscardPile.Clear();
         Shuffle();
+
+        if (keepTop && top != null)
+            DiscardPile.Add(top);
     }
 }

@@ -2,7 +2,8 @@ using System.Collections.Generic;
 
 public class WarGame : CardGameBase<StandardCard>
 {
-    public WarGame() : base(playerCount: 2) { }
+    public WarGame(string variantName = "Standard", ICardGameIO io = null)
+        : base(playerCount: 2, io: io) => VariantName = variantName;
 
     protected override Deck<StandardCard> CreateDeck() => StandardDeck.CreateDeck();
 
@@ -10,10 +11,12 @@ public class WarGame : CardGameBase<StandardCard>
     {
         if (IsGameOver()) return;
 
-        var p1Card = PlayerHands[0].DrawFromTop();
-        var p2Card = PlayerHands[1].DrawFromTop();
+        var p1Card = RemoveCardFromHand(0, PlayerHands[0].Count - 1);
+        var p2Card = RemoveCardFromHand(1, PlayerHands[1].Count - 1);
+        EmitCardPlayed(0, p1Card);
+        EmitCardPlayed(1, p2Card);
 
-        DLog.Log($"Player 1 plays {p1Card}; Player 2 plays {p2Card}");
+        WriteLine($"{GetPlayerName(0)} plays {p1Card}; {GetPlayerName(1)} plays {p2Card}");
 
         int result = p1Card.CardRank.CompareTo(p2Card.CardRank);
         if (result > 0)
@@ -42,9 +45,15 @@ public class WarGame : CardGameBase<StandardCard>
 
     public override void ShowScores()
     {
-        DLog.Log($"Player 1 has {PlayerHands[0].Count} cards; Player 2 has {PlayerHands[1].Count} cards.");
-        if (IsGameOver())
-            DLog.Log(PlayerHands[0].Count > PlayerHands[1].Count ? "Player 1 wins!" :
-                     PlayerHands[1].Count > PlayerHands[0].Count ? "Player 2 wins!" : "It's a draw.");
+        WriteLine($"{GetPlayerName(0)} has {PlayerHands[0].Count} cards; {GetPlayerName(1)} has {PlayerHands[1].Count} cards.");
+        string result = GetResultSummary();
+        if (!string.IsNullOrEmpty(result)) WriteLine(result);
+    }
+
+    protected override string GetResultSummary()
+    {
+        if (!IsGameOver()) return null;
+        return PlayerHands[0].Count > PlayerHands[1].Count ? $"{GetPlayerName(0)} wins!" :
+               PlayerHands[1].Count > PlayerHands[0].Count ? $"{GetPlayerName(1)} wins!" : "It's a draw.";
     }
 }

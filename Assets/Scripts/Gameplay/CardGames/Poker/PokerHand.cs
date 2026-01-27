@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+public enum PokerHandCategory
+{
+    HighCard = 1,
+    OnePair,
+    TwoPair,
+    ThreeOfAKind,
+    Straight,
+    Flush,
+    FullHouse,
+    FourOfAKind,
+    StraightFlush
+}
+
+public readonly struct PokerHand : IComparable<PokerHand>
+{
+    public PokerHandCategory Category { get; }
+    public IReadOnlyList<int> Values { get; }
+    public string Description { get; }
+
+    public PokerHand(PokerHandCategory category, IReadOnlyList<int> values, string description)
+    {
+        Category = category;
+        Values = values;
+        Description = description;
+    }
+
+    public int CompareTo(PokerHand other)
+    {
+        int categoryCompare = Category.CompareTo(other.Category);
+        if (categoryCompare != 0) return categoryCompare;
+
+        int count = Math.Min(Values.Count, other.Values.Count);
+        for (int i = 0; i < count; ++i)
+        {
+            int valueCompare = Values[i].CompareTo(other.Values[i]);
+            if (valueCompare != 0) return valueCompare;
+        }
+
+        return Values.Count.CompareTo(other.Values.Count);
+    }
+
+    public override string ToString() => string.IsNullOrEmpty(Description) ? Category.ToString() : Description;
+}

@@ -1,6 +1,7 @@
 public class PinochleGame : CardGameBase<StandardCard>
 {
-    public PinochleGame(int playerCount = 4, int maxRounds = 50) : base(playerCount, maxRounds) { }
+    public PinochleGame(string variantName = "Standard", int playerCount = 4, int maxRounds = 50, ICardGameIO io = null)
+        : base(playerCount, maxRounds, io) => VariantName = variantName;
 
     protected override Deck<StandardCard> CreateDeck() => PinochleDeck.CreateDeck();
 }

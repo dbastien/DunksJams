@@ -32,6 +32,6 @@ public static class UnoDeck
             cards.Add(new UnoCard(UnoCard.Color.Wild, UnoCard.Rank.DrawFour));
         }
 
-        return new Deck<UnoCard>(cards, autoRecycleDiscard: true);
+        return new Deck<UnoCard>(cards, autoRecycleDiscard: true, keepTopDiscardOnRecycle: true);
     }
 }
