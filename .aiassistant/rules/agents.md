@@ -1,3 +1,7 @@
+---
+apply: always
+---
+
 # Instructions for AI Coding Assistants
 
 ## Project Overview
@@ -10,12 +14,12 @@ This is a Unity game development project with custom systems and patterns. When 
 
 ## ⚠️ Critical Agent Guidelines
 
-**ALWAYS ASK BEFORE large refactors or architectural changes.**
+- You may create/edit/rename files as needed (inside the project folder) without asking each time.
+- If there are multiple choices as to how to proceed, try to get those questions all out at once so the user doesn't have to constantly interact.
 - Don't reinvent the wheel - check if something already exists in the codebase before creating it.
 - You're in Windows, use powershell.
-- Read from the editor log when the user says there's an error message.
+- Read from the Unity editor log when the user says there's an error message.
 - Don't push without asking.
-- Don't say something works unless you've tested it.
 
 ## Best Practices for AI Assistants
 

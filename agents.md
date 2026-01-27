@@ -15,6 +15,7 @@ This is a Unity game development project with custom systems and patterns. When 
 - You're in Windows, use powershell.
 - Read from the editor log when the user says there's an error message.
 - Don't push without asking.
+- You may create/edit/rename files as needed without asking each time.
 - Don't say something works unless you've tested it.
 
 ## Best Practices for AI Assistants
