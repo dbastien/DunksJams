@@ -18,9 +18,7 @@ public class FlowFieldPathfinder2D
         return TracePath(start, goal);
     }
 
-    /// <summary>
-    /// Find path using a pre-allocated list to avoid allocation. Clears the list before use.
-    /// </summary>
+    /// <summary>Find path using a pre-allocated list to avoid allocation. Clears the list before use.</summary>
     public void FindPath(Vector2Int start, Vector2Int goal, List<Vector2Int> result, bool allowDiag = false)
     {
         ComputeFlowField(goal, allowDiag);

@@ -4,7 +4,7 @@ public static class ArrayExtensions
 {
     public static void Fill(this bool[] a, bool val) 
     { 
-        if (val == false) Array.Clear(a, 0, a.Length);
+        if (!val) Array.Clear(a, 0, a.Length);
         else Array.Fill(a, true);
     }
 

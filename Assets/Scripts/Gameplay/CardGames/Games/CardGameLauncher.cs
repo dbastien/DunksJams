@@ -11,7 +11,7 @@ public static class CardGameLauncher
             "Tarot Reading"
         };
 
-        int choice = io.ReadChoice("Select a card game:", options, 0);
+        int choice = io.ReadChoice("Select a card game:", options);
         switch (choice)
         {
             case 1:

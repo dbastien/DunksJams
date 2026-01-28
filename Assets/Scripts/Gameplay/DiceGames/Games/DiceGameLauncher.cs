@@ -8,7 +8,7 @@ public static class DiceGameLauncher
             "Cee-Lo"
         };
 
-        int choice = io.ReadChoice("Select a dice game:", options, 0);
+        int choice = io.ReadChoice("Select a dice game:", options);
         switch (choice)
         {
             default:

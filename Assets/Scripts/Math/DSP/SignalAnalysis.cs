@@ -2,9 +2,7 @@ using System;
 
 public static class SignalAnalysis
 {
-    /// <summary>
-    /// Calculate RMS (Root Mean Square) of a signal
-    /// </summary>
+    /// <summary>Calculate RMS (Root Mean Square) of a signal</summary>
     public static float RMS(float[] samples)
     {
         if (samples.Length == 0) return 0f;
@@ -18,9 +16,7 @@ public static class SignalAnalysis
         return MathF.Sqrt(sum / samples.Length);
     }
 
-    /// <summary>
-    /// Find the peak value in a signal
-    /// </summary>
+    /// <summary>Find the peak value in a signal</summary>
     public static float Peak(float[] samples)
     {
         if (samples.Length == 0) return 0f;
@@ -34,9 +30,7 @@ public static class SignalAnalysis
         return peak;
     }
 
-    /// <summary>
-    /// Count zero crossings in a signal
-    /// </summary>
+    /// <summary>Count zero crossings in a signal</summary>
     public static int ZeroCrossings(float[] samples)
     {
         if (samples.Length < 2) return 0;
@@ -57,9 +51,7 @@ public static class SignalAnalysis
         return crossings;
     }
 
-    /// <summary>
-    /// Calculate the centroid (center of mass) of a signal
-    /// </summary>
+    /// <summary>Calculate the centroid (center of mass) of a signal</summary>
     public static float Centroid(float[] samples)
     {
         if (samples.Length == 0) return 0f;
@@ -77,9 +69,7 @@ public static class SignalAnalysis
         return denominator > 0 ? numerator / denominator : 0f;
     }
 
-    /// <summary>
-    /// Calculate spectral centroid (requires FFT data)
-    /// </summary>
+    /// <summary>Calculate spectral centroid (requires FFT data)</summary>
     public static float SpectralCentroid(float[] magnitudes, float sampleRate)
     {
         if (magnitudes.Length == 0) return 0f;

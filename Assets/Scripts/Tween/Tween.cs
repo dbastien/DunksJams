@@ -156,8 +156,7 @@ public class Tween<T> : ITween, IPoolable
     {
         if (_customEase != null)
             return _customEase(t);
-        else
-            return Ease.Evaluate(_easeType, t);
+        return Ease.Evaluate(_easeType, t);
     }
 
     public void Reset()

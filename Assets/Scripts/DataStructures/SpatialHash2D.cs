@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpatialHash2D<T>
 {
     readonly float _cellSize;
     readonly Dictionary<Vector2Int, List<(T obj, Vector2 pos)>> _cells = new();
-    int _totalObjectCount = 0;
+    int _totalObjectCount;
     
     public int CellCount => _cells.Count;
     public int Count => _totalObjectCount;
 
     public SpatialHash2D(float cellSize) => 
-        _cellSize = cellSize > 0 ? cellSize : throw new System.ArgumentOutOfRangeException(nameof(cellSize));
+        _cellSize = cellSize > 0 ? cellSize : throw new ArgumentOutOfRangeException(nameof(cellSize));
 
     Vector2Int GetCell(Vector2 pos) =>
         new(Mathf.FloorToInt(pos.x / _cellSize), Mathf.FloorToInt(pos.y / _cellSize));

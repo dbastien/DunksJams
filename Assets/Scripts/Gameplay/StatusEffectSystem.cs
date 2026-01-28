@@ -59,7 +59,7 @@ public class StatusEffectInstance
         this.effectType = effectType;
         this.duration = duration;
         this.intensity = intensity;
-        this.stacks = 1;
+        stacks = 1;
         this.isStackable = isStackable;
     }
 
@@ -134,7 +134,7 @@ public static class EffectRegistry
 
     public static StatusEffect? GetSynergy(StatusEffect a, StatusEffect b)
     {
-        return Synergies.TryGetValue((a, b), out var synergy) ? synergy : (StatusEffect?)null;
+        return Synergies.TryGetValue((a, b), out var synergy) ? synergy : null;
     }
 }
 

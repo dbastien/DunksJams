@@ -19,7 +19,7 @@ public static class IntExtensions
     public static int NextPowerOfTwoAtLeast(this int v)
     {
         Debug.Assert(v > 0);
-        return 1 << (31 - LeadingZeroCount((v - 1) | 7));
+        return 1 << (31 - ((v - 1) | 7).LeadingZeroCount());
     }
     
     public static int MostSignificantBit(this int v)
@@ -43,13 +43,13 @@ public static class IntExtensions
     public static int Log2(this int v)
     {
         Debug.Assert(v > 0);
-        return 31 - LeadingZeroCount(v);
+        return 31 - v.LeadingZeroCount();
     }
     
     public static int NextLog2(this int v)
     {
         if (v <= 1) return 0;
-        return Log2(v - 1) + 1;
+        return (v - 1).Log2() + 1;
     }
     
     public static int Pow(this int n, int p)

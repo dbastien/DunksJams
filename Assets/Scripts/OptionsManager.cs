@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 
 [Serializable]
 public class OptionsManager
 {
-    public int resolutionIndex = 0;
+    public int resolutionIndex;
     public bool isFullscreen = true;
 
     public int graphicsQuality = 2;

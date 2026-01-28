@@ -90,7 +90,7 @@ public class PokerGame : CardGameBase<StandardCard>
 
     List<int> ReadDiscardIndices(int playerIdx)
     {
-        string input = ReadText("Enter card numbers to discard (comma separated), or press Enter to keep all:", "");
+        string input = ReadText("Enter card numbers to discard (comma separated), or press Enter to keep all:");
         var indices = ParseIndices(input, PlayerHands[playerIdx].Count);
 
         if (_settings.MaxDiscardCount > 0 && indices.Count > _settings.MaxDiscardCount)

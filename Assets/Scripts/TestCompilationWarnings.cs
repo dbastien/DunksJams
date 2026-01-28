@@ -25,6 +25,6 @@ public class TestCompilationWarnings : MonoBehaviour
     void TestObsolete()
     {
         // This will generate a warning about using obsolete Unity API
-        UnityEngine.Application.LoadLevel(0);
+        Application.LoadLevel(0);
     }
 }

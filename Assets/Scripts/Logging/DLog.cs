@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Debug = UnityEngine.Debug;
@@ -357,7 +358,7 @@ public static class DLog
 #if UNITY_EDITOR
     public static void OpenConsole()
     {
-        UnityEditor.EditorApplication.ExecuteMenuItem("Window/DLog");
+        EditorApplication.ExecuteMenuItem("Window/DLog");
     }
 #endif
 }

@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 //todo: largely untested
 public class Weapon : MonoBehaviour
@@ -8,36 +10,36 @@ public class Weapon : MonoBehaviour
     public float baseDamage = 10f;
     public float range = 15f;
 
-    [ToggleHeader("useAmmo", "Ammo")] public bool useAmmo = false;
+    [ToggleHeader("useAmmo", "Ammo")] public bool useAmmo;
     [ShowIf("useAmmo")] public int maxAmmo = 30;
-    [ShowIf("useAmmo")] public bool infiniteAmmo = false;
+    [ShowIf("useAmmo")] public bool infiniteAmmo;
     [ShowIf("useAmmo")] public float reloadTime = 2f;
 
-    [ToggleHeader("useWarmup", "Warmup")] public bool useWarmup = false;
+    [ToggleHeader("useWarmup", "Warmup")] public bool useWarmup;
     [ShowIf("useWarmup")] public float warmupTime = 1f;
 
-    [ToggleHeader("useCooldown", "Cooldown")] public bool useCooldown = false;
+    [ToggleHeader("useCooldown", "Cooldown")] public bool useCooldown;
     [ShowIf("useCooldown")] public float cooldownTime = 1f;
 
-    [ToggleHeader("useCriticalHits", "Critical Hits")] public bool useCriticalHits = false;
+    [ToggleHeader("useCriticalHits", "Critical Hits")] public bool useCriticalHits;
     [ShowIf("useCriticalHits")] [Range(0f, 1f)] public float critChance = 0.2f;
     [ShowIf("useCriticalHits")] [Range(1f, 3f)] public float critMultiplier = 2f;
 
-    [ToggleHeader("useStatusEffects", "Status Effects")] public bool useStatusEffects = false;
+    [ToggleHeader("useStatusEffects", "Status Effects")] public bool useStatusEffects;
     [ShowIf("useStatusEffects")] public StatusEffect statusEffect;
     [ShowIf("useStatusEffects")] public float statusEffectDuration = 3f;
 
-    [ToggleHeader("useSpread", "Spread")] public bool useSpread = false;
+    [ToggleHeader("useSpread", "Spread")] public bool useSpread;
     [ShowIf("useSpread")] [Range(0f, 30f)] public float spreadAngle = 10f;
 
-    [ToggleHeader("useBurstFire", "Burst Fire")] public bool useBurstFire = false;
+    [ToggleHeader("useBurstFire", "Burst Fire")] public bool useBurstFire;
     [ShowIf("useBurstFire")] public int burstCount = 3;
     [ShowIf("useBurstFire")] public float burstDelay = 0.1f;
 
-    [ToggleHeader("useAOE", "Area of Effect")] public bool useAOE = false;
+    [ToggleHeader("useAOE", "Area of Effect")] public bool useAOE;
     [ShowIf("useAOE")] public float aoeRadius = 5f;
 
-    [ToggleHeader("usePiercing", "Piercing Shots")] public bool usePiercing = false;
+    [ToggleHeader("usePiercing", "Piercing Shots")] public bool usePiercing;
     [ShowIf("usePiercing")] public int maxPierceTargets = 3;
 
     private bool _isWarmingUp;
@@ -89,7 +91,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    System.Collections.IEnumerator FireBurst(Vector3 direction)
+    IEnumerator FireBurst(Vector3 direction)
     {
         for (int i = 0; i < burstCount; ++i)
         {
@@ -114,7 +116,7 @@ public class Weapon : MonoBehaviour
     {
         if (!useSpread) return direction;
 
-        return Quaternion.Euler(0, UnityEngine.Random.Range(-spreadAngle, spreadAngle), 0) * direction;
+        return Quaternion.Euler(0, Random.Range(-spreadAngle, spreadAngle), 0) * direction;
     }
 
     void DealDamage(Vector3 direction)
@@ -156,7 +158,7 @@ public class Weapon : MonoBehaviour
 
     void ApplyDamageAndEffects(Health health)
     {
-        health.TakeDamage(CalculateDamage(), DamageType.Physical);
+        health.TakeDamage(CalculateDamage());
 
         if (useStatusEffects)
         {
@@ -169,7 +171,7 @@ public class Weapon : MonoBehaviour
     {
         float damage = baseDamage;
 
-        if (useCriticalHits && UnityEngine.Random.value <= critChance)
+        if (useCriticalHits && Random.value <= critChance)
         {
             damage *= critMultiplier;
             DLog.Log("Critical hit!");

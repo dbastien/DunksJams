@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -76,6 +77,8 @@ public class DataPort<T> : Port, IDataPort<T>
     public void SetData(T data)
     {
         _data = data;
+        if (Parent is IDataPort<T> dataOwner)
+            dataOwner.SetData(data);
         DLog.Log($"{portName} received data: {data}");
     }
 
@@ -95,9 +98,39 @@ public class DefaultEdgeConnectorListener : IEdgeConnectorListener
 
     public void OnDrop(GraphView gv, Edge e)
     {
-        gv.AddElement(e);
-        OnEdgeCreated?.Invoke(e);
-        DLog.Log($"Edge created between {e.output.node.title} and {e.input.node.title}");
+        if (e?.input == null || e.output == null) return;
+
+        var edgesToCreate = new List<Edge> { e };
+        var elementsToRemove = new List<GraphElement>();
+
+        if (e.input.capacity == Port.Capacity.Single)
+            elementsToRemove.AddRange(e.input.connections);
+        if (e.output.capacity == Port.Capacity.Single)
+            elementsToRemove.AddRange(e.output.connections);
+
+        if (gv.graphViewChanged != null)
+        {
+            var change = gv.graphViewChanged(new GraphViewChange
+            {
+                edgesToCreate = edgesToCreate,
+                elementsToRemove = elementsToRemove
+            });
+            edgesToCreate = change.edgesToCreate ?? edgesToCreate;
+            if (change.elementsToRemove != null)
+                elementsToRemove = change.elementsToRemove.ToList();
+        }
+
+        if (elementsToRemove.Count > 0)
+            gv.DeleteElements(elementsToRemove);
+
+        foreach (var edge in edgesToCreate)
+        {
+            gv.AddElement(edge);
+            edge.input.Connect(edge);
+            edge.output.Connect(edge);
+            OnEdgeCreated?.Invoke(edge);
+            DLog.Log($"Edge created between {edge.output.node.title} and {edge.input.node.title}");
+        }
     }
 }
 
@@ -106,10 +139,7 @@ public interface IPropagatingNode
     void PropagateData();
 }
 
-/// <summary>
-/// Interface for nodes that need cleanup when removed from the graph.
-/// Called by SerializedGraphView.RemoveNode() and ClearGraph().
-/// </summary>
+/// <summary>Interface for nodes that need cleanup when removed from the graph. Called by SerializedGraphView.RemoveNode() and ClearGraph().</summary>
 public interface ICleanupNode
 {
     void Cleanup();

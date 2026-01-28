@@ -13,7 +13,7 @@ public class PrecisionStopwatch : IDisposable
     public static bool IsHighResolution => Stopwatch.IsHighResolution;
     public static long Freq => Stopwatch.Frequency;
 
-    public PrecisionStopwatch() : this(TimeUnit.Milliseconds, null, startImmediately: false) { }
+    public PrecisionStopwatch() : this(TimeUnit.Milliseconds) { }
     public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately) { }
     public PrecisionStopwatch(Action<string> onDisposeAction) : this(TimeUnit.Milliseconds, onDisposeAction, startImmediately: true) { }
     public PrecisionStopwatch(TimeUnit timeUnit, Action<string> onDisposeAction = null, bool startImmediately = false)

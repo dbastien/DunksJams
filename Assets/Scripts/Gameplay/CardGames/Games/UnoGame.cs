@@ -110,7 +110,7 @@ public class UnoGame : CardGameBase<UnoCard>
         if (_settings.AllowDrawWhenPlayable)
         {
             var options = BuildPlayableOptions(playerIdx, playableIndices, includeDrawOption: true);
-            int choice = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", options, 0);
+            int choice = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", options);
             if (choice == options.Count - 1)
             {
                 DrawAndMaybePlay(playerIdx);
@@ -122,7 +122,7 @@ public class UnoGame : CardGameBase<UnoCard>
         }
 
         var playOptions = BuildPlayableOptions(playerIdx, playableIndices, includeDrawOption: false);
-        int selected = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", playOptions, 0);
+        int selected = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", playOptions);
         PlayCard(playerIdx, playableIndices[selected]);
     }
 
@@ -229,7 +229,7 @@ public class UnoGame : CardGameBase<UnoCard>
 
         if (!IsPlayable(drawn)) return;
 
-        int choice = ReadChoice("Play the drawn card?", new List<string> { "Play", "Keep" }, 0);
+        int choice = ReadChoice("Play the drawn card?", new List<string> { "Play", "Keep" });
         if (choice == 0) PlayCard(playerIdx, PlayerHands[playerIdx].Count - 1);
     }
 
@@ -315,7 +315,7 @@ public class UnoGame : CardGameBase<UnoCard>
         string prompt = playerIdx >= 0
             ? $"{GetPlayerName(playerIdx)} - choose a color:"
             : "Choose opening color:";
-        int choice = ReadChoice(prompt, options, 0);
+        int choice = ReadChoice(prompt, options);
         return PlayableColors[choice];
     }
 

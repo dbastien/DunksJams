@@ -120,7 +120,7 @@ public static class StringExtensions
     public static string Slugify(this string s) => Regex.Replace(s.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
     public static string ToTitleCase(this string s) => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(s);
-    public static string ToCamelCase(this string s) => ToTitleCase(s).Replace(" ", "");
+    public static string ToCamelCase(this string s) => s.ToTitleCase().Replace(" ", "");
 
     public static string ToSnakeCase(this string s)
     {

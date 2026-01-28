@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 
 public static class CameraExtensions
 {
@@ -17,7 +18,7 @@ public static class CameraExtensions
         RenderTexture.ReleaseTemporary(rt);
         
         byte[] bytes = screenShot.EncodeToPNG();
-        System.IO.File.WriteAllBytes(path, bytes);
+        File.WriteAllBytes(path, bytes);
         DLog.Log($"Screenshot saved to: {path}");
         Object.Destroy(screenShot);
     }

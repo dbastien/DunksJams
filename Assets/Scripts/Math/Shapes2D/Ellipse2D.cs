@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public struct Ellipse2D : IShape2D
 {
     public Vector2 Center, Radii;

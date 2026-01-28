@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 //todo: largely untested
 public class Health : MonoBehaviour
@@ -47,11 +49,11 @@ public class Health : MonoBehaviour
 
     private readonly List<StatusEffectInstance> _activeStatusEffects = new();
 
-    public event System.Action<int> OnHPChanged, OnShieldChanged;
-    public event System.Action<StatusEffect> OnStatusEffectApplied;
-    public event System.Action OnDeath;
+    public event Action<int> OnHPChanged, OnShieldChanged;
+    public event Action<StatusEffect> OnStatusEffectApplied;
+    public event Action OnDeath;
 
-    [System.Serializable]
+    [Serializable]
     public class StatusEffectInstance
     {
         public StatusEffect effectType;

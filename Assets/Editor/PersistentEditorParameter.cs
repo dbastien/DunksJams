@@ -13,10 +13,7 @@ public enum EditorValueStorage
 	Session,
 }
 
-/// <summary>
-/// Cached editor value stored by key in either EditorPrefs (persistent) or SessionState (session-only).
-/// Supports bool/int/float/string, enums, and JSON fallback for Unity-serializable types.
-/// </summary>
+/// <summary>Cached editor value stored by key in either EditorPrefs (persistent) or SessionState (session-only). Supports bool/int/float/string, enums, and JSON fallback for Unity-serializable types.</summary>
 public sealed class EditorStoredValue<T>
 {
 	private readonly string _key;

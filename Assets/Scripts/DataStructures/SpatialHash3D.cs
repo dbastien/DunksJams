@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpatialHash3D<T>
 {
     readonly float _cellSize;
     readonly Dictionary<Vector3Int, List<(T obj, Vector3 pos)>> _cells = new();
-    int _totalObjectCount = 0;
+    int _totalObjectCount;
     
     public int CellCount => _cells.Count;
     public int Count => _totalObjectCount;
     
     public SpatialHash3D(float cellSize) =>
-        _cellSize = cellSize > 0 ? cellSize : throw new System.ArgumentOutOfRangeException(nameof(cellSize));
+        _cellSize = cellSize > 0 ? cellSize : throw new ArgumentOutOfRangeException(nameof(cellSize));
 
     Vector3Int GetCell(Vector3 pos) =>
         new(

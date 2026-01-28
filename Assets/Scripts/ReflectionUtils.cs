@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public static class ReflectionUtils
 { 
@@ -66,7 +67,7 @@ public static class ReflectionUtils
             if (f.IsLiteral || f.IsInitOnly) continue;
             var srcField = _fieldCache.GetOrAdd((src.GetType(), f.Name), t => t.Item1.GetField(t.Item2, All));
             var val = srcField?.GetValue(src);
-            f.SetValue(dst, deep && val != null && val.GetType().IsClass ? DeepClone(val) : val);
+            f.SetValue(dst, deep && val != null && val.GetType().IsClass ? val.DeepClone() : val);
         }
     }
 
@@ -179,10 +180,10 @@ public static class ReflectionUtils
     public static List<FieldInfo> GetSerializableFields(this Type t, BindingFlags flags = AllInstance)
     {
         List<FieldInfo> fields = new();
-        while (t != null && t != typeof(object) && t != typeof(UnityEngine.Object))
+        while (t != null && t != typeof(object) && t != typeof(Object))
         {
             foreach (var f in t.GetFields(flags))
-                if (IsSerializableField(f)) fields.Add(f);
+                if (f.IsSerializableField()) fields.Add(f);
             t = t.BaseType;
         }
         return fields;
@@ -194,7 +195,7 @@ public static class ReflectionUtils
         while (t != null && t != typeof(object))
         {
             foreach (var p in t.GetProperties(flags))
-                if (IsSerializableProperty(p)) props.Add(p);
+                if (p.IsSerializableProperty()) props.Add(p);
             t = t.BaseType;
         }
         return props;
@@ -202,7 +203,7 @@ public static class ReflectionUtils
 
     public static bool IsSerializable(this Type t) =>
         t.IsPrimitive || t.IsEnum || t == typeof(string) || t == typeof(decimal) 
-        || t.IsSerializable || typeof(UnityEngine.Object).IsAssignableFrom(t);
+        || t.IsSerializable || typeof(Object).IsAssignableFrom(t);
     
     public static bool IsSerializableField(this FieldInfo fi) =>
         (fi.IsPublic || fi.GetCustomAttribute<SerializeField>() != null) &&
@@ -221,7 +222,8 @@ public static class ReflectionUtils
         => mi.GetCustomAttributes(typeof(T), true).FirstOrDefault() as T;
     
     public static bool HasAttribute<T>(this MemberInfo mi) where T : Attribute 
-        => GetAttribute<T>(mi) != null;
+        =>
+            mi.GetAttribute<T>() != null;
     
     public static IEnumerable<MethodInfo> GetMethodsWithAttribute<TAttribute>(this Type t, BindingFlags flags = All) where TAttribute : Attribute =>
         t.GetMethods(flags).Where(m => m.GetCustomAttributes(typeof(TAttribute), true).Any());

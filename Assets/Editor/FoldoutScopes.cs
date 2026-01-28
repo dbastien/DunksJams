@@ -112,11 +112,7 @@ internal static class FoldoutUi
 	}
 }
 
-/// <summary>
-/// Compact header foldout scope.
-/// Collapsed: full-width row header.
-/// Expanded: vertical "tab" on the left, content to the right (within a horizontal group).
-/// </summary>
+/// <summary>Compact header foldout scope. Collapsed: full-width row header. Expanded: vertical "tab" on the left, content to the right (within a horizontal group).</summary>
 public readonly struct CompactSectionHeaderFoldoutScope : IDisposable
 {
 	public static readonly GUIStyle NoStretchStyle = new GUIStyle { stretchWidth = false };
@@ -245,9 +241,7 @@ public readonly struct CompactSectionHeaderFoldoutScope : IDisposable
 	}
 }
 
-/// <summary>
-/// Standard header foldout scope with a CoreEditorUtils-ish look, without SRP Core dependency.
-/// </summary>
+/// <summary>Standard header foldout scope with a CoreEditorUtils-ish look, without SRP Core dependency.</summary>
 public readonly struct SectionHeaderFoldoutScope : IDisposable
 {
 	private readonly EditorStoredValue<bool> _foldoutState;
@@ -289,9 +283,7 @@ public readonly struct SectionHeaderFoldoutScope : IDisposable
 	}
 }
 
-/// <summary>
-/// Convenience base for a compact foldout section.
-/// </summary>
+/// <summary>Convenience base for a compact foldout section.</summary>
 public abstract class CompactFoldoutSection
 {
 	private readonly string _title;

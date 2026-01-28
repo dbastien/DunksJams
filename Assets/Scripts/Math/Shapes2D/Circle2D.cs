@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public struct Circle2D : IShape2D
 {
     public Vector2 Center;

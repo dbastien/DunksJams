@@ -1,8 +1,8 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 public class DevConsole : SingletonEagerBehaviour<DevConsole>
 {
@@ -53,8 +53,8 @@ public class DevConsole : SingletonEagerBehaviour<DevConsole>
     {
         _font ??= Resources.Load<Font>("FiraCode-Regular");
         
-        _consoleStyle ??= GUI.skin.label.CreateStyle(_font, _fontSize);
-        _inputStyle ??= GUI.skin.textField.CreateStyle(_font, _fontSize);
+        _consoleStyle ??= GUI.skin.label.CreateStyle(_font);
+        _inputStyle ??= GUI.skin.textField.CreateStyle(_font);
         _boxStyle ??= GUI.skin.box.CreateStyle(4, 5).WithBackground(TextureUtils.GetSolidColor(new(0.1f, 0.1f, 0.1f, 0.9f)));
     }
     

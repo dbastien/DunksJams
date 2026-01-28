@@ -2,11 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Generates efficient gaussian blur kernels suitable for pixel shaders
-/// takes advantage of bilinear filtering to do more with less.
-/// I think I got the idea from here: https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
-/// </summary>
+/// <summary>Generates efficient gaussian blur kernels suitable for pixel shaders, takes advantage of bilinear filtering to do more with less. I think I got the idea from here: https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/</summary>
 public class GaussianBlurKernelGeneratorWindow : EditorWindow 
 {
 	float _sigma = 1f;

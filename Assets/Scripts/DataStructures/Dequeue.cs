@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Deque<T> : ICollection<T>
@@ -45,5 +46,5 @@ public class Deque<T> : ICollection<T>
     }
 
     public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

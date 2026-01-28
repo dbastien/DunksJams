@@ -8,21 +8,21 @@ public class Projectile : MonoBehaviour
     public float range = 50f;
     public float damage = 10f;
 
-    [ToggleHeader("useStatusEffects", "Status Effects")] public bool useStatusEffects = false;
+    [ToggleHeader("useStatusEffects", "Status Effects")] public bool useStatusEffects;
     [ShowIf("useStatusEffects")] public StatusEffect statusEffect;
     [ShowIf("useStatusEffects")] public float statusEffectDuration = 3f;
 
-    [ToggleHeader("useAOE", "Area of Effect")] public bool useAOE = false;
+    [ToggleHeader("useAOE", "Area of Effect")] public bool useAOE;
     [ShowIf("useAOE")] public float aoeRadius = 5f;
 
-    [ToggleHeader("usePiercing", "Piercing")] public bool usePiercing = false;
+    [ToggleHeader("usePiercing", "Piercing")] public bool usePiercing;
     [ShowIf("usePiercing")] public int maxPierceTargets = 3;
 
     [Header("Lifetime Settings")]
     public float lifetime = 5f;
 
     private Vector3 _startPosition;
-    private int _pierceCount = 0;
+    private int _pierceCount;
 
     void Start()
     {
@@ -70,7 +70,7 @@ public class Projectile : MonoBehaviour
 
     void DealDirectDamage(Health target)
     {
-        target.TakeDamage(damage, DamageType.Physical);
+        target.TakeDamage(damage);
 
         if (useStatusEffects && statusEffect != null)
         {

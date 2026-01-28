@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class GUIStyleExtensions
 {
@@ -47,7 +48,7 @@ public static class GUIStyleExtensions
     public static void FadeTextColor(this GUIStyle g, Color startColor, Color endColor, float duration) =>
         g.normal.textColor = Color.Lerp(startColor, endColor, Mathf.PingPong(Time.time / duration, 1f));
     
-    public static void WithFontSize(this GUIStyle g, int fontSize, System.Action drawAction)
+    public static void WithFontSize(this GUIStyle g, int fontSize, Action drawAction)
     {
         int originalSize = g.fontSize;
         g.fontSize = fontSize;
@@ -55,7 +56,7 @@ public static class GUIStyleExtensions
         g.fontSize = originalSize;
     }
     
-    public static void WithFontStyle(this GUIStyle g, FontStyle fontStyle, System.Action drawAction)
+    public static void WithFontStyle(this GUIStyle g, FontStyle fontStyle, Action drawAction)
     {
         var originalStyle = g.fontStyle;
         g.fontStyle = fontStyle;

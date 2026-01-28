@@ -12,7 +12,7 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetBorderWidth(this IStyle s, float width) => SetBorderWidth(s, width, width, width, width);
+    public static IStyle SetBorderWidth(this IStyle s, float width) => s.SetBorderWidth(width, width, width, width);
 
     public static IStyle SetBorderWidth(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
     {
@@ -32,7 +32,7 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetBorderRadius(this IStyle s, float radius) => SetBorderRadius(s, radius, radius, radius, radius);
+    public static IStyle SetBorderRadius(this IStyle s, float radius) => s.SetBorderRadius(radius, radius, radius, radius);
 
     public static IStyle SetBorderRadius(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
     {
@@ -52,7 +52,7 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetMargin(this IStyle s, float length) => SetMargin(s, length, length, length, length);
+    public static IStyle SetMargin(this IStyle s, float length) => s.SetMargin(length, length, length, length);
 
     public static IStyle SetMargin(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
     {
@@ -72,7 +72,7 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetPadding(this IStyle s, float length) => SetPadding(s, length, length, length, length);
+    public static IStyle SetPadding(this IStyle s, float length) => s.SetPadding(length, length, length, length);
 
     public static IStyle SetPadding(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
     {

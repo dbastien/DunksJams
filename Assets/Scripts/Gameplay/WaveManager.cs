@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 //todo: largely untested
 public class WaveManager : MonoBehaviour
@@ -35,8 +36,8 @@ public class WaveManager : MonoBehaviour
     public float timeBetweenWaves = 10f;
     public List<WaveModifier> globalModifiers;
 
-    private int _currentWaveIndex = 0;
-    private bool _isWaveInProgress = false;
+    private int _currentWaveIndex;
+    private bool _isWaveInProgress;
 
     public event Action<int> OnWaveStarted;
     public event Action<int> OnWaveCompleted;
@@ -84,7 +85,7 @@ public class WaveManager : MonoBehaviour
 
     private void SpawnEnemy(GameObject enemyPrefab)
     {
-        var spawnPoint = spawnPoints[UnityEngine.Random.Range(0, spawnPoints.Length)];
+        var spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         var enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
         foreach (var modifier in globalModifiers)
@@ -123,7 +124,7 @@ public class WaveManager : MonoBehaviour
         int enemyCount = Mathf.FloorToInt(10 + waveNumber * 2);
         wave.enemies.Add(new EnemySpawnInfo
         {
-            enemyPrefab = enemyPrefabPool[UnityEngine.Random.Range(0, enemyPrefabPool.Length)],
+            enemyPrefab = enemyPrefabPool[Random.Range(0, enemyPrefabPool.Length)],
             count = enemyCount
         });
 

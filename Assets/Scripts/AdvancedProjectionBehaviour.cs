@@ -21,7 +21,7 @@ public sealed class AdvancedProjectionBehaviour : MonoBehaviour
     [Range(0, 90)] public float dimetricAngleY = 7f;
 
     [Tooltip("If true, re-applies every frame (for animated params).")]
-    public bool dynamicUpdates = false;
+    public bool dynamicUpdates;
 
     private Camera _cam;
 

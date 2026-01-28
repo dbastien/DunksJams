@@ -1,5 +1,3 @@
-using System;
-
 public class TarotCard : CardBase
 {
     public enum Arcana { Major, Minor }

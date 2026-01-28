@@ -3,9 +3,7 @@ using UnityEngine;
 
 public static class Matrix4X4Extensions
 {
-    /// <summary>
-    /// Creates a matrix for transforming an RGB color in HSV space
-    /// </summary>
+    /// <summary>Creates a matrix for transforming an RGB color in HSV space</summary>
     /// <param name="h">Hue shift in degrees</param>
     /// <param name="s">Saturation multiplier</param>
     /// <param name="v">Value multiplier</param>
