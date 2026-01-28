@@ -1,11 +1,7 @@
 using System;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-[AttributeUsage(AttributeTargets.Class, Inherited = true)]
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class SingletonAutoCreateAttribute : Attribute
 {
 }
@@ -122,17 +118,6 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
 
     protected abstract void InitInternal();
 
-#if UNITY_EDITOR
-    [InitializeOnEnterPlayMode]
-    static void OnEnterPlayMode(EnterPlayModeOptions options)
-    {
-        if ((options & EnterPlayModeOptions.DisableDomainReload) != 0)
-        {
-            _instance = null;
-            _quitting = false;
-        }
-    }
-#endif
 }
 
 /// <summary>Eager: selects the canonical instance in Awake and runs InitInternal() immediately.</summary>
