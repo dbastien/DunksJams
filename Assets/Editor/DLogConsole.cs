@@ -132,16 +132,12 @@ public sealed class DLogConsole : EditorWindow
 
                 var lt = (m.type == CompilerMessageType.Warning) ? LogType.Warning : LogType.Error;
 
-                string file = m.file ?? "";
-                int line = Mathf.Max(0, m.line);
-
-                string msg = string.IsNullOrEmpty(file)
-                    ? $"[COMPILATION] {m.message}"
-                    : $"[COMPILATION] {file}({line}): {m.message}";
+                string msg = BuildCompilationMessage(m, out string file, out int line, out string richMessage);
 
                 var e = MakeEntry(msg, stackTrace: "", lt);
                 e.file = file;
                 e.line = line;
+                e.richMessage = richMessage;
 
                 s_pending.Enqueue(e);
             }
@@ -165,6 +161,58 @@ public sealed class DLogConsole : EditorWindow
             TryExtractFileLine(e.message, e.stackTrace, out e.file, out e.line);
 
             return e;
+        }
+
+        private static string BuildCompilationMessage(CompilerMessage m, out string file, out int line, out string richMessage)
+        {
+            file = m.file ?? "";
+            line = Mathf.Max(0, m.line);
+
+            string description = StripCompilationPrefix(m.message);
+            string displayFile = ToAssetPath(file);
+            string lineSegment = line > 0 ? $"({line})" : "";
+            string prefix = string.IsNullOrEmpty(displayFile)
+                ? "[COMPILATION]"
+                : $"[COMPILATION] {displayFile}{lineSegment}:";
+
+            string msg = string.IsNullOrEmpty(description) ? prefix : $"{prefix} {description}";
+            richMessage = ColorizePrefix(m.type, prefix, description);
+
+            return msg;
+        }
+
+        private static string StripCompilationPrefix(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return "";
+
+            int idx = message.IndexOf("):", StringComparison.Ordinal);
+            if (idx >= 0 && idx + 2 < message.Length)
+            {
+                int start = idx + 2;
+                if (message[start] == ' ') start++;
+                return message.Substring(start);
+            }
+
+            return message;
+        }
+
+        private static string ToAssetPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return path;
+            string p = path.Replace("\\", "/");
+            int idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+            return idx >= 0 ? p.Substring(idx) : p;
+        }
+
+        private static string ColorizePrefix(CompilerMessageType type, string prefix, string description)
+        {
+            string color = type == CompilerMessageType.Warning
+                ? "#FFCC00"
+                : "#FF5555";
+
+            if (string.IsNullOrEmpty(prefix)) return description ?? "";
+            if (string.IsNullOrEmpty(description)) return $"<color={color}>{prefix}</color>";
+            return $"<color={color}>{prefix}</color> {description}";
         }
 
         private static void FlushOnUpdate()
@@ -481,6 +529,17 @@ public sealed class DLogConsole : EditorWindow
         return c ?? new GUIContent();
     }
 
+    private static GUIStyle TryFindStyle(params string[] names)
+    {
+        if (names == null || names.Length == 0) return null;
+        for (int i = 0; i < names.Length; ++i)
+        {
+            var style = GUI.skin.FindStyle(names[i]);
+            if (style != null) return style;
+        }
+        return null;
+    }
+
     private void BuildStylesAndIcons()
     {
         _rowStyle = new GUIStyle(EditorStyles.label)
@@ -556,7 +615,23 @@ public sealed class DLogConsole : EditorWindow
             _autoScroll = GUILayout.Toggle(_autoScroll, "Auto Scroll", EditorStyles.toolbarButton);
 
             GUILayout.Space(10);
-            _filter = GUILayout.TextField(_filter ?? "", EditorStyles.toolbarTextField, GUILayout.Width(240));
+            using (new EditorGUILayout.HorizontalScope(GUIStyle.none))
+            {
+                GUI.SetNextControlName("DLogSearchField");
+                var searchStyle = TryFindStyle("ToolbarSearchTextField", "ToolbarSeachTextField") ?? EditorStyles.toolbarTextField;
+                _filter = GUILayout.TextField(_filter ?? "", searchStyle, GUILayout.Width(240));
+                var searchRect = GUILayoutUtility.GetLastRect();
+                EditorGUIUtility.AddCursorRect(searchRect, MouseCursor.Text);
+
+                bool hasFilter = !string.IsNullOrEmpty(_filter);
+                var cancelStyle = TryFindStyle("ToolbarSearchCancelButton") ?? GUIStyle.none;
+                var cancelEmptyStyle = TryFindStyle("ToolbarSearchCancelButtonEmpty") ?? GUIStyle.none;
+                if (GUILayout.Button(GUIContent.none, hasFilter ? cancelStyle : cancelEmptyStyle))
+                {
+                    _filter = "";
+                    GUI.FocusControl(null);
+                }
+            }
 
             GUILayout.FlexibleSpace();
 
@@ -709,8 +784,10 @@ public sealed class DLogConsole : EditorWindow
             e.richMessage = e.message;
         }
 
+        bool isCompilation = e.message != null && e.message.StartsWith("[COMPILATION]", StringComparison.Ordinal);
         var oldColor = GUI.contentColor;
-        GUI.contentColor = TintFor(e.type);
+        if (!isCompilation)
+            GUI.contentColor = TintFor(e.type);
         GUI.Label(msgRect, e.richMessage ?? e.message ?? "", _rowStyle);
         GUI.contentColor = oldColor;
 
