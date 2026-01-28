@@ -54,13 +54,13 @@ public static class DLog
     private sealed class ConsoleSink : ILogSink
     {
         public void Log(LogType logType, string message, Object context) => 
-            Debug.unityLogger.Log(logType, (object)message, context);
+                Debug.unityLogger.Log(logType, (object)message, context);
     }
 
     private sealed class FileSink : ILogSink
     {
         // Strip basic rich-text tags (color, link, bold) for file output.
-        private static readonly Regex s_stripTags = new Regex(
+        private static readonly Regex s_stripTags = new(
             @"</?(color|a|b)(\s+[^>]*)?>",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -357,7 +357,7 @@ public static class DLog
 #if UNITY_EDITOR
     public static void OpenConsole()
     {
-        UnityEditor.EditorApplication.ExecuteMenuItem("Window/DLog Console");
+        UnityEditor.EditorApplication.ExecuteMenuItem("Window/DLog");
     }
 #endif
 }

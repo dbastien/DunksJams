@@ -36,15 +36,4 @@ public class DLogConsoleTest
         DLogConsole.ManualCheckCompilationWarnings();
     }
 
-    [MenuItem("Tools/DLog/Clear Console")]
-    public static void ClearConsole()
-    {
-        // This will clear the DLog Console
-        var window = EditorWindow.GetWindow<DLogConsole>();
-        if (window != null)
-        {
-            // The clear functionality is in the OnGUI method
-            DLog.Log("DLog Console cleared via test menu");
-        }
-    }
 }

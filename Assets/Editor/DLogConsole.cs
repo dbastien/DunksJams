@@ -3,12 +3,15 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
 public sealed class DLogConsole : EditorWindow
 {
+    private const string TimeFormat = "HH:mm:ss.fff";
+
     [Serializable]
     private sealed class LogEntry
     {
@@ -27,6 +30,8 @@ public sealed class DLogConsole : EditorWindow
         // Optional "best guess" source location for fast double-click open
         public string file;
         public int line;
+
+        [NonSerialized] public Vector2 stackScroll;
     }
 
     [Serializable]
@@ -441,8 +446,12 @@ public sealed class DLogConsole : EditorWindow
         }
     }
 
-    [MenuItem("Window/DLog Console")]
-    public static void ShowWindow() => GetWindow<DLogConsole>("DLog Console");
+    [MenuItem("Window/DLog")]
+    public static void ShowWindow()
+    {
+        var window = GetWindow<DLogConsole>();
+        window.UpdateTitle();
+    }
 
     public static void ManualCheckCompilationWarnings()
     {
@@ -475,7 +484,14 @@ public sealed class DLogConsole : EditorWindow
 
     private GUIStyle _rowStyle;
     private GUIStyle _stackStyle;
+    private GUIStyle _stackLineStyle;
     private GUIStyle _countBadgeStyle;
+    private GUIStyle _timeStyle;
+    private GUIStyle _tooltipStyle;
+    private string _hoverTooltip;
+    private bool _lastProSkin;
+    private bool _showTime = true;
+    private float _timeWidth;
 
     private GUIContent _iconInfoSml;
     private GUIContent _iconWarnSml;
@@ -492,6 +508,7 @@ public sealed class DLogConsole : EditorWindow
 
         // Unity 6: EditorStyles may not be initialized during domain reload.
         // Build styles lazily in OnGUI.
+        UpdateTitle();
         RebuildView();
     }
 
@@ -501,8 +518,11 @@ public sealed class DLogConsole : EditorWindow
 
     private bool EnsureGuiReady()
     {
-        if (_rowStyle != null && _stackStyle != null && _iconInfoSml != null)
-            return true;
+        if (_rowStyle != null && _stackStyle != null && _stackLineStyle != null && _iconInfoSml != null && _tooltipStyle != null && _timeStyle != null)
+        {
+            if (_lastProSkin == EditorGUIUtility.isProSkin)
+                return true;
+        }
 
         try
         {
@@ -542,6 +562,8 @@ public sealed class DLogConsole : EditorWindow
 
     private void BuildStylesAndIcons()
     {
+        _lastProSkin = EditorGUIUtility.isProSkin;
+
         _rowStyle = new GUIStyle(EditorStyles.label)
         {
             richText = true,
@@ -554,6 +576,31 @@ public sealed class DLogConsole : EditorWindow
             wordWrap = false
         };
 
+        _stackLineStyle = new GUIStyle(EditorStyles.label)
+        {
+            richText = true,
+            wordWrap = false,
+            clipping = TextClipping.Clip
+        };
+        SetStyleTextColor(_stackLineStyle, StackTextColor());
+
+        _tooltipStyle = new GUIStyle(EditorStyles.label)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            clipping = TextClipping.Clip,
+            padding = new RectOffset(6, 6, 2, 2)
+        };
+        SetStyleTextColor(_tooltipStyle, StackTextColor());
+
+        _timeStyle = new GUIStyle(EditorStyles.miniLabel)
+        {
+            alignment = TextAnchor.MiddleLeft,
+            clipping = TextClipping.Clip
+        };
+        var timeColor = EditorGUIUtility.isProSkin ? new Color(0.7f, 0.7f, 0.7f) : new Color(0.25f, 0.25f, 0.25f);
+        SetStyleTextColor(_timeStyle, timeColor);
+        _timeWidth = _timeStyle.CalcSize(new GUIContent("00:00:00.000")).x + 6f;
+
         _countBadgeStyle = new GUIStyle(EditorStyles.miniLabel)
         {
             alignment = TextAnchor.MiddleCenter,
@@ -564,12 +611,39 @@ public sealed class DLogConsole : EditorWindow
         _iconInfoSml = IconContentSafe("console.infoicon.sml", "console.infoicon");
         _iconWarnSml = IconContentSafe("console.warnicon.sml", "console.warnicon");
         _iconErrSml  = IconContentSafe("console.erroricon.sml", "console.erroricon");
+        UpdateTitle();
+    }
+
+    private static void SetStyleTextColor(GUIStyle style, Color color)
+    {
+        if (style == null) return;
+        style.normal.textColor = color;
+        style.hover.textColor = color;
+        style.active.textColor = color;
+        style.focused.textColor = color;
+    }
+
+    private static Color StackTextColor()
+        => EditorGUIUtility.isProSkin ? new Color(0.84f, 0.84f, 0.84f) : new Color(0.1f, 0.1f, 0.1f);
+
+    private void UpdateTitle()
+    {
+        string iconName = EditorGUIUtility.isProSkin ? "d_UnityEditor.ConsoleWindow" : "UnityEditor.ConsoleWindow";
+        var icon = EditorGUIUtility.IconContent(iconName).image;
+        if (icon == null)
+            icon = EditorGUIUtility.IconContent("UnityEditor.ConsoleWindow").image;
+
+        titleContent = new GUIContent("DLog", icon);
     }
 
     private void OnGUI()
     {
         if (!EnsureGuiReady())
             return;
+
+        _hoverTooltip = null;
+        if (Event.current.type == EventType.MouseMove)
+            Repaint();
 
         bool storeChanged = _cachedVersion != DLogHub.Version;
         bool filtersChanged =
@@ -598,6 +672,8 @@ public sealed class DLogConsole : EditorWindow
             _scroll.y = Mathf.Infinity;
 
         _lastDrawnVersion = DLogHub.Version;
+
+        DrawHoverTooltip();
     }
 
     private void DrawToolbar()
@@ -613,6 +689,7 @@ public sealed class DLogConsole : EditorWindow
                 DLogHub.Clear();
 
             _autoScroll = GUILayout.Toggle(_autoScroll, "Auto Scroll", EditorStyles.toolbarButton);
+            _showTime = GUILayout.Toggle(_showTime, "Time", EditorStyles.toolbarButton);
 
             GUILayout.Space(10);
             using (new EditorGUILayout.HorizontalScope(GUIStyle.none))
@@ -749,6 +826,13 @@ public sealed class DLogConsole : EditorWindow
         }
 
         float msgX = arrowRect.xMax + 4f;
+        if (_showTime)
+        {
+            var timeRect = new Rect(msgX, row.y + 1f, _timeWidth, row.height - 2f);
+            GUI.Label(timeRect, FormatTime(e.timeMsUtc), _timeStyle);
+            msgX = timeRect.xMax + 4f;
+        }
+
         float msgW = row.xMax - msgX - 6f - badgeW;
         Rect msgRect = new Rect(msgX, row.y + 1f, msgW, row.height - 2f);
 
@@ -790,6 +874,7 @@ public sealed class DLogConsole : EditorWindow
             GUI.contentColor = TintFor(e.type);
         GUI.Label(msgRect, e.richMessage ?? e.message ?? "", _rowStyle);
         GUI.contentColor = oldColor;
+        DrawMessageLink(e, msgRect);
 
         // Count badge
         if (e.count > 1)
@@ -805,10 +890,329 @@ public sealed class DLogConsole : EditorWindow
         // Stack trace block
         if (e.expanded && !string.IsNullOrEmpty(e.stackTrace))
         {
-            EditorGUILayout.BeginVertical();
-            EditorGUILayout.TextArea(e.stackTrace, _stackStyle, GUILayout.Height(Mathf.Min(260, 18 * 10)));
-            EditorGUILayout.EndVertical();
+            DrawStackTrace(e);
         }
+    }
+
+    private void DrawMessageLink(LogEntry e, Rect msgRect)
+    {
+        string raw = e.richMessage ?? e.message ?? "";
+        if (string.IsNullOrEmpty(raw))
+            return;
+
+        string visible = StripRichText(raw);
+        if (string.IsNullOrEmpty(visible))
+            return;
+
+        if (!TryGetMessageLinkSpan(visible, out string file, out int lineNumber, out int linkStart, out int linkLength))
+            return;
+
+        if (!string.IsNullOrEmpty(e.file))
+        {
+            string entryName = Path.GetFileName(e.file);
+            string matchName = Path.GetFileName(file);
+            if (string.IsNullOrEmpty(matchName) ||
+                string.Equals(entryName, matchName, StringComparison.OrdinalIgnoreCase))
+            {
+                file = e.file;
+            }
+        }
+
+        Rect linkRect = GetLinkRect(msgRect, visible, linkStart, linkLength, _rowStyle);
+        if (linkRect.width <= 0f)
+            return;
+
+        EditorGUIUtility.AddCursorRect(linkRect, MouseCursor.Link);
+        SetHoverTooltip(linkRect, file, lineNumber);
+
+        var evt = Event.current;
+        if (evt.type == EventType.MouseDown && evt.button == 0 && linkRect.Contains(evt.mousePosition))
+        {
+            OpenFileAtLine(file, lineNumber);
+            evt.Use();
+        }
+    }
+
+    private static readonly Regex s_stackAtFileLine = new Regex(@"\(at\s+(.+?):(\d+)\)", RegexOptions.Compiled);
+    private static readonly Regex s_stackInLine = new Regex(@"\s+in\s+(.+):line\s+(\d+)\s*$", RegexOptions.Compiled);
+    private static readonly Regex s_stackLooseFileLine = new Regex(@"(.+?\.\w+):(\d+)", RegexOptions.Compiled);
+    private static readonly Regex s_bracketFileLine = new Regex(@"\[(.+?):(\d+)\]", RegexOptions.Compiled);
+    private static readonly Regex s_richTextTags = new Regex(@"</?(color|a|b)(\s+[^>]*)?>", RegexOptions.Compiled);
+
+    private void DrawStackTrace(LogEntry e)
+    {
+        string[] lines = e.stackTrace.Split('\n');
+        float lineHeight = EditorGUIUtility.singleLineHeight + 2f;
+        float height = Mathf.Min(260f, lineHeight * Math.Min(lines.Length, 10));
+
+        bool isCompilation = e.message != null && e.message.StartsWith("[COMPILATION]", StringComparison.Ordinal);
+        SetStyleTextColor(_stackLineStyle, isCompilation ? StackTextColor() : TintFor(e.type));
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        e.stackScroll = EditorGUILayout.BeginScrollView(e.stackScroll, GUILayout.Height(height));
+
+        var oldColor = GUI.contentColor;
+        GUI.contentColor = Color.white;
+
+        for (int i = 0; i < lines.Length; ++i)
+        {
+            string line = lines[i].TrimEnd('\r');
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
+            bool hasLink = TryGetStackLinkSpan(line, out string file, out int lineNumber, out int linkStart, out int linkLength);
+            string displayLine = hasLink ? WrapHighlight(line, linkStart, linkLength) : line;
+            GUI.Label(rect, displayLine, _stackLineStyle);
+
+            Rect linkRect = default;
+            if (hasLink)
+            {
+                linkRect = GetLinkRect(rect, line, linkStart, linkLength, _stackLineStyle);
+                if (linkRect.width > 0f)
+                {
+                    EditorGUIUtility.AddCursorRect(linkRect, MouseCursor.Link);
+                    SetHoverTooltip(linkRect, file, lineNumber);
+                }
+            }
+
+            var evt = Event.current;
+            if (hasLink && linkRect.width > 0f &&
+                evt.type == EventType.MouseDown && evt.button == 0 &&
+                linkRect.Contains(evt.mousePosition))
+            {
+                OpenFileAtLine(file, lineNumber);
+                evt.Use();
+            }
+        }
+
+        GUI.contentColor = oldColor;
+
+        EditorGUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
+    }
+
+    private static bool TryParseStackLine(string line, out string file, out int lineNumber)
+    {
+        file = null;
+        lineNumber = 0;
+
+        var m = s_stackAtFileLine.Match(line);
+        if (m.Success)
+        {
+            file = m.Groups[1].Value;
+            int.TryParse(m.Groups[2].Value, out lineNumber);
+            return lineNumber > 0;
+        }
+
+        m = s_stackInLine.Match(line);
+        if (m.Success)
+        {
+            file = m.Groups[1].Value;
+            int.TryParse(m.Groups[2].Value, out lineNumber);
+            return lineNumber > 0;
+        }
+
+        m = s_stackLooseFileLine.Match(line);
+        if (m.Success)
+        {
+            file = m.Groups[1].Value;
+            int.TryParse(m.Groups[2].Value, out lineNumber);
+            return lineNumber > 0;
+        }
+
+        return false;
+    }
+
+    private static string ToAssetPath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+        string p = path.Replace("\\", "/");
+        int idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+        return idx >= 0 ? p.Substring(idx) : p;
+    }
+
+    private static string s_projectRoot;
+    private static string ProjectRoot
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(s_projectRoot)) return s_projectRoot;
+
+            string dataPath = Application.dataPath.Replace("\\", "/");
+            if (dataPath.EndsWith("/Assets", StringComparison.OrdinalIgnoreCase))
+                s_projectRoot = dataPath.Substring(0, dataPath.Length - "/Assets".Length);
+            else
+                s_projectRoot = Path.GetDirectoryName(dataPath) ?? dataPath;
+
+            return s_projectRoot;
+        }
+    }
+
+    private static string ToFullPath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+
+        string p = path.Replace("\\", "/");
+        if (Path.IsPathRooted(p))
+            return p;
+
+        string root = ProjectRoot;
+        if (string.IsNullOrEmpty(root))
+            return p;
+
+        return Path.Combine(root, p).Replace("\\", "/");
+    }
+
+    private bool TryGetMessageLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
+    {
+        if (TryGetStackLinkSpan(line, out file, out lineNumber, out start, out length))
+            return true;
+
+        var match = s_bracketFileLine.Match(line);
+        return TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length);
+    }
+
+    private bool TryGetStackLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
+    {
+        file = null;
+        lineNumber = 0;
+        start = 0;
+        length = 0;
+
+        if (string.IsNullOrEmpty(line))
+            return false;
+
+        var match = s_stackAtFileLine.Match(line);
+        if (TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length))
+            return true;
+
+        match = s_stackInLine.Match(line);
+        if (TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length))
+            return true;
+
+        match = s_stackLooseFileLine.Match(line);
+        return TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length);
+    }
+
+    private bool TryBuildLinkSpan(Match match, string line, out string file, out int lineNumber, out int start, out int length)
+    {
+        file = null;
+        lineNumber = 0;
+        start = 0;
+        length = 0;
+
+        if (match == null || !match.Success || match.Groups.Count < 3)
+            return false;
+
+        file = match.Groups[1].Value;
+        if (!int.TryParse(match.Groups[2].Value, out lineNumber) || lineNumber <= 0)
+            return false;
+
+        string fileName = Path.GetFileName(file);
+        if (string.IsNullOrEmpty(fileName))
+            return false;
+
+        int pathStart = match.Groups[1].Index;
+        int offset = file.Replace("\\", "/").LastIndexOf('/');
+        if (offset >= 0) offset += 1;
+        else
+        {
+            offset = file.LastIndexOf('\\');
+            offset = offset >= 0 ? offset + 1 : 0;
+        }
+
+        start = pathStart + offset;
+        string token = $"{fileName}:{lineNumber}";
+        length = token.Length;
+
+        // If the line uses ":line N", expand to include it for readability.
+        int lineTokenIndex = line.IndexOf($"{fileName}:line {lineNumber}", StringComparison.OrdinalIgnoreCase);
+        if (lineTokenIndex >= 0)
+        {
+            start = lineTokenIndex;
+            length = $"{fileName}:line {lineNumber}".Length;
+        }
+
+        if (start < 0 || start + length > line.Length)
+            return false;
+
+        return true;
+    }
+
+    private static string StripRichText(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        return s_richTextTags.Replace(text, "");
+    }
+
+    private static string FormatTime(long timeMsUtc)
+    {
+        if (timeMsUtc <= 0) return "--:--:--.---";
+        return DateTimeOffset.FromUnixTimeMilliseconds(timeMsUtc)
+            .ToLocalTime()
+            .ToString(TimeFormat);
+    }
+
+    private static string WrapHighlight(string source, int start, int length)
+    {
+        string color = EditorGUIUtility.isProSkin ? "#8FD6FF" : "#005A9E";
+        return source.Substring(0, start)
+               + $"<color={color}><b>"
+               + source.Substring(start, length)
+               + "</b></color>"
+               + source.Substring(start + length);
+    }
+
+    private Rect GetLinkRect(Rect lineRect, string line, int start, int length, GUIStyle style)
+    {
+        if (style == null) return default;
+        if (start < 0 || length <= 0 || start + length > line.Length) return default;
+
+        string prefix = line.Substring(0, start);
+        string link = line.Substring(start, length);
+        float prefixWidth = style.CalcSize(new GUIContent(prefix)).x;
+        float linkWidth = style.CalcSize(new GUIContent(link)).x;
+
+        if (prefixWidth >= lineRect.width || linkWidth <= 0f)
+            return default;
+
+        float width = Mathf.Min(linkWidth, lineRect.width - prefixWidth);
+        if (width <= 1f) return default;
+
+        return new Rect(lineRect.x + prefixWidth, lineRect.y, width, lineRect.height);
+    }
+
+    private void SetHoverTooltip(Rect rect, string file, int lineNumber)
+    {
+        if (string.IsNullOrEmpty(file) || lineNumber <= 0)
+            return;
+
+        if (!rect.Contains(Event.current.mousePosition))
+            return;
+
+        string fullPath = ToFullPath(file);
+        if (string.IsNullOrEmpty(fullPath))
+            fullPath = file;
+        if (string.IsNullOrEmpty(fullPath))
+            return;
+
+        _hoverTooltip = $"{fullPath}:{lineNumber}";
+    }
+
+    private void DrawHoverTooltip()
+    {
+        if (string.IsNullOrEmpty(_hoverTooltip) || _tooltipStyle == null)
+            return;
+
+        float pad = 6f;
+        float height = EditorGUIUtility.singleLineHeight + 4f;
+        var rect = new Rect(pad, position.height - height - pad, position.width - pad * 2f, height);
+        var bg = EditorGUIUtility.isProSkin
+            ? new Color(0.12f, 0.12f, 0.12f, 0.92f)
+            : new Color(0.97f, 0.97f, 0.97f, 0.95f);
+
+        EditorGUI.DrawRect(rect, bg);
+        GUI.Label(rect, _hoverTooltip, _tooltipStyle);
     }
 
     private void ShowContextMenu(LogEntry e)
