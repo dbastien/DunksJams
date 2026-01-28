@@ -32,12 +32,15 @@ public class SpatialHash2D<T>
     public bool Remove(Vector2 pos, T obj)
     {
         var cell = GetCell(pos);
-        if (_cells.TryGetValue(cell, out var objects) &&
-            objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj)) > 0)
+        if (_cells.TryGetValue(cell, out var objects))
         {
-            --_totalObjectCount;
-            if (objects.Count == 0) _cells.Remove(cell);
-            return true;
+            int removed = objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj));
+            if (removed > 0)
+            {
+                _totalObjectCount -= removed;
+                if (objects.Count == 0) _cells.Remove(cell);
+                return true;
+            }
         }
         return false;
     }
