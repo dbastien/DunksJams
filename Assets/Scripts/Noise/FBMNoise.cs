@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class FBMNoise
 {
@@ -32,7 +33,7 @@ public static class FBMNoise
         return total / maxAmplitude; // [0, 1]
     }
 
-    public static float FBM2D(float x, float y, int octaves, float persistence, System.Func<float, float, float> baseNoise)
+    public static float FBM2D(float x, float y, int octaves, float persistence, Func<float, float, float> baseNoise)
     {
         float frequency = 1f, amplitude = 1f, total = 0f, maxAmplitude = 0f;
 
@@ -83,7 +84,7 @@ public class FBMNoiseGenerator : INoiseGenerator
     public float GetValue(float x, float y) =>
         FBMNoise.FBM2D(x * Frequency, y * Frequency, Octaves, Persistence) / MaxAmplitude;
 
-    public float GetValue(float x, float y, System.Func<float, float, float> baseNoise) =>
+    public float GetValue(float x, float y, Func<float, float, float> baseNoise) =>
         FBMNoise.FBM2D(x * Frequency, y * Frequency, Octaves, Persistence, baseNoise) / MaxAmplitude;
 
     public float GetValue(float x, float y, float z) =>

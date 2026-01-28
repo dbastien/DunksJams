@@ -1,9 +1,9 @@
-using System;
 using UnityEngine;
+using Random = System.Random;
 
 public static class NoiseGeneration
 {
-    private static readonly System.Random random = new System.Random();
+    private static readonly Random random = new Random();
 
     public static float[] WhiteNoise(int length, float amplitude = 1f)
     {

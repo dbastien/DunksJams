@@ -1,4 +1,4 @@
-using Unity.Mathematics;    
+using Unity.Mathematics;
 
 public static class WorleyNoise
 {
