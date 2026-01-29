@@ -17,7 +17,7 @@ Unity 6000 (URP) game project with custom systems and editor tooling.
 - Use PowerShell (Windows).
 - When the user mentions an error message, read Unity Editor.log.
 - Do not create .meta files; Unity generates them.
-- No backward compatibility for Unity < 6000.
+- We are Unity 6000+ and have no backward compatibility for Unity < 6000.
 
 ## Project patterns
 - Use EventManager + GameEvent for messaging when appropriate.
