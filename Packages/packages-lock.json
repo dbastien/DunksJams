@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.dbastien.dunksjams": {
+      "version": "file:com.dbastien.dunksjams",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.inputsystem": "1.17.0",
+        "com.unity.mathematics": "1.3.3"
+      }
+    },
     "com.unity.ai.inference": {
       "version": "2.4.1",
       "depth": 0,

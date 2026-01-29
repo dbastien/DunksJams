@@ -1,10 +1,10 @@
 {
-    "name": "Tests",
+    "name": "DunksJams.Tests.Editor",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "GameCode"
+        "DunksJams"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],

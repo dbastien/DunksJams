@@ -1,0 +1,18 @@
+{
+  "name": "com.dbastien.dunksjams",
+  "displayName": "DunksJams",
+  "version": "0.1.0",
+  "unity": "6000.3",
+  "description": "Reusable game systems and tools.",
+  "dependencies": {
+    "com.unity.inputsystem": "1.17.0",
+    "com.unity.mathematics": "1.3.3"
+  },
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "Example content for DunksJams.",
+      "path": "Samples~/Demo"
+    }
+  ]
+}
