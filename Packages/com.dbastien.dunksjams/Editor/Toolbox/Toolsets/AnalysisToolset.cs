@@ -22,12 +22,12 @@ public class AnalysisToolset : IToolset
     public void Draw()
     {
         if (GUILayout.Button(profilerContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Analysis/Profiler");
+            EditorApplication.ExecuteMenuItem("‽/Analysis/Profiler");
         if (GUILayout.Button(frameDebuggerContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Analysis/Frame Debugger");
+            EditorApplication.ExecuteMenuItem("‽/Analysis/Frame Debugger");
         if (GUILayout.Button(physicsDebuggerContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Analysis/Physics Debugger");
+            EditorApplication.ExecuteMenuItem("‽/Analysis/Physics Debugger");
         if (GUILayout.Button(imguiDebuggerContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Analysis/IMGUI Debugger");
+            EditorApplication.ExecuteMenuItem("‽/Analysis/IMGUI Debugger");
     }
 }

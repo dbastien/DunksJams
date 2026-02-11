@@ -3,7 +3,7 @@ using UnityEditor;
 
 public class DLogConsoleTest
 {
-    [MenuItem("Tools/DLog/Test All Features")]
+    [MenuItem("‽/DLog/Test All Features")]
     public static void TestAllFeatures()
     {
         DLog.Log("=== DLog Console Test Suite ===");
@@ -29,11 +29,10 @@ public class DLogConsoleTest
         DLogConsole.ShowWindow();
     }
 
-    [MenuItem("Tools/DLog/Test Compilation Warnings Only")]
+    [MenuItem("‽/DLog/Test Compilation Warnings Only")]
     public static void TestCompilationWarnings()
     {
         DLog.Log("Testing compilation warning capture...");
         DLogConsole.ManualCheckCompilationWarnings();
     }
-
 }

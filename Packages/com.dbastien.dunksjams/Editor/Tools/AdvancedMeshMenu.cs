@@ -6,13 +6,13 @@ public static class AdvancedMeshMenu
 {
     public enum MeshType { TriangularPrism, HexagonalPrism, Pyramid, Grid, Helix, Torus, GeodesicDome }
 
-    [MenuItem("GameObject/3D Object/‽/Triangular Prism")] public static void CreateTriangularPrism() => CreateMesh(MeshType.TriangularPrism);
-    [MenuItem("GameObject/3D Object/‽/Hexagonal Prism")] public static void CreateHexagonalPrism() => CreateMesh(MeshType.HexagonalPrism);
-    [MenuItem("GameObject/3D Object/‽/Pyramid")] public static void CreatePyramid() => CreateMesh(MeshType.Pyramid);
-    [MenuItem("GameObject/3D Object/‽/Grid")] public static void CreateGrid() => CreateMesh(MeshType.Grid);
-    [MenuItem("GameObject/3D Object/‽/Helix")] public static void CreateHelix() => CreateMesh(MeshType.Helix);
-    [MenuItem("GameObject/3D Object/‽/Torus")] public static void CreateTorus() => CreateMesh(MeshType.Torus);
-    [MenuItem("GameObject/3D Object/‽/Geodesic Dome")] public static void CreateGeodesicDome() => CreateMesh(MeshType.GeodesicDome);
+    [MenuItem("‽GameObject/3D Object/Triangular Prism")] public static void CreateTriangularPrism() => CreateMesh(MeshType.TriangularPrism);
+    [MenuItem("‽GameObject/3D Object/Hexagonal Prism")] public static void CreateHexagonalPrism() => CreateMesh(MeshType.HexagonalPrism);
+    [MenuItem("‽GameObject/3D Object/Pyramid")] public static void CreatePyramid() => CreateMesh(MeshType.Pyramid);
+    [MenuItem("‽GameObject/3D Object/Grid")] public static void CreateGrid() => CreateMesh(MeshType.Grid);
+    [MenuItem("‽GameObject/3D Object/Helix")] public static void CreateHelix() => CreateMesh(MeshType.Helix);
+    [MenuItem("‽GameObject/3D Object/Torus")] public static void CreateTorus() => CreateMesh(MeshType.Torus);
+    [MenuItem("‽GameObject/3D Object/Geodesic Dome")] public static void CreateGeodesicDome() => CreateMesh(MeshType.GeodesicDome);
 
     static void CreateMesh(MeshType type)
     {

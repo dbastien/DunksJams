@@ -23,8 +23,8 @@ public class LightingToolset : IToolset
     public void Draw()
     {
         if (GUILayout.Button(lightingContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Rendering/Lighting");
+            EditorApplication.ExecuteMenuItem("‽/Rendering/Lighting");
         if (GUILayout.Button(lightExplorerContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Rendering/Light Explorer");
+            EditorApplication.ExecuteMenuItem("‽/Rendering/Light Explorer");
     }
 }

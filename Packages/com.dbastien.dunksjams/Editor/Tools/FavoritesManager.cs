@@ -8,8 +8,8 @@ public class FavoritesManager : EditorWindow
 {
     static readonly HashSet<Object> Favorites = new();
     readonly Dictionary<Object, Texture2D> _iconCache = new();
-    Vector2 _scrollPos;
-    string _filter = "";
+    Vector2 scrollPos;
+    string filter = "";
     const string Key = "FavoritesManager.Favorites";
 
     [MenuItem("‽/Favorites")]
@@ -17,12 +17,12 @@ public class FavoritesManager : EditorWindow
 
     void OnGUI()
     {
-        _filter = EditorGUILayout.TextField("Search", _filter);
-        _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
+        filter = EditorGUILayout.TextField("Search", filter);
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
         List<Object> toRemove = new();
         foreach (Object obj in Favorites)
-            if (obj && obj.name.Contains(_filter, System.StringComparison.OrdinalIgnoreCase))
+            if (obj && obj.name.Contains(filter, System.StringComparison.OrdinalIgnoreCase))
             {
                 EditorGUILayout.BeginHorizontal();
                 DrawIconAndLabel(obj);
@@ -85,6 +85,6 @@ public class FavoritesManager : EditorWindow
         evt.Use();
     }
 
-    [MenuItem("GameObject/Add to Favorites", false, 49)]
+    [MenuItem("‽/Add to Favorites", false, 49)]
     static void AddFromContext(MenuCommand cmd) => GetWindow<FavoritesManager>().AddFavorite(cmd.context);
 }

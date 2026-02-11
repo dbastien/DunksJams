@@ -18,8 +18,8 @@ public class AnimationToolset : IToolset
     public void Draw()
     {
         if (GUILayout.Button(animationContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Animation/Animation");
+            EditorApplication.ExecuteMenuItem("‽/Animation/Animation");
         if (GUILayout.Button(animatorContent, ToolbarStyles.ToolbarButtonStyle))
-            EditorApplication.ExecuteMenuItem("Window/Animation/Animator");
+            EditorApplication.ExecuteMenuItem("‽/Animation/Animator");
     }
 }
