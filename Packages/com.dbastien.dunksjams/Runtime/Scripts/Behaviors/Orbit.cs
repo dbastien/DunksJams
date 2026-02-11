@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class Orbit : MonoBehaviour
 {
@@ -10,10 +9,7 @@ public class Orbit : MonoBehaviour
     public Vector3 Speed;
 
     // Use this for initialization
-    void Start()
-    {
-        center = transform.position;
-    }
+    void Start() => center = transform.position;
 
     // Update is called once per frame
     void Update()
