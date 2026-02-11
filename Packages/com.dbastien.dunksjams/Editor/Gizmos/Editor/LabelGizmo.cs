@@ -64,35 +64,35 @@ public static class LabelGizmo
         Handles.Label(go.transform.position, label);
     }
 
-    [MenuItem("Gizmos/Label/Toggle Show Game Object Name")]
+    [MenuItem("‽/Gizmos/Label/Toggle Show Game Object Name")]
     public static void ToggleShowGameObjectName()
     {
         LabelGizmo.showGameObjectName = !LabelGizmo.showGameObjectName;
         SceneView.RepaintAll();
     }
 
-    [MenuItem("Gizmos/Label/Toggle Show Vertex Count")]
+    [MenuItem("‽/Gizmos/Label/Toggle Show Vertex Count")]
     public static void ToggleShowVertexCount()
     {
         LabelGizmo.showVertexCount = !LabelGizmo.showVertexCount;
         SceneView.RepaintAll();
     }
 
-    [MenuItem("Gizmos/Label/Toggle Show Material Name")]
+    [MenuItem("‽/Gizmos/Label/Toggle Show Material Name")]
     public static void ToggleShowMaterialName()
     {
         LabelGizmo.showMaterialName = !LabelGizmo.showMaterialName;
         SceneView.RepaintAll();
     }
 
-    [MenuItem("Gizmos/Label/Toggle Show Shader Name")]
+    [MenuItem("‽/Gizmos/Label/Toggle Show Shader Name")]
     public static void ToggleShowShaderName()
     {
         LabelGizmo.showShaderName = !LabelGizmo.showShaderName;
         SceneView.RepaintAll();
     }
 
-    [MenuItem("Gizmos/Label/Toggle Show Shader Keywords")]
+    [MenuItem("‽/Gizmos/Label/Toggle Show Shader Keywords")]
     public static void ToggleShowShaderKeywords()
     {
         LabelGizmo.showShaderKeywords = !LabelGizmo.showShaderKeywords;

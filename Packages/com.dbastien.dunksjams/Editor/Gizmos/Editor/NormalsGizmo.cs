@@ -37,7 +37,7 @@ public static class NormalsGizmo
         }
     }
 
-    [MenuItem("Gizmos/Toggle Normals Gizmo")]
+    [MenuItem("‽/Gizmos/Toggle Normals Gizmo")]
     public static void ToggleShowNormals()
     {
         NormalsGizmo.on = !NormalsGizmo.on;

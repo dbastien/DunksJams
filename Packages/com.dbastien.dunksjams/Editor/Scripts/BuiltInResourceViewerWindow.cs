@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BuiltInResourceViewerWindow : EditorWindow
 {
-    [MenuItem("Cracktron/Built-in Assets Viewer Window")]
+    [MenuItem("‽/Built-in Assets Viewer Window")]
     public static void ShowWindow()
     {
         var w = EditorWindow.GetWindow<BuiltInResourceViewerWindow>();
