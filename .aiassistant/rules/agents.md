@@ -18,13 +18,14 @@ Unity 6000 (URP) game project with custom systems and editor tooling.
 - When the user mentions an error message, read Unity Editor.log.
 - Do not create .meta files; Unity generates them.
 - We are Unity 6000+ and have no backward compatibility for Unity < 6000.
+- Put everything in the default namespace for now.
 
 ## Project patterns
 - Use EventManager + GameEvent for messaging when appropriate.
 - Managers inherit SingletonBehavior<T>, implement InitInternal(), and use [DisallowMultipleComponent].
 - Use DLog.Log() for logging, never Debug.Log().
 - Prefer global namespace unless integration requires otherwise.
-- Private fields: _camelCase; public members: PascalCase.
+- Private fields: camelCase; public members: PascalCase.
 
 ## Code style
 - Keep code tight: prefer expression-bodied members for simple methods/properties.
