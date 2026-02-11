@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using Utilities;
 
 public class BenchmarkWindow : EditorWindow
 {

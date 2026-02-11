@@ -1,19 +1,19 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public struct GUIScope : IDisposable
 {
-    readonly Color _prevColor, _prevBgColor, _prevContentColor;
-    readonly bool _prevEnabled;
-    readonly int _prevFontSize;
+    readonly Color prevColor, prevBgColor, prevContentColor;
+    readonly bool prevEnabled;
+    readonly int prevFontSize;
 
     public GUIScope(Color? color = null, Color? backgroundColor = null, Color? contentColor = null, bool? enabled = null, int? fontSize = null)
     {
-        _prevColor = GUI.color;
-        _prevBgColor = GUI.backgroundColor;
-        _prevContentColor = GUI.contentColor;
-        _prevEnabled = GUI.enabled;
-        _prevFontSize = GUI.skin.label.fontSize;
+        prevColor = GUI.color;
+        prevBgColor = GUI.backgroundColor;
+        prevContentColor = GUI.contentColor;
+        prevEnabled = GUI.enabled;
+        prevFontSize = GUI.skin.label.fontSize;
 
         if (color.HasValue) GUI.color = color.Value;
         if (backgroundColor.HasValue) GUI.backgroundColor = backgroundColor.Value;
@@ -24,78 +24,78 @@ public struct GUIScope : IDisposable
 
     public void Dispose()
     {
-        GUI.color = _prevColor;
-        GUI.backgroundColor = _prevBgColor;
-        GUI.contentColor = _prevContentColor;
-        GUI.enabled = _prevEnabled;
-        GUI.skin.label.fontSize = _prevFontSize;
+        GUI.color = prevColor;
+        GUI.backgroundColor = prevBgColor;
+        GUI.contentColor = prevContentColor;
+        GUI.enabled = prevEnabled;
+        GUI.skin.label.fontSize = prevFontSize;
     }
 }
 
 public struct GUIColorScope : IDisposable
 {
-    readonly Color _prev;
+    readonly Color prev;
     public GUIColorScope(Color color)
     {
-        _prev = GUI.color;
-        if (_prev != color) GUI.color = color;
+        prev = GUI.color;
+        if (prev != color) GUI.color = color;
     }
-    public void Dispose() => GUI.color = _prev;
+    public void Dispose() => GUI.color = prev;
 }
 
 public struct GuiChangedScope : IDisposable
 {
-	private bool _saved;
-	public GuiChangedScope(bool? setChangedTo = null)
-	{
-		_saved = GUI.changed;
-		if (setChangedTo.HasValue) GUI.changed = setChangedTo.Value;
-	} 
-	public void Dispose() => GUI.changed = _saved;
+    bool saved;
+    public GuiChangedScope(bool? setChangedTo = null)
+    {
+        saved = GUI.changed;
+        if (setChangedTo.HasValue) GUI.changed = setChangedTo.Value;
+    }
+    public void Dispose() => GUI.changed = saved;
 }
 
 public struct GUIFontSizeScope : IDisposable
 {
-    readonly int _prev;
+    readonly int prev;
     public GUIFontSizeScope(int size)
     {
-        _prev = GUI.skin.label.fontSize;
+        prev = GUI.skin.label.fontSize;
         GUI.skin.label.fontSize = size;
     }
-    public void Dispose() => GUI.skin.label.fontSize = _prev;
+    public void Dispose() => GUI.skin.label.fontSize = prev;
 }
 
 public struct GUIEnabledScope : IDisposable
 {
-    readonly bool _prev;
+    readonly bool prev;
     public GUIEnabledScope(bool enabled)
     {
-        _prev = GUI.enabled;
+        prev = GUI.enabled;
         GUI.enabled = enabled;
     }
-    public void Dispose() => GUI.enabled = _prev;
+    public void Dispose() => GUI.enabled = prev;
 }
 
 public struct GUIBackgroundColorScope : IDisposable
 {
-    readonly Color _prev;
+    readonly Color prev;
     public GUIBackgroundColorScope(Color color)
     {
-        _prev = GUI.backgroundColor;
-        if (_prev != color) GUI.backgroundColor = color;
+        prev = GUI.backgroundColor;
+        if (prev != color) GUI.backgroundColor = color;
     }
-    public void Dispose() => GUI.backgroundColor = _prev;
+    public void Dispose() => GUI.backgroundColor = prev;
 }
 
 public struct GUIContentColorScope : IDisposable
 {
-    readonly Color _prev;
+    readonly Color prev;
     public GUIContentColorScope(Color color)
     {
-        _prev = GUI.contentColor;
-        if (_prev != color) GUI.contentColor = color;
+        prev = GUI.contentColor;
+        if (prev != color) GUI.contentColor = color;
     }
-    public void Dispose() => GUI.contentColor = _prev;
+    public void Dispose() => GUI.contentColor = prev;
 }
 
 public struct GUIHorizontalScope : IDisposable

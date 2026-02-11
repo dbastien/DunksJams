@@ -1,5 +1,6 @@
 using System.Reflection;
 using NUnit.Framework;
+using Utilities;
 
 public class ReflectionUtilsTests : TestBase
 {

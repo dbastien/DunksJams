@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Utilities;
 
 [CustomEditor(typeof(SteeringAgent))]
 public class SteeringAgentEditor : Editor

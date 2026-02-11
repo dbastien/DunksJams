@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Pool;
 
-public class AudioSystem : SingletonLazyBehaviour<AudioSystem>
+[DisallowMultipleComponent]
+public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 {
     [Header("Pooling")]
     [SerializeField] int initialPoolSize = 10;
@@ -33,8 +33,6 @@ public class AudioSystem : SingletonLazyBehaviour<AudioSystem>
 
     protected override void InitInternal()
     {
-        base.InitInternal();
-
         audioSourcePool = new ObjectPool<AudioSource>(
             createFunc: CreateAudioSource,
             actionOnGet: OnGetAudioSource,

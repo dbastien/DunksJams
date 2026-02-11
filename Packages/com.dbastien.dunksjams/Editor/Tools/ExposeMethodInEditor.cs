@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using Utilities;
 
 [CustomEditor(typeof(MonoBehaviour), true)]
 public class ExposeMethodInEditor : Editor

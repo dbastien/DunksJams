@@ -71,7 +71,7 @@ public class ToolbarNewToolsetWindow : EditorWindow
         toolbarCustomize = drawer;
         availableToolsetInfos.Clear();
         availableToolsetInfos.AddRange(
-            Singleton<Kernel>.Instance.ToolsetLibrary.ToolsetInfos.Except(toolbarCustomize.ActiveToolsetInfos));
+            EagerSingleton<Kernel>.Instance.ToolsetLibrary.ToolsetInfos.Except(toolbarCustomize.ActiveToolsetInfos));
         availableToolsetTreeView.Infos = availableToolsetInfos;
         availableToolsetTreeView.Reload();
     }

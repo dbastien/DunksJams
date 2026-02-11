@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+using Utilities;
 
 public class WaveformEditorWindow : SerializedGraphViewEditorWindow<WaveformGraphView, WaveformNodeBase, Edge>
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utilities;
 
 public abstract class SerializedGraphView<TNode, TEdge> : GraphView
     where TNode : SerializedGraphNode, new()

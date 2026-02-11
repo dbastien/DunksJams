@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+using Utilities;
 
 public class DialogueEditorWindow : SerializedGraphViewEditorWindow<DialogueGraphView, DialogueNode, Edge>
 {

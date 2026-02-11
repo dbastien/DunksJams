@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public static class UIBuilder
 {
-    static readonly Font _defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
-    static readonly Color _colWhite = Color.white;
-    static readonly Color _colGray = new(0.5f, 0.5f, 0.5f);
+    static readonly Font defaultFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+    static readonly Color colWhite = Color.white;
+    static readonly Color colGray = new(0.5f, 0.5f, 0.5f);
 
     public static GameObject CreateCanvas(RenderMode mode = RenderMode.ScreenSpaceOverlay)
     {
@@ -54,7 +54,7 @@ public static class UIBuilder
         var rectTransform = buttonObj.FindOrAddComponent<RectTransform>();
         SetupRectTransform(rectTransform, size ?? new Vector2(160, 40), position);
 
-        InitText(CreateUIElement("Text", buttonObj.transform, typeof(Text)), text, font ?? _defaultFont, color ?? _colWhite);
+        InitText(CreateUIElement("Text", buttonObj.transform, typeof(Text)), text, font ?? defaultFont, color ?? colWhite);
         return button;
     }
 
@@ -74,8 +74,8 @@ public static class UIBuilder
     public static InputField CreateInputField(Transform parent, string placeholder, UnityAction<string> onValChanged, Font font = null, Vector2? size = null)
     {
         var inputField = CreateUIElement("InputField", parent, typeof(InputField), typeof(Image)).FindOrAddComponent<InputField>();
-        inputField.placeholder = InitText(CreateUIElement("Placeholder", inputField.transform, typeof(Text)), placeholder, font ?? _defaultFont, _colGray);
-        inputField.textComponent = InitText(CreateUIElement("Text", inputField.transform, typeof(Text)), "", font ?? _defaultFont, _colWhite);
+        inputField.placeholder = InitText(CreateUIElement("Placeholder", inputField.transform, typeof(Text)), placeholder, font ?? defaultFont, colGray);
+        inputField.textComponent = InitText(CreateUIElement("Text", inputField.transform, typeof(Text)), "", font ?? defaultFont, colWhite);
         if (onValChanged != null) inputField.onValueChanged.AddListener(onValChanged);
 
         SetupRectTransform(inputField.GetComponent<RectTransform>(), size ?? new Vector2(200, 40));
@@ -86,7 +86,7 @@ public static class UIBuilder
     {
         var dropdown = CreateUIElement("Dropdown", parent, typeof(Dropdown), typeof(Image)).FindOrAddComponent<Dropdown>();
         dropdown.options.AddRange(Array.ConvertAll(options, o => new Dropdown.OptionData(o)));
-        dropdown.captionText = InitText(CreateUIElement("Label", dropdown.transform, typeof(Text)), options.Length > 0 ? options[0] : "", font ?? _defaultFont, _colWhite);
+        dropdown.captionText = InitText(CreateUIElement("Label", dropdown.transform, typeof(Text)), options.Length > 0 ? options[0] : "", font ?? defaultFont, colWhite);
         if (onValChanged != null) dropdown.onValueChanged.AddListener(onValChanged);
 
         SetupRectTransform(dropdown.GetComponent<RectTransform>(), size ?? new Vector2(160, 40));
