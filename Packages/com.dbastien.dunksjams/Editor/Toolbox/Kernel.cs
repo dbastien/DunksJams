@@ -1,27 +1,27 @@
 using UnityEditor;
 
 /// <summary>Toolbox kernel. Manages toolset library and lifecycle.</summary>
-public class Kernel
+public class Kernel : SingletonEditorBehaviour<Kernel>
 {
     ToolsetLibrary toolsetLibrary;
-    bool initialized;
 
     public ToolsetLibrary ToolsetLibrary => toolsetLibrary;
-    public bool Initialized => initialized;
+
+    protected override void InitInternal()
+    {
+        Startup();
+    }
 
     public void Startup()
     {
-        if (initialized) return;
+        if (toolsetLibrary != null) return;
 
         toolsetLibrary = new ToolsetLibrary();
         toolsetLibrary.Setup();
-
-        initialized = true;
     }
 
     public void Shutdown()
     {
-        initialized = false;
         toolsetLibrary?.Teardown();
         toolsetLibrary = null;
         ToolbarStyles.Shutdown();

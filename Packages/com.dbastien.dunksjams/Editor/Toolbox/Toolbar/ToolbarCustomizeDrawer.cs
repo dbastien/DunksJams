@@ -95,7 +95,7 @@ public class ToolbarCustomizeDrawer
     {
         foreach (var name in userSettings.Toolsets)
         {
-            var info = Singleton<Kernel>.Instance.ToolsetLibrary.GetToolsetInfo(name);
+            var info = Kernel.Instance.ToolsetLibrary.GetToolsetInfo(name);
             if (info != null) activeToolsetInfos.Add(info);
             else DLog.LogE($"Invalid toolset in settings: {name}");
         }

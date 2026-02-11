@@ -2,17 +2,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>Editor toolbar window hosting configurable toolsets.</summary>
 public class ToolbarWindow : EditorWindow
 {
     static GUIContent optionsButtonContent;
     static GUIContent configureContent;
 
-    List<IToolset> toolsets;
+    public List<IToolset> Toolsets { get; private set; }
 
-    public List<IToolset> Toolsets => toolsets;
-
-    [MenuItem("Tools/Toolbox ‽")]
+    [MenuItem("‽Tools/Toolbox")]
     public static void ShowWindow()
     {
         var w = GetWindow<ToolbarWindow>(false, "Toolbox");
@@ -26,10 +23,8 @@ public class ToolbarWindow : EditorWindow
             GetWindow<ToolbarWindow>().Close();
     }
 
-    public static ToolbarWindow GetWindowIfOpened()
-    {
-        return HasOpenInstances<ToolbarWindow>() ? GetWindow<ToolbarWindow>() : null;
-    }
+    public static ToolbarWindow GetWindowIfOpened() => 
+        HasOpenInstances<ToolbarWindow>() ? GetWindow<ToolbarWindow>() : null;
 
     [UnityEditor.Callbacks.DidReloadScripts]
     static void OnScriptsReloaded()
@@ -42,16 +37,16 @@ public class ToolbarWindow : EditorWindow
     {
         optionsButtonContent = EditorGUIUtility.TrIconContent("_Popup", "Toolbox options");
         configureContent = new GUIContent("Configure", "Customize toolbar");
-        toolsets = new List<IToolset>();
+        Toolsets = new List<IToolset>();
         CreateToolsetsFromUserSettings();
     }
 
     void Teardown()
     {
-        foreach (var t in toolsets)
+        foreach (var t in Toolsets)
             t.Teardown();
-        toolsets?.Clear();
-        toolsets = null;
+        Toolsets?.Clear();
+        Toolsets = null;
     }
 
     void OnEnable() => Setup();
@@ -61,10 +56,10 @@ public class ToolbarWindow : EditorWindow
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-        for (var i = 0; i < toolsets.Count; i++)
+        for (var i = 0; i < Toolsets.Count; ++i)
         {
-            toolsets[i].Draw();
-            if (i < toolsets.Count - 1) EditorGUILayout.Space();
+            Toolsets[i].Draw();
+            if (i < Toolsets.Count - 1) EditorGUILayout.Space();
         }
 
         GUILayout.FlexibleSpace();
@@ -88,16 +83,16 @@ public class ToolbarWindow : EditorWindow
 
     void CreateToolsetsFromUserSettings()
     {
-        foreach (var t in toolsets)
+        foreach (var t in Toolsets)
             t.Teardown();
-        toolsets.Clear();
+        Toolsets.Clear();
 
         var settings = ToolboxUserSettings.GetOrCreateSettings();
         foreach (var typeName in settings.Toolsets)
         {
-            var toolset = Singleton<Kernel>.Instance.ToolsetLibrary.CreateToolset(typeName);
+            var toolset = Kernel.Instance.ToolsetLibrary.CreateToolset(typeName);
             if (toolset != null)
-                toolsets.Add(toolset);
+                Toolsets.Add(toolset);
             else
                 DLog.LogE($"Unable to create toolset: {typeName}");
         }

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-[ToolsetProvider(displayName = "Analysis Toolset", description = "Quick access to Profiler, Frame Debugger, Physics Debugger, IMGUI Debugger.")]
+[ToolsetProvider(displayName = "Analysis Toolset", description = "Quick access to various profiling and debugging tools.")]
 public class AnalysisToolset : IToolset
 {
     GUIContent profilerContent;
