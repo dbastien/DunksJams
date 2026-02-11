@@ -20,11 +20,8 @@ public static class Vector3Extensions
 
     public static Vector3 GetFacingVector(this Vector3 v, Vector3 toPos) => (toPos - v).normalized;
 
-    public static Vector3 GetFacingVectorExclusive(this Vector3 v, Vector3 toPos, int indexToExclude)
-    {
-        Vector3 facing = v.GetFacingVector(toPos);
-        return facing.SetIndex(indexToExclude, 0).normalized;
-    }
+    public static Vector3 GetFacingVectorExclusive(this Vector3 v, Vector3 toPos, int indexToExclude) => 
+        v.GetFacingVector(toPos).SetIndex(indexToExclude, 0).normalized;
 
     public static Vector3 GetFacingVectorAroundAxis(this Vector3 v, Vector3 toPos, Vector3 axis)
     {
@@ -49,4 +46,25 @@ public static class Vector3Extensions
             2 => new(v.x, v.y, val),
             _ => throw new("index out of range")
         };
+
+    public static float GetValueFromIndex(this Vector3 v, int index) =>
+        index switch
+        {
+            0 => v.x,
+            1 => v.y,
+            2 => v.z,
+            _ => throw new("index out of range")
+        };
+
+    public static Vector2 GetValuesFromExclusionIndex(this Vector3 v, int excludeIndex) =>
+        excludeIndex switch
+        {
+            0 => new(v.y, v.z),
+            1 => new(v.x, v.z),
+            2 => new(v.x, v.y),
+            _ => throw new("index out of range")
+        };
+
+    public static bool Approximately(this Vector3 a, Vector3 b) =>
+        Vector3.SqrMagnitude(a - b) < 0.0001f ? true : false;
 }

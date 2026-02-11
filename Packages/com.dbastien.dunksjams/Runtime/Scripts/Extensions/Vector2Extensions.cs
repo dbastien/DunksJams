@@ -27,7 +27,8 @@ public static class Vector2Extensions
         return newDir * newMagnitude;
     }
     
-    public static Vector2 SafeNormalize(this Vector2 v) => v == Vector2.zero ? Vector2.zero : v.normalized;
+    public static Vector2 SafeNormalize(this Vector2 v) => 
+        v == Vector2.zero ? Vector2.zero : v.normalized;
 
     public static float ManhattanDistance(this Vector2 a, Vector2 b) =>
         MathF.Abs(a.x - b.x) + MathF.Abs(a.y - b.y);
@@ -52,5 +53,18 @@ public static class Vector2Extensions
         return v;
     }
 
-    public static Vector2 SinCos(float radians) => new(MathF.Sin(radians), MathF.Cos(radians));
+    public static Vector2 SinCos(float radians) => 
+        new(MathF.Sin(radians), MathF.Cos(radians));
+    
+    public static bool Approximately(this Vector2 a, Vector2 b) =>
+        Vector2.SqrMagnitude(a - b) < 0.0001f ? true : false;
+
+    public static Vector3 MergeValues(this Vector2 v, int insertIndex, float insertValue) =>
+        insertIndex switch
+        {
+            0 => new(insertValue, v.x, v.y),
+            1 => new(v.x, insertValue, v.y),
+            2 => new(v.x, v.y, insertValue),
+            _ => throw new("index out of range")
+        };
 }
