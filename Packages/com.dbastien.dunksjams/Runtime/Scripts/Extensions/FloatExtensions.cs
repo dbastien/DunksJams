@@ -28,4 +28,7 @@ public static class FloatExtensions
         res[cO] = m[0];
         return res;
     }
+    
+    public static bool Approximately(this float f, float other) => MathF.Abs(f - other) < 0.0001f;
+
 }
