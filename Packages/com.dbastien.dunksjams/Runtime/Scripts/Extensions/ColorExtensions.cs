@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public static class ColorExtensions
 {
@@ -189,4 +189,8 @@ public static class ColorExtensions
         
     public static bool IsApproximatelyLight(this Color color, float threshold = 0.9f) => 
         color.PerceivedBrightness() > threshold;
+
+    /// <summary>Returns black or white for best contrast on the given background.</summary>
+    public static Color SuggestedTextColor(this Color background, float threshold = 0.5f) =>
+        background.PerceivedBrightness() >= threshold ? Color.black : Color.white;
 }

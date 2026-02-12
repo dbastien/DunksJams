@@ -4,25 +4,22 @@ using UnityEngine;
 [ToolsetProvider(displayName = "Transform Toolset", description = "Transform-related tools: create empty at origin, reset transform.")]
 public class TransformToolset : IToolset
 {
-    const string TexturePath = "Packages/com.dbastien.dunksjams/Editor/Toolbox/Textures/";
-    GUIContent createGOContent;
-    GUIContent zeroTransformContent;
+    GUIContent _createGOContent;
+    GUIContent _zeroTransformContent;
 
     public void Setup()
     {
-        var createIcon = EditorGUIUtility.Load(TexturePath + "TB_Icon_NewEmpty.png") as Texture2D;
-        var zeroIcon = EditorGUIUtility.Load(TexturePath + "TB_Icon_ResetTransform.png") as Texture2D;
-        createGOContent = new GUIContent(createIcon, "Create empty GameObject at origin");
-        zeroTransformContent = new GUIContent(zeroIcon, "Reset selected transforms");
+        _createGOContent = EditorGUIUtils.IconContentSafe("d_GameObject Icon", "GameObject Icon", "Create empty GameObject at origin");
+        _zeroTransformContent = EditorGUIUtils.IconContentSafe("d_Refresh", "Refresh", "Reset selected transforms");
     }
 
-    public void Teardown() { }
+    public void Teardown() => _ = 0;
 
     public void Draw()
     {
-        if (GUILayout.Button(createGOContent, ToolbarStyles.ToolbarButtonStyle))
+        if (GUILayout.Button(_createGOContent, ToolbarStyles.ToolbarButtonStyle))
             CreateGameObjectAtOrigin();
-        if (GUILayout.Button(zeroTransformContent, ToolbarStyles.ToolbarButtonStyle))
+        if (GUILayout.Button(_zeroTransformContent, ToolbarStyles.ToolbarButtonStyle))
             ResetTransformForSelectedObjects();
     }
 

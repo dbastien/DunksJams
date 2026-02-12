@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Audio‽/Audio Clip Reference", fileName = "AudioClipReference")]
+[CreateAssetMenu(menuName = "‽/Audio/Audio Clip Reference", fileName = "AudioClipReference")]
 public class AudioClipReference : ScriptableObject
 {
     [SerializeField] AudioClip clip;

@@ -4,11 +4,11 @@ using UnityEditor.IMGUI.Controls;
 /// <summary>TreeView for displaying and selecting toolsets.</summary>
 public class ToolsetTreeView : TreeView
 {
-    List<ToolsetLibrary.ToolsetInfo> infos = new();
-    List<int> selections = new();
+    List<ToolsetLibrary.ToolsetInfo> _infos = new();
+    List<int> _selections = new();
 
-    public List<int> Selections => selections;
-    public List<ToolsetLibrary.ToolsetInfo> Infos { get => infos; set => infos = value ?? new(); }
+    public List<int> Selections => _selections;
+    public List<ToolsetLibrary.ToolsetInfo> Infos { get => _infos; set => _infos = value ?? new(); }
 
     public ToolsetTreeView(TreeViewState state) : base(state)
     {
@@ -22,9 +22,9 @@ public class ToolsetTreeView : TreeView
     {
         var rows = GetRows() ?? new List<TreeViewItem>(200);
         rows.Clear();
-        for (var i = 0; i < infos.Count; i++)
+        for (var i = 0; i < _infos.Count; ++i)
         {
-            var item = new TreeViewItem(i, -1, infos[i].displayName);
+            var item = new TreeViewItem(i, -1, _infos[i].displayName);
             root.AddChild(item);
             rows.Add(item);
         }
@@ -34,7 +34,7 @@ public class ToolsetTreeView : TreeView
 
     protected override void SelectionChanged(IList<int> selectedIds)
     {
-        selections.Clear();
-        selections.AddRange(selectedIds);
+        _selections.Clear();
+        _selections.AddRange(selectedIds);
     }
 }

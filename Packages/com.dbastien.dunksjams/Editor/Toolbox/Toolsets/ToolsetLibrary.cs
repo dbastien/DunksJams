@@ -13,25 +13,24 @@ public class ToolsetLibrary
         public string description = "";
     }
 
-    List<ToolsetInfo> toolsetInfos;
+    List<ToolsetInfo> _toolsetInfos;
 
-    public List<ToolsetInfo> ToolsetInfos => toolsetInfos;
+    public List<ToolsetInfo> ToolsetInfos => _toolsetInfos;
 
-    public ToolsetLibrary() => toolsetInfos = new List<ToolsetInfo>();
+    public ToolsetLibrary() => _toolsetInfos = new List<ToolsetInfo>();
 
     public void Setup()
     {
-        toolsetInfos.Clear();
-
+        _toolsetInfos.Clear();
         var types = TypeCache.GetTypesDerivedFrom<IToolset>();
-        for (var i = 0; i < types.Count; i++)
+        for (var i = 0; i < types.Count; ++i)
         {
             var type = types[i];
             var attrs = type.GetCustomAttributes(typeof(ToolsetProvider), true);
             if (attrs.Length == 0) continue;
 
             var provider = (ToolsetProvider)attrs[0];
-            toolsetInfos.Add(new ToolsetInfo
+            _toolsetInfos.Add(new ToolsetInfo
             {
                 type = type,
                 displayName = provider.displayName ?? type.Name,
@@ -43,13 +42,13 @@ public class ToolsetLibrary
 
     public void Teardown()
     {
-        toolsetInfos?.Clear();
-        toolsetInfos = null;
+        _toolsetInfos?.Clear();
+        _toolsetInfos = null;
     }
 
-    public ToolsetInfo GetToolsetInfo(Type type) => toolsetInfos?.Find(t => t.type == type);
+    public ToolsetInfo GetToolsetInfo(Type type) => _toolsetInfos?.Find(t => t.type == type);
 
-    public ToolsetInfo GetToolsetInfo(string fullName) => toolsetInfos?.Find(t => t.type.FullName == fullName);
+    public ToolsetInfo GetToolsetInfo(string fullName) => _toolsetInfos?.Find(t => t.type.FullName == fullName);
 
     public IToolset CreateToolset(string fullName) => CreateToolset(GetToolsetInfo(fullName));
 

@@ -9,10 +9,10 @@ public class ToolbarNewToolsetWindow : EditorWindow
     static readonly GUIContent OkayContent = new("Okay");
     static readonly GUIContent CancelContent = new("Cancel");
 
-    ToolbarCustomizeDrawer toolbarCustomize;
-    List<ToolsetLibrary.ToolsetInfo> availableToolsetInfos;
-    TreeViewState availableToolsetTreeViewState;
-    ToolsetTreeView availableToolsetTreeView;
+    ToolbarCustomizeDrawer _toolbarCustomize;
+    List<ToolsetLibrary.ToolsetInfo> _availableToolsetInfos;
+    TreeViewState _availableToolsetTreeViewState;
+    ToolsetTreeView _availableToolsetTreeView;
 
     public static void ShowWindow(ToolbarCustomizeDrawer drawer)
     {
@@ -28,17 +28,17 @@ public class ToolbarNewToolsetWindow : EditorWindow
 
     void Setup()
     {
-        availableToolsetInfos = new List<ToolsetLibrary.ToolsetInfo>();
-        availableToolsetTreeViewState ??= new TreeViewState();
-        availableToolsetTreeView = new ToolsetTreeView(availableToolsetTreeViewState);
-        availableToolsetTreeView.Infos = availableToolsetInfos;
+        _availableToolsetInfos = new List<ToolsetLibrary.ToolsetInfo>();
+        _availableToolsetTreeViewState ??= new TreeViewState();
+        _availableToolsetTreeView = new ToolsetTreeView(_availableToolsetTreeViewState);
+        _availableToolsetTreeView.Infos = _availableToolsetInfos;
     }
 
     void Teardown()
     {
-        availableToolsetInfos?.Clear();
-        availableToolsetInfos = null;
-        toolbarCustomize = null;
+        _availableToolsetInfos?.Clear();
+        _availableToolsetInfos = null;
+        _toolbarCustomize = null;
     }
 
     void OnEnable() => Setup();
@@ -47,8 +47,7 @@ public class ToolbarNewToolsetWindow : EditorWindow
     void OnGUI()
     {
         var rect = GUILayoutUtility.GetRect(1000, 1000, 0, 100000);
-        availableToolsetTreeView.OnGUI(rect);
-
+        _availableToolsetTreeView.OnGUI(rect);
         GUI.enabled = false;
         EditorGUILayout.TextArea(GetSelectedDescription(), ToolbarStyles.ToolbarTextAreaStyle, GUILayout.Height(100));
         GUI.enabled = true;
@@ -68,26 +67,26 @@ public class ToolbarNewToolsetWindow : EditorWindow
 
     void Populate(ToolbarCustomizeDrawer drawer)
     {
-        toolbarCustomize = drawer;
-        availableToolsetInfos.Clear();
-        availableToolsetInfos.AddRange(
-            Kernel.Instance.ToolsetLibrary.ToolsetInfos.Except(toolbarCustomize.ActiveToolsetInfos));
-        availableToolsetTreeView.Infos = availableToolsetInfos;
-        availableToolsetTreeView.Reload();
+        _toolbarCustomize = drawer;
+        _availableToolsetInfos.Clear();
+        _availableToolsetInfos.AddRange(
+            Kernel.Instance.ToolsetLibrary.ToolsetInfos.Except(_toolbarCustomize.ActiveToolsetInfos));
+        _availableToolsetTreeView.Infos = _availableToolsetInfos;
+        _availableToolsetTreeView.Reload();
     }
 
     string GetSelectedDescription()
     {
-        if (availableToolsetTreeView.Selections.Count == 0) return "";
-        var idx = availableToolsetTreeView.Selections[0];
-        return idx >= 0 && idx < availableToolsetInfos.Count ? availableToolsetInfos[idx].description : "";
+        if (_availableToolsetTreeView.Selections.Count == 0) return "";
+        var idx = _availableToolsetTreeView.Selections[0];
+        return idx >= 0 && idx < _availableToolsetInfos.Count ? _availableToolsetInfos[idx].description : "";
     }
 
     void OnOkay()
     {
-        if (availableToolsetTreeView.Selections.Count == 0) return;
-        var selections = availableToolsetTreeView.Selections.Select(i => availableToolsetInfos[i]).ToList();
-        toolbarCustomize.AddToolsets(selections);
+        if (_availableToolsetTreeView.Selections.Count == 0) return;
+        var selections = _availableToolsetTreeView.Selections.Select(i => _availableToolsetInfos[i]).ToList();
+        _toolbarCustomize.AddToolsets(selections);
         Close();
     }
 

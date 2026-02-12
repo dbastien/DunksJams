@@ -9,11 +9,11 @@ public class AnimationToolset : IToolset
 
     public void Setup()
     {
-        animationContent = EditorGUIUtility.TrIconContent("UnityEditor.AnimationWindow", "Animation window");
-        animatorContent = EditorGUIUtility.TrIconContent("UnityEditor.Graphs.AnimatorControllerTool", "Animator window");
+        animationContent = EditorGUIUtils.IconContentSafe("d_UnityEditor.AnimationWindow", "UnityEditor.AnimationWindow", "Animation window");
+        animatorContent = EditorGUIUtils.IconContentSafe("d_UnityEditor.Graphs.AnimatorControllerTool", "UnityEditor.Graphs.AnimatorControllerTool", "Animator window");
     }
 
-    public void Teardown() { }
+    public void Teardown() => _ = 0;
 
     public void Draw()
     {

@@ -11,13 +11,13 @@ public class AnalysisToolset : IToolset
 
     public void Setup()
     {
-        profilerContent = EditorGUIUtility.TrIconContent("d_UnityEditor.ProfilerWindow", "Profiler");
-        frameDebuggerContent = EditorGUIUtility.TrIconContent("animationdopesheetkeyframe", "Frame Debugger");
-        physicsDebuggerContent = EditorGUIUtility.TrIconContent("d_Profiler.Physics", "Physics Debugger");
-        imguiDebuggerContent = EditorGUIUtility.TrIconContent("UnityEditor.ConsoleWindow", "IMGUI Debugger");
+        profilerContent = EditorGUIUtils.IconContentSafe("d_UnityEditor.ProfilerWindow", "UnityEditor.ProfilerWindow", "Profiler");
+        frameDebuggerContent = EditorGUIUtils.IconContentSafe("animationdopesheetkeyframe", "Animation.AddKeyframe", "Frame Debugger");
+        physicsDebuggerContent = EditorGUIUtils.IconContentSafe("d_Profiler.Physics", "Profiler.Physics", "Physics Debugger");
+        imguiDebuggerContent = EditorGUIUtils.IconContentSafe("d_UnityEditor.ConsoleWindow", "UnityEditor.ConsoleWindow", "IMGUI Debugger");
     }
 
-    public void Teardown() { }
+    public void Teardown() => _ = 0;
 
     public void Draw()
     {

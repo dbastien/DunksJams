@@ -9,7 +9,7 @@ public class ToolbarWindow : EditorWindow
 
     public List<IToolset> Toolsets { get; private set; }
 
-    [MenuItem("‽Tools/Toolbox")]
+    [MenuItem("‽/Tools/Toolbox")]
     public static void ShowWindow()
     {
         var w = GetWindow<ToolbarWindow>(false, "Toolbox");
@@ -35,7 +35,7 @@ public class ToolbarWindow : EditorWindow
 
     void Setup()
     {
-        optionsButtonContent = EditorGUIUtility.TrIconContent("_Popup", "Toolbox options");
+        optionsButtonContent = EditorGUIUtils.IconContentSafe("_Popup", "Icon Dropdown", "Toolbox options");
         configureContent = new GUIContent("Configure", "Customize toolbar");
         Toolsets = new List<IToolset>();
         CreateToolsetsFromUserSettings();

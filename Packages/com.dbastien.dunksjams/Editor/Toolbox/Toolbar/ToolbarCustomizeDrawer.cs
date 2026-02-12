@@ -11,37 +11,36 @@ public class ToolbarCustomizeDrawer
     static GUIContent moveUpButtonContent;
     static GUIContent moveDownButtonContent;
 
-    ToolboxUserSettings userSettings;
-    List<ToolsetLibrary.ToolsetInfo> activeToolsetInfos;
-    TreeViewState activeToolsetTreeViewState;
-    ToolsetTreeView activeToolsetTreeView;
+    ToolboxUserSettings _userSettings;
+    List<ToolsetLibrary.ToolsetInfo> _activeToolsetInfos;
+    TreeViewState _activeToolsetTreeViewState;
+    ToolsetTreeView _activeToolsetTreeView;
 
-    public List<ToolsetLibrary.ToolsetInfo> ActiveToolsetInfos => activeToolsetInfos;
+    public List<ToolsetLibrary.ToolsetInfo> ActiveToolsetInfos => _activeToolsetInfos;
 
     public void Setup(ToolboxUserSettings settings)
     {
-        newButtonContent = EditorGUIUtility.TrIconContent("d_Toolbar Plus", "Add toolset");
-        deleteButtonContent = EditorGUIUtility.TrIconContent("d_Toolbar Minus", "Remove toolset");
-        moveUpButtonContent = EditorGUIUtility.TrIconContent("CollabPush", "Move up");
-        moveDownButtonContent = EditorGUIUtility.TrIconContent("CollabPull", "Move down");
+        newButtonContent = EditorGUIUtils.IconContentSafe("d_Toolbar Plus", "Toolbar Plus", "Add toolset");
+        deleteButtonContent = EditorGUIUtils.IconContentSafe("d_Toolbar Minus", "Toolbar Minus", "Remove toolset");
+        moveUpButtonContent = EditorGUIUtils.IconContentSafe("CollabPush", "Animation.PrevKey", "Move up");
+        moveDownButtonContent = EditorGUIUtils.IconContentSafe("CollabPull", "Animation.NextKey", "Move down");
 
-        userSettings = settings;
-        activeToolsetInfos = new List<ToolsetLibrary.ToolsetInfo>();
+        _userSettings = settings;
+        _activeToolsetInfos = new List<ToolsetLibrary.ToolsetInfo>();
         PopulateWithUserSettings();
-
-        activeToolsetTreeViewState = new TreeViewState();
-        activeToolsetTreeView = new ToolsetTreeView(activeToolsetTreeViewState);
-        activeToolsetTreeView.Infos = activeToolsetInfos;
-        activeToolsetTreeView.Reload();
+        _activeToolsetTreeViewState = new TreeViewState();
+        _activeToolsetTreeView = new ToolsetTreeView(_activeToolsetTreeViewState);
+        _activeToolsetTreeView.Infos = _activeToolsetInfos;
+        _activeToolsetTreeView.Reload();
     }
 
     public void Teardown()
     {
-        activeToolsetTreeViewState = null;
-        activeToolsetTreeView = null;
-        activeToolsetInfos?.Clear();
-        activeToolsetInfos = null;
-        userSettings = null;
+        _activeToolsetTreeViewState = null;
+        _activeToolsetTreeView = null;
+        _activeToolsetInfos?.Clear();
+        _activeToolsetInfos = null;
+        _userSettings = null;
         ToolbarNewToolsetWindow.CloseWindow();
     }
 
@@ -56,8 +55,7 @@ public class ToolbarCustomizeDrawer
         EditorGUILayout.EndHorizontal();
 
         var rect = GUILayoutUtility.GetRect(0, 100000, 0, 100000);
-        activeToolsetTreeView.OnGUI(rect);
-
+        _activeToolsetTreeView.OnGUI(rect);
         GUI.enabled = false;
         EditorGUILayout.TextArea(GetSelectedDescription(), ToolbarStyles.ToolbarTextAreaStyle, GUILayout.Height(100));
         GUI.enabled = true;
@@ -77,26 +75,29 @@ public class ToolbarCustomizeDrawer
 
     public void AddToolsets(List<ToolsetLibrary.ToolsetInfo> infos)
     {
-        var index = activeToolsetTreeView.Selections.Count > 0 ? activeToolsetTreeView.Selections[0] : activeToolsetInfos.Count;
+        var index = _activeToolsetTreeView.Selections.Count > 0 ? _activeToolsetTreeView.Selections[0] : _activeToolsetInfos.Count;
         foreach (var info in infos)
-            activeToolsetInfos.Insert(index++, info);
-        activeToolsetTreeView.Infos = activeToolsetInfos;
-        activeToolsetTreeView.Reload();
+        {
+            _activeToolsetInfos.Insert(index, info);
+            ++index;
+        }
+        _activeToolsetTreeView.Infos = _activeToolsetInfos;
+        _activeToolsetTreeView.Reload();
     }
 
     string GetSelectedDescription()
     {
-        if (activeToolsetTreeView.Selections.Count == 0) return "";
-        var idx = activeToolsetTreeView.Selections[0];
-        return idx >= 0 && idx < activeToolsetInfos.Count ? activeToolsetInfos[idx].description : "";
+        if (_activeToolsetTreeView.Selections.Count == 0) return "";
+        var idx = _activeToolsetTreeView.Selections[0];
+        return idx >= 0 && idx < _activeToolsetInfos.Count ? _activeToolsetInfos[idx].description : "";
     }
 
     void PopulateWithUserSettings()
     {
-        foreach (var name in userSettings.Toolsets)
+        foreach (var name in _userSettings.Toolsets)
         {
             var info = Kernel.Instance.ToolsetLibrary.GetToolsetInfo(name);
-            if (info != null) activeToolsetInfos.Add(info);
+            if (info != null) _activeToolsetInfos.Add(info);
             else DLog.LogE($"Invalid toolset in settings: {name}");
         }
     }
@@ -104,63 +105,63 @@ public class ToolbarCustomizeDrawer
     void OnNewToolset() => ToolbarNewToolsetWindow.ShowWindow(this);
     void OnDeleteToolset()
     {
-        if (activeToolsetTreeView.Selections.Count == 0) return;
-        var idx = activeToolsetTreeView.Selections[0];
-        if (idx < 0 || idx >= activeToolsetInfos.Count) return;
+        if (_activeToolsetTreeView.Selections.Count == 0) return;
+        var idx = _activeToolsetTreeView.Selections[0];
+        if (idx < 0 || idx >= _activeToolsetInfos.Count) return;
         ToolbarNewToolsetWindow.CloseWindow();
-        activeToolsetInfos.RemoveAt(idx);
-        activeToolsetTreeView.Reload();
-        activeToolsetTreeView.SetSelection(idx < activeToolsetInfos.Count ? new[] { idx } : System.Array.Empty<int>(),
+        _activeToolsetInfos.RemoveAt(idx);
+        _activeToolsetTreeView.Reload();
+        _activeToolsetTreeView.SetSelection(idx < _activeToolsetInfos.Count ? new[] { idx } : System.Array.Empty<int>(),
             TreeViewSelectionOptions.FireSelectionChanged);
     }
 
     void OnMoveUpToolset()
     {
-        if (activeToolsetTreeView.Selections.Count == 0 || activeToolsetTreeView.Selections[0] == 0) return;
-        var idx = activeToolsetTreeView.Selections[0];
-        var info = activeToolsetInfos[idx];
-        activeToolsetInfos.RemoveAt(idx);
-        activeToolsetInfos.Insert(idx - 1, info);
-        activeToolsetTreeView.Reload();
-        activeToolsetTreeView.SetSelection(new[] { idx - 1 }, TreeViewSelectionOptions.FireSelectionChanged);
+        if (_activeToolsetTreeView.Selections.Count == 0 || _activeToolsetTreeView.Selections[0] == 0) return;
+        var idx = _activeToolsetTreeView.Selections[0];
+        var info = _activeToolsetInfos[idx];
+        _activeToolsetInfos.RemoveAt(idx);
+        _activeToolsetInfos.Insert(idx - 1, info);
+        _activeToolsetTreeView.Reload();
+        _activeToolsetTreeView.SetSelection(new[] { idx - 1 }, TreeViewSelectionOptions.FireSelectionChanged);
     }
 
     void OnMoveDownToolset()
     {
-        if (activeToolsetTreeView.Selections.Count == 0) return;
-        var idx = activeToolsetTreeView.Selections[0];
-        if (idx >= activeToolsetInfos.Count - 1) return;
-        var info = activeToolsetInfos[idx];
-        activeToolsetInfos.RemoveAt(idx);
-        activeToolsetInfos.Insert(idx + 1, info);
-        activeToolsetTreeView.Reload();
-        activeToolsetTreeView.SetSelection(new[] { idx + 1 }, TreeViewSelectionOptions.FireSelectionChanged);
+        if (_activeToolsetTreeView.Selections.Count == 0) return;
+        var idx = _activeToolsetTreeView.Selections[0];
+        if (idx >= _activeToolsetInfos.Count - 1) return;
+        var info = _activeToolsetInfos[idx];
+        _activeToolsetInfos.RemoveAt(idx);
+        _activeToolsetInfos.Insert(idx + 1, info);
+        _activeToolsetTreeView.Reload();
+        _activeToolsetTreeView.SetSelection(new[] { idx + 1 }, TreeViewSelectionOptions.FireSelectionChanged);
     }
 
     void OnApply()
     {
-        var changed = userSettings.Toolsets.Count != activeToolsetInfos.Count;
+        var changed = _userSettings.Toolsets.Count != _activeToolsetInfos.Count;
         if (!changed)
         {
-            for (var i = 0; i < userSettings.Toolsets.Count; i++)
+            for (var i = 0; i < _userSettings.Toolsets.Count; ++i)
             {
-                if (userSettings.Toolsets[i] != activeToolsetInfos[i].type.FullName) { changed = true; break; }
+                if (_userSettings.Toolsets[i] != _activeToolsetInfos[i].type.FullName) { changed = true; break; }
             }
         }
         if (changed)
         {
-            userSettings.Toolsets.Clear();
-            foreach (var info in activeToolsetInfos)
-                userSettings.Toolsets.Add(info.type.FullName ?? info.type.Name);
-            userSettings.Save();
+            _userSettings.Toolsets.Clear();
+            foreach (var info in _activeToolsetInfos)
+                _userSettings.Toolsets.Add(info.type.FullName ?? info.type.Name);
+            _userSettings.Save();
             ToolbarWindow.GetWindowIfOpened()?.Reload();
         }
     }
 
     void OnReset()
     {
-        activeToolsetInfos.Clear();
+        _activeToolsetInfos.Clear();
         PopulateWithUserSettings();
-        activeToolsetTreeView.Reload();
+        _activeToolsetTreeView.Reload();
     }
 }

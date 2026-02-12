@@ -1,256 +1,244 @@
-﻿On branch main
-Your branch is up to date with 'origin/main'.
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-        deleted:    Assets/WaveformGraphData.json
-        deleted:    Assets/WaveformGraphData.json.meta
-        renamed:    Assets/Data.meta -> Packages/com.dbastien.dunksjams/Data.meta
-        renamed:    Assets/Data/DialogueGraph.json -> Packages/com.dbastien.dunksjams/Data/DialogueGraph.json
-        renamed:    Assets/Data/DialogueGraph.json.meta -> Packages/com.dbastien.dunksjams/Data/DialogueGraph.json.meta
-        renamed:    Assets/Data/DialogueGraphData.json -> Packages/com.dbastien.dunksjams/Data/DialogueGraphData.json
-        renamed:    Assets/Data/DialogueGraphData.json.meta -> Packages/com.dbastien.dunksjams/Data/DialogueGraphData.json.meta
-        renamed:    Assets/Data/WaveformGraphData.json -> Packages/com.dbastien.dunksjams/Data/WaveformGraphData.json
-        renamed:    Assets/Data/WaveformGraphData.json.meta -> Packages/com.dbastien.dunksjams/Data/WaveformGraphData.json.meta
-        renamed:    Assets/Fonts.meta -> Packages/com.dbastien.dunksjams/Fonts.meta
-        renamed:    Assets/Fonts/Andika-5.000.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000.meta
-        renamed:    Assets/Fonts/Andika-5.000/Andika-R.ttf -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/Andika-R.ttf
-        renamed:    Assets/Fonts/Andika-5.000/Andika-R.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/Andika-R.ttf.meta
-        renamed:    Assets/Fonts/Andika-5.000/FONTLOG.txt -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/FONTLOG.txt
-        renamed:    Assets/Fonts/Andika-5.000/FONTLOG.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/FONTLOG.txt.meta
-        renamed:    Assets/Fonts/Andika-5.000/OFL-FAQ.txt -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/OFL-FAQ.txt
-        renamed:    Assets/Fonts/Andika-5.000/OFL-FAQ.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/OFL-FAQ.txt.meta
-        renamed:    Assets/Fonts/Andika-5.000/OFL.txt -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/OFL.txt
-        renamed:    Assets/Fonts/Andika-5.000/OFL.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/OFL.txt.meta
-        renamed:    Assets/Fonts/Andika-5.000/README.txt -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/README.txt
-        renamed:    Assets/Fonts/Andika-5.000/README.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/Andika-5.000/README.txt.meta
-        renamed:    Assets/Fonts/FiraCode_1.204.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Bold.ttf -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Bold.ttf
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Bold.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Bold.ttf.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Light.ttf -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Light.ttf
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Light.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Light.ttf.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Medium.ttf -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Medium.ttf
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Medium.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Medium.ttf.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Regular.ttf -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Regular.ttf
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Regular.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Regular.ttf.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Retina.ttf -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Retina.ttf
-        renamed:    Assets/Fonts/FiraCode_1.204/FiraCode-Retina.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/FiraCode-Retina.ttf.meta
-        renamed:    Assets/Fonts/FiraCode_1.204/LICENSE.txt -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/LICENSE.txt
-        renamed:    Assets/Fonts/FiraCode_1.204/LICENSE.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/FiraCode_1.204/LICENSE.txt.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/FONTLOG.txt -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/FONTLOG.txt
-        renamed:    Assets/Fonts/GentiumBasic_1102/FONTLOG.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/FONTLOG.txt.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt
-        renamed:    Assets/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasB.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasB.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasB.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasB.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasBI.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasBI.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasBI.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasBI.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasI.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasI.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasI.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasI.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasR.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasR.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBasR.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBasR.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasB.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasB.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasB.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasB.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasBI.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasBI.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasBI.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasBI.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasI.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasI.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasI.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasI.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasR.ttf -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasR.ttf
-        renamed:    Assets/Fonts/GentiumBasic_1102/GenBkBasR.ttf.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/GenBkBasR.ttf.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/OFL-FAQ.txt -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/OFL-FAQ.txt
-        renamed:    Assets/Fonts/GentiumBasic_1102/OFL-FAQ.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/OFL-FAQ.txt.meta
-        renamed:    Assets/Fonts/GentiumBasic_1102/OFL.txt -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/OFL.txt
-        renamed:    Assets/Fonts/GentiumBasic_1102/OFL.txt.meta -> Packages/com.dbastien.dunksjams/Fonts/GentiumBasic_1102/OFL.txt.meta
-        renamed:    Assets/Input.meta -> Packages/com.dbastien.dunksjams/Input.meta
-        renamed:    Assets/Input/InputSystem_Actions.inputactions -> Packages/com.dbastien.dunksjams/Input/InputSystem_Actions.inputactions
-        renamed:    Assets/Input/InputSystem_Actions.inputactions.meta -> Packages/com.dbastien.dunksjams/Input/InputSystem_Actions.inputactions.meta
-        renamed:    Assets/Materials.meta -> Packages/com.dbastien.dunksjams/Materials.meta
-        renamed:    Assets/Materials/New Material 1.mat -> Packages/com.dbastien.dunksjams/Materials/New Material 1.mat
-        renamed:    Assets/Materials/New Material 1.mat.meta -> Packages/com.dbastien.dunksjams/Materials/New Material 1.mat.meta
-        renamed:    Assets/Materials/New Material 2.mat -> Packages/com.dbastien.dunksjams/Materials/New Material 2.mat
-        renamed:    Assets/Materials/New Material 2.mat.meta -> Packages/com.dbastien.dunksjams/Materials/New Material 2.mat.meta
-        renamed:    Assets/Materials/New Material.mat -> Packages/com.dbastien.dunksjams/Materials/New Material.mat
-        renamed:    Assets/Materials/New Material.mat.meta -> Packages/com.dbastien.dunksjams/Materials/New Material.mat.meta
-        renamed:    Assets/Models.meta -> Packages/com.dbastien.dunksjams/Models.meta
-        renamed:    Assets/Models/icosphere.fbx -> Packages/com.dbastien.dunksjams/Models/icosphere.fbx
-        renamed:    Assets/Models/icosphere.fbx.meta -> Packages/com.dbastien.dunksjams/Models/icosphere.fbx.meta
-        renamed:    Assets/Models/monkey.fbx -> Packages/com.dbastien.dunksjams/Models/monkey.fbx
-        renamed:    Assets/Models/monkey.fbx.meta -> Packages/com.dbastien.dunksjams/Models/monkey.fbx.meta
-        renamed:    Assets/Models/torus.fbx -> Packages/com.dbastien.dunksjams/Models/torus.fbx
-        renamed:    Assets/Models/torus.fbx.meta -> Packages/com.dbastien.dunksjams/Models/torus.fbx.meta
-        renamed:    Assets/Physics Materials.meta -> Packages/com.dbastien.dunksjams/Physics Materials.meta
-        renamed:    Assets/Physics Materials/Arcade.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade.meta
-        renamed:    Assets/Physics Materials/Arcade/Bouncy.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Bouncy.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Bouncy.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Bouncy.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Concrete.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Concrete.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Concrete.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Concrete.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Glass.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Glass.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Glass.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Glass.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Grass.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Grass.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Grass.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Grass.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Ice.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Ice.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Ice.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Ice.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Metal.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Metal.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Metal.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Metal.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Mud.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Mud.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Mud.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Mud.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Rubber.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Rubber.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Rubber.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Rubber.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Arcade/Wood.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Wood.physicMaterial
-        renamed:    Assets/Physics Materials/Arcade/Wood.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Arcade/Wood.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic.meta
-        renamed:    Assets/Physics Materials/Realistic/Bouncy.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Bouncy.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Bouncy.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Bouncy.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Concrete.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Concrete.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Concrete.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Concrete.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Glass.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Glass.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Glass.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Glass.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Grass.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Grass.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Grass.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Grass.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Ice.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Ice.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Ice.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Ice.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Metal.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Metal.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Metal.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Metal.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Mud.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Mud.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Mud.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Mud.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Rubber.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Rubber.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Rubber.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Rubber.physicMaterial.meta
-        renamed:    Assets/Physics Materials/Realistic/Wood.physicMaterial -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Wood.physicMaterial
-        renamed:    Assets/Physics Materials/Realistic/Wood.physicMaterial.meta -> Packages/com.dbastien.dunksjams/Physics Materials/Realistic/Wood.physicMaterial.meta
-        renamed:    Assets/Resources.meta -> Packages/com.dbastien.dunksjams/Resources.meta
-        renamed:    Assets/Resources/FiraCode-Regular.ttf -> Packages/com.dbastien.dunksjams/Resources/FiraCode-Regular.ttf
-        renamed:    Assets/Resources/FiraCode-Regular.ttf.meta -> Packages/com.dbastien.dunksjams/Resources/FiraCode-Regular.ttf.meta
-        renamed:    Assets/Textures.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures.meta
-        renamed:    Assets/Textures/BRDF.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/BRDF.meta
-        renamed:    Assets/Textures/CRT Masks.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks.meta
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png.meta
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png.meta
-        renamed:    Assets/Textures/CRT Masks/CRT Mask Delta 2x2 A.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask Delta 2x2 A.png
-        renamed:    Assets/Textures/CRT Masks/CRT Mask Delta 2x2 A.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask Delta 2x2 A.png.meta
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png
-        renamed:    Assets/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png.meta
-        renamed:    Assets/Textures/Grids.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids.meta
-        renamed:    Assets/Textures/Grids/boing-128px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/boing-128px.png
-        renamed:    Assets/Textures/Grids/boing-128px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/boing-128px.png.meta
-        renamed:    Assets/Textures/Grids/boing-64px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/boing-64px.png
-        renamed:    Assets/Textures/Grids/boing-64px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/boing-64px.png.meta
-        renamed:    Assets/Textures/Grids/check-128px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/check-128px.png
-        renamed:    Assets/Textures/Grids/check-128px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/check-128px.png.meta
-        renamed:    Assets/Textures/Grids/check-64px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/check-64px.png
-        renamed:    Assets/Textures/Grids/check-64px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/check-64px.png.meta
-        renamed:    Assets/Textures/Grids/frame-128px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/frame-128px.png
-        renamed:    Assets/Textures/Grids/frame-128px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/frame-128px.png.meta
-        renamed:    Assets/Textures/Grids/grid-128px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/grid-128px.png
-        renamed:    Assets/Textures/Grids/grid-128px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/grid-128px.png.meta
-        renamed:    Assets/Textures/Grids/grid-64px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/grid-64px.png
-        renamed:    Assets/Textures/Grids/grid-64px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/grid-64px.png.meta
-        renamed:    Assets/Textures/Grids/hexgrid-128px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/hexgrid-128px.png
-        renamed:    Assets/Textures/Grids/hexgrid-128px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/hexgrid-128px.png.meta
-        renamed:    Assets/Textures/Grids/hexgrid-256px.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/hexgrid-256px.png
-        renamed:    Assets/Textures/Grids/hexgrid-256px.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Grids/hexgrid-256px.png.meta
-        renamed:    Assets/Textures/LDR LUTs.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutArne16V20.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutArne16V20.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutArne16V20.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutArne16V20.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinAmstrad.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinAmstrad.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinAmstrad.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinAmstrad.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinAppleII.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinAppleII.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinAppleII.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinAppleII.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinC16.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinC16.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinC16.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinC16.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinC64.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinC64.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinC64.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinC64.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinCGA.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinCGA.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinCGA.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinCGA.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinIntellivision.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinIntellivision.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinIntellivision.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinIntellivision.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinMSX.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinMSX.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinMSX.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinMSX.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinMSX2.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinMSX2.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinMSX2.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinMSX2.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinNES.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinNES.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinNES.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinNES.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinSMS.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinSMS.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinSMS.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinSMS.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinVIC20.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinVIC20.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutAxsinVIC20.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutAxsinVIC20.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightGameboy.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightGameboy.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightGameboy.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightGameboy.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightNES.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightNES.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightNES.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightNES.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightSMS.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightSMS.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutGoodnightSMS.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutGoodnightSMS.png.meta
-        renamed:    Assets/Textures/LDR LUTs/LDRLutNeutral.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutNeutral.png
-        renamed:    Assets/Textures/LDR LUTs/LDRLutNeutral.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs/LDRLutNeutral.png.meta
-        renamed:    Assets/Textures/LightCookie.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/LightCookie.png
-        renamed:    Assets/Textures/LightCookie.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/LightCookie.png.meta
-        renamed:    Assets/Textures/Noise.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Noise.meta
-        renamed:    Assets/Textures/Noise/WhiteNoiseR8G8B8.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Noise/WhiteNoiseR8G8B8.png
-        renamed:    Assets/Textures/Noise/WhiteNoiseR8G8B8.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Noise/WhiteNoiseR8G8B8.png.meta
-        renamed:    Assets/Textures/Particles.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Particles.meta
-        renamed:    Assets/Textures/Particles/BubbleSmooth.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Particles/BubbleSmooth.png
-        renamed:    Assets/Textures/Particles/BubbleSmooth.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Particles/BubbleSmooth.png.meta
-        renamed:    Assets/Textures/Particles/CircleCloudsSmooth.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Particles/CircleCloudsSmooth.png
-        renamed:    Assets/Textures/Particles/CircleCloudsSmooth.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Particles/CircleCloudsSmooth.png.meta
-        renamed:    Assets/Textures/Test.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Test.meta
-        renamed:    Assets/Textures/Test/uvtest.png -> Packages/com.dbastien.dunksjams/Runtime/Textures/Test/uvtest.png
-        renamed:    Assets/Textures/Test/uvtest.png.meta -> Packages/com.dbastien.dunksjams/Runtime/Textures/Test/uvtest.png.meta
-        renamed:    Assets/Scenes.meta -> Packages/com.dbastien.dunksjams/Scenes.meta
-        renamed:    Assets/Scenes/SampleScene.unity -> Packages/com.dbastien.dunksjams/Scenes/SampleScene.unity
-        renamed:    Assets/Scenes/SampleScene.unity.meta -> Packages/com.dbastien.dunksjams/Scenes/SampleScene.unity.meta
-        renamed:    Assets/Scripts.meta -> Packages/com.dbastien.dunksjams/Scripts.meta
-        renamed:    Assets/Scripts/Procedural.meta -> Packages/com.dbastien.dunksjams/Scripts/Procedural.meta
-        renamed:    Assets/Scripts/Procedural/ProceduralColor.cs -> Packages/com.dbastien.dunksjams/Scripts/Procedural/ProceduralColor.cs
-        renamed:    Assets/Scripts/Procedural/ProceduralColor.cs.meta -> Packages/com.dbastien.dunksjams/Scripts/Procedural/ProceduralColor.cs.meta
-        renamed:    Assets/Settings.meta -> Packages/com.dbastien.dunksjams/Settings.meta
-        renamed:    Assets/Settings/DefaultVolumeProfile.asset -> Packages/com.dbastien.dunksjams/Settings/DefaultVolumeProfile.asset
-        renamed:    Assets/Settings/DefaultVolumeProfile.asset.meta -> Packages/com.dbastien.dunksjams/Settings/DefaultVolumeProfile.asset.meta
-        renamed:    Assets/Settings/Mobile_RPAsset.asset -> Packages/com.dbastien.dunksjams/Settings/Mobile_RPAsset.asset
-        renamed:    Assets/Settings/Mobile_RPAsset.asset.meta -> Packages/com.dbastien.dunksjams/Settings/Mobile_RPAsset.asset.meta
-        renamed:    Assets/Settings/Mobile_Renderer.asset -> Packages/com.dbastien.dunksjams/Settings/Mobile_Renderer.asset
-        renamed:    Assets/Settings/Mobile_Renderer.asset.meta -> Packages/com.dbastien.dunksjams/Settings/Mobile_Renderer.asset.meta
-        renamed:    Assets/Settings/PC_RPAsset.asset -> Packages/com.dbastien.dunksjams/Settings/PC_RPAsset.asset
-        renamed:    Assets/Settings/PC_RPAsset.asset.meta -> Packages/com.dbastien.dunksjams/Settings/PC_RPAsset.asset.meta
-        renamed:    Assets/Settings/PC_Renderer.asset -> Packages/com.dbastien.dunksjams/Settings/PC_Renderer.asset
-        renamed:    Assets/Settings/PC_Renderer.asset.meta -> Packages/com.dbastien.dunksjams/Settings/PC_Renderer.asset.meta
-        renamed:    Assets/Settings/SampleSceneProfile.asset -> Packages/com.dbastien.dunksjams/Settings/SampleSceneProfile.asset
-        renamed:    Assets/Settings/SampleSceneProfile.asset.meta -> Packages/com.dbastien.dunksjams/Settings/SampleSceneProfile.asset.meta
-        renamed:    Assets/Settings/UniversalRenderPipelineGlobalSettings.asset -> Packages/com.dbastien.dunksjams/Settings/UniversalRenderPipelineGlobalSettings.asset
-        renamed:    Assets/Settings/UniversalRenderPipelineGlobalSettings.asset.meta -> Packages/com.dbastien.dunksjams/Settings/UniversalRenderPipelineGlobalSettings.asset.meta
-        renamed:    Assets/Sounds.meta -> Packages/com.dbastien.dunksjams/Sounds.meta
-        renamed:    Assets/Sounds/MenuAccept.wav -> Packages/com.dbastien.dunksjams/Sounds/MenuAccept.wav
-        renamed:    Assets/Sounds/MenuAccept.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/MenuAccept.wav.meta
-        renamed:    Assets/Sounds/MenuNo.wav -> Packages/com.dbastien.dunksjams/Sounds/MenuNo.wav
-        renamed:    Assets/Sounds/MenuNo.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/MenuNo.wav.meta
-        renamed:    Assets/Sounds/MenuToggle.wav -> Packages/com.dbastien.dunksjams/Sounds/MenuToggle.wav
-        renamed:    Assets/Sounds/MenuToggle.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/MenuToggle.wav.meta
-        renamed:    Assets/Sounds/Missile.wav -> Packages/com.dbastien.dunksjams/Sounds/Missile.wav
-        renamed:    Assets/Sounds/Missile.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/Missile.wav.meta
-        renamed:    Assets/Sounds/PlayerDeath.wav -> Packages/com.dbastien.dunksjams/Sounds/PlayerDeath.wav
-        renamed:    Assets/Sounds/PlayerDeath.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/PlayerDeath.wav.meta
-        renamed:    Assets/Sounds/PlayerHit.wav -> Packages/com.dbastien.dunksjams/Sounds/PlayerHit.wav
-        renamed:    Assets/Sounds/PlayerHit.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/PlayerHit.wav.meta
-        renamed:    Assets/Sounds/PlayerSpawn.wav -> Packages/com.dbastien.dunksjams/Sounds/PlayerSpawn.wav
-        renamed:    Assets/Sounds/PlayerSpawn.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/PlayerSpawn.wav.meta
-        renamed:    Assets/Sounds/WeaponLevelUp.wav -> Packages/com.dbastien.dunksjams/Sounds/WeaponLevelUp.wav
-        renamed:    Assets/Sounds/WeaponLevelUp.wav.meta -> Packages/com.dbastien.dunksjams/Sounds/WeaponLevelUp.wav.meta
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/Bootstrapper.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/Kernel.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/Toolbar/ToolbarCustomizeDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/Toolbar/ToolbarNewToolsetWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/ToolbarWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Toolbox/Toolsets/AnalysisToolset.cs
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonEditorBehaviour.cs
-        Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonEditorBehaviour.cs.meta
+﻿[main 0380e5e] Fix SingletonEagerBehaviour<Kernel> issues by introducing SingletonEditorBehaviour and updating call sites
+ 248 files changed, 310 insertions(+), 78 deletions(-)
+ create mode 100644 .output.txt
+ delete mode 100644 Assets/WaveformGraphData.json
+ delete mode 100644 Assets/WaveformGraphData.json.meta
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/DialogueGraph.json (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/DialogueGraph.json.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/DialogueGraphData.json (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/DialogueGraphData.json.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/WaveformGraphData.json (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Data/WaveformGraphData.json.meta (100%)
+ create mode 100644 Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonEditorBehaviour.cs
+ create mode 100644 Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonEditorBehaviour.cs.meta
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/Andika-R.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/Andika-R.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/FONTLOG.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/FONTLOG.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/OFL-FAQ.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/OFL-FAQ.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/OFL.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/OFL.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/README.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/Andika-5.000/README.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Bold.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Bold.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Light.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Light.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Medium.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Medium.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Regular.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Regular.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Retina.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/FiraCode-Retina.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/LICENSE.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/FiraCode_1.204/LICENSE.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/FONTLOG.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/FONTLOG.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GENTIUM-FAQ.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasB.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasB.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasBI.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasBI.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasI.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasI.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasR.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBasR.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasB.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasB.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasBI.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasBI.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasI.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasI.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasR.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/GenBkBasR.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/OFL-FAQ.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/OFL-FAQ.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/OFL.txt (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Fonts/GentiumBasic_1102/OFL.txt.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Input.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Input/InputSystem_Actions.inputactions (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Input/InputSystem_Actions.inputactions.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material 1.mat (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material 1.mat.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material 2.mat (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material 2.mat.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material.mat (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Materials/New Material.mat.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/icosphere.fbx (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/icosphere.fbx.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/monkey.fbx (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/monkey.fbx.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/torus.fbx (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Models/torus.fbx.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Bouncy.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Bouncy.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Concrete.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Concrete.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Glass.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Glass.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Grass.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Grass.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Ice.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Ice.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Metal.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Metal.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Mud.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Mud.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Rubber.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Rubber.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Wood.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Arcade/Wood.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Bouncy.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Bouncy.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Concrete.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Concrete.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Glass.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Glass.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Grass.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Grass.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Ice.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Ice.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Metal.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Metal.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Mud.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Mud.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Rubber.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Rubber.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Wood.physicMaterial (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Physics Materials/Realistic/Wood.physicMaterial.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Resources.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Resources/FiraCode-Regular.ttf (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Resources/FiraCode-Regular.ttf.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/BRDF.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 A.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ApertureGrille 2x1 B.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask Delta 2x2 A.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask Delta 2x2 A.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/CRT Masks/CRT Mask ShadowMask In-Line 2x2 A.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/boing-128px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/boing-128px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/boing-64px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/boing-64px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/check-128px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/check-128px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/check-64px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/check-64px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/frame-128px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/frame-128px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/grid-128px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/grid-128px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/grid-64px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/grid-64px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/hexgrid-128px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/hexgrid-128px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/hexgrid-256px.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Grids/hexgrid-256px.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutArne16V20.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutArne16V20.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsin2600-NTSC.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinAmstrad.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinAmstrad.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinAppleII.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinAppleII.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinBBCMicro.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinC16.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinC16.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinC64.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinC64.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinCGA.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinCGA.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinIntellivision.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinIntellivision.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinMSX.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinMSX.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinMSX2.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinMSX2.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinNES.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinNES.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinSMS.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinSMS.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinSpectrumZX.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinVIC20.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutAxsinVIC20.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightGameboy.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightGameboy.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightNES.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightNES.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightSMS.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutGoodnightSMS.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutNeutral.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LDR LUTs/LDRLutNeutral.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LightCookie.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/LightCookie.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Noise.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Noise/WhiteNoiseR8G8B8.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Noise/WhiteNoiseR8G8B8.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Particles.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Particles/BubbleSmooth.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Particles/BubbleSmooth.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Particles/CircleCloudsSmooth.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Particles/CircleCloudsSmooth.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Test.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Test/uvtest.png (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams/Runtime}/Textures/Test/uvtest.png.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scenes.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scenes/SampleScene.unity (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scenes/SampleScene.unity.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scripts.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scripts/Procedural.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scripts/Procedural/ProceduralColor.cs (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Scripts/Procedural/ProceduralColor.cs.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/DefaultVolumeProfile.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/DefaultVolumeProfile.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/Mobile_RPAsset.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/Mobile_RPAsset.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/Mobile_Renderer.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/Mobile_Renderer.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/PC_RPAsset.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/PC_RPAsset.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/PC_Renderer.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/PC_Renderer.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/SampleSceneProfile.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/SampleSceneProfile.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/UniversalRenderPipelineGlobalSettings.asset (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Settings/UniversalRenderPipelineGlobalSettings.asset.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuAccept.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuAccept.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuNo.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuNo.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuToggle.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/MenuToggle.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/Missile.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/Missile.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerDeath.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerDeath.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerHit.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerHit.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerSpawn.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/PlayerSpawn.wav.meta (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/WeaponLevelUp.wav (100%)
+ rename {Assets => Packages/com.dbastien.dunksjams}/Sounds/WeaponLevelUp.wav.meta (100%)

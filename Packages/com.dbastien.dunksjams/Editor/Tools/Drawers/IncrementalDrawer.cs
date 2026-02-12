@@ -1,10 +1,10 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
 public abstract class IncrementalDrawer<T> : PropertyDrawer
 {
-    public static readonly GUIContent iconToolbarPlus = EditorGUIUtility.IconContent("Toolbar Plus", "|Increase");
-    public static readonly GUIContent iconToolbarMinus = EditorGUIUtility.IconContent("Toolbar Minus", "|Decrease");
+    public static readonly GUIContent iconToolbarPlus = EditorGUIUtils.IconContentSafe("d_Toolbar Plus", "Toolbar Plus", "Increase");
+    public static readonly GUIContent iconToolbarMinus = EditorGUIUtils.IconContentSafe("d_Toolbar Minus", "Toolbar Minus", "Decrease");
 
     public override void OnGUI(Rect rect, SerializedProperty prop, GUIContent label)
     {
