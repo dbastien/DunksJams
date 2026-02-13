@@ -116,7 +116,7 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
         }
     }
     
-    public ShaderBrowserTreeView(TreeViewState state) : base(state)
+    public ShaderBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState());
         InitHeader(multiColumnHeader);

@@ -16,17 +16,17 @@ public static class ShaderUtilWrapper
     static readonly MethodInfo GetShaderGlobalKeywordsMethod = GetMethod("GetShaderGlobalKeywords");
     static readonly MethodInfo GetShaderLocalKeywordsMethod = GetMethod("GetShaderLocalKeywords");
     
-    public static bool HasShadowCasterPass(Shader s) => (bool)HasShadowCasterPassMethod.Invoke(null, new object[] {s});
+    public static bool HasShadowCasterPass(Shader s) => HasShadowCasterPassMethod != null && (bool)HasShadowCasterPassMethod.Invoke(null, new object[] {s});
 
-    public static int GetShaderActiveSubshaderIndex(Shader s) => (int)GetShaderActiveSubshaderIndexMethod.Invoke(null, new object[] {s});
+    public static int GetShaderActiveSubshaderIndex(Shader s) => GetShaderActiveSubshaderIndexMethod != null ? (int)GetShaderActiveSubshaderIndexMethod.Invoke(null, new object[] {s}) : 0;
 
-    public static int GetSRPBatcherCompatibilityCode(Shader s, int subshader) => (int)GetSRPBatcherCompatibilityCodeMethod.Invoke(null, new object[] { s, subshader });
+    public static int GetSRPBatcherCompatibilityCode(Shader s, int subshader) => GetSRPBatcherCompatibilityCodeMethod != null ? (int)GetSRPBatcherCompatibilityCodeMethod.Invoke(null, new object[] { s, subshader }) : -1;
 
-    public static ulong GetVariantCount(Shader s, bool sceneOnly) => (ulong)GetVariantCountMethod.Invoke(null, new object[] {s, sceneOnly});
-    public static void OpenShaderVariations(Shader s, bool sceneOnly) => OpenShaderCombinationsMethod.Invoke(null, new object[] {s, sceneOnly});
-    public static string[] GetShaderGlobalKeywords(Shader s) => (string[])GetShaderGlobalKeywordsMethod.Invoke(null, new object[] {s});
+    public static ulong GetVariantCount(Shader s, bool sceneOnly) => GetVariantCountMethod != null ? (ulong)GetVariantCountMethod.Invoke(null, new object[] {s, sceneOnly}) : 0;
+    public static void OpenShaderVariations(Shader s, bool sceneOnly) => OpenShaderCombinationsMethod?.Invoke(null, new object[] {s, sceneOnly});
+    public static string[] GetShaderGlobalKeywords(Shader s) => GetShaderGlobalKeywordsMethod != null ? (string[])GetShaderGlobalKeywordsMethod.Invoke(null, new object[] {s}) : Array.Empty<string>();
 
-    public static string[] GetShaderLocalKeywords(Shader s) => (string[])GetShaderLocalKeywordsMethod.Invoke(null, new object[] {s});
+    public static string[] GetShaderLocalKeywords(Shader s) => GetShaderLocalKeywordsMethod != null ? (string[])GetShaderLocalKeywordsMethod.Invoke(null, new object[] {s}) : Array.Empty<string>();
 
     public static bool IsSRPBatcherCompatible(Shader s)
     {

@@ -53,7 +53,7 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
         }
     }
 
-    public TextureBrowserTreeView(TreeViewState state) : base(state)
+    public TextureBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState(this));
         InitHeader(multiColumnHeader);

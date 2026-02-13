@@ -10,7 +10,7 @@ using FontStyle = UnityEngine.FontStyle;
 using Object = UnityEngine.Object;
 
 [Serializable]
-public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewItem
+public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeViewItem
 {
     [SerializeField] public AssetImporterPlatform Platform;
 
@@ -89,7 +89,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
     }
 
     [SerializeField] public List<T> AllItems;
-    [SerializeReference] public TreeViewItem Root;
+    [SerializeReference] public TreeViewItem<int> Root;
     public int FilteredCount;
 
     protected static GUIStyle DropdownError;
@@ -105,7 +105,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
     protected const string TitleReferences = "Searching for References…";
     protected const string TitleDependencies = "Searching for Dependencies…";
 
-    public AssetBrowserTreeView(TreeViewState state) : base(state) => Init();
+    public AssetBrowserTreeView(TreeViewState<int> state) : base(state) => Init();
 
     protected void InitHeader(MultiColumnHeader header)
     {
@@ -137,21 +137,22 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
     
     protected void OnSortingChanged(MultiColumnHeader colHeader) => Sort(GetRows());
 
-    protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+    protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
     {
-        IList<TreeViewItem> rows = base.BuildRows(root);
+        IList<TreeViewItem<int>> rows = base.BuildRows(root);
         Sort(rows);
         return rows;
     }
 
-    protected override TreeViewItem BuildRoot()
+    protected override TreeViewItem<int> BuildRoot()
     {
-        Root.children = new(AllItems);
+        Root ??= new() { id = -1, depth = -1, displayName = "Root" };
+        Root.children = AllItems.Cast<TreeViewItem<int>>().ToList();
         SetupDepthsFromParentsAndChildren(Root);
         return Root;
     }
 
-    void Sort(IList<TreeViewItem> rows)
+    void Sort(IList<TreeViewItem<int>> rows)
     {
         if (rows == null) return;
         FilteredCount = rows.Count;
@@ -302,7 +303,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
             (rect, t) => EditorGUI.LabelField(rect, (t.StorageSize / 1024).ToString()),
             t => (t.StorageSize / 1024).ToString());
 
-    protected override bool DoesItemMatchSearch(TreeViewItem item, string search)
+    protected override bool DoesItemMatchSearch(TreeViewItem<int> item, string search)
     {
         if (string.IsNullOrEmpty(search)) return true;
         if (multiColumnHeader?.state == null) return true;
@@ -318,7 +319,7 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
         return false;
     }
     
-    public bool DoesItemMatchSearch(TreeViewItem item) => DoesItemMatchSearch(item, searchString);
+    public bool DoesItemMatchSearch(TreeViewItem<int> item) => DoesItemMatchSearch(item, searchString);
 
     protected override void SelectionChanged(IList<int> selectedIds)
     {
@@ -395,6 +396,15 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
         AllItems.Clear();
 
         string[] guids = GatherGuids(sceneOnly, path);
+        if (guids == null)
+        {
+            Debug.LogWarning($"[AssetBrowser] GatherGuids returned null for path: {path}");
+            EditorUtility.ClearProgressBar();
+            Reload();
+            return;
+        }
+
+        Debug.Log($"[AssetBrowser] Found {guids.Length} assets for path: {path}");
 
         var id = 1;
         for (var i = 0; i < guids.Length; ++i)
@@ -404,7 +414,14 @@ public class AssetBrowserTreeView<T> : TreeView where T : AssetBrowserTreeViewIt
             if (EditorUtility.DisplayCancelableProgressBar(TitleAssets, assetPath, i / (float)guids.Length))
                 break;
 
-            AddAsset(ref id, guid, assetPath);
+            try
+            {
+                AddAsset(ref id, guid, assetPath);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[AssetBrowser] Error adding asset {assetPath}: {e.Message}\n{e.StackTrace}");
+            }
         }
 
         EditorUtility.ClearProgressBar();

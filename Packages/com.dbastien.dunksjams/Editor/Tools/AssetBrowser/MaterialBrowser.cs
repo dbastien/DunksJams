@@ -139,7 +139,7 @@ public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeV
         }
     }
 
-    public MaterialBrowserTreeView(TreeViewState state) : base(state)
+    public MaterialBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState());
         InitHeader(multiColumnHeader);

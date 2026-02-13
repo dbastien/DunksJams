@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-public class AssetBrowserTreeViewItem : TreeViewItem
+public class AssetBrowserTreeViewItem : TreeViewItem<int>
 {
     public string Guid;
     public string AssetPath;
@@ -13,9 +13,9 @@ public class AssetBrowserTreeViewItem : TreeViewItem
     public List<UnityEngine.Object> Refs;
     public List<UnityEngine.Object> Deps;
 
-    public virtual UnityEngine.Object Asset { get; } = new();
+    public virtual UnityEngine.Object Asset => null;
     public virtual string AssetName => "";
-    public virtual AssetImporter AssetImporter { get; } = new();
+    public virtual AssetImporter AssetImporter => null;
 
     public long RuntimeMemory;
     public long StorageSize;

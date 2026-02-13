@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b410bf56d2541745a10ce7804c679b1, type: 3}
+  m_Name: LutRegistry
+  m_EditorClassIdentifier: DunksJams::LutRegistry
+  _luts:
+  - {fileID: 2800000, guid: 6f4f72bd546ebc24496170b57c4154f0, type: 3}
+  - {fileID: 2800000, guid: b0c4864cc916c3f41809f0615e9da0ef, type: 3}
+  - {fileID: 2800000, guid: 8ef327e757a82634db3852043b01abc0, type: 3}
+  - {fileID: 2800000, guid: e2db59cc42352384791db7ebcbc6b7bb, type: 3}
+  - {fileID: 2800000, guid: a41a5ed4284a99247832f151b16c8cd3, type: 3}
+  - {fileID: 2800000, guid: f1f1702bc1f60b3478a2458bac647009, type: 3}
+  - {fileID: 2800000, guid: 6a60d09f6ff1d404bba09b1e36918c3b, type: 3}
+  - {fileID: 2800000, guid: 10a91dbcf7a1e4941bb2dd278083bf29, type: 3}
+  - {fileID: 2800000, guid: 7cadc19b5ceed9e4fbac386980335f36, type: 3}
+  - {fileID: 2800000, guid: a19d9f1b804e0f84e85a1b4eda6d6009, type: 3}
+  - {fileID: 2800000, guid: 719faf88a966dc1478fafe0f5b9ed0f8, type: 3}
+  - {fileID: 2800000, guid: ed55fe1836528ff4bb6a96ee0d97f1ab, type: 3}
+  - {fileID: 2800000, guid: ae55702cd339ca446a2e6201f53aa177, type: 3}
+  - {fileID: 2800000, guid: 6f1e3cfc227b4ff409f3086a3bd48b7e, type: 3}
+  - {fileID: 2800000, guid: f150ebfb6fc2ff541b87cbcebf3f6c01, type: 3}
+  - {fileID: 2800000, guid: 82625c0da6e82c94399ca3acd4777185, type: 3}
+  - {fileID: 2800000, guid: ed2ac60c1a715684f95f1e57bc5b37f7, type: 3}
+  - {fileID: 2800000, guid: db94a967aa44923489a2927baa2a173f, type: 3}
+  - {fileID: 2800000, guid: b1c042fb9908b1041a79287d7cd797b2, type: 3}
+  _names:
+  - LDRLutArne16V20
+  - LDRLutAxsin2600-NTSC
+  - LDRLutAxsinAmstrad
+  - LDRLutAxsinAppleII
+  - LDRLutAxsinBBCMicro
+  - LDRLutAxsinC16
+  - LDRLutAxsinC64
+  - LDRLutAxsinCGA
+  - LDRLutAxsinIntellivision
+  - LDRLutAxsinMSX
+  - LDRLutAxsinMSX2
+  - LDRLutAxsinNES
+  - LDRLutAxsinSMS
+  - LDRLutAxsinSpectrumZX
+  - LDRLutAxsinVIC20
+  - LDRLutGoodnightGameboy
+  - LDRLutGoodnightNES
+  - LDRLutGoodnightSMS
+  - LDRLutNeutral

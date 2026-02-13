@@ -47,7 +47,7 @@ public class ModelBrowserTreeView : AssetBrowserTreeView<ModelBrowserTreeView.Tr
         }
     }
 
-    public ModelBrowserTreeView(TreeViewState state) : base(state)
+    public ModelBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState(this));
         InitHeader(multiColumnHeader);

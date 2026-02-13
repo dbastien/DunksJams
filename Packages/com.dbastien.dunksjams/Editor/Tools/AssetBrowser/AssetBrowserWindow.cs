@@ -44,7 +44,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
     protected virtual string WinTitle => "Assets";
     protected virtual string AssetTypeName => "Asset";
 
-    [SerializeField] protected TreeViewState treeViewState;
+    [SerializeField] protected TreeViewState<int> treeViewState;
     [SerializeReference] protected TTree treeView;
     protected SearchField searchField;
     protected bool sceneOnly;
@@ -92,7 +92,11 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         if (GUILayout.Button(new GUIContent("…", "Select folder to search"), GUILayout.Width(22)))
         {
             string absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
-            if (absPath.StartsWithFast(IOUtils.ProjectRootFolder)) assetPath = absPath[IOUtils.ProjectRootFolder.Length..];
+            if (absPath.StartsWithFast(IOUtils.ProjectRootFolder))
+            {
+                assetPath = absPath[IOUtils.ProjectRootFolder.Length..];
+                if (assetPath.StartsWith("/") || assetPath.StartsWith("\\")) assetPath = assetPath[1..];
+            }
             else if (!string.IsNullOrEmpty(absPath)) DLog.LogE($"Asset path must start with {IOUtils.ProjectRootFolder}");
         }
 

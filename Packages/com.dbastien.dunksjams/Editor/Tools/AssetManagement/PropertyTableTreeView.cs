@@ -171,7 +171,7 @@ internal sealed class PropertyTable : IDisposable
 
     private readonly string _uid;
 
-    private TreeViewState _treeState;
+    private TreeViewState<int> _treeState;
     private MultiColumnHeaderState _headerState;
     private MultiColumnHeader _header;
     private PropertyTableTreeView _tree;
@@ -215,7 +215,7 @@ internal sealed class PropertyTable : IDisposable
     public void Rebuild()
     {
         // Call when you change Model.Columns schema.
-        _treeState = _treeState ?? new TreeViewState();
+        _treeState = _treeState ?? new TreeViewState<int>();
 
         _headerState = new MultiColumnHeaderState(Model.Columns.Select(c => c.BuildHeaderColumn()).ToArray());
         _header = new MultiColumnHeader(_headerState);
@@ -254,10 +254,10 @@ internal sealed class PropertyTable : IDisposable
     public void OnSelectionChange()
     {
         EnsureInitialized();
-        _tree.SetUnitySelection(Selection.instanceIDs);
+        _tree.SetUnitySelection(Selection.objects.Select(o => o.GetInstanceID()).ToArray());
 
         if (FilterToUnitySelection)
-            _tree.SetUnitySelectionFilter(Selection.instanceIDs);
+            _tree.SetUnitySelectionFilter(Selection.objects.Select(o => o.GetInstanceID()).ToArray());
     }
 
     public void OnGUI()
@@ -340,7 +340,7 @@ internal sealed class PropertyTable : IDisposable
         {
             FilterToUnitySelection = newFilter;
             if (FilterToUnitySelection)
-                _tree.SetUnitySelectionFilter(Selection.instanceIDs);
+                _tree.SetUnitySelectionFilter(Selection.objects.Select(o => o.GetInstanceID()).ToArray());
             else
                 _tree.SetUnitySelectionFilter(null);
 
@@ -638,24 +638,24 @@ internal sealed class PropertyPathColumn : TableColumn
     }
 }
 
-internal sealed class PropertyTableTreeView : TreeView
+internal sealed class PropertyTableTreeView : TreeView<int>
 {
     private readonly PropertyTable _table;
 
-    private List<TreeViewItem> _allItems;
-    private List<TreeViewItem> _visibleItems;
+    private List<TreeViewItem<int>> _allItems;
+    private List<TreeViewItem<int>> _visibleItems;
 
     private int[] _unitySelectionFilter; // selection IDs (typically GameObject IDs)
     private int _lastFilterHash;
     private string _lastSearchUsed;
 
-    private sealed class RowItem : TreeViewItem
+    private sealed class RowItem : TreeViewItem<int>
     {
         public readonly TableRow Row;
         public RowItem(TableRow row) : base(row.RowId, 0, row.DisplayName) { Row = row; }
     }
 
-    public PropertyTableTreeView(TreeViewState state, MultiColumnHeader header, PropertyTable table)
+    public PropertyTableTreeView(TreeViewState<int> state, MultiColumnHeader header, PropertyTable table)
         : base(state, header)
     {
         _table = table ?? throw new ArgumentNullException(nameof(table));
@@ -750,16 +750,16 @@ internal sealed class PropertyTableTreeView : TreeView
         return false;
     }
 
-    protected override TreeViewItem BuildRoot()
+    protected override TreeViewItem<int> BuildRoot()
     {
-        return new TreeViewItem(-1, -1, "root");
+        return new TreeViewItem<int>(-1, -1, "root");
     }
 
-    protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+    protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
     {
         EnsureItemsBuilt();
 
-        var rows = new List<TreeViewItem>(_allItems?.Count ?? 0);
+        var rows = new List<TreeViewItem<int>>(_allItems?.Count ?? 0);
 
         HashSet<int> selFilter = null;
         if (_table.FilterToUnitySelection && _unitySelectionFilter != null)
@@ -925,7 +925,7 @@ internal sealed class PropertyTableTreeView : TreeView
         _table.Model.Refresh();
 
         var rows = _table.GetAllRows();
-        _allItems = new List<TreeViewItem>(rows.Count);
+        _allItems = new List<TreeViewItem<int>>(rows.Count);
 
         for (int i = 0; i < rows.Count; i++)
         {
@@ -935,7 +935,7 @@ internal sealed class PropertyTableTreeView : TreeView
         }
     }
 
-    private void ApplySorting(List<TreeViewItem> rows)
+    private void ApplySorting(List<TreeViewItem<int>> rows)
     {
         if (rows == null || rows.Count <= 1)
             return;

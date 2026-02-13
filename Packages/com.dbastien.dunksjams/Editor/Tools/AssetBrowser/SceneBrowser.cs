@@ -47,7 +47,7 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
         }
     }
 
-    public SceneBrowserTreeView(TreeViewState state) : base(state)
+    public SceneBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState(this));
         InitHeader(multiColumnHeader);

@@ -47,7 +47,7 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
         }
     }
 
-    public ScriptBrowserTreeView(TreeViewState state) : base(state)
+    public ScriptBrowserTreeView(TreeViewState<int> state) : base(state)
     {
         multiColumnHeader = new(CreateHeaderState(this));
         InitHeader(multiColumnHeader);
