@@ -9,14 +9,15 @@ public static class MaterialEditorUtils
         MaterialEditor matEditor, GUIContent label,
         MaterialProperty texProp, MaterialProperty colorToggleProp, MaterialProperty colorProp
     ) =>
-        matEditor.TexturePropertySingleLine(label, 
-            texProp, 
+        matEditor.TexturePropertySingleLine(label,
+            texProp,
             colorToggleProp.floatValue != 0f ? colorProp : null,
             colorToggleProp);
 
-    public static Rect TextureAutoSTInline(MaterialEditor editor, GUIContent label, MaterialProperty texProp, MaterialProperty scaleOffsetProp)
+    public static Rect TextureAutoSTInline(MaterialEditor editor, GUIContent label, MaterialProperty texProp,
+        MaterialProperty scaleOffsetProp)
     {
-        Rect lineRect = ShaderGUIUtils.GetControlRectForSingleLine();
+        var lineRect = ShaderGUIUtils.GetControlRectForSingleLine();
         editor.TexturePropertyMiniThumbnail(lineRect, texProp, label.text, label.tooltip);
         SetSTKeywords(editor, texProp, scaleOffsetProp);
         return lineRect;
@@ -25,16 +26,17 @@ public static class MaterialEditorUtils
     public static Rect TextureColorToggleAutoSTInline
     (
         MaterialEditor editor, GUIContent label,
-        MaterialProperty texProp, MaterialProperty colorToggleProp, MaterialProperty colorProp, MaterialProperty scaleOffsetProp
+        MaterialProperty texProp, MaterialProperty colorToggleProp, MaterialProperty colorProp,
+        MaterialProperty scaleOffsetProp
     )
     {
-        Rect rect = TextureColorToggleInline(editor, label, texProp, colorToggleProp, colorProp);
+        var rect = TextureColorToggleInline(editor, label, texProp, colorToggleProp, colorProp);
         SetSTKeywords(editor, texProp, scaleOffsetProp);
         return rect;
     }
 
     public static void STVector4Prop(MaterialEditor editor, GUIContent label, MaterialProperty scaleOffsetProp)
-    {               
+    {
         EditorGUI.showMixedValue = scaleOffsetProp.hasMixedValue;
         //EditorGUI.BeginChangeCheck();
 
@@ -48,14 +50,14 @@ public static class MaterialEditorUtils
 
         //if (EditorGUI.EndChangeCheck())
         {
-            scaleOffsetProp.vectorValue = new(texScale.x, texScale.y, texOffset.x, texOffset.y);
+            scaleOffsetProp.vectorValue = new Vector4(texScale.x, texScale.y, texOffset.x, texOffset.y);
         }
         EditorGUI.showMixedValue = false;
     }
 
     public static void SetSTKeywords(MaterialEditor editor, MaterialProperty texProp, MaterialProperty scaleOffsetProp)
     {
-        Vector4 vec = scaleOffsetProp.vectorValue;
+        var vec = scaleOffsetProp.vectorValue;
         var mat = editor.target as Material;
         mat.SetKeyword($"{texProp.name}_SCALE_ON", vec.x != 1.0f || vec.y != 1.0f);
         mat.SetKeyword($"{texProp.name}_OFFSET_ON", vec.z != 0.0f || vec.w != 0.0f);
@@ -63,7 +65,10 @@ public static class MaterialEditorUtils
 
     static class Styles
     {
-        public static readonly GUIContent scale = new("Tiling", "Scale of texture - multiplied by texture coordinates from vertices");
-        public static readonly GUIContent offset = new("Offset", "Offset of texture - added to texture coordinates from vertices");
+        public static readonly GUIContent scale = new("Tiling",
+            "Scale of texture - multiplied by texture coordinates from vertices");
+
+        public static readonly GUIContent offset = new("Offset",
+            "Offset of texture - added to texture coordinates from vertices");
     }
 }

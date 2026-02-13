@@ -1,0 +1,32 @@
+﻿[*]
+indent_style = space
+indent_size = 4
+tab_width = 4
+ij_continuation_indent_size = 8
+ij_formatter_enabled = true
+ij_formatter_off_tag = @formatter:off
+ij_formatter_on_tag = @formatter:on
+ij_visual_guides = none
+ij_smart_tabs = false
+ij_wrap_on_typing = false
+
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_require_accessibility_modifiers = always:suggestion
+dotnet_style_readonly_field = true:suggestion
+dotnet_code_quality_unused_parameters = all:suggestion
+
+# Disable Rider/ReSharper auto-detection and "auto" features
+resharper_autodetect_indent = false
+resharper_indent_style = space
+resharper_indent_size = 4
+resharper_tab_width = 4
+resharper_use_editorconfig_for_indent_style = true
+resharper_show_autodetect_configure_formatting_tip = false
+resharper_csharp_naming_rule_autodetect_enabled = false

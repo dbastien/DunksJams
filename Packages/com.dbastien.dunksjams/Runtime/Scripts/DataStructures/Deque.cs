@@ -5,7 +5,7 @@ using UnityEngine;
 public class Deque<T> : ICollection<T>
 {
     readonly LinkedList<T> _list = new();
-    
+
     public int Count => _list.Count;
     public bool IsReadOnly => false;
 
@@ -18,11 +18,21 @@ public class Deque<T> : ICollection<T>
 
     public T RemoveFront() => Remove(_list.First);
     public T RemoveBack() => Remove(_list.Last);
-    
+
     public bool Remove(T item)
     {
-        if (_list.First?.Value?.Equals(item) == true) { RemoveFront(); return true; }
-        if (_list.Last?.Value?.Equals(item) == true) { RemoveBack(); return true; }
+        if (_list.First?.Value?.Equals(item) == true)
+        {
+            RemoveFront();
+            return true;
+        }
+
+        if (_list.Last?.Value?.Equals(item) == true)
+        {
+            RemoveBack();
+            return true;
+        }
+
         return false;
     }
 

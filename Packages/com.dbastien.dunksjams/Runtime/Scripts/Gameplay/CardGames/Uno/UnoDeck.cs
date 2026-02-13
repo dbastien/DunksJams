@@ -26,12 +26,12 @@ public static class UnoDeck
             }
         }
 
-        for (int i = 0; i < 4; ++i)
+        for (var i = 0; i < 4; ++i)
         {
             cards.Add(new UnoCard(UnoCard.Color.Wild, UnoCard.Rank.Wild));
             cards.Add(new UnoCard(UnoCard.Color.Wild, UnoCard.Rank.DrawFour));
         }
 
-        return new Deck<UnoCard>(cards, autoRecycleDiscard: true, keepTopDiscardOnRecycle: true);
+        return new Deck<UnoCard>(cards, true, true);
     }
 }

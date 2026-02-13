@@ -38,7 +38,7 @@ public static class HapticsManager
     static void UpdateConnectedGamepads()
     {
         _pads.Clear();
-        foreach (Gamepad gp in Gamepad.all) _pads[gp.deviceId] = gp;
+        foreach (var gp in Gamepad.all) _pads[gp.deviceId] = gp;
     }
 
     static bool IsGhostDevice(Gamepad pad) => pad == null || !pad.added;
@@ -59,15 +59,15 @@ public static class HapticsManager
     // feedback based on animation curves (coroutine loop).
     static IEnumerator PlayCurveHaptic(Gamepad pad, IDualMotorRumble rumble, HapticPreset preset)
     {
-        float startTime = Time.unscaledTime;
+        var startTime = Time.unscaledTime;
 
         while (Time.unscaledTime - startTime < preset.Seconds)
         {
             if (IsGhostDevice(pad)) break;
 
-            float t = (Time.unscaledTime - startTime) / preset.Seconds;
-            float low = preset.LowFreqCurve.Evaluate(t) * GlobalIntensity;
-            float high = preset.HighFreqCurve.Evaluate(t) * GlobalIntensity;
+            var t = (Time.unscaledTime - startTime) / preset.Seconds;
+            var low = preset.LowFreqCurve.Evaluate(t) * GlobalIntensity;
+            var high = preset.HighFreqCurve.Evaluate(t) * GlobalIntensity;
 
             rumble.SetMotorSpeeds(low, high);
             yield return _curveTick;
@@ -104,7 +104,10 @@ public static class HapticsManager
         InputSystem.onDeviceChange -= OnDeviceChange;
 
         foreach (var pad in _pads.Values)
-            if (!IsGhostDevice(pad)) ResetHaptics(pad);
+        {
+            if (!IsGhostDevice(pad))
+                ResetHaptics(pad);
+        }
 
         _pads.Clear();
     }

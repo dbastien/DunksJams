@@ -9,20 +9,23 @@ public static class GridHelper2D
 
     public static int GetValidNeighbors(Vector2Int pos, int[,] grid, Vector2Int[] result, bool allowDiag = false)
     {
-        int count = 0;
+        var count = 0;
         var directions = allowDiag ? CombinedDirections : CardinalDirections;
 
         foreach (var dir in directions)
         {
             var neighbor = pos + dir;
             if (!IsWalkable(neighbor, grid)) continue;
-            if (count >= result.Length) throw new IndexOutOfRangeException("Result array is too small to hold all neighbors.");
+            if (count >= result.Length)
+                throw new IndexOutOfRangeException("Result array is too small to hold all neighbors.");
             result[count++] = neighbor;
         }
+
         return count;
     }
 
-    public static int GetValidNeighborsWithPool(Vector2Int pos, int[,] grid, out Vector2Int[] result, bool allowDiag = false)
+    public static int GetValidNeighborsWithPool(Vector2Int pos, int[,] grid, out Vector2Int[] result,
+        bool allowDiag = false)
     {
         result = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(8); // Rent an array for up to 8 neighbors
         return GetValidNeighbors(pos, grid, result, allowDiag);
@@ -52,6 +55,7 @@ public static class GridHelper2D
             array.CopyTo(result, offset);
             offset += array.Length;
         }
+
         return result;
     }
 

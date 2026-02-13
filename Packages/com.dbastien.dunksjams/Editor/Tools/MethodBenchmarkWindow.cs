@@ -32,7 +32,9 @@ public class BenchmarkWindow : EditorWindow
     void OnGUI()
     {
         using (new GUIScope(fontSize: 14))
+        {
             GUILayout.Label("Benchmark Methods", EditorStyles.boldLabel);
+        }
 
         _globalClassSearch = EditorGUILayout.TextField("Global Class Search", _globalClassSearch);
         if (!string.IsNullOrEmpty(_globalClassSearch))
@@ -63,12 +65,14 @@ public class BenchmarkWindow : EditorWindow
             {
                 using (new GUIHorizontalScope())
                 {
-                    if (GUILayout.Button($"{(IsFavorite(assembly) ? "★ " : "")}{assembly.GetName().Name}", EditorStyles.miniButton))
+                    if (GUILayout.Button($"{(IsFavorite(assembly) ? "★ " : "")}{assembly.GetName().Name}",
+                            EditorStyles.miniButton))
                     {
                         _selectedAssemblyIndex = Array.IndexOf(_assemblies, assembly);
                         LoadClassesFromAssembly();
                         _classScrollPos = Vector2.zero;
                     }
+
                     if (GUILayout.Button("☆", GUILayout.Width(20))) ToggleFavorite(assembly);
                 }
             }
@@ -80,10 +84,12 @@ public class BenchmarkWindow : EditorWindow
 
         _classFilter = EditorGUILayout.TextField("Class Filter", _classFilter);
         using (new GUIScope(fontSize: 12))
+        {
             GUILayout.Label($"Classes ({_availableClasses.Count})");
+        }
 
         _classScrollPos = EditorGUILayout.BeginScrollView(_classScrollPos, GUILayout.Height(150));
-        for (int i = 0; i < _availableClasses.Count; ++i)
+        for (var i = 0; i < _availableClasses.Count; ++i)
         {
             var type = _availableClasses[i];
             if (!type.Name.Contains(_classFilter, StringComparison.OrdinalIgnoreCase) ||
@@ -92,13 +98,16 @@ public class BenchmarkWindow : EditorWindow
             LoadMethods();
             _methodScrollPos = Vector2.zero;
         }
+
         EditorGUILayout.EndScrollView();
 
         if (_methods.Count == 0) return;
 
         _methodFilter = EditorGUILayout.TextField("Method Filter", _methodFilter);
         using (new GUIScope(fontSize: 12))
+        {
             GUILayout.Label($"Methods ({_methods.Count})");
+        }
 
         ShowMultiSelect(_methods);
 
@@ -118,8 +127,11 @@ public class BenchmarkWindow : EditorWindow
         var selectedAssembly = _assemblies[_selectedAssemblyIndex];
         _availableClasses.Clear();
         foreach (var type in selectedAssembly.GetTypes())
-            if (type.IsClass && type.GetMethods(BindingFlags.Public | BindingFlags.Static).Length > 0 && !type.Name.StartsWith("<"))
+        {
+            if (type.IsClass && type.GetMethods(BindingFlags.Public | BindingFlags.Static).Length > 0 &&
+                !type.Name.StartsWith("<"))
                 _availableClasses.Add(type);
+        }
     }
 
     void LoadMethods()
@@ -139,13 +151,16 @@ public class BenchmarkWindow : EditorWindow
             if (!groups.ContainsKey(groupName)) groups[groupName] = new List<Assembly>();
             groups[groupName].Add(assembly);
         }
+
         return groups.ToDictionary(g => g.Key, g => g.Value.ToArray());
     }
 
     void ShowGlobalClassSearchResults()
     {
         using (new GUIScope(fontSize: 12))
+        {
             GUILayout.Label("Global Search Results");
+        }
 
         _classScrollPos = EditorGUILayout.BeginScrollView(_classScrollPos, GUILayout.Height(150));
         foreach (var type in _assemblies.SelectMany(a => a.GetTypes()))
@@ -156,6 +171,7 @@ public class BenchmarkWindow : EditorWindow
             LoadMethods();
             _methodScrollPos = Vector2.zero;
         }
+
         EditorGUILayout.EndScrollView();
     }
 
@@ -165,7 +181,9 @@ public class BenchmarkWindow : EditorWindow
         SaveFavorites();
     }
 
-    void LoadFavorites() => _favoriteAssemblies = new HashSet<string>(EditorPrefs.GetString("BenchmarkFavorites", "").Split(';'));
+    void LoadFavorites() => _favoriteAssemblies =
+        new HashSet<string>(EditorPrefs.GetString("BenchmarkFavorites", "").Split(';'));
+
     void SaveFavorites() => EditorPrefs.SetString("BenchmarkFavorites", string.Join(";", _favoriteAssemblies));
     bool IsFavorite(Assembly assembly) => _favoriteAssemblies.Contains(assembly.GetName().Name);
 
@@ -174,11 +192,12 @@ public class BenchmarkWindow : EditorWindow
         _methodScrollPos = EditorGUILayout.BeginScrollView(_methodScrollPos, GUILayout.ExpandHeight(true));
         foreach (var method in allMethods)
         {
-            bool isSelected = _selectedMethods.Contains(method);
+            var isSelected = _selectedMethods.Contains(method);
             if (EditorGUILayout.ToggleLeft(method.Name, isSelected) == isSelected) continue;
             if (isSelected) _selectedMethods.Remove(method);
             else _selectedMethods.Add(method);
         }
+
         EditorGUILayout.EndScrollView();
     }
 
@@ -186,19 +205,19 @@ public class BenchmarkWindow : EditorWindow
     {
         foreach (var method in _selectedMethods)
         {
-            string result = BenchmarkMethod(method);
+            var result = BenchmarkMethod(method);
             DLog.Log($"Benchmark Result for {method.Name}:\n{result}");
         }
     }
 
     string BenchmarkMethod(MethodInfo method)
     {
-        object[] parameters = method.GetParameters().Select(p => ReflectionUtils.GetDefault(p.ParameterType)).ToArray();
+        var parameters = method.GetParameters().Select(p => ReflectionUtils.GetDefault(p.ParameterType)).ToArray();
 
         PrecisionStopwatch sw = new();
         sw.Start();
 
-        for (int i = 0; i < _iterations; ++i)
+        for (var i = 0; i < _iterations; ++i)
             ReflectionUtils.InvokeMethod(null, method, parameters);
 
         sw.Stop();

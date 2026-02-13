@@ -21,7 +21,7 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
         _graphView.StretchToParentSize();
         rootVisualElement.Clear();
         rootVisualElement.Add(_graphView);
-        
+
         SetupToolbar();
         LoadGraph();
     }
@@ -43,16 +43,16 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
         var toolbar = new Toolbar();
         toolbar.Add(new Button(SaveGraph) { text = "Save" });
         toolbar.Add(new Button(LoadGraph) { text = "Load" });
-        
+
         var nodeTypes = _graphView.GetNodeTypes().Select(type => type.Name).ToList();
         _nodeTypeDropdown = new DropdownField("Create Node", nodeTypes, 0);
         toolbar.Add(_nodeTypeDropdown);
 
         toolbar.Add(new Button(CreateSelectedNode) { text = "Add Node" });
-        
+
         rootVisualElement.Add(toolbar);
     }
-    
+
     void CreateSelectedNode()
     {
         var selectedTypeName = _nodeTypeDropdown.value;

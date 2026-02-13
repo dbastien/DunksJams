@@ -9,13 +9,11 @@
         return (v >> 16) | (v << 16);
     }
 
-    public static uint ReverseBytes(this uint v)
-    {
-        return ((v & 0x000000FF) << 24) |
-               ((v & 0x0000FF00) << 8) |
-               ((v & 0x00FF0000) >> 8) |
-               ((v & 0xFF000000) >> 24);
-    }
+    public static uint ReverseBytes(this uint v) =>
+        ((v & 0x000000FF) << 24) |
+        ((v & 0x0000FF00) << 8) |
+        ((v & 0x00FF0000) >> 8) |
+        ((v & 0xFF000000) >> 24);
 
     public static uint ReverseWords(this uint v) => ((v & 0x0000FFFF) << 16) | ((v & 0xFFFF0000) >> 16);
 
@@ -28,6 +26,7 @@
             result |= ((v >> i) & 1u) << shift;
             ++shift;
         }
+
         return result;
     }
 

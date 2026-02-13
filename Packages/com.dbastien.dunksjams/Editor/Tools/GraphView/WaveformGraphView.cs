@@ -8,6 +8,7 @@ public class WaveformEditorWindow : SerializedGraphViewEditorWindow<WaveformGrap
 {
     [MenuItem("‽/Waveform Editor")]
     public static void ShowWindow() => GetWindow<WaveformEditorWindow>();
+
     protected override string GetWindowTitle() => "Waveform Editor";
     protected override string GetGraphViewName() => "WaveformGraph";
 }
@@ -22,7 +23,7 @@ public class WaveformGraphView : SerializedGraphView<WaveformNodeBase, Edge>
     {
         if (change.edgesToCreate == null) return change;
 
-        foreach (Edge e in change.edgesToCreate)
+        foreach (var e in change.edgesToCreate)
         {
             if (e.output is not IDataPort outPort) continue;
             (e.input as IDataPort)?.SetDataFromObject(outPort.GetDataAsObject());

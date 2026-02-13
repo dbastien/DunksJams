@@ -10,23 +10,23 @@ public abstract class SteeringBehavior : ScriptableObject
 
     protected static Vector3 SeekVelocity(SteeringAgent agent, Vector3 targetPos)
     {
-        Vector3 desiredVelocity = (targetPos - agent.transform.position).normalized * agent.maxSpeed;
+        var desiredVelocity = (targetPos - agent.transform.position).normalized * agent.maxSpeed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 
     protected static Vector3 FleeVelocity(SteeringAgent agent, Vector3 targetPos)
     {
-        Vector3 desiredVelocity = (agent.transform.position - targetPos).normalized * agent.maxSpeed;
+        var desiredVelocity = (agent.transform.position - targetPos).normalized * agent.maxSpeed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
-    
+
     protected static Vector3 PredictFuturePosition(SteeringAgent agent, Transform target)
     {
-        Rigidbody targetRb = target.GetComponent<Rigidbody>();
+        var targetRb = target.GetComponent<Rigidbody>();
         if (!targetRb) return target.position;
 
-        Vector3 toTarget = target.position - agent.transform.position;
-        float prediction = toTarget.magnitude / (agent.maxSpeed + targetRb.linearVelocity.magnitude);
+        var toTarget = target.position - agent.transform.position;
+        var prediction = toTarget.magnitude / (agent.maxSpeed + targetRb.linearVelocity.magnitude);
         return target.position + targetRb.linearVelocity * prediction;
     }
 }
@@ -34,14 +34,14 @@ public abstract class SteeringBehavior : ScriptableObject
 [CreateAssetMenu(menuName = "Steering/Seek")]
 public class Seek : SteeringBehavior
 {
-    public override Vector3 CalculateForce(SteeringAgent agent, Transform target) => 
+    public override Vector3 CalculateForce(SteeringAgent agent, Transform target) =>
         target ? SeekVelocity(agent, target.position) : Vector3.zero;
 }
 
 [CreateAssetMenu(menuName = "Steering/Flee")]
 public class Flee : SteeringBehavior
 {
-    public override Vector3 CalculateForce(SteeringAgent agent, Transform target) => 
+    public override Vector3 CalculateForce(SteeringAgent agent, Transform target) =>
         target ? FleeVelocity(agent, target.position) : Vector3.zero;
 }
 
@@ -54,16 +54,16 @@ public class Arrive : SteeringBehavior
     {
         if (!target) return Vector3.zero;
 
-        Vector3 toTarget = target.position - agent.transform.position;
-        float distance = toTarget.magnitude;
+        var toTarget = target.position - agent.transform.position;
+        var distance = toTarget.magnitude;
 
         if (distance < 0.01f) return Vector3.zero;
 
         // slow down as we approach target
-        float speed = agent.maxSpeed;
+        var speed = agent.maxSpeed;
         if (distance < slowingRadius) speed = agent.maxSpeed * (distance / slowingRadius);
 
-        Vector3 desiredVelocity = toTarget.normalized * speed;
+        var desiredVelocity = toTarget.normalized * speed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 }
@@ -74,7 +74,7 @@ public class Pursue : SteeringBehavior
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
         if (!target) return Vector3.zero;
-        Vector3 futurePosition = PredictFuturePosition(agent, target);
+        var futurePosition = PredictFuturePosition(agent, target);
         return SeekVelocity(agent, futurePosition);
     }
 }
@@ -85,7 +85,7 @@ public class Evade : SteeringBehavior
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
         if (!target) return Vector3.zero;
-        Vector3 futurePosition = PredictFuturePosition(agent, target);
+        var futurePosition = PredictFuturePosition(agent, target);
         return FleeVelocity(agent, futurePosition);
     }
 }
@@ -101,11 +101,11 @@ public class Wander : SteeringBehavior
 
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        Rigidbody rb = agent.RigidBody;
+        var rb = agent.RigidBody;
 
-        Vector3 circleCenter = rb.linearVelocity.normalized * circleDistance;
+        var circleCenter = rb.linearVelocity.normalized * circleDistance;
 
-        Vector3 displacement = new Vector3(0, 0, -1) * circleRadius;
+        var displacement = new Vector3(0, 0, -1) * circleRadius;
         wanderAngle += Random.Range(-wanderAngleChange, wanderAngleChange);
         displacement = Quaternion.Euler(0, wanderAngle * Mathf.Rad2Deg, 0) * displacement;
 
@@ -118,7 +118,7 @@ public abstract class NeighborBasedBehavior : SteeringBehavior
     public float neighborRadius = 5f;
     protected Collider[] results = new Collider[8];
 
-    protected int GetNeighbors(SteeringAgent agent) => 
+    protected int GetNeighbors(SteeringAgent agent) =>
         Physics.OverlapSphereNonAlloc(agent.transform.position, neighborRadius, results);
 }
 
@@ -126,9 +126,9 @@ public class Cohesion : NeighborBasedBehavior
 {
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        int hitCount = GetNeighbors(agent);
-        Vector3 centerOfMass = Vector3.zero;
-        int count = 0;
+        var hitCount = GetNeighbors(agent);
+        var centerOfMass = Vector3.zero;
+        var count = 0;
 
         for (var i = 0; i < hitCount; ++i)
         {
@@ -150,25 +150,25 @@ public class Separation : NeighborBasedBehavior
 
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        int hitCount = GetNeighbors(agent);
-        Vector3 separationForce = Vector3.zero;
+        var hitCount = GetNeighbors(agent);
+        var separationForce = Vector3.zero;
 
         for (var i = 0; i < hitCount; ++i)
         {
             if (results[i] == agent.Collider) continue;
-            Vector3 toAgent = agent.transform.position - results[i].transform.position;
+            var toAgent = agent.transform.position - results[i].transform.position;
             separationForce += toAgent.normalized / toAgent.magnitude;
         }
 
         return separationForce * separationFactor;
     }
-    
+
     [CreateAssetMenu(menuName = "Steering/Idle")]
     public class Idle : SteeringBehavior
     {
         public override Vector3 CalculateForce(SteeringAgent agent, Transform target) => Vector3.zero;
     }
-    
+
     [CreateAssetMenu(menuName = "Steering/Align")]
     public class Align : SteeringBehavior
     {

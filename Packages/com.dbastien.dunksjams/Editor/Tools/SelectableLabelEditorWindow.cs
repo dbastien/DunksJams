@@ -13,19 +13,19 @@ public class SelectableLabelEditorWindow : EditorWindow
     public void Init(string label)
     {
         text = label;
-        content = new(text);
+        content = new GUIContent(text);
         size = EditorStyles.textField.CalcSize(content);
     }
 
     void OnGUI()
     {
-        Event e = Event.current;
+        var e = Event.current;
         if (hasFocus && e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
         {
             Close();
             return;
         }
-        
+
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
         EditorGUILayout.SelectableLabel
         (

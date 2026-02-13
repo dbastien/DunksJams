@@ -71,6 +71,7 @@ public class SimpleThirdPersonController : MonoBehaviour
             cameraYaw += look.x * lookSensitivity;
             cameraPitch = Mathf.Clamp(cameraPitch - look.y * lookSensitivity, pitchMin, pitchMax);
         }
+
         if (cameraRoot != null)
         {
             var rot = Quaternion.Euler(cameraPitch, cameraYaw, 0f);

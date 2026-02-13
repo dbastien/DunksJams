@@ -41,7 +41,9 @@ public class SimpleSidescrollerController : MonoBehaviour
     void Update()
     {
         var move = moveAction?.ReadValue<Vector2>() ?? Vector2.zero;
-        var axis = horizontalAxis.y == 0f ? horizontalAxis.normalized : Vector3.ProjectOnPlane(horizontalAxis, Vector3.up).normalized;
+        var axis = horizontalAxis.y == 0f
+            ? horizontalAxis.normalized
+            : Vector3.ProjectOnPlane(horizontalAxis, Vector3.up).normalized;
         var horizontal = axis.x * move.x + axis.z * move.y;
         var grounded = controller.isGrounded || Physics.Raycast(transform.position, Vector3.down, groundCheckDistance);
 

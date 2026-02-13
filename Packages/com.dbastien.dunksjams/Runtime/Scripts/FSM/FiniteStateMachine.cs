@@ -27,11 +27,12 @@ public class FiniteStateMachine<T>
             DLog.LogW($"State '{state.StateName}' is already registered.");
     }
 
-    public void AddTransition(string from, string to, Func<bool> condition, float? duration = null, Action onTransition = null, int priority = 0)
+    public void AddTransition(string from, string to, Func<bool> condition, float? duration = null,
+        Action onTransition = null, int priority = 0)
     {
         if (!_transitions.TryGetValue(from, out var transitions))
-            _transitions[from] = transitions = new();
-        
+            _transitions[from] = transitions = new List<StateTransition<T>>();
+
         transitions.Add(new StateTransition<T>(from, to, condition, duration, onTransition, priority));
     }
 
@@ -57,7 +58,7 @@ public class FiniteStateMachine<T>
     public void Update()
     {
         if (_isPaused || !_isRunning) return;
-        
+
         RefreshStateIfPending();
         CurrentState?.Update();
 
@@ -72,7 +73,7 @@ public class FiniteStateMachine<T>
             break;
         }
     }
-    
+
     public void Reset()
     {
         _isRunning = false;
@@ -93,7 +94,7 @@ public class FiniteStateMachine<T>
         CurrentState?.Enter(_pendingStateParameters);
         NotifyStateChange(StateChangeAction.Begun, CurrentState);
     }
-    
+
     void NotifyStateChange(StateChangeAction action, FiniteState<T> state)
     {
         var eventArgs = new StateChangeEventArgs<T>(action, state);

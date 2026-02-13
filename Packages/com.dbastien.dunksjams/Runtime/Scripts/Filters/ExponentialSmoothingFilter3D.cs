@@ -6,8 +6,8 @@ public class ExponentialSmoothingFilter3D : IFilter3D
     public float Alpha = 0.5f;
 
     public Vector3 CurrentValue => previousSample;
-    private bool previousSampleSet;
-    private Vector3 previousSample;
+    bool previousSampleSet;
+    Vector3 previousSample;
 
     public object Clone() => MemberwiseClone();
 
@@ -23,7 +23,7 @@ public class ExponentialSmoothingFilter3D : IFilter3D
     {
         if (previousSampleSet)
         {
-            previousSample = (Alpha * s) + ((1.0f - Alpha) * previousSample);
+            previousSample = Alpha * s + (1.0f - Alpha) * previousSample;
         }
         else
         {

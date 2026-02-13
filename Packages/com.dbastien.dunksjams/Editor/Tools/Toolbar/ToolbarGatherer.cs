@@ -7,10 +7,13 @@ using UnityEditor;
 [InitializeOnLoad]
 public static class ToolbarGatherer
 {
-    private const string AUTO_REFRESH_ENABLED = "ToolbarGatherer_Tool_AutoRefresh";
-    private const string AUTO_REFRESH_SECONDS = "ToolbarGatherer_Tool_AutoRefreshSeconds";
+    const string AUTO_REFRESH_ENABLED = "ToolbarGatherer_Tool_AutoRefresh";
+    const string AUTO_REFRESH_SECONDS = "ToolbarGatherer_Tool_AutoRefreshSeconds";
 
-    public static readonly IReadOnlyDictionary<ToolbarItemPosition, IReadOnlyDictionary<ToolbarItemAnchor, IReadOnlyList<IToolbarItem>>> ToolbarsByPosition;
+    public static readonly
+        IReadOnlyDictionary<ToolbarItemPosition, IReadOnlyDictionary<ToolbarItemAnchor, IReadOnlyList<IToolbarItem>>>
+        ToolbarsByPosition;
+
     public static readonly IReadOnlyCollection<IToolbarItem> AllToolbars;
 
     public static bool AutoUpdateToolbar { get; private set; } = true;
@@ -18,7 +21,7 @@ public static class ToolbarGatherer
 
     static ToolbarGatherer()
     {
-        Type interfaceType = typeof(IToolbarItem);
+        var interfaceType = typeof(IToolbarItem);
         AllToolbars = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(x => x.GetTypes())
             .Where(x => interfaceType.IsAssignableFrom(x) &&
@@ -34,17 +37,19 @@ public static class ToolbarGatherer
             .ThenBy(x => x.Priority)
             .ToArray();
 
-        var toolbarDictionary = new Dictionary<ToolbarItemPosition, Dictionary<ToolbarItemAnchor, List<IToolbarItem>>>();
+        var toolbarDictionary =
+            new Dictionary<ToolbarItemPosition, Dictionary<ToolbarItemAnchor, List<IToolbarItem>>>();
 
-        foreach (IToolbarItem toolbarItem in AllToolbars)
+        foreach (var toolbarItem in AllToolbars)
         {
             toolbarItem.Init();
             if (!toolbarDictionary.TryGetValue(toolbarItem.Position, out var anchorDict))
-                toolbarDictionary[toolbarItem.Position] = anchorDict = new Dictionary<ToolbarItemAnchor, List<IToolbarItem>>();
-            
+                toolbarDictionary[toolbarItem.Position] =
+                    anchorDict = new Dictionary<ToolbarItemAnchor, List<IToolbarItem>>();
+
             if (!anchorDict.TryGetValue(toolbarItem.Anchor, out var toolbarList))
                 anchorDict[toolbarItem.Anchor] = toolbarList = new List<IToolbarItem>();
-            
+
             toolbarList.Add(toolbarItem);
         }
 
@@ -59,7 +64,7 @@ public static class ToolbarGatherer
     }
 
     [SettingsProviderGroup]
-    private static SettingsProvider[] GetSettingsProviders()
+    static SettingsProvider[] GetSettingsProviders()
     {
         return AllToolbars
             .Select(x => x.GetSettingsProvider())
@@ -71,9 +76,7 @@ public static class ToolbarGatherer
                     {
                         AutoUpdateToolbar = EditorGUILayout.Toggle("Auto Refresh: ", AutoUpdateToolbar);
                         if (AutoUpdateToolbar)
-                        {
                             AutoUpdateSeconds = EditorGUILayout.FloatField("Update Seconds:", AutoUpdateSeconds);
-                        }
                         EditorPrefs.SetBool(AUTO_REFRESH_ENABLED, AutoUpdateToolbar);
                         EditorPrefs.SetFloat(AUTO_REFRESH_SECONDS, AutoUpdateSeconds);
                     }

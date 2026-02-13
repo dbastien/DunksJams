@@ -19,7 +19,7 @@ public class CopyCatWindow : EditorWindow
     static void CopyMenuSelected(MenuCommand cmd)
     {
         var win = GetWindow<CopyCatWindow>(true, "CopyCat", true);
-        win.Init(cmd.context);  // Init w/ source object
+        win.Init(cmd.context); // Init w/ source object
     }
 
     void Init(Object src)
@@ -42,13 +42,13 @@ public class CopyCatWindow : EditorWindow
     static void PasteMenuSelected(MenuCommand command)
     {
         var win = GetWindow<CopyCatWindow>();
-        
+
         if (_fields == null || _props == null || _fieldVals == null || _propVals == null)
         {
             DLog.LogW("No source data, copy before pasting.");
             return;
         }
-        
+
         win.Paste(command.context, _nonHomogeneous);
     }
 
@@ -59,29 +59,33 @@ public class CopyCatWindow : EditorWindow
             DLog.LogW("No source data, copy before pasting.");
             return;
         }
-        
+
         Undo.RecordObject(target, "PasteCat Data");
 
         var tgtFields = target.GetType().GetFields();
         var tgtProps = target.GetType().GetAllProperties().ToArray();
-        
-        for (int i = 0; i < _fieldSelected.Length; ++i)
+
+        for (var i = 0; i < _fieldSelected.Length; ++i)
         {
             if (!_fieldSelected[i] || _fieldVals[i] == null) continue;
             var srcField = _fields[i];
             var tgtField = System.Array.Find(tgtFields, f => f.Name == srcField.Name)
-                              ?? (nonHomogeneous ? System.Array.Find(tgtFields, f => f.FieldType.IsAssignableTo(srcField.FieldType)) : null);
+                           ?? (nonHomogeneous
+                               ? System.Array.Find(tgtFields, f => f.FieldType.IsAssignableTo(srcField.FieldType))
+                               : null);
 
             if (tgtField == null) continue;
             tgtField.SetValue(target, _fieldVals[i].DeepClone());
         }
 
-        for (int i = 0; i < _propSelected.Length; ++i)
+        for (var i = 0; i < _propSelected.Length; ++i)
         {
             if (!_propSelected[i] || _propVals[i] == null) continue;
             var srcProp = _props[i];
             var tgtProp = System.Array.Find(tgtProps, p => p.Name == srcProp.Name)
-                             ?? (nonHomogeneous ? System.Array.Find(tgtProps, p => p.PropertyType.IsAssignableTo(srcProp.PropertyType)) : null);
+                          ?? (nonHomogeneous
+                              ? System.Array.Find(tgtProps, p => p.PropertyType.IsAssignableTo(srcProp.PropertyType))
+                              : null);
 
             if (tgtProp == null) continue;
             tgtProp.SetValue(target, _propVals[i].DeepClone());
@@ -95,25 +99,32 @@ public class CopyCatWindow : EditorWindow
     {
         _nonHomogeneous = EditorGUILayout.Toggle("Non-Homogeneous", _nonHomogeneous);
 
-        _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.Width(position.width), GUILayout.Height(position.height - 50));
+        _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.Width(position.width),
+            GUILayout.Height(position.height - 50));
 
         EditorGUILayout.LabelField("Fields");
-        for (int i = 0; i < _fields.Count; ++i)
+        for (var i = 0; i < _fields.Count; ++i)
             _fieldSelected[i] = EditorGUILayout.Toggle(_fields[i].Name, _fieldSelected[i]);
 
         EditorGUILayout.LabelField("Properties");
-        for (int i = 0; i < _props.Count; ++i)
+        for (var i = 0; i < _props.Count; ++i)
             _propSelected[i] = EditorGUILayout.Toggle(_props[i].Name, _propSelected[i]);
 
         EditorGUILayout.EndScrollView();
 
         if (GUILayout.Button("Copy"))
         {
-            for (int i = 0; i < _fields.Count; ++i)
-                if (_fieldSelected[i]) _fieldVals[i] = _fields[i].GetValue(_src);
+            for (var i = 0; i < _fields.Count; ++i)
+            {
+                if (_fieldSelected[i])
+                    _fieldVals[i] = _fields[i].GetValue(_src);
+            }
 
-            for (int i = 0; i < _props.Count; ++i)
-                if (_propSelected[i]) _propVals[i] = _props[i].GetValue(_src);
+            for (var i = 0; i < _props.Count; ++i)
+            {
+                if (_propSelected[i])
+                    _propVals[i] = _props[i].GetValue(_src);
+            }
 
             Close();
         }

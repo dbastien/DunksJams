@@ -22,7 +22,7 @@ public static class CeeLoRules
         maxRolls = Math.Max(1, maxRolls);
 
         CeeLoResult last = default;
-        for (int i = 0; i < maxRolls; i++)
+        for (var i = 0; i < maxRolls; i++)
         {
             last = RollOnce();
             if (last.IsScoring) return last;

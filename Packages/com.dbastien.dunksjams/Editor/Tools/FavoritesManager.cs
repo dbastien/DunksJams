@@ -12,7 +12,7 @@ public class FavoritesManager : EditorWindow
     string filter = "";
     const string Key = "FavoritesManager.Favorites";
 
-    [MenuItem("‽/Favorites")]
+    [MenuItem("‽/Favorites Manager")]
     static void Init() => GetWindow<FavoritesManager>("Favorites").Load();
 
     void OnGUI()
@@ -21,7 +21,8 @@ public class FavoritesManager : EditorWindow
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 
         List<Object> toRemove = new();
-        foreach (Object obj in Favorites)
+        foreach (var obj in Favorites)
+        {
             if (obj && obj.name.Contains(filter, System.StringComparison.OrdinalIgnoreCase))
             {
                 EditorGUILayout.BeginHorizontal();
@@ -29,8 +30,10 @@ public class FavoritesManager : EditorWindow
                 if (GUILayout.Button("X", GUILayout.Width(20))) toRemove.Add(obj);
                 EditorGUILayout.EndHorizontal();
             }
+        }
+
         EditorGUILayout.EndScrollView();
-        
+
         foreach (var obj in toRemove) RemoveFavorite(obj);
 
         if (GUILayout.Button("Add Selection")) AddFavorite(Selection.activeObject);
@@ -51,21 +54,30 @@ public class FavoritesManager : EditorWindow
 
     Texture2D GetIcon(Object obj)
     {
-        if (!_iconCache.TryGetValue(obj, out Texture2D icon))
+        if (!_iconCache.TryGetValue(obj, out var icon))
             _iconCache[obj] = icon = AssetPreview.GetMiniThumbnail(obj);
         return icon;
     }
 
-    void AddFavorite(Object obj) { if (obj && Favorites.Add(obj)) Save(); }
-    void RemoveFavorite(Object obj) { if (Favorites.Remove(obj)) Save(); }
+    void AddFavorite(Object obj)
+    {
+        if (obj && Favorites.Add(obj)) Save();
+    }
+
+    void RemoveFavorite(Object obj)
+    {
+        if (Favorites.Remove(obj)) Save();
+    }
 
     void Load()
     {
         Favorites.Clear();
-        foreach (string id in EditorPrefs.GetString(Key).Split(','))
+        foreach (var id in EditorPrefs.GetString(Key).Split(','))
+        {
             if (int.TryParse(id, out var instanceID))
                 if (EditorUtility.EntityIdToObject(instanceID) is { } obj)
                     Favorites.Add(obj);
+        }
     }
 
     void Save() => EditorPrefs.SetString(Key, string.Join(",", Favorites.Select(o => o.GetInstanceID())));
@@ -79,12 +91,13 @@ public class FavoritesManager : EditorWindow
         if (evt.type == EventType.DragPerform)
         {
             DragAndDrop.AcceptDrag();
-            foreach (Object obj in DragAndDrop.objectReferences)
-                if (obj) AddFavorite(obj);
+            foreach (var obj in DragAndDrop.objectReferences)
+            {
+                if (obj)
+                    AddFavorite(obj);
+            }
         }
+
         evt.Use();
     }
-
-    [MenuItem("‽/Add to Favorites", false, 49)]
-    static void AddFromContext(MenuCommand cmd) => GetWindow<FavoritesManager>().AddFavorite(cmd.context);
 }

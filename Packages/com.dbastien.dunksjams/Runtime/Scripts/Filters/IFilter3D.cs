@@ -6,5 +6,5 @@ public interface IFilter3D
 
     void Update(Vector3 s);
 
-    void Reset();        
+    void Reset();
 }

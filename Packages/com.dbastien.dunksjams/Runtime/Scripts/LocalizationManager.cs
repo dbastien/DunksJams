@@ -10,7 +10,7 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
     Dictionary<string, string> _texts;
     CultureInfo _culture;
 
-    protected override async void InitInternal() => 
+    protected override async void InitInternal() =>
         await LoadLangAsync(PlayerPrefs.GetString("language", AutoDetectLang()));
 
     public async Task SetLang(string langCode)
@@ -25,14 +25,14 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
     }
 
     public string Localize(string key, params object[] args) =>
-        _texts.TryGetValue(key, out var value) 
-            ? string.Format(value, args) 
+        _texts.TryGetValue(key, out var value)
+            ? string.Format(value, args)
             : $"[{key}]";
 
     async Task<bool> LoadLangAsync(string langCode)
     {
         _culture = new CultureInfo(langCode);
-        _texts = await DataUtils.FetchGoogleSheetAsync("<SHEET_ID>", langCode) ?? 
+        _texts = await DataUtils.FetchGoogleSheetAsync("<SHEET_ID>", langCode) ??
                  await LoadFallbackLang();
         return _texts != null;
     }

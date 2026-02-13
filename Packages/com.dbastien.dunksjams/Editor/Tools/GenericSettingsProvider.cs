@@ -79,7 +79,7 @@ public static class GeneralSettingsProvider
                 break;
         }
     }
-    
+
     public static object GetSettingValue(string settingName)
     {
         var sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
@@ -92,7 +92,7 @@ public static class GeneralSettingsProvider
                     return member.GetValue(null); // Retrieve static field or property value
             }
         }
-    
+
         DLog.LogW($"Setting '{settingName}' not found.");
         return null;
     }
@@ -101,7 +101,7 @@ public static class GeneralSettingsProvider
     {
         var settings = new Dictionary<string, object>();
         var sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
-    
+
         foreach (var type in sectionTypes)
         {
             var membersWithAttributes = type.GetAttributesForMembers<SettingsProviderFieldAttribute>();

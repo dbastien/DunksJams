@@ -19,8 +19,8 @@ public static class DLog
     public enum CallerInfoMode
     {
         None,
-        Top,   // fast: uses CallerFilePath/LineNumber
-        Full   // slow: StackTrace walk
+        Top, // fast: uses CallerFilePath/LineNumber
+        Full // slow: StackTrace walk
     }
 
     public static CallerInfoMode CallerMode = CallerInfoMode.Top;
@@ -39,42 +39,42 @@ public static class DLog
         get => Debug.unityLogger.logEnabled;
         set => Debug.unityLogger.logEnabled = value;
     }
-    
-    private const string InfoColor      = "#E6E6E6";
-    private const string WarningColor   = "#FFCC00";
-    private const string ErrorColor     = "#FF5555";
-    private const string ExceptionColor = "#FF55FF";
-    private const string TimeColor   = "#80FFFF";
-    private const string CallerColor = "#90EE90";
-    
+
+    const string InfoColor = "#E6E6E6";
+    const string WarningColor = "#FFCC00";
+    const string ErrorColor = "#FF5555";
+    const string ExceptionColor = "#FF55FF";
+    const string TimeColor = "#80FFFF";
+    const string CallerColor = "#90EE90";
+
     public interface ILogSink
     {
         void Log(LogType logType, string message, Object context);
     }
 
-    private sealed class ConsoleSink : ILogSink
+    sealed class ConsoleSink : ILogSink
     {
-        public void Log(LogType logType, string message, Object context) => 
-                Debug.unityLogger.Log(logType, (object)message, context);
+        public void Log(LogType logType, string message, Object context) =>
+            Debug.unityLogger.Log(logType, (object)message, context);
     }
 
-    private sealed class FileSink : ILogSink
+    sealed class FileSink : ILogSink
     {
         // Strip basic rich-text tags (color, link, bold) for file output.
-        private static readonly Regex s_stripTags = new(
+        static readonly Regex s_stripTags = new(
             @"</?(color|a|b)(\s+[^>]*)?>",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private readonly object _lock = new object();
-        private readonly string _logFilePath;
-        private StreamWriter _writer;
+        readonly object _lock = new();
+        readonly string _logFilePath;
+        StreamWriter _writer;
 
         // Prevent recursive “file sink failed” loops.
-        private int _writeFailures;
+        int _writeFailures;
 
         public FileSink()
         {
-            string logDir = Path.Combine(Application.persistentDataPath, "Logs");
+            var logDir = Path.Combine(Application.persistentDataPath, "Logs");
             Directory.CreateDirectory(logDir);
             _logFilePath = Path.Combine(logDir, $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt");
 
@@ -94,11 +94,11 @@ public static class DLog
             if (!IsFileLoggingEnabled) return;
             if (_writer == null) return;
 
-            string clean = s_stripTags.Replace(message ?? "", "");
+            var clean = s_stripTags.Replace(message ?? "", "");
 
-            string ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string lvl = logType.ToString().ToUpperInvariant();
-            string ctx = (context != null) ? $" [{context.name}]" : "";
+            var ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            var lvl = logType.ToString().ToUpperInvariant();
+            var ctx = context != null ? $" [{context.name}]" : "";
 
             lock (_lock)
             {
@@ -118,17 +118,17 @@ public static class DLog
         public string GetLogFilePath() => _logFilePath;
     }
 
-    private static readonly List<ILogSink> s_sinks = new List<ILogSink>
+    static readonly List<ILogSink> s_sinks = new()
     {
         new ConsoleSink(),
         new FileSink()
     };
-    
+
     // Hyperlink formatting
     // We use a custom scheme so we never collide with Unity’s own URL/path handlers.
     public static string DLogLink(string pathOrAssetPath, int lineNumber, string displayText = null)
     {
-        string text = displayText ?? $"{Path.GetFileName(pathOrAssetPath)}:{lineNumber}";
+        var text = displayText ?? $"{Path.GetFileName(pathOrAssetPath)}:{lineNumber}";
         return $"<a href=\"dlog://{pathOrAssetPath}\" line=\"{lineNumber}\">{text}</a>";
     }
 
@@ -158,15 +158,15 @@ public static class DLog
         => Debug.unityLogger.LogException(ex, ctx);
 
     [HideInStackTrace]
-    public static void LogFormat(string format, params object[] args) => 
+    public static void LogFormat(string format, params object[] args) =>
         Log(string.Format(format, args));
 
     [HideInStackTrace]
-    public static void LogWFormat(string format, params object[] args) => 
+    public static void LogWFormat(string format, params object[] args) =>
         LogW(string.Format(format, args));
 
     [HideInStackTrace]
-    public static void LogEFormat(string format, params object[] args) => 
+    public static void LogEFormat(string format, params object[] args) =>
         LogE(string.Format(format, args));
 
     [HideInStackTrace]
@@ -182,12 +182,13 @@ public static class DLog
         // Respect output settings.
         if (!UnityLoggerEnabled && !IsFileLoggingEnabled) return;
 
-        string where = label ?? $"{Path.GetFileName(file)}:{line} ({member})";
-        LogTiming($"{where} took {sw.ElapsedMilliseconds}ms", ctx: null, timestamp: true, file: file, line: line, member: member);
+        var where = label ?? $"{Path.GetFileName(file)}:{line} ({member})";
+        LogTiming($"{where} took {sw.ElapsedMilliseconds}ms", null, true, file, line, member);
     }
-    
-    private static string s_projectRoot;
-    private static string ProjectRoot
+
+    static string s_projectRoot;
+
+    static string ProjectRoot
     {
         get
         {
@@ -201,9 +202,9 @@ public static class DLog
         }
     }
 
-    [ThreadStatic] private static StringBuilder t_sb;
+    [ThreadStatic] static StringBuilder t_sb;
 
-    private static StringBuilder SB
+    static StringBuilder SB
     {
         get
         {
@@ -213,18 +214,18 @@ public static class DLog
         }
     }
 
-    private static string GetMsgColor(LogType t) => t switch
+    static string GetMsgColor(LogType t) => t switch
     {
-        LogType.Warning   => WarningColor,
-        LogType.Error     => ErrorColor,
+        LogType.Warning => WarningColor,
+        LogType.Error => ErrorColor,
         LogType.Exception => ExceptionColor,
-        _                 => InfoColor
+        _ => InfoColor
     };
 
-    private static string Colorize(string text, string color)
+    static string Colorize(string text, string color)
         => IsColorEnabled ? $"<color={color}>{text}</color>" : text;
 
-    private static void LogImpl(LogType type, string msg, Object ctx, bool timestamp,
+    static void LogImpl(LogType type, string msg, Object ctx, bool timestamp,
         string file, int line, string member)
     {
         if (!IsLoggingEnabled) return;
@@ -232,24 +233,22 @@ public static class DLog
     }
 
     // Used by timing (bypasses IsLoggingEnabled but respects output settings)
-    private static void LogTiming(string msg, Object ctx = null, bool timestamp = false,
+    static void LogTiming(string msg, Object ctx = null, bool timestamp = false,
         string file = "", int line = 0, string member = "")
     {
         if (!UnityLoggerEnabled && !IsFileLoggingEnabled) return;
         LogImplInternal(LogType.Log, msg, ctx, timestamp, file, line, member);
     }
 
-    private static void LogImplInternal(LogType type, string msg, Object ctx, bool timestamp,
+    static void LogImplInternal(LogType type, string msg, Object ctx, bool timestamp,
         string file, int line, string member)
     {
         var sb = SB;
 
         if (timestamp && IsTimestampEnabled)
-        {
             sb.Append(Colorize("[", TimeColor))
-              .Append(Colorize(DateTime.Now.ToString("HH:mm:ss.fff"), TimeColor))
-              .Append(Colorize("] ", TimeColor));
-        }
+                .Append(Colorize(DateTime.Now.ToString("HH:mm:ss.fff"), TimeColor))
+                .Append(Colorize("] ", TimeColor));
 
         if (CallerMode != CallerInfoMode.None)
         {
@@ -265,65 +264,63 @@ public static class DLog
             sb.Append(Colorize(msg, GetMsgColor(type)));
         }
 
-        string formatted = sb.ToString();
+        var formatted = sb.ToString();
 
-        for (int i = 0; i < s_sinks.Count; i++)
+        for (var i = 0; i < s_sinks.Count; i++)
             s_sinks[i].Log(type, formatted, ctx);
     }
 
-    private static void AppendTopCaller(StringBuilder sb, string file, int line, string member)
+    static void AppendTopCaller(StringBuilder sb, string file, int line, string member)
     {
-        string assetOrPath = ToAssetOrPath(file);
-        int ln = Mathf.Max(1, line);
+        var assetOrPath = ToAssetOrPath(file);
+        var ln = Mathf.Max(1, line);
 
-        string display = $"{Path.GetFileName(assetOrPath)}:{ln}";
-        string link = DLogLink(assetOrPath, ln, display);
+        var display = $"{Path.GetFileName(assetOrPath)}:{ln}";
+        var link = DLogLink(assetOrPath, ln, display);
 
         if (sb.Length > 0) sb.Append(" ");
         sb.Append(Colorize(link, CallerColor));
 
         if (!string.IsNullOrEmpty(member))
-        {
             sb.Append(" ")
-              .Append(Colorize(member, CallerColor));
-        }
+                .Append(Colorize(member, CallerColor));
     }
 
-    private static void AppendFullCaller(StringBuilder sb, string callerFile, int callerLine, string callerMember)
+    static void AppendFullCaller(StringBuilder sb, string callerFile, int callerLine, string callerMember)
     {
         var trace = new StackTrace(true);
         var frames = trace.GetFrames();
         if (frames == null || frames.Length == 0)
             return;
 
-        bool first = true;
+        var first = true;
 
-        for (int i = 0; i < frames.Length; i++)
+        for (var i = 0; i < frames.Length; i++)
         {
             var f = frames[i];
             var m = f.GetMethod();
             if (m == null) continue;
 
-            string file = f.GetFileName();
+            var file = f.GetFileName();
             if (string.IsNullOrEmpty(file)) continue;
 
             if (file.IndexOf("DLog.cs", StringComparison.OrdinalIgnoreCase) >= 0)
                 continue;
 
-            int line = f.GetFileLineNumber();
-            string wherePath = ToAssetOrPath(file);
-            int whereLine = first && callerLine > 0 ? callerLine : Mathf.Max(1, line);
+            var line = f.GetFileLineNumber();
+            var wherePath = ToAssetOrPath(file);
+            var whereLine = first && callerLine > 0 ? callerLine : Mathf.Max(1, line);
 
-            string cls = m.DeclaringType != null ? m.DeclaringType.Name : "Unknown";
-            string name = m.Name;
+            var cls = m.DeclaringType != null ? m.DeclaringType.Name : "Unknown";
+            var name = m.Name;
 
             if (!first) sb.Append(Colorize(" <- ", CallerColor));
 
-            string display = $"{Path.GetFileName(wherePath)}:{whereLine}";
-            string link = DLogLink(wherePath, whereLine, display);
+            var display = $"{Path.GetFileName(wherePath)}:{whereLine}";
+            var link = DLogLink(wherePath, whereLine, display);
 
             sb.Append(Colorize(link, CallerColor))
-              .Append(Colorize($" {cls}.{name}()", CallerColor));
+                .Append(Colorize($" {cls}.{name}()", CallerColor));
 
             first = false;
 
@@ -332,21 +329,21 @@ public static class DLog
         }
     }
 
-    private static string ToAssetOrPath(string file)
+    static string ToAssetOrPath(string file)
     {
         if (string.IsNullOrEmpty(file))
             return "Unknown";
 
-        string p = file.Replace("\\", "/");
+        var p = file.Replace("\\", "/");
 
-        int assetsIndex = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+        var assetsIndex = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
         if (assetsIndex >= 0)
             return p.Substring(assetsIndex);
 
-        string root = ProjectRoot;
+        var root = ProjectRoot;
         if (!string.IsNullOrEmpty(root) && p.StartsWith(root, StringComparison.OrdinalIgnoreCase))
         {
-            string rel = p.Substring(root.Length).TrimStart('/');
+            var rel = p.Substring(root.Length).TrimStart('/');
             if (!rel.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
                 rel = "Assets/" + rel;
             return rel;

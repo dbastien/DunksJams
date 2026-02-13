@@ -10,7 +10,10 @@ public class OptionSpinner : MonoBehaviour
     [SerializeField] Button buttonNext;
     [SerializeField] Button buttonPrevious;
 
-    public class ValueChangedEvent : UnityEvent<int, string> { }
+    public class ValueChangedEvent : UnityEvent<int, string>
+    {
+    }
+
     public ValueChangedEvent onValueChanged = new();
 
     readonly List<string> options = new();
@@ -48,12 +51,13 @@ public class OptionSpinner : MonoBehaviour
         {
             if (options.Count == 0) return;
 
-            int newValue = (value + options.Count) % options.Count; // wrap around
+            var newValue = (value + options.Count) % options.Count; // wrap around
             if (valueIndex != newValue)
             {
                 valueIndex = newValue;
                 onValueChanged.Invoke(newValue, Value);
             }
+
             RefreshView();
         }
     }

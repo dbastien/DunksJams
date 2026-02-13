@@ -34,7 +34,7 @@ public readonly struct CeeLoResult : IComparable<CeeLoResult>
         return sb.ToString();
     }
 
-    private void AppendDice(StringBuilder sb)
+    void AppendDice(StringBuilder sb)
     {
         if (Dice.Length == 0)
         {
@@ -43,13 +43,10 @@ public readonly struct CeeLoResult : IComparable<CeeLoResult>
         }
 
         sb.Append(Dice[0]);
-        for (int i = 1; i < Dice.Length; i++)
-        {
-            sb.Append('-').Append(Dice[i]);
-        }
+        for (var i = 1; i < Dice.Length; i++) sb.Append('-').Append(Dice[i]);
     }
 
-    private string OutcomeLabel() => Outcome switch
+    string OutcomeLabel() => Outcome switch
     {
         CeeLoOutcome.AutoWin => "4-5-6",
         CeeLoOutcome.AutoLose => "1-2-3",

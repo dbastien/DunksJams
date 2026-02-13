@@ -4,24 +4,24 @@ public static class GameObjectExtensions
 {
     public static T FindOrAddComponent<T>(this GameObject go) where T : Component =>
         go.TryGetComponent(out T comp) ? comp : go.AddComponent<T>();
-    
+
     public static void SetLayerRecursively(this GameObject go, int layer)
     {
         go.layer = layer;
         foreach (Transform child in go.transform)
             child.gameObject.SetLayerRecursively(layer);
     }
-    
+
     public static void SetTagRecursively(this GameObject go, string tag)
     {
         go.tag = tag;
         foreach (Transform child in go.transform)
             child.gameObject.SetTagRecursively(tag);
     }
-    
+
     public static GameObject Clone(this GameObject go, Transform parent = null)
     {
-        GameObject clone = Object.Instantiate(go, parent);
+        var clone = Object.Instantiate(go, parent);
         clone.name = go.name;
         return clone;
     }
@@ -30,11 +30,11 @@ public static class GameObjectExtensions
     {
         if (go && go.activeSelf != active) go.SetActive(active);
     }
-    
+
     public static bool MatchesLayerMask(this GameObject go, LayerMask mask) => (mask & (1 << go.layer)) != 0;
-    
+
     public static bool HasComponent<T>(this GameObject go) where T : Component => go.TryGetComponent<T>(out _);
-    
+
     public static void DisableAllRenderers(this GameObject go)
     {
         foreach (var renderer in go.GetComponentsInChildren<Renderer>())
@@ -46,10 +46,10 @@ public static class GameObjectExtensions
         foreach (var renderer in go.GetComponentsInChildren<Renderer>())
             renderer.enabled = true;
     }
-    
+
     public static void ToggleActive(this GameObject go) =>
         go.SetActive(!go.activeSelf);
-    
+
     public static void DestroyWithDelay(this GameObject go, float delay)
     {
         if (Application.isPlaying)
@@ -60,12 +60,13 @@ public static class GameObjectExtensions
 
     public static string GetFullPath(this GameObject go)
     {
-        string path = "/" + go.name;
+        var path = "/" + go.name;
         while (go.transform.parent != null)
         {
             go = go.transform.parent.gameObject;
             path = "/" + go.name + path;
         }
+
         return path;
     }
 }

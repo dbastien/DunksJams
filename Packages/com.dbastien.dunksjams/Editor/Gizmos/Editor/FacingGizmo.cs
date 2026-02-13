@@ -3,15 +3,12 @@ using UnityEngine;
 
 public class FacingGizmo : MonoBehaviour
 {
-    private static bool on;
+    static bool on;
 
     [DrawGizmo(GizmoType.Selected | GizmoType.NonSelected | GizmoType.Active | GizmoType.Pickable)]
     public static void DrawGizmo(Transform t, GizmoType type)
     {
-        if (!on)
-        {
-            return;
-        }
+        if (!on) return;
 
         Gizmos.color = Color.blue;
         GizmoUtils.DrawArrow(t.position, t.forward);

@@ -1,18 +1,62 @@
 public class TarotCard : CardBase
 {
-    public enum Arcana { Major, Minor }
+    public enum Arcana
+    {
+        Major,
+        Minor
+    }
 
     public enum MajorArcana
     {
-        TheFool = 0, TheMagician, TheHighPriestess, TheEmpress, TheEmperor,
-        TheHierophant, TheLovers, TheChariot, Strength, TheHermit,
-        WheelOfFortune, Justice, TheHangedMan, Death, Temperance,
-        TheDevil, TheTower, TheStar, TheMoon, TheSun,
-        Judgement, TheWorld
+        TheFool = 0,
+        TheMagician,
+        TheHighPriestess,
+        TheEmpress,
+        TheEmperor,
+        TheHierophant,
+        TheLovers,
+        TheChariot,
+        Strength,
+        TheHermit,
+        WheelOfFortune,
+        Justice,
+        TheHangedMan,
+        Death,
+        Temperance,
+        TheDevil,
+        TheTower,
+        TheStar,
+        TheMoon,
+        TheSun,
+        Judgement,
+        TheWorld
     }
 
-    public enum Suit { Wands, Cups, Swords, Pentacles }
-    public enum Rank { Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Page, Knight, Queen, King }
+    public enum Suit
+    {
+        Wands,
+        Cups,
+        Swords,
+        Pentacles
+    }
+
+    public enum Rank
+    {
+        Ace = 1,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Page,
+        Knight,
+        Queen,
+        King
+    }
 
     public Arcana ArcanaType { get; }
     public MajorArcana? Major { get; }

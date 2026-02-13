@@ -1,10 +1,31 @@
 public class UnoCard : CardBase
 {
-    public enum Color { Red, Blue, Green, Yellow, Wild }
+    public enum Color
+    {
+        Red,
+        Blue,
+        Green,
+        Yellow,
+        Wild
+    }
+
     public enum Rank
     {
-        Zero = 0, One, Two, Three, Four, Five, Six, Seven, Eight, Nine,
-        Skip, Reverse, DrawTwo, Wild, DrawFour
+        Zero = 0,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Skip,
+        Reverse,
+        DrawTwo,
+        Wild,
+        DrawFour
     }
 
     public Color CardColor { get; }

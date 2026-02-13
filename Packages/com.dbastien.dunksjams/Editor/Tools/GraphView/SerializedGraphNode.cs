@@ -14,7 +14,7 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
         SetPosition(new Rect(pos, size == default ? DefaultSize : size));
         Refresh();
     }
-    
+
     public virtual void Refresh()
     {
         RefreshPorts();
@@ -25,7 +25,7 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
     {
         foreach (var output in outputContainer.Children().OfType<IDataPort>())
         {
-            foreach (Edge edge in ((Port)output).connections)
+            foreach (var edge in ((Port)output).connections)
                 (edge.input as IDataPort)?.SetDataFromObject(output.GetDataAsObject());
         }
     }

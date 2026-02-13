@@ -3,26 +3,30 @@
 //todo: largely untested
 public class Projectile : MonoBehaviour
 {
-    [Header("General")]
-    public float speed = 20f;
+    [Header("General")] public float speed = 20f;
     public float range = 50f;
     public float damage = 10f;
 
-    [ToggleHeader("useStatusEffects", "Status Effects")] public bool useStatusEffects;
+    [ToggleHeader("useStatusEffects", "Status Effects")]
+    public bool useStatusEffects;
+
     [ShowIf("useStatusEffects")] public StatusEffect statusEffect;
     [ShowIf("useStatusEffects")] public float statusEffectDuration = 3f;
 
-    [ToggleHeader("useAOE", "Area of Effect")] public bool useAOE;
+    [ToggleHeader("useAOE", "Area of Effect")]
+    public bool useAOE;
+
     [ShowIf("useAOE")] public float aoeRadius = 5f;
 
-    [ToggleHeader("usePiercing", "Piercing")] public bool usePiercing;
+    [ToggleHeader("usePiercing", "Piercing")]
+    public bool usePiercing;
+
     [ShowIf("usePiercing")] public int maxPierceTargets = 3;
 
-    [Header("Lifetime Settings")]
-    public float lifetime = 5f;
+    [Header("Lifetime Settings")] public float lifetime = 5f;
 
-    private Vector3 _startPosition;
-    private int _pierceCount;
+    Vector3 _startPosition;
+    int _pierceCount;
 
     void Start()
     {
@@ -74,17 +78,20 @@ public class Projectile : MonoBehaviour
 
         if (useStatusEffects)
         {
-            float duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
+            var duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
             target.ApplyStatusEffect(statusEffect, duration);
         }
     }
 
     void DealAreaDamage()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, aoeRadius);
+        var hitColliders = Physics.OverlapSphere(transform.position, aoeRadius);
 
         foreach (var collider in hitColliders)
-            if (collider.TryGetComponent<Health>(out var health)) DealDirectDamage(health);
+        {
+            if (collider.TryGetComponent<Health>(out var health))
+                DealDirectDamage(health);
+        }
 
         Destroy(gameObject); // AOE projectiles typically destroy after explosion
     }

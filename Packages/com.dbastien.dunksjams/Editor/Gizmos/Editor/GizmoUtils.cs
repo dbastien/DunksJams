@@ -12,8 +12,10 @@ public static class GizmoUtils
     {
         Gizmos.DrawRay(from, direction);
 
-        Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - ArrowAngleDegrees, 0) * Vector3.forward;
-        Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + ArrowAngleDegrees, 0) * Vector3.forward;
+        var left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - ArrowAngleDegrees, 0) *
+                   Vector3.forward;
+        var right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + ArrowAngleDegrees, 0) *
+                    Vector3.forward;
 
         Gizmos.DrawRay(from + direction, left * ArrowLength);
         Gizmos.DrawRay(from + direction, right * ArrowLength);

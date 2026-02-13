@@ -34,7 +34,7 @@ public class UnoGame : CardGameBase<UnoCard>
         EmitGameStarted();
         _currentPlayerIndex = 0;
         _direction = 1;
-        int turnIndex = 0;
+        var turnIndex = 0;
 
         while (!_gameOver && turnIndex < MaxRounds)
         {
@@ -61,7 +61,7 @@ public class UnoGame : CardGameBase<UnoCard>
         Deck = CreateDeck();
         Deck.Shuffle();
         PlayerHands = new List<Hand<UnoCard>>(PlayerCount);
-        for (int i = 0; i < PlayerCount; ++i) PlayerHands.Add(new Hand<UnoCard>());
+        for (var i = 0; i < PlayerCount; ++i) PlayerHands.Add(new Hand<UnoCard>());
 
         if (_settings.PromptForMode) PromptForMode();
         VariantName = _settings.Mode.ToString();
@@ -109,8 +109,8 @@ public class UnoGame : CardGameBase<UnoCard>
 
         if (_settings.AllowDrawWhenPlayable)
         {
-            var options = BuildPlayableOptions(playerIdx, playableIndices, includeDrawOption: true);
-            int choice = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", options);
+            var options = BuildPlayableOptions(playerIdx, playableIndices, true);
+            var choice = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", options);
             if (choice == options.Count - 1)
             {
                 DrawAndMaybePlay(playerIdx);
@@ -121,8 +121,8 @@ public class UnoGame : CardGameBase<UnoCard>
             return;
         }
 
-        var playOptions = BuildPlayableOptions(playerIdx, playableIndices, includeDrawOption: false);
-        int selected = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", playOptions);
+        var playOptions = BuildPlayableOptions(playerIdx, playableIndices, false);
+        var selected = ReadChoice($"{GetPlayerName(playerIdx)} - choose a card:", playOptions);
         PlayCard(playerIdx, playableIndices[selected]);
     }
 
@@ -130,10 +130,10 @@ public class UnoGame : CardGameBase<UnoCard>
 
     public override void ShowScores()
     {
-        for (int i = 0; i < PlayerHands.Count; ++i)
+        for (var i = 0; i < PlayerHands.Count; ++i)
             WriteLine($"{GetPlayerName(i)} has {PlayerHands[i].Count} cards.");
 
-        string result = GetResultSummary();
+        var result = GetResultSummary();
         if (!string.IsNullOrEmpty(result)) WriteLine(result);
     }
 
@@ -143,25 +143,25 @@ public class UnoGame : CardGameBase<UnoCard>
     void PromptForMode()
     {
         var options = new List<string> { "Standard", "Stacking Draws" };
-        int choice = ReadChoice("Choose Uno mode:", options, (int)_settings.Mode);
+        var choice = ReadChoice("Choose Uno mode:", options, (int)_settings.Mode);
         _settings.Mode = choice == 1 ? UnoGameSettings.UnoMode.StackingDraws : UnoGameSettings.UnoMode.Standard;
     }
 
     void DealStartingHands()
     {
-        for (int p = 0; p < PlayerCount; ++p)
+        for (var p = 0; p < PlayerCount; ++p)
         {
-            for (int i = 0; i < _settings.StartingHandSize; ++i)
-                DealCardToPlayer(p, isFaceDown: true);
+            for (var i = 0; i < _settings.StartingHandSize; ++i)
+                DealCardToPlayer(p, true);
         }
     }
 
     void PlaceOpeningCard()
     {
-        UnoCard openingCard = DrawOpeningCard();
-        DiscardCard(openingCard, playerIndex: -1);
+        var openingCard = DrawOpeningCard();
+        DiscardCard(openingCard, -1);
         _currentColor = openingCard.IsWild ? ChooseColor(-1) : openingCard.CardColor;
-        ApplyCardEffects(openingCard, isOpeningCard: true);
+        ApplyCardEffects(openingCard, true);
         WriteLine($"Opening card: {openingCard}. Current color: {_currentColor}.");
     }
 
@@ -185,7 +185,7 @@ public class UnoGame : CardGameBase<UnoCard>
 
     int WrapIndex(int value)
     {
-        int mod = value % PlayerCount;
+        var mod = value % PlayerCount;
         return mod < 0 ? mod + PlayerCount : mod;
     }
 
@@ -193,17 +193,19 @@ public class UnoGame : CardGameBase<UnoCard>
     {
         var hand = PlayerHands[playerIdx];
         var lines = new List<string>(hand.Count + 1) { $"{GetPlayerName(playerIdx)} hand:" };
-        for (int i = 0; i < hand.Count; ++i) lines.Add($"{i + 1}. {hand[i]}");
+        for (var i = 0; i < hand.Count; ++i) lines.Add($"{i + 1}. {hand[i]}");
         WriteLines(lines);
     }
 
     List<int> GetPlayableIndices(CardCollection<UnoCard> hand)
     {
         var playable = new List<int>();
-        for (int i = 0; i < hand.Count; ++i)
+        for (var i = 0; i < hand.Count; ++i)
         {
-            if (IsPlayable(hand[i])) playable.Add(i);
+            if (IsPlayable(hand[i]))
+                playable.Add(i);
         }
+
         return playable;
     }
 
@@ -217,19 +219,19 @@ public class UnoGame : CardGameBase<UnoCard>
     List<string> BuildPlayableOptions(int playerIdx, List<int> playableIndices, bool includeDrawOption)
     {
         var options = new List<string>(playableIndices.Count + (includeDrawOption ? 1 : 0));
-        foreach (int index in playableIndices) options.Add(PlayerHands[playerIdx][index].ToString());
+        foreach (var index in playableIndices) options.Add(PlayerHands[playerIdx][index].ToString());
         if (includeDrawOption) options.Add("Draw a card");
         return options;
     }
 
     void DrawAndMaybePlay(int playerIdx)
     {
-        var drawn = DrawCardToPlayer(playerIdx, isFaceDown: false);
+        var drawn = DrawCardToPlayer(playerIdx, false);
         WriteLine($"{GetPlayerName(playerIdx)} draws {drawn}.");
 
         if (!IsPlayable(drawn)) return;
 
-        int choice = ReadChoice("Play the drawn card?", new List<string> { "Play", "Keep" });
+        var choice = ReadChoice("Play the drawn card?", new List<string> { "Play", "Keep" });
         if (choice == 0) PlayCard(playerIdx, PlayerHands[playerIdx].Count - 1);
     }
 
@@ -237,18 +239,20 @@ public class UnoGame : CardGameBase<UnoCard>
     {
         var hand = PlayerHands[playerIdx];
         var drawIndices = new List<int>();
-        for (int i = 0; i < hand.Count; ++i)
+        for (var i = 0; i < hand.Count; ++i)
         {
-            if (IsDrawCard(hand[i])) drawIndices.Add(i);
+            if (IsDrawCard(hand[i]))
+                drawIndices.Add(i);
         }
 
         if (drawIndices.Count == 0) return false;
 
         var options = new List<string>(drawIndices.Count + 1);
-        foreach (int index in drawIndices) options.Add(hand[index].ToString());
+        foreach (var index in drawIndices) options.Add(hand[index].ToString());
         options.Add($"Take {_pendingDraw} cards");
 
-        int choice = ReadChoice($"{GetPlayerName(playerIdx)} has {_pendingDraw} to draw. Stack a draw card?", options, options.Count - 1);
+        var choice = ReadChoice($"{GetPlayerName(playerIdx)} has {_pendingDraw} to draw. Stack a draw card?", options,
+            options.Count - 1);
         if (choice == options.Count - 1) return false;
 
         PlayCard(playerIdx, drawIndices[choice]);
@@ -260,9 +264,9 @@ public class UnoGame : CardGameBase<UnoCard>
 
     void DrawCards(int playerIdx, int count)
     {
-        for (int i = 0; i < count; ++i)
+        for (var i = 0; i < count; ++i)
         {
-            var card = DrawCardToPlayer(playerIdx, isFaceDown: false);
+            var card = DrawCardToPlayer(playerIdx, false);
             WriteLine($"{GetPlayerName(playerIdx)} draws {card}.");
         }
     }
@@ -276,7 +280,7 @@ public class UnoGame : CardGameBase<UnoCard>
         if (card.IsWild) _currentColor = ChooseColor(playerIdx);
         else _currentColor = card.CardColor;
 
-        ApplyCardEffects(card, isOpeningCard: false);
+        ApplyCardEffects(card, false);
         HandleUnoState(playerIdx);
     }
 
@@ -312,16 +316,16 @@ public class UnoGame : CardGameBase<UnoCard>
     UnoCard.Color ChooseColor(int playerIdx)
     {
         var options = new List<string> { "Red", "Blue", "Green", "Yellow" };
-        string prompt = playerIdx >= 0
+        var prompt = playerIdx >= 0
             ? $"{GetPlayerName(playerIdx)} - choose a color:"
             : "Choose opening color:";
-        int choice = ReadChoice(prompt, options);
+        var choice = ReadChoice(prompt, options);
         return PlayableColors[choice];
     }
 
     void HandleUnoState(int playerIdx)
     {
-        int count = PlayerHands[playerIdx].Count;
+        var count = PlayerHands[playerIdx].Count;
         if (count == 1) WriteLine($"{GetPlayerName(playerIdx)} says UNO!");
         if (count > 0) return;
 

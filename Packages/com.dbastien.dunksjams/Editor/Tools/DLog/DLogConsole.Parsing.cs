@@ -1,4 +1,5 @@
 // Assets/Editor/DLog/DLogConsole.Parsing.cs
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,21 +9,23 @@ using UnityEngine;
 
 public sealed partial class DLogConsole
 {
-    private static readonly Regex s_stackAtFileLine = new(@"\(at\s+(.+?):(\d+)\)", RegexOptions.Compiled);
-    private static readonly Regex s_stackInLine = new(@"\s+in\s+(.+):line\s+(\d+)\s*$", RegexOptions.Compiled);
-    private static readonly Regex s_stackLooseFileLine = new(@"(.+?\.\w+):(\d+)", RegexOptions.Compiled);
-    private static readonly Regex s_bracketFileLine = new(@"\[(.+?):(\d+)\]", RegexOptions.Compiled);
-    private static readonly Regex s_richTextTags = new(@"</?(color|a|b)(\s+[^>]*)?>", RegexOptions.Compiled);
+    static readonly Regex s_stackAtFileLine = new(@"\(at\s+(.+?):(\d+)\)", RegexOptions.Compiled);
+    static readonly Regex s_stackInLine = new(@"\s+in\s+(.+):line\s+(\d+)\s*$", RegexOptions.Compiled);
+    static readonly Regex s_stackLooseFileLine = new(@"(.+?\.\w+):(\d+)", RegexOptions.Compiled);
+    static readonly Regex s_bracketFileLine = new(@"\[(.+?):(\d+)\]", RegexOptions.Compiled);
+    static readonly Regex s_richTextTags = new(@"</?(color|a|b)(\s+[^>]*)?>", RegexOptions.Compiled);
 
-    private static string s_projectRoot;
-    private static readonly StackColors s_stackColorsPro = new StackColors
+    static string s_projectRoot;
+
+    static readonly StackColors s_stackColorsPro = new()
     {
         Namespace = "#9BB3CE",
         Class = "#5CB5FF",
         Method = "#86D6FF",
         Args = "#B6CCE0"
     };
-    private static readonly StackColors s_stackColorsLight = new StackColors
+
+    static readonly StackColors s_stackColorsLight = new()
     {
         Namespace = "#5E6C86",
         Class = "#2B7EB6",
@@ -30,7 +33,7 @@ public sealed partial class DLogConsole
         Args = "#7A889E"
     };
 
-    private struct StackColors
+    struct StackColors
     {
         public string Namespace;
         public string Class;
@@ -38,12 +41,12 @@ public sealed partial class DLogConsole
         public string Args;
     }
 
-    private void EnsureMessageCache(LogEntry e)
+    void EnsureMessageCache(LogEntry e)
     {
         if (e == null || e.messageLinkParsed)
             return;
 
-        string raw = e.richMessage ?? e.message ?? "";
+        var raw = e.richMessage ?? e.message ?? "";
         e.plainMessage = StripRichText(raw);
         e.messageLinkParsed = true;
         e.messageLink = default;
@@ -51,8 +54,7 @@ public sealed partial class DLogConsole
         if (string.IsNullOrEmpty(e.plainMessage))
             return;
 
-        if (TryGetMessageLinkSpan(e.plainMessage, out string file, out int lineNumber, out int start, out int length))
-        {
+        if (TryGetMessageLinkSpan(e.plainMessage, out var file, out var lineNumber, out var start, out var length))
             e.messageLink = new LinkSpan
             {
                 hasLink = true,
@@ -61,15 +63,14 @@ public sealed partial class DLogConsole
                 start = start,
                 length = length
             };
-        }
     }
 
-    private void EnsureStackCache(LogEntry e)
+    void EnsureStackCache(LogEntry e)
     {
         if (e == null)
             return;
 
-        bool isProSkin = EditorGUIUtility.isProSkin;
+        var isProSkin = EditorGUIUtility.isProSkin;
         if (e.stackCacheValid && e.stackCacheProSkin == isProSkin)
             return;
 
@@ -84,15 +85,14 @@ public sealed partial class DLogConsole
         var lines = e.stackTrace.Split('\n');
         var infos = new List<StackLineInfo>(lines.Length);
 
-        for (int i = 0; i < lines.Length; i++)
+        for (var i = 0; i < lines.Length; i++)
         {
-            string line = lines[i].TrimEnd('\r');
+            var line = lines[i].TrimEnd('\r');
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
             var info = new StackLineInfo { line = line };
-            if (TryGetStackLinkSpan(line, out string file, out int lineNumber, out int start, out int length))
-            {
+            if (TryGetStackLinkSpan(line, out var file, out var lineNumber, out var start, out var length))
                 info.link = new LinkSpan
                 {
                     hasLink = true,
@@ -101,9 +101,8 @@ public sealed partial class DLogConsole
                     start = start,
                     length = length
                 };
-            }
 
-            if (TryBuildStackDisplayLine(line, info.link, isProSkin, out string displayLine))
+            if (TryBuildStackDisplayLine(line, info.link, isProSkin, out var displayLine))
                 info.displayLine = displayLine;
             else if (info.link.hasLink)
                 info.displayLine = WrapHighlight(line, info.link.start, info.link.length);
@@ -117,12 +116,12 @@ public sealed partial class DLogConsole
         if (e.stackLineInfos.Length == 0)
             return;
 
-        float lineHeight = EditorGUIUtility.singleLineHeight + 2f;
-        int linesToShow = Mathf.Min(MaxStackLinesVisible, e.stackLineInfos.Length);
+        var lineHeight = EditorGUIUtility.singleLineHeight + 2f;
+        var linesToShow = Mathf.Min(MaxStackLinesVisible, e.stackLineInfos.Length);
         e.stackScrollHeight = Mathf.Min(MaxStackHeight, lineHeight * linesToShow);
     }
 
-    private static bool TryParseStackLine(string line, out string file, out int lineNumber)
+    static bool TryParseStackLine(string line, out string file, out int lineNumber)
     {
         file = null;
         lineNumber = 0;
@@ -154,21 +153,21 @@ public sealed partial class DLogConsole
         return false;
     }
 
-    private static string ToAssetPath(string path)
+    static string ToAssetPath(string path)
     {
         if (string.IsNullOrEmpty(path)) return path;
-        string p = path.Replace("\\", "/");
-        int idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+        var p = path.Replace("\\", "/");
+        var idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
         return idx >= 0 ? p.Substring(idx) : p;
     }
 
-    private static string ProjectRoot
+    static string ProjectRoot
     {
         get
         {
             if (!string.IsNullOrEmpty(s_projectRoot)) return s_projectRoot;
 
-            string dataPath = Application.dataPath.Replace("\\", "/");
+            var dataPath = Application.dataPath.Replace("\\", "/");
             if (dataPath.EndsWith("/Assets", StringComparison.OrdinalIgnoreCase))
                 s_projectRoot = dataPath.Substring(0, dataPath.Length - "/Assets".Length);
             else
@@ -178,22 +177,22 @@ public sealed partial class DLogConsole
         }
     }
 
-    private static string ToFullPath(string path)
+    static string ToFullPath(string path)
     {
         if (string.IsNullOrEmpty(path)) return path;
 
-        string p = path.Replace("\\", "/");
+        var p = path.Replace("\\", "/");
         if (Path.IsPathRooted(p))
             return p;
 
-        string root = ProjectRoot;
+        var root = ProjectRoot;
         if (string.IsNullOrEmpty(root))
             return p;
 
         return Path.Combine(root, p).Replace("\\", "/");
     }
 
-    private bool TryGetMessageLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
+    bool TryGetMessageLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
     {
         if (TryGetStackLinkSpan(line, out file, out lineNumber, out start, out length))
             return true;
@@ -202,7 +201,7 @@ public sealed partial class DLogConsole
         return TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length);
     }
 
-    private bool TryGetStackLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
+    bool TryGetStackLinkSpan(string line, out string file, out int lineNumber, out int start, out int length)
     {
         file = null;
         lineNumber = 0;
@@ -224,7 +223,8 @@ public sealed partial class DLogConsole
         return TryBuildLinkSpan(match, line, out file, out lineNumber, out start, out length);
     }
 
-    private bool TryBuildLinkSpan(Match match, string line, out string file, out int lineNumber, out int start, out int length)
+    bool TryBuildLinkSpan(Match match, string line, out string file, out int lineNumber, out int start,
+        out int length)
     {
         file = null;
         lineNumber = 0;
@@ -249,12 +249,16 @@ public sealed partial class DLogConsole
         {
             return false;
         }
+
         if (string.IsNullOrEmpty(fileName))
             return false;
 
-        int pathStart = match.Groups[1].Index;
-        int offset = file.Replace("\\", "/").LastIndexOf('/');
-        if (offset >= 0) offset += 1;
+        var pathStart = match.Groups[1].Index;
+        var offset = file.Replace("\\", "/").LastIndexOf('/');
+        if (offset >= 0)
+        {
+            offset += 1;
+        }
         else
         {
             offset = file.LastIndexOf('\\');
@@ -262,11 +266,11 @@ public sealed partial class DLogConsole
         }
 
         start = pathStart + offset;
-        string token = $"{fileName}:{lineNumber}";
+        var token = $"{fileName}:{lineNumber}";
         length = token.Length;
 
         // If the line uses ":line N", expand to include it for readability.
-        int lineTokenIndex = line.IndexOf($"{fileName}:line {lineNumber}", StringComparison.OrdinalIgnoreCase);
+        var lineTokenIndex = line.IndexOf($"{fileName}:line {lineNumber}", StringComparison.OrdinalIgnoreCase);
         if (lineTokenIndex >= 0)
         {
             start = lineTokenIndex;
@@ -279,7 +283,7 @@ public sealed partial class DLogConsole
         return true;
     }
 
-    private static bool TryGetFileName(string path, out string fileName)
+    static bool TryGetFileName(string path, out string fileName)
     {
         fileName = null;
         if (string.IsNullOrEmpty(path))
@@ -299,37 +303,37 @@ public sealed partial class DLogConsole
         return !string.IsNullOrEmpty(fileName);
     }
 
-    private static string StripRichText(string text)
+    static string StripRichText(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
         return s_richTextTags.Replace(text, "");
     }
 
-    private static bool TryBuildStackDisplayLine(string line, LinkSpan link, bool isProSkin, out string displayLine)
+    static bool TryBuildStackDisplayLine(string line, LinkSpan link, bool isProSkin, out string displayLine)
     {
         displayLine = null;
         if (string.IsNullOrEmpty(line))
             return false;
 
-        int methodLastIndex = line.IndexOf('(');
+        var methodLastIndex = line.IndexOf('(');
         if (methodLastIndex <= 0)
             return false;
 
-        int argsLastIndex = line.IndexOf(')', methodLastIndex);
+        var argsLastIndex = line.IndexOf(')', methodLastIndex);
         if (argsLastIndex <= 0)
             return false;
 
-        int methodFirstIndex = line.LastIndexOf(':', methodLastIndex);
+        var methodFirstIndex = line.LastIndexOf(':', methodLastIndex);
         if (methodFirstIndex <= 0)
             methodFirstIndex = line.LastIndexOf('.', methodLastIndex);
         if (methodFirstIndex <= 0)
             return false;
 
-        string methodString = line.Substring(methodFirstIndex + 1, methodLastIndex - methodFirstIndex - 1);
+        var methodString = line.Substring(methodFirstIndex + 1, methodLastIndex - methodFirstIndex - 1);
 
         string classString;
-        string namespaceString = string.Empty;
-        int classFirstIndex = line.LastIndexOf('.', methodFirstIndex - 1);
+        var namespaceString = string.Empty;
+        var classFirstIndex = line.LastIndexOf('.', methodFirstIndex - 1);
         if (classFirstIndex <= 0)
         {
             classString = line.Substring(0, methodFirstIndex + 1);
@@ -340,13 +344,13 @@ public sealed partial class DLogConsole
             namespaceString = line.Substring(0, classFirstIndex + 1);
         }
 
-        string argsString = line.Substring(methodLastIndex, argsLastIndex - methodLastIndex + 1);
-        int suffixStart = argsLastIndex + 1;
-        string suffix = suffixStart < line.Length ? line.Substring(suffixStart) : string.Empty;
+        var argsString = line.Substring(methodLastIndex, argsLastIndex - methodLastIndex + 1);
+        var suffixStart = argsLastIndex + 1;
+        var suffix = suffixStart < line.Length ? line.Substring(suffixStart) : string.Empty;
 
         if (link.hasLink && suffix.Length > 0)
         {
-            int linkStartInSuffix = link.start - suffixStart;
+            var linkStartInSuffix = link.start - suffixStart;
             if (linkStartInSuffix >= 0 && linkStartInSuffix + link.length <= suffix.Length)
                 suffix = WrapHighlight(suffix, linkStartInSuffix, link.length);
         }
@@ -360,14 +364,14 @@ public sealed partial class DLogConsole
         return true;
     }
 
-    private static string WrapColor(string color, string text)
+    static string WrapColor(string color, string text)
     {
         if (string.IsNullOrEmpty(text))
             return string.Empty;
         return $"<color={color}>{text}</color>";
     }
 
-    private static string FormatTime(long timeMsUtc)
+    static string FormatTime(long timeMsUtc)
     {
         if (timeMsUtc <= 0) return "--:--:--.---";
         return DateTimeOffset.FromUnixTimeMilliseconds(timeMsUtc)
@@ -375,9 +379,9 @@ public sealed partial class DLogConsole
             .ToString(TimeFormat);
     }
 
-    private static string WrapHighlight(string source, int start, int length)
+    static string WrapHighlight(string source, int start, int length)
     {
-        string color = EditorGUIUtility.isProSkin ? "#8FD6FF" : "#005A9E";
+        var color = EditorGUIUtility.isProSkin ? "#8FD6FF" : "#005A9E";
         return source.Substring(0, start)
                + $"<color={color}><b>"
                + source.Substring(start, length)
@@ -385,26 +389,26 @@ public sealed partial class DLogConsole
                + source.Substring(start + length);
     }
 
-    private Rect GetLinkRect(Rect lineRect, string line, int start, int length, GUIStyle style)
+    Rect GetLinkRect(Rect lineRect, string line, int start, int length, GUIStyle style)
     {
         if (style == null) return default;
         if (start < 0 || length <= 0 || start + length > line.Length) return default;
 
-        string prefix = line.Substring(0, start);
-        string link = line.Substring(start, length);
-        float prefixWidth = style.CalcSize(new GUIContent(prefix)).x;
-        float linkWidth = style.CalcSize(new GUIContent(link)).x;
+        var prefix = line.Substring(0, start);
+        var link = line.Substring(start, length);
+        var prefixWidth = style.CalcSize(new GUIContent(prefix)).x;
+        var linkWidth = style.CalcSize(new GUIContent(link)).x;
 
         if (prefixWidth >= lineRect.width || linkWidth <= 0f)
             return default;
 
-        float width = Mathf.Min(linkWidth, lineRect.width - prefixWidth);
+        var width = Mathf.Min(linkWidth, lineRect.width - prefixWidth);
         if (width <= 1f) return default;
 
         return new Rect(lineRect.x + prefixWidth, lineRect.y, width, lineRect.height);
     }
 
-    private void SetHoverTooltip(Rect rect, string file, int lineNumber)
+    void SetHoverTooltip(Rect rect, string file, int lineNumber)
     {
         if (string.IsNullOrEmpty(file) || lineNumber <= 0)
             return;
@@ -412,7 +416,7 @@ public sealed partial class DLogConsole
         if (!rect.Contains(Event.current.mousePosition))
             return;
 
-        string fullPath = ToFullPath(file);
+        var fullPath = ToFullPath(file);
         if (string.IsNullOrEmpty(fullPath))
             fullPath = file;
         if (string.IsNullOrEmpty(fullPath))

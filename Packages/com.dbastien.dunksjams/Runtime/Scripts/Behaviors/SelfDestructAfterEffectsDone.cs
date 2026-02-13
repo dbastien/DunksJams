@@ -2,8 +2,8 @@
 
 public class SelfDestructAfterEffectsDone : MonoBehaviour
 {
-    private ParticleSystem[] particleSystems;
-    private AudioSource[] audioSources;
+    ParticleSystem[] particleSystems;
+    AudioSource[] audioSources;
 
     public void Awake()
     {
@@ -16,17 +16,13 @@ public class SelfDestructAfterEffectsDone : MonoBehaviour
         for (var i = 0; i < particleSystems.Length; ++i)
         {
             if (particleSystems[i].IsAlive())
-            {
                 return;
-            }
         }
 
         for (var j = 0; j < audioSources.Length; ++j)
         {
             if (audioSources[j].isPlaying)
-            {
                 return;
-            }
         }
 
         Destroy(gameObject);

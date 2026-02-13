@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public static class NormalsGizmo
 {
-    private static bool on;
+    static bool on;
 
     public static int MaxNormalsToDraw = 30;
 
@@ -14,20 +14,14 @@ public static class NormalsGizmo
     [DrawGizmo(GizmoType.Selected | GizmoType.NonSelected | GizmoType.Active | GizmoType.Pickable)]
     public static void DrawGizmo(MeshFilter m, GizmoType type)
     {
-        if (!on)
-        {
-            return;
-        }
+        if (!on) return;
 
         Gizmos.color = Color.yellow;
 
-        int vertexCount = m.sharedMesh.vertices.Length;
-        int vertexIncrement = (int)(((float)vertexCount / MaxNormalsToDraw) + 0.5f);
+        var vertexCount = m.sharedMesh.vertices.Length;
+        var vertexIncrement = (int)((float)vertexCount / MaxNormalsToDraw + 0.5f);
 
-        if (vertexIncrement < 1)
-        {
-            vertexIncrement = 1;
-        }
+        if (vertexIncrement < 1) vertexIncrement = 1;
 
         for (var i = 0; i < m.sharedMesh.vertices.Length; i += vertexIncrement)
         {
@@ -40,7 +34,7 @@ public static class NormalsGizmo
     [MenuItem("‽/Gizmos/Toggle Normals Gizmo")]
     public static void ToggleShowNormals()
     {
-        NormalsGizmo.on = !NormalsGizmo.on;
+        on = !on;
         SceneView.RepaintAll();
     }
 }

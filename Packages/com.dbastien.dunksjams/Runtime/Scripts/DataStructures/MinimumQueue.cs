@@ -35,11 +35,11 @@ public class MinimumQueue<T>
         ThrowIfEmpty();
         return _array[_head];
     }
-    
+
     void GrowIfNeeded()
     {
         if (_size < _array.Length) return;
-        int newCapacity = Math.Max(_array.Length + MinimumGrow, (int)(_array.Length * GrowFactor));
+        var newCapacity = Math.Max(_array.Length + MinimumGrow, (int)(_array.Length * GrowFactor));
         SetCapacity(newCapacity);
     }
 
@@ -49,13 +49,16 @@ public class MinimumQueue<T>
         if (_size > 0)
         {
             if (_head < _tail)
+            {
                 Array.Copy(_array, _head, newArray, 0, _size);
+            }
             else
             {
                 Array.Copy(_array, _head, newArray, 0, _array.Length - _head);
                 Array.Copy(_array, 0, newArray, _array.Length - _head, _tail);
             }
         }
+
         _array = newArray;
         _head = 0;
         _tail = _size;

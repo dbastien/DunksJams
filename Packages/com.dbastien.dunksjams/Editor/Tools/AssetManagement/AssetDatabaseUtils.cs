@@ -15,13 +15,10 @@ public static class AssetDatabaseUtils
         {
             var assetPath = AssetDatabase.GUIDToAssetPath(guid);
 
-            T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            var asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
 
             //TODO: verify cases where this can be null - it'd be nice to allocate an array instead of list
-            if (asset != null)
-            {
-                assets.Add(asset);
-            }
+            if (asset != null) assets.Add(asset);
         }
 
         return assets;
@@ -40,10 +37,7 @@ public static class AssetDatabaseUtils
 
         var lastIndex = typeName.LastIndexOf('.');
 
-        if (lastIndex > 0 && lastIndex < typeName.Length - 2)
-        {
-            typeName = typeName.Substring(lastIndex + 1);
-        }
+        if (lastIndex > 0 && lastIndex < typeName.Length - 2) typeName = typeName.Substring(lastIndex + 1);
 
         var search = string.Format("t:{0}", typeName);
 
@@ -53,9 +47,9 @@ public static class AssetDatabaseUtils
     public static T LoadAssetByGUID<T>(string guid) where T : Object
     {
         var assetPath = AssetDatabase.GUIDToAssetPath(guid);
-        return AssetDatabase.LoadAssetAtPath<T>(assetPath);     
+        return AssetDatabase.LoadAssetAtPath<T>(assetPath);
     }
-    
+
     public static List<T> LoadAssetsByGUIDs<T>(string[] guids) where T : Object
     {
         var assets = new List<T>(guids.Length);

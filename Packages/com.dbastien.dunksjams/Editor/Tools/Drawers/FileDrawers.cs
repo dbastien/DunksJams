@@ -10,18 +10,19 @@ public abstract class BasePathDrawer : PropertyDrawer
     {
         if (prop.propertyType != SerializedPropertyType.String) throw new ArgumentException();
 
-        float btnWidth = 30f;
+        var btnWidth = 30f;
         EditorGUI.PropertyField(new Rect(rect.x, rect.y, rect.width - btnWidth, rect.height), prop, label);
 
         if (GUI.Button(new Rect(rect.x + rect.width - btnWidth, rect.y, btnWidth, rect.height), "…"))
         {
-            string path = GetPath();
+            var path = GetPath();
             if (!string.IsNullOrEmpty(path) && path.StartsWith(Application.dataPath))
                 prop.stringValue = path[(Application.dataPath.Length + 1)..].Replace("/", "\\");
         }
     }
 
-    public override float GetPropertyHeight(SerializedProperty prop, GUIContent label) => EditorGUIUtility.singleLineHeight;
+    public override float GetPropertyHeight(SerializedProperty prop, GUIContent label) =>
+        EditorGUIUtility.singleLineHeight;
 }
 
 [CustomPropertyDrawer(typeof(OpenLocalFileAttribute))]

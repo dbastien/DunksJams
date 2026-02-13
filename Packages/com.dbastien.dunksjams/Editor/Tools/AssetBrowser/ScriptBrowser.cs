@@ -8,15 +8,15 @@ using Object = UnityEngine.Object;
 public class ScriptBrowserWindow : AssetBrowserWindow<ScriptBrowserTreeView, ScriptBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Scripts";
-    
+
     [MenuItem("‽/Asset Browser/Scripts", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<ScriptBrowserWindow>();
-    
+
     protected override void Rebuild()
     {
-        treeViewState ??= new();
-        List<ScriptBrowserTreeView.TreeViewItem> items = treeView?.AllItems ?? new(32);
-        treeView = new(treeViewState) { AllItems = items };
+        treeViewState ??= new TreeViewState<int>();
+        var items = treeView?.AllItems ?? new List<ScriptBrowserTreeView.TreeViewItem>(32);
+        treeView = new ScriptBrowserTreeView(treeViewState) { AllItems = items };
         treeView.Reload();
     }
 }
@@ -31,7 +31,8 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
         public override string AssetName => Asset.name;
         public override AssetImporter AssetImporter => Importer;
 
-        public TreeViewItem(int id, string guid, string path, MonoScript asset, MonoImporter importer) : base(id, guid, path)
+        public TreeViewItem(int id, string guid, string path, MonoScript asset, MonoImporter importer) : base(id, guid,
+            path)
         {
             Script = asset;
             Importer = importer;
@@ -42,14 +43,14 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
         {
             RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Script);
             //StorageSize = new FileInfo(AssetDatabase.GetAssetPath(Mesh)).Length;
-            
+
             base.Rebuild();
         }
     }
 
     public ScriptBrowserTreeView(TreeViewState<int> state) : base(state)
     {
-        multiColumnHeader = new(CreateHeaderState(this));
+        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
         InitHeader(multiColumnHeader);
     }
 
@@ -61,11 +62,11 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
         var scripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
 
         foreach (var script in scripts)
+        {
             if (MonoScript.FromMonoBehaviour(script) is { } monoScript &&
-                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(monoScript, out string guid, out _))
-            {
+                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(monoScript, out var guid, out _))
                 guids.Add(guid);
-            }
+        }
 
         return guids.ToArray();
     }
@@ -74,10 +75,10 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
     {
         var asset = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
         var importer = AssetImporter.GetAtPath(path) as MonoImporter;
-        
-        if (asset && importer) AllItems.Add(new(id++, guid, path, asset, importer));
+
+        if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
-    
+
     MultiColumnHeaderState CreateHeaderState(ScriptBrowserTreeView tv)
     {
         MultiColumnHeaderState.Column[] columns =
@@ -90,7 +91,7 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
             CreateDependenciesColumn(),
             CreateWrittenColumn()
         };
-        
-        return new(columns);
+
+        return new MultiColumnHeaderState(columns);
     }
 }

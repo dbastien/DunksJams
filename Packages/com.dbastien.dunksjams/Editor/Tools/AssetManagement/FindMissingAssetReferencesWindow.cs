@@ -5,11 +5,11 @@ using UnityEngine;
 public class FindMissingAssetReferencesWindow : EditorWindow
 {
     [MenuItem("‽/Asset Management/Find Missing References")]
-    public static void ShowWindow() => EditorWindow.GetWindow<FindMissingAssetReferencesWindow>().Show();
+    public static void ShowWindow() => GetWindow<FindMissingAssetReferencesWindow>().Show();
 
     bool checkAssetDatabase = false;
     bool checkScene = true;
-    private string results;
+    string results;
 
     public void OnGUI()
     {
@@ -22,31 +22,33 @@ public class FindMissingAssetReferencesWindow : EditorWindow
             FindAllMissingReferences();
         }
 
-        EditorGUILayout.SelectableLabel(results, GUILayout.ExpandHeight(true));        
+        EditorGUILayout.SelectableLabel(results, GUILayout.ExpandHeight(true));
     }
 
     public void FindAllMissingReferences()
     {
-        if (this.checkAssetDatabase)
+        if (checkAssetDatabase)
         {
             var gameObjects = AssetDatabaseUtils.FindAndLoadAssets<GameObject>();
-            results += string.Format("Searching {0} AssetDatabase GameObjects for missing references\n", gameObjects.Count);
-            int missingCount = gameObjects.Sum(go => FindMissingReferences(go));
+            results += string.Format("Searching {0} AssetDatabase GameObjects for missing references\n",
+                gameObjects.Count);
+            var missingCount = gameObjects.Sum(go => FindMissingReferences(go));
             results += string.Format("{0} AssetDatabase missing references found\n", missingCount);
         }
 
-        if (this.checkScene)
+        if (checkScene)
         {
             var sceneGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-            results += string.Format("Searching {0} Scene GameObjects for missing references\n", sceneGameObjects.Length);
-            int missingCountScene = sceneGameObjects.Sum(go => FindMissingReferences(go));
+            results += string.Format("Searching {0} Scene GameObjects for missing references\n",
+                sceneGameObjects.Length);
+            var missingCountScene = sceneGameObjects.Sum(go => FindMissingReferences(go));
             results += string.Format("{0} Scene missing references found\n", missingCountScene);
         }
     }
 
-    private int FindMissingReferences(GameObject go)
+    int FindMissingReferences(GameObject go)
     {
-        int missingCount = 0;
+        var missingCount = 0;
         var components = go.GetComponents<Component>();
         foreach (var component in components)
         {
@@ -62,14 +64,14 @@ public class FindMissingAssetReferencesWindow : EditorWindow
             var sp = so.GetIterator();
             while (sp.NextVisible(true))
             {
-                if ((sp.propertyType == SerializedPropertyType.ObjectReference) && 
-                    (sp.objectReferenceInstanceIDValue != 0) && 
-                    (sp.objectReferenceValue == null))
+                if (sp.propertyType == SerializedPropertyType.ObjectReference &&
+                    sp.objectReferenceInstanceIDValue != 0 &&
+                    sp.objectReferenceValue == null)
                 {
                     results += string.Format("Missing asset for: {0}, Component: {1}, Property: {2}\n",
-                                             go.GetFullPath(),
-                                             ObjectNames.GetClassName(component),
-                                             ObjectNames.NicifyVariableName(sp.name));
+                        go.GetFullPath(),
+                        ObjectNames.GetClassName(component),
+                        ObjectNames.NicifyVariableName(sp.name));
                     ++missingCount;
                 }
             }

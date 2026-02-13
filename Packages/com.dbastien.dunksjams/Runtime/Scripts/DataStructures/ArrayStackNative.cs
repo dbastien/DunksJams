@@ -9,17 +9,23 @@ public sealed class ArrayStackNative<T>
 
     public int Count => size;
     public bool IsEmpty => size == 0;
+
     public int Capacity
     {
         get => buffer.Length;
-        set { if (buffer.Length < value) Expand(value); }
+        set
+        {
+            if (buffer.Length < value) Expand(value);
+        }
     }
 
     public T Top => size > 0 ? buffer[size - 1] : default;
     public T Bottom => size > 0 ? buffer[0] : default;
     public T this[int index] => buffer[index];
 
-    public ArrayStackNative() : this(16) { }
+    public ArrayStackNative() : this(16)
+    {
+    }
 
     public ArrayStackNative(int capacity)
     {
@@ -50,10 +56,11 @@ public sealed class ArrayStackNative<T>
         if (size > 0)
         {
             --size;
-            T value = buffer[size];
+            var value = buffer[size];
             buffer[size] = default;
             return value;
         }
+
         return default;
     }
 
@@ -67,8 +74,8 @@ public sealed class ArrayStackNative<T>
 
     public T[] ToArray()
     {
-        T[] array = new T[size];
-        for (int i = 0; i < size; ++i)
+        var array = new T[size];
+        for (var i = 0; i < size; ++i)
             array[i] = buffer[size - i - 1];
         return array;
     }
@@ -79,11 +86,12 @@ public sealed class ArrayStackNative<T>
 
         comparer ??= EqualityComparer<T>.Default;
 
-        for (int i = 0; i < size; ++i)
+        for (var i = 0; i < size; ++i)
         {
             if (comparer.Equals(value, buffer[i]))
                 return i;
         }
+
         return -1;
     }
 
@@ -93,11 +101,12 @@ public sealed class ArrayStackNative<T>
 
         comparer ??= EqualityComparer<T>.Default;
 
-        for (int i = size - 1; i >= 0; --i)
+        for (var i = size - 1; i >= 0; --i)
         {
             if (comparer.Equals(value, buffer[i]))
                 return i;
         }
+
         return -1;
     }
 
@@ -105,11 +114,12 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return -1;
 
-        for (int i = size - 1; i >= 0; --i)
+        for (var i = size - 1; i >= 0; --i)
         {
             if (find(buffer[i]))
                 return i;
         }
+
         return -1;
     }
 
@@ -117,11 +127,12 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return -1;
 
-        for (int i = 0; i < size; ++i)
+        for (var i = 0; i < size; ++i)
         {
             if (find(buffer[i]))
                 return i;
         }
+
         return -1;
     }
 
@@ -129,7 +140,7 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return;
 
-        for (int i = size - 1; i >= 0; --i)
+        for (var i = size - 1; i >= 0; --i)
             func(buffer[i]);
     }
 
@@ -137,7 +148,7 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return;
 
-        for (int i = 0; i < size; ++i)
+        for (var i = 0; i < size; ++i)
             func(buffer[i]);
     }
 
@@ -174,7 +185,7 @@ public sealed class ArrayStackNative<T>
 
         public bool MoveNext()
         {
-            bool ok = --index >= 0;
+            var ok = --index >= 0;
             if (ok)
                 current = stack.buffer[index];
             else
@@ -191,7 +202,7 @@ public sealed class ArrayStackNative<T>
 
     void Expand(int capacity)
     {
-        T[] newBuffer = new T[capacity];
+        var newBuffer = new T[capacity];
         Array.Copy(buffer, 0, newBuffer, 0, size);
         buffer = newBuffer;
     }

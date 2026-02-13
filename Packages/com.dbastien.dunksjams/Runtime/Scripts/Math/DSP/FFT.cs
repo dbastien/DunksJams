@@ -5,22 +5,19 @@ public static class FFT
 {
     public static Complex[] Forward(float[] realInput)
     {
-        int n = realInput.Length;
-        Complex[] complexInput = new Complex[n];
+        var n = realInput.Length;
+        var complexInput = new Complex[n];
 
         // Convert real input to complex
-        for (int i = 0; i < n; i++)
-        {
-            complexInput[i] = new Complex(realInput[i], 0);
-        }
+        for (var i = 0; i < n; i++) complexInput[i] = new Complex(realInput[i], 0);
 
         return Forward(complexInput);
     }
-    
+
     public static Complex[] Forward(Complex[] input)
     {
-        int n = input.Length;
-        Complex[] output = new Complex[n];
+        var n = input.Length;
+        var output = new Complex[n];
         Array.Copy(input, output, n);
 
         // Cooley-Tukey FFT algorithm
@@ -28,99 +25,77 @@ public static class FFT
 
         return output;
     }
-    
+
     public static Complex[] Inverse(Complex[] input)
     {
-        int n = input.Length;
-        Complex[] output = new Complex[n];
+        var n = input.Length;
+        var output = new Complex[n];
 
         // Conjugate input for inverse
-        for (int i = 0; i < n; i++)
-        {
-            output[i] = Complex.Conjugate(input[i]);
-        }
+        for (var i = 0; i < n; i++) output[i] = Complex.Conjugate(input[i]);
 
         FFTInternal(output, false);
 
         // Conjugate and scale result
-        for (int i = 0; i < n; ++i)
-        {
-            output[i] = Complex.Conjugate(output[i]) / n;
-        }
+        for (var i = 0; i < n; ++i) output[i] = Complex.Conjugate(output[i]) / n;
 
         return output;
     }
-    
+
     public static float[] MagnitudeSpectrum(Complex[] fftData)
     {
-        float[] magnitudes = new float[fftData.Length / 2];
+        var magnitudes = new float[fftData.Length / 2];
 
-        for (int i = 0; i < magnitudes.Length; ++i)
-        {
-            magnitudes[i] = (float)fftData[i].Magnitude;
-        }
+        for (var i = 0; i < magnitudes.Length; ++i) magnitudes[i] = (float)fftData[i].Magnitude;
 
         return magnitudes;
     }
-    
+
     public static float[] MagnitudeSpectrumDB(Complex[] fftData, float reference = 1f)
     {
-        float[] magnitudes = MagnitudeSpectrum(fftData);
-        float[] dbMagnitudes = new float[magnitudes.Length];
+        var magnitudes = MagnitudeSpectrum(fftData);
+        var dbMagnitudes = new float[magnitudes.Length];
 
-        for (int i = 0; i < magnitudes.Length; i++)
+        for (var i = 0; i < magnitudes.Length; i++)
         {
             if (magnitudes[i] > 0)
-            {
                 dbMagnitudes[i] = 20f * MathF.Log10(magnitudes[i] / reference);
-            }
             else
-            {
                 dbMagnitudes[i] = -80f; // Silence threshold
-            }
         }
 
         return dbMagnitudes;
     }
 
-    private static void FFTInternal(Complex[] data, bool inverse)
+    static void FFTInternal(Complex[] data, bool inverse)
     {
-        int n = data.Length;
+        var n = data.Length;
         if (n <= 1) return;
-        if ((n & (n - 1)) != 0)
-        {
-            throw new ArgumentException("FFT length must be a power of two.", nameof(data));
-        }
+        if ((n & (n - 1)) != 0) throw new ArgumentException("FFT length must be a power of two.", nameof(data));
 
         for (int i = 1, j = 0; i < n; ++i)
         {
-            int bit = n >> 1;
-            for (; (j & bit) != 0; bit >>= 1)
-            {
-                j ^= bit;
-            }
+            var bit = n >> 1;
+            for (; (j & bit) != 0; bit >>= 1) j ^= bit;
             j ^= bit;
-            if (i < j)
-            {
-                (data[i], data[j]) = (data[j], data[i]);
-            }
+            if (i < j) (data[i], data[j]) = (data[j], data[i]);
         }
 
-        float sign = inverse ? 1f : -1f;
+        var sign = inverse ? 1f : -1f;
 
-        for (int len = 2; len <= n; len <<= 1)
+        for (var len = 2; len <= n; len <<= 1)
         {
-            float angle = sign * 2f * MathF.PI / len;
-            Complex wLen = new Complex(MathF.Cos(angle), MathF.Sin(angle));
-            int halfLen = len >> 1;
+            var angle = sign * 2f * MathF.PI / len;
+            var wLen = new Complex(MathF.Cos(angle), MathF.Sin(angle));
+            var halfLen = len >> 1;
 
-            for (int i = 0; i < n; i += len)
+            for (var i = 0; i < n; i += len)
             {
-                Complex w = Complex.One;
-                for (int j = 0; j < halfLen; ++j)
+                var w = Complex.One;
+                for (var j = 0; j < halfLen; ++j)
                 {
-                    Complex u = data[i + j];
-                    Complex v = w * data[i + j + halfLen];
+                    var u = data[i + j];
+                    var v = w * data[i + j + halfLen];
                     data[i + j] = u + v;
                     data[i + j + halfLen] = u - v;
                     w *= wLen;
@@ -130,11 +105,8 @@ public static class FFT
 
         if (inverse)
         {
-            double invN = 1.0 / n;
-            for (int i = 0; i < n; ++i)
-            {
-                data[i] *= invN;
-            }
+            var invN = 1.0 / n;
+            for (var i = 0; i < n; ++i) data[i] *= invN;
         }
     }
 }

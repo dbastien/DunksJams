@@ -11,7 +11,9 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
 {
     static T _instance;
     static bool _quitting;
-    static readonly bool _autoCreate = Attribute.IsDefined(typeof(T), typeof(SingletonAutoCreateAttribute), true);
+
+    static readonly bool _autoCreate =
+        Attribute.IsDefined(typeof(T), typeof(SingletonAutoCreateAttribute), true);
 
     bool _initialized;
 
@@ -108,16 +110,15 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
 
     void DestroyDuplicate()
     {
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         if (!Application.isPlaying) DestroyImmediate(gameObject);
         else Destroy(gameObject);
-#else
+    #else
         Destroy(gameObject);
-#endif
+    #endif
     }
 
     protected abstract void InitInternal();
-
 }
 
 /// <summary>Eager: selects the canonical instance in Awake and runs InitInternal() immediately.</summary>

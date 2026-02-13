@@ -5,24 +5,24 @@ public static class CameraExtensions
 {
     public static void SaveScreenshot(this Camera c, string path, int width, int height)
     {
-        RenderTexture rt = RenderTexture.GetTemporary(width, height, 24);
+        var rt = RenderTexture.GetTemporary(width, height, 24);
         c.targetTexture = rt;
         Texture2D screenShot = new(width, height, TextureFormat.RGB24, false);
 
         c.Render();
         RenderTexture.active = rt;
-        screenShot.ReadPixels(new(0, 0, width, height), 0, 0);
-        
+        screenShot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+
         c.targetTexture = null;
         RenderTexture.active = null;
         RenderTexture.ReleaseTemporary(rt);
-        
-        byte[] bytes = screenShot.EncodeToPNG();
+
+        var bytes = screenShot.EncodeToPNG();
         File.WriteAllBytes(path, bytes);
         DLog.Log($"Screenshot saved to: {path}");
         Object.Destroy(screenShot);
     }
-    
+
     public static void SetOrthographic(this Camera cam, bool resetRotation = false)
     {
         cam.orthographic = true;
@@ -40,7 +40,7 @@ public static class CameraExtensions
         cam.ResetProjectionMatrix();
         var mat = cam.projectionMatrix;
 
-        float rad = angleDeg * Mathf.Deg2Rad;
+        var rad = angleDeg * Mathf.Deg2Rad;
 
         // Shear Z as a function of X/Y (oblique projection)
         mat.m02 = scale * Mathf.Cos(rad);
@@ -49,7 +49,8 @@ public static class CameraExtensions
         cam.projectionMatrix = mat;
     }
 
-    public static void SetAxonometricProjection(this Camera cam, float xAngle, float yAngle, float zAngle = 0f, bool setRotation = true)
+    public static void SetAxonometricProjection(this Camera cam, float xAngle, float yAngle, float zAngle = 0f,
+        bool setRotation = true)
     {
         cam.orthographic = true;
         cam.ResetProjectionMatrix();
@@ -77,9 +78,9 @@ public static class CameraExtensions
         float apexOffsetZ, float maxDist, float radiusStart, float radiusEnd,
         Vector3 fwd, Vector3 scale, bool scalable, Quaternion localRot, bool scaleNearClip)
     {
-        if (!scalable) scale = new(1f, 1f, scale.z);
-        bool isCone = apexOffsetZ >= 0f;
-        float offset = Mathf.Max(0f, apexOffsetZ);
+        if (!scalable) scale = new Vector3(1f, 1f, scale.z);
+        var isCone = apexOffsetZ >= 0f;
+        var offset = Mathf.Max(0f, apexOffsetZ);
 
         cam.orthographic = !isCone;
         cam.transform.localPosition = fwd * -offset;
@@ -90,10 +91,10 @@ public static class CameraExtensions
 
         if (Mathf.Approximately(scale.y * scale.z, 0f)) return;
 
-        float nearScale = scaleNearClip ? scale.z : 1f;
+        var nearScale = scaleNearClip ? scale.z : 1f;
         cam.nearClipPlane = Mathf.Max(offset * scale.z, (isCone ? 0.1f : 0f) * nearScale);
 
-        float farScale = scalable ? scale.z : 1f;
+        var farScale = scalable ? scale.z : 1f;
         cam.farClipPlane = maxDist + offset * farScale;
 
         cam.aspect = Mathf.Abs(scale.x / scale.y);

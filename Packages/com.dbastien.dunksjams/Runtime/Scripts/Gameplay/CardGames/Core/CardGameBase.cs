@@ -35,9 +35,9 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
         EmitGameStarted();
         TurnIndex = 0;
 
-        for (int round = 0; round < MaxRounds && !IsGameOver(); ++round)
+        for (var round = 0; round < MaxRounds && !IsGameOver(); ++round)
         {
-            int playerIdx = round % PlayerHands.Count;
+            var playerIdx = round % PlayerHands.Count;
             EmitTurnStarted(round, playerIdx);
             PlayTurn(playerIdx);
             EmitTurnEnded(round, playerIdx);
@@ -65,11 +65,11 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
     protected virtual void DistributeDeck(Deck<TCard> deck)
     {
-        int cardsPerPlayer = deck.Count / PlayerCount;
-        for (int p = 0; p < PlayerHands.Count; ++p)
+        var cardsPerPlayer = deck.Count / PlayerCount;
+        for (var p = 0; p < PlayerHands.Count; ++p)
         {
-            for (int i = 0; i < cardsPerPlayer; ++i)
-                DealCardToPlayer(p, isFaceDown: true);
+            for (var i = 0; i < cardsPerPlayer; ++i)
+                DealCardToPlayer(p, true);
         }
     }
 

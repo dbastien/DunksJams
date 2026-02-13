@@ -9,7 +9,8 @@ public sealed class CeeLoGame : IDisposable
     readonly int _maxRollsPerTurn;
     readonly ICardGameIO _io;
 
-    public CeeLoGame(int playerCount = 2, int rounds = 1, int maxRollsPerTurn = CeeLoRules.DefaultMaxRolls, ICardGameIO io = null)
+    public CeeLoGame(int playerCount = 2, int rounds = 1, int maxRollsPerTurn = CeeLoRules.DefaultMaxRolls,
+        ICardGameIO io = null)
     {
         if (playerCount < 2)
         {
@@ -34,38 +35,38 @@ public sealed class CeeLoGame : IDisposable
         WriteLine($"Starting Cee-Lo with {_playerCount} players.");
         var wins = new int[_playerCount];
 
-        for (int round = 1; round <= _rounds; ++round)
+        for (var round = 1; round <= _rounds; ++round)
         {
-            int winner = PlayRound(round);
+            var winner = PlayRound(round);
             wins[winner]++;
             WriteLine($"Round {round} winner: {GetPlayerName(winner)}.");
         }
 
         WriteLine("Final results:");
-        for (int i = 0; i < wins.Length; ++i)
+        for (var i = 0; i < wins.Length; ++i)
             WriteLine($"{GetPlayerName(i)} won {wins[i]} round(s).");
     }
 
     public int PlayRound(int roundIndex)
     {
         var contenders = new List<int>(_playerCount);
-        for (int i = 0; i < _playerCount; ++i) contenders.Add(i);
+        for (var i = 0; i < _playerCount; ++i) contenders.Add(i);
 
         var results = new CeeLoResult[_playerCount];
-        int rollOff = 1;
+        var rollOff = 1;
 
         while (true)
         {
             WriteLine($"Round {roundIndex} roll-off {rollOff}:");
             RollForPlayers(contenders, results);
 
-            int bestRank = int.MinValue;
+            var bestRank = int.MinValue;
             var tied = new List<int>();
 
-            for (int i = 0; i < contenders.Count; ++i)
+            for (var i = 0; i < contenders.Count; ++i)
             {
-                int playerIndex = contenders[i];
-                int rank = results[playerIndex].Rank;
+                var playerIndex = contenders[i];
+                var rank = results[playerIndex].Rank;
                 if (rank > bestRank)
                 {
                     bestRank = rank;
@@ -89,9 +90,9 @@ public sealed class CeeLoGame : IDisposable
 
     void RollForPlayers(List<int> players, CeeLoResult[] results)
     {
-        for (int i = 0; i < players.Count; ++i)
+        for (var i = 0; i < players.Count; ++i)
         {
-            int playerIndex = players[i];
+            var playerIndex = players[i];
             var result = CeeLoRules.RollScoring(_maxRollsPerTurn);
             results[playerIndex] = result;
             WriteLine($"{GetPlayerName(playerIndex)} rolled {result}.");
@@ -103,11 +104,12 @@ public sealed class CeeLoGame : IDisposable
     string FormatPlayers(IReadOnlyList<int> players)
     {
         var sb = new StringBuilder(32);
-        for (int i = 0; i < players.Count; ++i)
+        for (var i = 0; i < players.Count; ++i)
         {
             if (i > 0) sb.Append(", ");
             sb.Append(GetPlayerName(players[i]));
         }
+
         return sb.ToString();
     }
 

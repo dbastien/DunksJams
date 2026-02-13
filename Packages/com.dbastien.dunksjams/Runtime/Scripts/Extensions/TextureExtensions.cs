@@ -7,15 +7,15 @@ public static class Texture2DExtensions
     public static Texture2D ColorSwap(this Texture2D tex, Dictionary<Color, Color> swaps)
     {
         Texture2D outTex = new(tex.width, tex.height, tex.format, false);
-        Color[] pixels = tex.GetPixels();
-        Color[] outPixels = new Color[tex.width * tex.height];
+        var pixels = tex.GetPixels();
+        var outPixels = new Color[tex.width * tex.height];
 
         for (var i = 0; i < pixels.Length; ++i)
         {
-            Color originalColor = pixels[i];
-            if (swaps.TryGetValue(originalColor, out Color newColor))
+            var originalColor = pixels[i];
+            if (swaps.TryGetValue(originalColor, out var newColor))
             {
-                newColor.a = originalColor.a;  // Preserve alpha
+                newColor.a = originalColor.a; // Preserve alpha
                 outPixels[i] = newColor;
             }
             else
@@ -32,24 +32,24 @@ public static class Texture2DExtensions
     public static Texture2D ColorShift(this Texture2D tex, Color from, Color to, float ignoreThreshold, float falloff)
     {
         Texture2D outTex = new(tex.width, tex.height, tex.format, false);
-        Color[] pixels = tex.GetPixels();
-        Color[] outPixels = new Color[tex.width * tex.height];
+        var pixels = tex.GetPixels();
+        var outPixels = new Color[tex.width * tex.height];
 
         for (var i = 0; i < pixels.Length; ++i)
         {
-            Color cOld = pixels[i];
+            var cOld = pixels[i];
 
-            float rDiff = MathF.Abs(cOld.r - from.r);
-            float gDiff = MathF.Abs(cOld.g - from.g);
-            float bDiff = MathF.Abs(cOld.b - from.b);
+            var rDiff = MathF.Abs(cOld.r - from.r);
+            var gDiff = MathF.Abs(cOld.g - from.g);
+            var bDiff = MathF.Abs(cOld.b - from.b);
 
-            float diffFactor = (rDiff + gDiff + bDiff) / 3f;
+            var diffFactor = (rDiff + gDiff + bDiff) / 3f;
 
             if (diffFactor >= ignoreThreshold)
                 diffFactor = 1f;
 
-            float lerpValue = MathF.Max(1f - diffFactor, 0f);
-            Color cNew = Color.Lerp(cOld, to, MathF.Pow(lerpValue, falloff));
+            var lerpValue = MathF.Max(1f - diffFactor, 0f);
+            var cNew = Color.Lerp(cOld, to, MathF.Pow(lerpValue, falloff));
             cNew.a = cOld.a; // Preserve alpha?
 
             outPixels[i] = cNew;
@@ -59,15 +59,17 @@ public static class Texture2DExtensions
         outTex.Apply();
         return outTex;
     }
-    
+
     public static Texture2D ScaleNX(this Texture2D tex, int factor)
     {
-        int reduced = factor;
+        var reduced = factor;
         while (reduced % 2 == 0) reduced /= 2;
         while (reduced % 3 == 0) reduced /= 3;
-        if (reduced != 1) throw new ArgumentException("Unsupported scale factor. Factor must be a multiple of 2 or 3.", nameof(factor));
-        
-        Texture2D result = tex;
+        if (reduced != 1)
+            throw new ArgumentException("Unsupported scale factor. Factor must be a multiple of 2 or 3.",
+                nameof(factor));
+
+        var result = tex;
 
         while (factor % 2 == 0 && factor > 1)
         {
@@ -86,30 +88,30 @@ public static class Texture2DExtensions
 
     public static Texture2D Scale2X(this Texture2D tex)
     {
-        int outWidth = tex.width * 2;
-        int outHeight = tex.height * 2;
+        var outWidth = tex.width * 2;
+        var outHeight = tex.height * 2;
 
         Texture2D outTex = new(outWidth, outHeight, tex.format, false);
-        Color[] pixels = tex.GetPixels();
-        Color[] outPixels = new Color[outWidth * outHeight];
+        var pixels = tex.GetPixels();
+        var outPixels = new Color[outWidth * outHeight];
 
-        Color blank = Color.clear;
+        var blank = Color.clear;
 
-        for (int y = 0; y < tex.height; ++y)
+        for (var y = 0; y < tex.height; ++y)
         {
-            for (int x = 0; x < tex.width; ++x)
+            for (var x = 0; x < tex.width; ++x)
             {
-                Color E = pixels[x + y * tex.width];
+                var E = pixels[x + y * tex.width];
 
-                Color B = y > 0 ? pixels[x + (y - 1) * tex.width] : blank;
-                Color D = x > 0 ? pixels[x - 1 + y * tex.width] : blank;
-                Color F = x < tex.width - 1 ? pixels[x + 1 + y * tex.width] : blank;
-                Color H = y < tex.height - 1 ? pixels[x + (y + 1) * tex.width] : blank;
+                var B = y > 0 ? pixels[x + (y - 1) * tex.width] : blank;
+                var D = x > 0 ? pixels[x - 1 + y * tex.width] : blank;
+                var F = x < tex.width - 1 ? pixels[x + 1 + y * tex.width] : blank;
+                var H = y < tex.height - 1 ? pixels[x + (y + 1) * tex.width] : blank;
 
-                int nX0 = x * 2;
-                int nX1 = nX0 + 1;
-                int nY0 = y * 2 * outWidth;
-                int nY1 = (y * 2 + 1) * outWidth;
+                var nX0 = x * 2;
+                var nX1 = nX0 + 1;
+                var nY0 = y * 2 * outWidth;
+                var nY1 = (y * 2 + 1) * outWidth;
 
                 if (B != H && D != F)
                 {
@@ -135,46 +137,46 @@ public static class Texture2DExtensions
 
     public static Texture2D Scale3X(this Texture2D tex)
     {
-        int width = tex.width;
-        int height = tex.height;
-        int outWidth = width * 3;
-        int outHeight = height * 3;
+        var width = tex.width;
+        var height = tex.height;
+        var outWidth = width * 3;
+        var outHeight = height * 3;
 
         Texture2D outTex = new(outWidth, outHeight, tex.format, false);
-        Color[] pixels = tex.GetPixels();
-        Color[] outPixels = new Color[outWidth * outHeight];
-        Color blank = Color.clear;
+        var pixels = tex.GetPixels();
+        var outPixels = new Color[outWidth * outHeight];
+        var blank = Color.clear;
 
         for (var y = 0; y < height; ++y)
         {
-            int nY0 = (y * 3 + 0) * outWidth;
-            int nY1 = (y * 3 + 1) * outWidth;
-            int nY2 = (y * 3 + 2) * outWidth;
+            var nY0 = (y * 3 + 0) * outWidth;
+            var nY1 = (y * 3 + 1) * outWidth;
+            var nY2 = (y * 3 + 2) * outWidth;
 
-            int yIndex = y * width;
-            int yIndexPrev = (y - 1) * width;
-            int yIndexNext = (y + 1) * width;
+            var yIndex = y * width;
+            var yIndexPrev = (y - 1) * width;
+            var yIndexNext = (y + 1) * width;
 
-            for (int x = 0; x < width; ++x)
+            for (var x = 0; x < width; ++x)
             {
                 // Center pixel
-                Color E = pixels[x + yIndex];
+                var E = pixels[x + yIndex];
 
                 // Surrounding pixels with bounds checking
-                Color A = x > 0 && y > 0 ? pixels[x - 1 + yIndexPrev] : blank;
-                Color B = y > 0 ? pixels[x + yIndexPrev] : blank;
-                Color C = x < width - 1 && y > 0 ? pixels[x + 1 + yIndexPrev] : blank;
+                var A = x > 0 && y > 0 ? pixels[x - 1 + yIndexPrev] : blank;
+                var B = y > 0 ? pixels[x + yIndexPrev] : blank;
+                var C = x < width - 1 && y > 0 ? pixels[x + 1 + yIndexPrev] : blank;
 
-                Color D = x > 0 ? pixels[x - 1 + yIndex] : blank;
-                Color F = x < width - 1 ? pixels[x + 1 + yIndex] : blank;
+                var D = x > 0 ? pixels[x - 1 + yIndex] : blank;
+                var F = x < width - 1 ? pixels[x + 1 + yIndex] : blank;
 
-                Color G = x > 0 && y < height - 1 ? pixels[x - 1 + yIndexNext] : blank;
-                Color H = y < height - 1 ? pixels[x + yIndexNext] : blank;
-                Color I = x < width - 1 && y < height - 1 ? pixels[x + 1 + yIndexNext] : blank;
+                var G = x > 0 && y < height - 1 ? pixels[x - 1 + yIndexNext] : blank;
+                var H = y < height - 1 ? pixels[x + yIndexNext] : blank;
+                var I = x < width - 1 && y < height - 1 ? pixels[x + 1 + yIndexNext] : blank;
 
-                int nX0 = x * 3;
-                int nX1 = nX0 + 1;
-                int nX2 = nX0 + 2;
+                var nX0 = x * 3;
+                var nX1 = nX0 + 1;
+                var nX2 = nX0 + 2;
 
                 // Scale3X
                 if (B != H && D != F)

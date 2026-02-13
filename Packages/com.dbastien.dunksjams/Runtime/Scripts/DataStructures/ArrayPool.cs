@@ -12,14 +12,14 @@ public sealed class ArrayPool<T>
 
     ArrayPool()
     {
-        for (int i = 0; i < _buckets.Length; ++i)
+        for (var i = 0; i < _buckets.Length; ++i)
             _buckets[i] = new MinimumQueue<T[]>(4);
     }
 
     /// <summary> Rent cleared array w/ at least the specified length </summary>
     public T[] RentCleared(int minLen)
     {
-        T[] rentedArray = Rent(minLen);
+        var rentedArray = Rent(minLen);
         Array.Clear(rentedArray, 0, rentedArray.Length);
         return rentedArray;
     }
@@ -31,8 +31,8 @@ public sealed class ArrayPool<T>
 
         if (minLen == 0) return _emptyArray;
 
-        int size = minLen.NextPowerOfTwoAtLeast();
-        int index = GetQueueIndex(size);
+        var size = minLen.NextPowerOfTwoAtLeast();
+        var index = GetQueueIndex(size);
 
         if (index < 0 || index >= MaxBuckets) return new T[size];
 
@@ -46,7 +46,7 @@ public sealed class ArrayPool<T>
         if (array == null) throw new ArgumentNullException(nameof(array));
         if (array.Length == 0) throw new ArgumentException("Array must have positive length.", nameof(array));
 
-        int index = GetQueueIndex(array.Length);
+        var index = GetQueueIndex(array.Length);
         Debug.Assert(index >= 0, $"Invalid bucket index: {index}");
 
         var bucket = _buckets[index];

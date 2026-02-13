@@ -22,7 +22,8 @@ public static class UIBuilder
     public static GameObject CreateUIElement(string name, Transform parent, params Type[] components) =>
         new(name, components) { transform = { parent = parent } };
 
-    public static GameObject CreatePanel(Transform parent, string name = "Panel", Vector2? size = null, Color? color = null)
+    public static GameObject CreatePanel(Transform parent, string name = "Panel", Vector2? size = null,
+        Color? color = null)
     {
         var panel = CreateUIElement(name, parent, typeof(Image));
         SetupRectTransform(panel.FindOrAddComponent<RectTransform>(), size ?? new Vector2(800, 600));
@@ -30,7 +31,8 @@ public static class UIBuilder
         return panel;
     }
 
-    public static LayoutGroup CreateLayout(Transform parent, bool vertical = true, int spacing = 10, TextAnchor alignment = TextAnchor.MiddleCenter)
+    public static LayoutGroup CreateLayout(Transform parent, bool vertical = true, int spacing = 10,
+        TextAnchor alignment = TextAnchor.MiddleCenter)
     {
         var layout = CreateUIElement("Layout", parent, typeof(RectTransform));
         LayoutGroup group = vertical
@@ -45,7 +47,8 @@ public static class UIBuilder
         return group;
     }
 
-    public static Button CreateButton(Transform parent, string text, UnityAction onClick = null, Color? color = null, Font font = null, Vector2? size = null, Vector2? position = null)
+    public static Button CreateButton(Transform parent, string text, UnityAction onClick = null, Color? color = null,
+        Font font = null, Vector2? size = null, Vector2? position = null)
     {
         var buttonObj = CreateUIElement(text, parent, typeof(Button), typeof(Image));
         var button = buttonObj.FindOrAddComponent<Button>();
@@ -54,11 +57,13 @@ public static class UIBuilder
         var rectTransform = buttonObj.FindOrAddComponent<RectTransform>();
         SetupRectTransform(rectTransform, size ?? new Vector2(160, 40), position);
 
-        InitText(CreateUIElement("Text", buttonObj.transform, typeof(Text)), text, font ?? defaultFont, color ?? colWhite);
+        InitText(CreateUIElement("Text", buttonObj.transform, typeof(Text)), text, font ?? defaultFont,
+            color ?? colWhite);
         return button;
     }
 
-    public static Slider CreateSlider(Transform parent, float min, float max, float value, UnityAction<float> onValChanged, Vector2? size = null)
+    public static Slider CreateSlider(Transform parent, float min, float max, float value,
+        UnityAction<float> onValChanged, Vector2? size = null)
     {
         var slider = CreateUIElement("Slider", parent, typeof(Slider)).FindOrAddComponent<Slider>();
         slider.minValue = min;
@@ -71,22 +76,29 @@ public static class UIBuilder
         return slider;
     }
 
-    public static InputField CreateInputField(Transform parent, string placeholder, UnityAction<string> onValChanged, Font font = null, Vector2? size = null)
+    public static InputField CreateInputField(Transform parent, string placeholder, UnityAction<string> onValChanged,
+        Font font = null, Vector2? size = null)
     {
-        var inputField = CreateUIElement("InputField", parent, typeof(InputField), typeof(Image)).FindOrAddComponent<InputField>();
-        inputField.placeholder = InitText(CreateUIElement("Placeholder", inputField.transform, typeof(Text)), placeholder, font ?? defaultFont, colGray);
-        inputField.textComponent = InitText(CreateUIElement("Text", inputField.transform, typeof(Text)), "", font ?? defaultFont, colWhite);
+        var inputField = CreateUIElement("InputField", parent, typeof(InputField), typeof(Image))
+            .FindOrAddComponent<InputField>();
+        inputField.placeholder = InitText(CreateUIElement("Placeholder", inputField.transform, typeof(Text)),
+            placeholder, font ?? defaultFont, colGray);
+        inputField.textComponent = InitText(CreateUIElement("Text", inputField.transform, typeof(Text)), "",
+            font ?? defaultFont, colWhite);
         if (onValChanged != null) inputField.onValueChanged.AddListener(onValChanged);
 
         SetupRectTransform(inputField.GetComponent<RectTransform>(), size ?? new Vector2(200, 40));
         return inputField;
     }
 
-    public static Dropdown CreateDropdown(Transform parent, string[] options, UnityAction<int> onValChanged, Font font = null, Vector2? size = null)
+    public static Dropdown CreateDropdown(Transform parent, string[] options, UnityAction<int> onValChanged,
+        Font font = null, Vector2? size = null)
     {
-        var dropdown = CreateUIElement("Dropdown", parent, typeof(Dropdown), typeof(Image)).FindOrAddComponent<Dropdown>();
+        var dropdown = CreateUIElement("Dropdown", parent, typeof(Dropdown), typeof(Image))
+            .FindOrAddComponent<Dropdown>();
         dropdown.options.AddRange(Array.ConvertAll(options, o => new Dropdown.OptionData(o)));
-        dropdown.captionText = InitText(CreateUIElement("Label", dropdown.transform, typeof(Text)), options.Length > 0 ? options[0] : "", font ?? defaultFont, colWhite);
+        dropdown.captionText = InitText(CreateUIElement("Label", dropdown.transform, typeof(Text)),
+            options.Length > 0 ? options[0] : "", font ?? defaultFont, colWhite);
         if (onValChanged != null) dropdown.onValueChanged.AddListener(onValChanged);
 
         SetupRectTransform(dropdown.GetComponent<RectTransform>(), size ?? new Vector2(160, 40));
@@ -98,7 +110,8 @@ public static class UIBuilder
         var scrollView = CreateUIElement("ScrollView", parent, typeof(ScrollRect)).FindOrAddComponent<ScrollRect>();
         SetupRectTransform(scrollView.GetComponent<RectTransform>(), size);
 
-        var viewport = CreateUIElement("Viewport", scrollView.transform, typeof(RectTransform), typeof(Mask), typeof(Image));
+        var viewport = CreateUIElement("Viewport", scrollView.transform, typeof(RectTransform), typeof(Mask),
+            typeof(Image));
         scrollView.viewport = viewport.GetComponent<RectTransform>();
 
         var content = CreateUIElement("Content", viewport.transform, typeof(RectTransform));
@@ -107,7 +120,8 @@ public static class UIBuilder
         return scrollView;
     }
 
-    public static Text InitText(GameObject go, string content, Font font, Color color, TextAnchor alignment = TextAnchor.MiddleCenter)
+    public static Text InitText(GameObject go, string content, Font font, Color color,
+        TextAnchor alignment = TextAnchor.MiddleCenter)
     {
         var text = go.FindOrAddComponent<Text>();
         text.text = content;

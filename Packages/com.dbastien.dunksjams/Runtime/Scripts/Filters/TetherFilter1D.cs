@@ -6,9 +6,9 @@ public class TetherFilter1D : IFilter1D
     public float TetherMaxChangePerFrame = 0.35f;
 
     public float CurrentValue => tetherPosition;
-    
-    private float tetherPosition;
-    private bool hasValue;
+
+    float tetherPosition;
+    bool hasValue;
 
     public void Update(float s)
     {
@@ -20,13 +20,13 @@ public class TetherFilter1D : IFilter1D
         }
 
         // apply 1D filter
-        float rawPosition1D = s;
+        var rawPosition1D = s;
         if (TetherLength > 0.0f)
         {
-            float tetherDiff = rawPosition1D - tetherPosition;
+            var tetherDiff = rawPosition1D - tetherPosition;
 
             if (!(Mathf.Abs(tetherDiff) > TetherLength)) return;
-            float distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength) * Mathf.Sign(tetherDiff);
+            var distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength) * Mathf.Sign(tetherDiff);
             distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame);
 
             tetherPosition += distanceBeyondTether;

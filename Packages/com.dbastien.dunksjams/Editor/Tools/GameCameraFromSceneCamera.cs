@@ -13,7 +13,7 @@ public class GameCameraFromSceneCamera : MonoBehaviour
     {
         if (UnityEditor.SceneView.sceneViews.Count == 0) return;
 
-        Camera sceneViewCam = ((UnityEditor.SceneView)UnityEditor.SceneView.sceneViews[0]).camera;
+        var sceneViewCam = ((UnityEditor.SceneView)UnityEditor.SceneView.sceneViews[0]).camera;
         if (!sceneViewCam) return;
 
         _mainCam ??= Camera.main;

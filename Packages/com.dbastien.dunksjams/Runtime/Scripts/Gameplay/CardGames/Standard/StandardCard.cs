@@ -2,11 +2,29 @@ using System;
 
 public class StandardCard : CardBase, IComparable<StandardCard>
 {
-    public enum Suit { Hearts, Diamonds, Clubs, Spades }
+    public enum Suit
+    {
+        Hearts,
+        Diamonds,
+        Clubs,
+        Spades
+    }
+
     public enum Rank
     {
-        Two = 2, Three, Four, Five, Six, Seven, Eight, Nine, Ten,
-        Jack, Queen, King, Ace
+        Two = 2,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Jack,
+        Queen,
+        King,
+        Ace
     }
 
     public Suit CardSuit { get; }

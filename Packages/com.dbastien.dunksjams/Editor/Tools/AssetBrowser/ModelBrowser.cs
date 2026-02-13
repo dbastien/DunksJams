@@ -8,15 +8,15 @@ using Object = UnityEngine.Object;
 public class ModelBrowserWindow : AssetBrowserWindow<ModelBrowserTreeView, ModelBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Models";
-    
+
     [MenuItem("‽/Asset Browser/Models", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<ModelBrowserWindow>();
-    
+
     protected override void Rebuild()
     {
-        treeViewState ??= new();
-        List<ModelBrowserTreeView.TreeViewItem> items = treeView?.AllItems ?? new(32);
-        treeView = new(treeViewState) { AllItems = items };
+        treeViewState ??= new TreeViewState<int>();
+        var items = treeView?.AllItems ?? new List<ModelBrowserTreeView.TreeViewItem>(32);
+        treeView = new ModelBrowserTreeView(treeViewState) { AllItems = items };
         treeView.Reload();
     }
 }
@@ -42,29 +42,31 @@ public class ModelBrowserTreeView : AssetBrowserTreeView<ModelBrowserTreeView.Tr
         {
             RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Mesh);
             //StorageSize = new FileInfo(AssetDatabase.GetAssetPath(Mesh)).Length;
-            
+
             base.Rebuild();
         }
     }
 
     public ModelBrowserTreeView(TreeViewState<int> state) : base(state)
     {
-        multiColumnHeader = new(CreateHeaderState(this));
+        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
         InitHeader(multiColumnHeader);
     }
 
     protected override string[] GatherGuids(bool sceneOnly, string path)
     {
         if (!sceneOnly) return AssetDatabase.FindAssets("t:Model", new[] { path });
-        
+
         List<string> guids = new();
-        
-        MeshFilter[] meshFilters = Object.FindObjectsByType<MeshFilter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        
-        foreach (MeshFilter meshFilter in meshFilters)
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(meshFilter.sharedMesh, out string guid, out long _))
+
+        var meshFilters = Object.FindObjectsByType<MeshFilter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (var meshFilter in meshFilters)
+        {
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(meshFilter.sharedMesh, out var guid, out _))
                 guids.Add(guid);
-            
+        }
+
         return guids.ToArray();
     }
 
@@ -72,10 +74,10 @@ public class ModelBrowserTreeView : AssetBrowserTreeView<ModelBrowserTreeView.Tr
     {
         var asset = AssetDatabase.LoadAssetAtPath<Mesh>(path);
         var importer = AssetImporter.GetAtPath(path) as ModelImporter;
-        
-        if (asset && importer) AllItems.Add(new(id++, guid, path, asset, importer));
+
+        if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
-    
+
     MultiColumnHeaderState CreateHeaderState(ModelBrowserTreeView tv)
     {
         MultiColumnHeaderState.Column[] columns =
@@ -93,7 +95,7 @@ public class ModelBrowserTreeView : AssetBrowserTreeView<ModelBrowserTreeView.Tr
             CreateDependenciesColumn(),
             CreateWrittenColumn()
         };
-        
-        return new(columns);
+
+        return new MultiColumnHeaderState(columns);
     }
 }

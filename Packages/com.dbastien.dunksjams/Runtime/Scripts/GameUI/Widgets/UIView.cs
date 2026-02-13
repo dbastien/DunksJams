@@ -45,8 +45,8 @@ public class UIView : MonoBehaviour
 
     IEnumerator FadeAlpha(float targetAlpha, float duration)
     {
-        float startAlpha = canvasGroup.alpha;
-        float elapsed = 0f;
+        var startAlpha = canvasGroup.alpha;
+        var elapsed = 0f;
 
         while (elapsed < duration)
         {

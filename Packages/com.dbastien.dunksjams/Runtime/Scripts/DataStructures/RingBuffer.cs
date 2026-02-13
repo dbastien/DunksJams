@@ -27,16 +27,16 @@ public class RingBuffer<T> : IEnumerable<T>
             var result = new T[_size];
             if (_size == 0) return result;
 
-            int firstSegment = Math.Min(_size, Capacity - _head);
+            var firstSegment = Math.Min(_size, Capacity - _head);
             Array.Copy(_buffer, _head, result, 0, firstSegment);
-            int remaining = _size - firstSegment;
+            var remaining = _size - firstSegment;
             if (remaining > 0)
                 Array.Copy(_buffer, 0, result, firstSegment, remaining);
 
             return result;
         }
     }
-    
+
     public T this[int index]
     {
         get
@@ -61,7 +61,7 @@ public class RingBuffer<T> : IEnumerable<T>
         else
             ++_size;
     }
-    
+
     public void AddRange(IEnumerable<T> items)
     {
         foreach (var item in items) Add(item);
@@ -114,7 +114,7 @@ public class RingBuffer<T> : IEnumerable<T>
         newest = _buffer[(_tail - 1 + Capacity) % Capacity];
         return true;
     }
-    
+
     public void Skip(int count = 1)
     {
         Debug.Assert(count <= _size);
@@ -129,7 +129,7 @@ public class RingBuffer<T> : IEnumerable<T>
         _tail = 0;
         _size = 0;
     }
-    
+
     public T GetRecent(int index)
     {
         Debug.Assert(index >= 0 && index < _size);
@@ -138,7 +138,7 @@ public class RingBuffer<T> : IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        for (int i = 0; i < _size; ++i)
+        for (var i = 0; i < _size; ++i)
             yield return _buffer[(_head + i) % Capacity];
     }
 

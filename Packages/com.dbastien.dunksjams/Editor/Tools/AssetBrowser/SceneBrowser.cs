@@ -8,15 +8,15 @@ using Object = UnityEngine.Object;
 public class SceneBrowserWindow : AssetBrowserWindow<SceneBrowserTreeView, SceneBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Scenes";
-    
+
     [MenuItem("‽/Asset Browser/Scenes", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<SceneBrowserWindow>();
-    
+
     protected override void Rebuild()
     {
-        treeViewState ??= new();
-        List<SceneBrowserTreeView.TreeViewItem> items = treeView?.AllItems ?? new(32);
-        treeView = new(treeViewState) { AllItems = items };
+        treeViewState ??= new TreeViewState<int>();
+        var items = treeView?.AllItems ?? new List<SceneBrowserTreeView.TreeViewItem>(32);
+        treeView = new SceneBrowserTreeView(treeViewState) { AllItems = items };
         treeView.Reload();
     }
 }
@@ -31,7 +31,8 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
         public override string AssetName => Asset.name;
         public override AssetImporter AssetImporter => Importer;
 
-        public TreeViewItem(int id, string guid, string path, SceneAsset asset, AssetImporter importer) : base(id, guid, path)
+        public TreeViewItem(int id, string guid, string path, SceneAsset asset, AssetImporter importer) : base(id, guid,
+            path)
         {
             Scene = asset;
             Importer = importer;
@@ -42,14 +43,14 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
         {
             RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Scene);
             //StorageSize = new FileInfo(AssetDatabase.GetAssetPath(Mesh)).Length;
-            
+
             base.Rebuild();
         }
     }
 
     public SceneBrowserTreeView(TreeViewState<int> state) : base(state)
     {
-        multiColumnHeader = new(CreateHeaderState(this));
+        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
         InitHeader(multiColumnHeader);
     }
 
@@ -61,8 +62,10 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
         var scenes = Object.FindObjectsByType<SceneAsset>(FindObjectsSortMode.None);
 
         foreach (var scene in scenes)
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(scene, out string guid, out long _))
+        {
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(scene, out var guid, out _))
                 guids.Add(guid);
+        }
 
         return guids.ToArray();
     }
@@ -71,10 +74,10 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
     {
         var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
         var importer = AssetImporter.GetAtPath(path);
-        
-        if (asset && importer) AllItems.Add(new(id++, guid, path, asset, importer));
+
+        if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
-    
+
     MultiColumnHeaderState CreateHeaderState(SceneBrowserTreeView tv)
     {
         MultiColumnHeaderState.Column[] columns =
@@ -87,7 +90,7 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
             CreateDependenciesColumn(),
             CreateWrittenColumn()
         };
-        
-        return new(columns);
+
+        return new MultiColumnHeaderState(columns);
     }
 }

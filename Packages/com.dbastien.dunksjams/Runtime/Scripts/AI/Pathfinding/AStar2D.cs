@@ -10,10 +10,11 @@ public class AStarPathfinder
 
     public delegate float HeuristicFunc(Vector2Int a, Vector2Int b);
 
-    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag = false, HeuristicFunc heuristic = null)
+    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag = false,
+        HeuristicFunc heuristic = null)
     {
         if (grid == null) throw new ArgumentNullException(nameof(grid));
-        if (start == goal) return new() { start };
+        if (start == goal) return new List<Vector2Int> { start };
         if (grid.GetLength(0) == 0 || grid.GetLength(1) == 0)
             throw new ArgumentException("Grid must not be empty.");
 
@@ -40,14 +41,14 @@ public class AStarPathfinder
 
                 _closedSet.Add(current.Position);
 
-                int neighborCount = GridHelper2D.GetValidNeighbors(current.Position, grid, neighbors, allowDiag);
-                for (int i = 0; i < neighborCount; ++i)
+                var neighborCount = GridHelper2D.GetValidNeighbors(current.Position, grid, neighbors, allowDiag);
+                for (var i = 0; i < neighborCount; ++i)
                 {
                     var neighbor = neighbors[i];
                     if (_closedSet.Contains(neighbor)) continue;
 
-                    float g = current.G + GridHelper2D.GetCost(neighbor, grid);
-                    float h = heuristic(neighbor, goal);
+                    var g = current.G + GridHelper2D.GetCost(neighbor, grid);
+                    var h = heuristic(neighbor, goal);
 
                     if (!_openSetLookup.TryGetValue(neighbor, out var existingNode) || g < existingNode.G)
                     {
@@ -66,10 +67,10 @@ public class AStarPathfinder
         return null; // No path found
     }
 
-    private static List<Vector2Int> ReconstructPath(AStarNode node)
+    static List<Vector2Int> ReconstructPath(AStarNode node)
     {
         var pathBuffer = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(64); // Preallocate larger buffer
-        int pathIndex = 0;
+        var pathIndex = 0;
 
         try
         {
@@ -82,12 +83,13 @@ public class AStarPathfinder
                     ConcurrentArrayPool<Vector2Int>.Shared.Return(pathBuffer);
                     pathBuffer = newBuffer;
                 }
+
                 pathBuffer[pathIndex++] = node.Position;
                 node = node.Parent;
             }
 
             var path = new List<Vector2Int>(pathIndex);
-            for (int i = pathIndex - 1; i >= 0; --i)
+            for (var i = pathIndex - 1; i >= 0; --i)
                 path.Add(pathBuffer[i]);
 
             return path;
@@ -115,7 +117,7 @@ public class AStarPathfinder
 
         public int CompareTo(AStarNode other)
         {
-            int compare = F.CompareTo(other.F);
+            var compare = F.CompareTo(other.F);
             return compare == 0 ? H.CompareTo(other.H) : compare; // Tie-break on H
         }
     }

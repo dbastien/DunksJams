@@ -4,7 +4,7 @@ public static class Vector3IntExtensions
 {
     public static readonly Vector3Int Forward = new(0, 0, 1);
     public static readonly Vector3Int Back = new(0, 0, -1);
-    
+
     public static Vector3Int Abs(this Vector3Int v) =>
         new(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
 
@@ -13,11 +13,14 @@ public static class Vector3IntExtensions
 
     public static Vector3Int Cross(Vector3Int l, Vector3Int r) =>
         new(l.y * r.z - l.z * r.y,
-            l.z * r.x - l.x * r.z, 
+            l.z * r.x - l.x * r.z,
             l.x * r.y - l.y * r.x);
 
-    public static Vector3Int Min(Vector3Int l, Vector3Int r) => new(Mathf.Min(l.x, r.x), Mathf.Min(l.y, r.y), Mathf.Min(l.z, r.z));
-    public static Vector3Int Max(Vector3Int l, Vector3Int r) => new(Mathf.Max(l.x, r.x), Mathf.Max(l.y, r.y), Mathf.Max(l.z, r.z));
+    public static Vector3Int Min(Vector3Int l, Vector3Int r) =>
+        new(Mathf.Min(l.x, r.x), Mathf.Min(l.y, r.y), Mathf.Min(l.z, r.z));
+
+    public static Vector3Int Max(Vector3Int l, Vector3Int r) =>
+        new(Mathf.Max(l.x, r.x), Mathf.Max(l.y, r.y), Mathf.Max(l.z, r.z));
 
     public static Vector3Int Clamp(Vector3Int v, Vector3Int min, Vector3Int max) =>
         new(Mathf.Clamp(v.x, min.x, max.x),
@@ -38,7 +41,7 @@ public static class Vector3IntExtensions
         new(v % size.x,
             v / size.x % size.y,
             v / (size.x * size.y) % size.z);
-    
+
     public static int ManhattanDistance(Vector3Int l, Vector3Int r) =>
         Mathf.Abs(l.x - r.x) + Mathf.Abs(l.y - r.y) + Mathf.Abs(l.z - r.z);
 }

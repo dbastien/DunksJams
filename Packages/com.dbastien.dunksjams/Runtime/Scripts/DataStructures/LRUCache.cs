@@ -8,7 +8,7 @@ public class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
     readonly Dictionary<TK, LinkedListNode<(TK key, TV val)>> _cache = new();
     readonly LinkedList<(TK key, TV val)> _order = new();
 
-    public LRUCache(int capacity) => 
+    public LRUCache(int capacity) =>
         _capacity = capacity > 0 ? capacity : throw new ArgumentOutOfRangeException(nameof(capacity));
 
     public TV Get(TK key) => _cache.TryGetValue(key, out var node) ? MoveToFrontAndReturn(node) : default;
@@ -20,6 +20,7 @@ public class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
             val = MoveToFrontAndReturn(node);
             return true;
         }
+
         val = default!;
         return false;
     }
@@ -39,10 +40,11 @@ public class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
                 _order.RemoveLast();
                 _cache.Remove(lru);
             }
+
             _cache[key] = _order.AddFirst((key, val));
         }
     }
-    
+
     public void Clear()
     {
         _cache.Clear();
@@ -60,7 +62,7 @@ public class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
         _order.Remove(node);
         _order.AddFirst(node);
     }
-    
+
     public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
     {
         foreach (var (key, val) in _order)

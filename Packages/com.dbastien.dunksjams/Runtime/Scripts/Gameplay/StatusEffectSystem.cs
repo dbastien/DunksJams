@@ -127,20 +127,16 @@ public static class EffectRegistry
             logic(effect, target);
     }
 
-    public static bool IsCounter(StatusEffect effect, StatusEffect counter)
-    {
-        return Counters.TryGetValue((effect, counter), out var exists) && exists;
-    }
+    public static bool IsCounter(StatusEffect effect, StatusEffect counter) =>
+        Counters.TryGetValue((effect, counter), out var exists) && exists;
 
-    public static StatusEffect? GetSynergy(StatusEffect a, StatusEffect b)
-    {
-        return Synergies.TryGetValue((a, b), out var synergy) ? synergy : null;
-    }
+    public static StatusEffect? GetSynergy(StatusEffect a, StatusEffect b) =>
+        Synergies.TryGetValue((a, b), out var synergy) ? synergy : null;
 }
 
 public class StatusEffectManager : MonoBehaviour
 {
-    private readonly List<StatusEffectInstance> _activeEffects = new();
+    readonly List<StatusEffectInstance> _activeEffects = new();
 
     public void ApplyEffect(StatusEffectInstance newEffect)
     {
@@ -161,7 +157,7 @@ public class StatusEffectManager : MonoBehaviour
 
     public void UpdateEffects(float deltaTime)
     {
-        for (int i = _activeEffects.Count - 1; i >= 0; --i)
+        for (var i = _activeEffects.Count - 1; i >= 0; --i)
         {
             var effect = _activeEffects[i];
             if (!effect.IsPermanent)
@@ -182,5 +178,5 @@ public class StatusEffectManager : MonoBehaviour
     public bool HasEffect(StatusEffect effectType) =>
         _activeEffects.Exists(e => e.effectType == effectType);
 
-    private void Update() => UpdateEffects(Time.deltaTime);
+    void Update() => UpdateEffects(Time.deltaTime);
 }

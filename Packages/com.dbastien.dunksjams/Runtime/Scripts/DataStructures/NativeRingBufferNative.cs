@@ -13,7 +13,7 @@ public enum NativeRingBufferOptions
 }
 
 [StructLayout(LayoutKind.Sequential)]
-internal struct NativeRingBufferData
+struct NativeRingBufferData
 {
     public int head;
     public int tail;
@@ -31,11 +31,9 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
     internal AtomicSafetyHandle safety;
-    [NativeSetClassTypeToNullOnSchedule]
-    internal DisposeSentinel disposeSentinel;
+    [NativeSetClassTypeToNullOnSchedule] internal DisposeSentinel disposeSentinel;
 #endif
-    [NativeDisableUnsafePtrRestriction]
-    internal void* buffer;
+    [NativeDisableUnsafePtrRestriction] internal void* buffer;
 
     internal readonly Allocator allocatorLabel;
     internal readonly int capacity;
@@ -47,11 +45,11 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     {
         get
         {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+        #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(safety);
-#endif
-            NativeRingBufferData* data = (NativeRingBufferData*)buffer;
-            int count = data->head - data->tail;
+        #endif
+            var data = (NativeRingBufferData*)buffer;
+            var count = data->head - data->tail;
             return count < 0 ? count + capacity : count;
         }
     }
@@ -63,20 +61,23 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     {
         get
         {
-            NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+            var data = (NativeRingBufferData*)buffer;
             return data->head == data->tail;
         }
     }
 
-    public NativeRingBufferNative(int capacity, Allocator allocator, NativeRingBufferOptions options = NativeRingBufferOptions.ClearMemory) : this(capacity, allocator, options, 2) { }
+    public NativeRingBufferNative(int capacity, Allocator allocator,
+        NativeRingBufferOptions options = NativeRingBufferOptions.ClearMemory) : this(capacity, allocator, options, 2)
+    {
+    }
 
     NativeRingBufferNative(int capacity, Allocator allocator, NativeRingBufferOptions options, int stackDepth)
     {
         UnityEngine.Debug.Assert(capacity > 0, "NativeRingBufferNative cannot be created with 0 or negative capacity");
 
-        long totalSize = (capacity * SizeOfT) + UnsafeUtility.SizeOf<NativeRingBufferData>();
+        long totalSize = capacity * SizeOfT + UnsafeUtility.SizeOf<NativeRingBufferData>();
 
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         if (allocator <= Allocator.None)
             throw new ArgumentException("Allocator must be Temp, TempJob or Persistent", nameof(allocator));
 
@@ -86,8 +87,9 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
         IsBlittableAndThrow();
 
         if (totalSize > int.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(capacity), $"Capacity * sizeof(T) cannot exceed {int.MaxValue} bytes");
-#endif
+            throw new ArgumentOutOfRangeException(nameof(capacity),
+                $"Capacity * sizeof(T) cannot exceed {int.MaxValue} bytes");
+    #endif
         allocatorLabel = allocator;
         this.capacity = capacity;
 
@@ -99,14 +101,14 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
         }
         else
         {
-            NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+            var data = (NativeRingBufferData*)buffer;
             data->head = 0;
             data->tail = 0;
         }
 
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         DisposeSentinel.Create(out safety, out disposeSentinel, stackDepth, allocatorLabel);
-#endif
+    #endif
     }
 
     [BurstDiscard]
@@ -119,11 +121,11 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetCount()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckReadAndThrow(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
-        int count = data->head - data->tail;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
+        var count = data->head - data->tail;
         return count < 0 ? count + capacity : count;
     }
 
@@ -136,10 +138,10 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool GetIsEmpty()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckReadAndThrow(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
         return data->head == data->tail;
     }
 
@@ -147,12 +149,12 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Push(T value)
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
 
-        int next = data->head + 1;
+        var next = data->head + 1;
         next = next == capacity ? 0 : next;
         if (next == data->tail) return false;
 
@@ -165,12 +167,12 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Push(ref T value)
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
 
-        int next = data->head + 1;
+        var next = data->head + 1;
         next = next == capacity ? 0 : next;
         if (next == data->tail) return false;
 
@@ -183,14 +185,14 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Pop()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
 
         if (data->head == data->tail) return false;
 
-        int next = data->tail + 1;
+        var next = data->tail + 1;
         next = next == capacity ? 0 : next;
         data->tail = next;
         return true;
@@ -200,16 +202,16 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryPop(out T value)
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
+    #endif
         value = default;
 
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+        var data = (NativeRingBufferData*)buffer;
 
         if (data->head == data->tail) return false;
 
-        int next = data->tail + 1;
+        var next = data->tail + 1;
         next = next == capacity ? 0 : next;
 
         value = UnsafeUtility.ArrayElementAsRef<T>(data + 1, data->tail);
@@ -221,10 +223,10 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        long totalSize = (capacity * SizeOfT) + UnsafeUtility.SizeOf<NativeRingBufferData>();
+    #endif
+        long totalSize = capacity * SizeOfT + UnsafeUtility.SizeOf<NativeRingBufferData>();
         UnsafeUtility.MemClear(buffer, totalSize);
     }
 
@@ -232,10 +234,10 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FastClear()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
         data->tail = data->head;
     }
 
@@ -243,10 +245,10 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FastClearZero()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-#endif
-        NativeRingBufferData* data = (NativeRingBufferData*)buffer;
+    #endif
+        var data = (NativeRingBufferData*)buffer;
         data->head = 0;
         data->tail = 0;
     }
@@ -254,17 +256,19 @@ public unsafe struct NativeRingBufferNative<T> : IDisposable where T : struct
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         DisposeSentinel.Dispose(ref safety, ref disposeSentinel);
-#endif
+    #endif
         if (buffer != null)
         {
             UnsafeUtility.Free(buffer, allocatorLabel);
             buffer = null;
         }
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+    #if ENABLE_UNITY_COLLECTIONS_CHECKS
         else
+        {
             throw new Exception("NativeRingBufferNative has yet to be allocated or has been de-allocated!");
-#endif
+        }
+    #endif
     }
 }

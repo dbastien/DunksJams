@@ -25,7 +25,7 @@ public static class Palettes
 
     public static Color[] SplitComplementary(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -36,7 +36,7 @@ public static class Palettes
 
     public static Color[] Tetradic(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -48,7 +48,7 @@ public static class Palettes
 
     public static Color[] SquareScheme(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -60,8 +60,8 @@ public static class Palettes
 
     public static Color[] TetradicSplit(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
-        float half = TetradicOffset * 0.5f;
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
+        var half = TetradicOffset * 0.5f;
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -83,22 +83,23 @@ public static class Palettes
     /// <summary>Complementary palette with optional tints/shades (varying saturation/value).</summary>
     public static Color[] ComplementaryWithVariants(Color baseColor, int variantsPerHue = 2)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         var palette = new Color[variantsPerHue * 2];
         for (var i = 0; i < variantsPerHue; i++)
         {
-            float vS = Mathf.Lerp(0.4f, 1f, (float)(i + 1) / (variantsPerHue + 1));
-            float sS = Mathf.Lerp(0.5f, s, (float)(i + 1) / (variantsPerHue + 1));
+            var vS = Mathf.Lerp(0.4f, 1f, (float)(i + 1) / (variantsPerHue + 1));
+            var sS = Mathf.Lerp(0.5f, s, (float)(i + 1) / (variantsPerHue + 1));
             palette[i] = Color.HSVToRGB(h, sS, vS);
             palette[variantsPerHue + i] = Color.HSVToRGB(Mathf.Repeat(h + ComplementaryHueOffset, 1f), sS, vS);
         }
+
         return palette;
     }
 
     /// <summary>Single complementary color (180° on hue wheel).</summary>
     public static Color Complement(Color color)
     {
-        Color.RGBToHSV(color, out float h, out float s, out float v);
+        Color.RGBToHSV(color, out var h, out var s, out var v);
         return Color.HSVToRGB(Mathf.Repeat(h + ComplementaryHueOffset, 1f), s, v).WithAlpha(color.a);
     }
 
@@ -109,9 +110,10 @@ public static class Palettes
         var palette = new Color[grayCount + 1];
         for (var i = 0; i < grayCount; i++)
         {
-            float g = Mathf.Lerp(0.15f, 0.9f, (float)i / (grayCount - 1));
+            var g = Mathf.Lerp(0.15f, 0.9f, (float)i / (grayCount - 1));
             palette[i] = new Color(g, g, g);
         }
+
         palette[grayCount] = accent;
         return palette;
     }
@@ -124,17 +126,17 @@ public static class Palettes
     public static Color ApplyLut(Color color, Texture2D lut)
     {
         if (!lut || !lut.isReadable) return color;
-        int h = lut.height;
+        var h = lut.height;
         if (h != 16 && h != 32) return color;
-        int size = h;
-        float r = Mathf.Clamp01(color.r);
-        float g = Mathf.Clamp01(color.g);
-        float b = Mathf.Clamp01(color.b);
-        int ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
-        int gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
-        int bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
-        int x = ri + gi * size;
-        int y = bi;
+        var size = h;
+        var r = Mathf.Clamp01(color.r);
+        var g = Mathf.Clamp01(color.g);
+        var b = Mathf.Clamp01(color.b);
+        var ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
+        var gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
+        var bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
+        var x = ri + gi * size;
+        var y = bi;
         var outColor = lut.GetPixel(x, y);
         return new Color(outColor.r, outColor.g, outColor.b, color.a);
     }
@@ -156,7 +158,7 @@ public static class Palettes
     static LutRegistry _discoveredLuts;
 
     // Pregenerated palettes
-  
+
     public static readonly Color[] WarmSunset = new[]
     {
         new Color(1f, 0.45f, 0.35f),

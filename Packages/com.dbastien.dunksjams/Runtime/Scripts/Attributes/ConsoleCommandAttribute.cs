@@ -1,4 +1,6 @@
 ﻿using System;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class ConsoleCommandAttribute : Attribute { }
+public class ConsoleCommandAttribute : Attribute
+{
+}

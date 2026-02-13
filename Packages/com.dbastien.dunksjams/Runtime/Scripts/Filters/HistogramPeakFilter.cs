@@ -5,19 +5,19 @@ public class HistogramPeakFilter : IFilter1D
     // 5 minutes worth of samples at 30 fps
     const int MaxSamples = 9000;
 
-    private int[] bins;
-    private int numSamples;
+    int[] bins;
+    int numSamples;
 
-    private int peakBin;
+    int peakBin;
 
-    private float lowerBound;
-    private float upperBound;
-    private float binSize;
+    float lowerBound;
+    float upperBound;
+    float binSize;
 
     // Get the value associated with the bin associated with the most samples
     public float CurrentValue =>
         // + 0.5f is to put us at the center of the range that the bin represents.
-        (lowerBound) + ((peakBin + 0.5f) * binSize);
+        lowerBound + (peakBin + 0.5f) * binSize;
 
     // Constructor
     public HistogramPeakFilter(float lowerBound, float upperBound, int binCount)
@@ -28,7 +28,7 @@ public class HistogramPeakFilter : IFilter1D
         binSize = (upperBound - lowerBound) / binCount;
 
         bins = new int[binCount];
-    
+
         Reset();
     }
 
@@ -37,7 +37,7 @@ public class HistogramPeakFilter : IFilter1D
     {
         if (numSamples < MaxSamples && s >= lowerBound && s <= upperBound)
         {
-            int binAccumulate = (int)((s - lowerBound) / binSize);
+            var binAccumulate = (int)((s - lowerBound) / binSize);
 
             //should handle: binAccumulate could == m_cBins 
             if (binAccumulate < bins.Length && binAccumulate >= 0)
@@ -47,10 +47,10 @@ public class HistogramPeakFilter : IFilter1D
             }
         }
 
-        int peakBin = bins.Length / 2;
-        int peakValue = 0;
+        var peakBin = bins.Length / 2;
+        var peakValue = 0;
 
-        for (int i = 0; i < bins.Length; ++i)
+        for (var i = 0; i < bins.Length; ++i)
         {
             if (peakValue < bins[i])
             {
@@ -65,7 +65,7 @@ public class HistogramPeakFilter : IFilter1D
     // Clear all samples from the histogram 
     public void Reset()
     {
-        for (int i = 0; i < bins.Length; ++i) bins[i] = 0;
+        for (var i = 0; i < bins.Length; ++i) bins[i] = 0;
 
         numSamples = 0;
         peakBin = bins.Length / 2;

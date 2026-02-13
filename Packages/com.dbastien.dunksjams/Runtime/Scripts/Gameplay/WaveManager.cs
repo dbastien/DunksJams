@@ -36,14 +36,14 @@ public class WaveManager : MonoBehaviour
     public float timeBetweenWaves = 10f;
     public List<WaveModifier> globalModifiers;
 
-    private int _currentWaveIndex;
-    private bool _isWaveInProgress;
+    int _currentWaveIndex;
+    bool _isWaveInProgress;
 
     public event Action<int> OnWaveStarted;
     public event Action<int> OnWaveCompleted;
     public event Action<int> OnAllWavesCompleted;
 
-    private void Start()
+    void Start()
     {
         StartNextWave();
     }
@@ -60,14 +60,14 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(HandleWave(waves[_currentWaveIndex]));
     }
 
-    private IEnumerator HandleWave(Wave wave)
+    IEnumerator HandleWave(Wave wave)
     {
         _isWaveInProgress = true;
         OnWaveStarted?.Invoke(wave.waveNumber);
 
         foreach (var spawnInfo in wave.enemies)
         {
-            for (int i = 0; i < spawnInfo.count; i++)
+            for (var i = 0; i < spawnInfo.count; i++)
             {
                 SpawnEnemy(spawnInfo.enemyPrefab);
                 yield return new WaitForSeconds(wave.spawnInterval);
@@ -83,20 +83,17 @@ public class WaveManager : MonoBehaviour
         StartNextWave();
     }
 
-    private void SpawnEnemy(GameObject enemyPrefab)
+    void SpawnEnemy(GameObject enemyPrefab)
     {
         var spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         var enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        foreach (var modifier in globalModifiers)
-        {
-            modifier.applyModifier?.Invoke(enemy);
-        }
+        foreach (var modifier in globalModifiers) modifier.applyModifier?.Invoke(enemy);
 
         ScaleEnemy(enemy, _currentWaveIndex);
     }
 
-    private void ScaleEnemy(GameObject enemy, int waveNumber)
+    void ScaleEnemy(GameObject enemy, int waveNumber)
     {
         if (enemy.TryGetComponent<Health>(out var health))
             health.SetHP(health.MaxHPEffective + waveNumber * 10);
@@ -121,7 +118,7 @@ public class WaveManager : MonoBehaviour
             waveDelay = 5f
         };
 
-        int enemyCount = Mathf.FloorToInt(10 + waveNumber * 2);
+        var enemyCount = Mathf.FloorToInt(10 + waveNumber * 2);
         wave.enemies.Add(new EnemySpawnInfo
         {
             enemyPrefab = enemyPrefabPool[Random.Range(0, enemyPrefabPool.Length)],

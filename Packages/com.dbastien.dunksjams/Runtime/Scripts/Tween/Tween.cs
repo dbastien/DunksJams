@@ -11,10 +11,10 @@ public class Tween<T> : ITween, IPoolable
     public string Tag { get; private set; }
     public bool IgnoreTimeScale { get; private set; }
     public float TimeScale { get; private set; } = 1f;
-    
+
     //todo: not sure?
     public float Duration => _duration + Delay;
-    
+
     T _startValue;
     T _endValue;
     float _duration;
@@ -215,10 +215,10 @@ public class Tween<T> : ITween, IPoolable
         }
 
         _elapsedTime += deltaTime;
-        float t = Mathf.Clamp01(_elapsedTime / _duration);
-        float easedT = Evaluate(t);
+        var t = Mathf.Clamp01(_elapsedTime / _duration);
+        var easedT = Evaluate(t);
 
-        T currentValue = _interpolator(_startValue, _endValue, easedT);
+        var currentValue = _interpolator(_startValue, _endValue, easedT);
         _onUpdate?.Invoke();
         _onUpdateValue(currentValue);
 
@@ -241,16 +241,20 @@ public class Tween<T> : ITween, IPoolable
                     _startValue = _endValue;
                     _endValue = typeof(T) switch
                     {
-                        var tt when tt == typeof(float) => (T)(object)((float)(object)_endValue + (float)(object)_endValue),
-                        var tt when tt == typeof(Vector3) => (T)(object)((Vector3)(object)_endValue + (Vector3)(object)_endValue),
-                        var tt when tt == typeof(Quaternion) => (T)(object)Quaternion.Euler(((Quaternion)(object)_endValue).eulerAngles * 2),
+                        var tt when tt == typeof(float) => (T)(object)((float)(object)_endValue +
+                                                                       (float)(object)_endValue),
+                        var tt when tt == typeof(Vector3) => (T)(object)((Vector3)(object)_endValue +
+                                                                         (Vector3)(object)_endValue),
+                        var tt when tt == typeof(Quaternion) => (T)(object)Quaternion.Euler(
+                            ((Quaternion)(object)_endValue).eulerAngles * 2),
                         var tt when tt == typeof(Color) => (T)(object)new Color(
                             Mathf.Clamp01(((Color)(object)_endValue).r * 2),
                             Mathf.Clamp01(((Color)(object)_endValue).g * 2),
                             Mathf.Clamp01(((Color)(object)_endValue).b * 2),
                             Mathf.Clamp01(((Color)(object)_endValue).a * 2)
                         ),
-                        _ => throw new InvalidOperationException($"Unsupported type {typeof(T)} for TweenLoopType.Incremental")
+                        _ => throw new InvalidOperationException(
+                            $"Unsupported type {typeof(T)} for TweenLoopType.Incremental")
                     };
                     break;
             }
@@ -289,8 +293,13 @@ public class Tween<T> : ITween, IPoolable
     }
 
     // IPoolable implementation
-    public void OnPoolGet() { }
-    public void OnPoolRelease() { }
+    public void OnPoolGet()
+    {
+    }
+
+    public void OnPoolRelease()
+    {
+    }
 
     // Pool management
     void ReturnToPool()

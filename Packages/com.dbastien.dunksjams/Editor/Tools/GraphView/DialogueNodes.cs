@@ -3,9 +3,13 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public abstract class DialogueNodeBase : SerializedGraphNode { }
+public abstract class DialogueNodeBase : SerializedGraphNode
+{
+}
 
-public class DialogueNode : DialogueNodeBase { }
+public class DialogueNode : DialogueNodeBase
+{
+}
 
 public class DialogueNodeChoice : DialogueNode
 {
@@ -34,5 +38,4 @@ public class DialogueNodeChoice : DialogueNode
         --_choiceCount;
         Refresh();
     }
-
 }

@@ -31,7 +31,7 @@ public class OptionsManager
 
     public void ApplySettings()
     {
-        Resolution resolution = Screen.resolutions[resolutionIndex];
+        var resolution = Screen.resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, isFullscreen);
 
         QualitySettings.SetQualityLevel(graphicsQuality);

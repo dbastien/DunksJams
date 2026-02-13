@@ -15,12 +15,12 @@ public class SerializableDictionaryDrawer : PropertyDrawer
 
         EditorGUI.indentLevel++;
 
-        SerializedProperty keys = property.FindPropertyRelative("_keys");
-        SerializedProperty values = property.FindPropertyRelative("_values");
+        var keys = property.FindPropertyRelative("_keys");
+        var values = property.FindPropertyRelative("_values");
 
         if (GUILayout.Button("Add Entry"))
         {
-            int newIndex = keys.arraySize;
+            var newIndex = keys.arraySize;
             keys.InsertArrayElementAtIndex(newIndex);
             values.InsertArrayElementAtIndex(newIndex);
 
@@ -32,7 +32,7 @@ public class SerializableDictionaryDrawer : PropertyDrawer
             GUI.FocusControl(null);
         }
 
-        for (int i = 0; i < keys.arraySize; ++i)
+        for (var i = 0; i < keys.arraySize; ++i)
         {
             EditorGUILayout.BeginHorizontal();
 
@@ -64,9 +64,7 @@ public class SerializableDictionaryDrawer : PropertyDrawer
     {
         array.DeleteArrayElementAtIndex(index);
         if (array.propertyType == SerializedPropertyType.ObjectReference)
-        {
             if (index < array.arraySize && array.GetArrayElementAtIndex(index).objectReferenceValue == null)
                 array.DeleteArrayElementAtIndex(index);
-        }
     }
 }

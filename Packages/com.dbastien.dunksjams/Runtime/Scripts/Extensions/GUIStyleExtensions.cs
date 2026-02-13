@@ -12,9 +12,10 @@ public static class GUIStyleExtensions
             width = Mathf.Max(width, size.x);
             height += size.y;
         }
-        return new(width, height);
+
+        return new Vector2(width, height);
     }
-    
+
     public static Vector2 CalcVerticalSize(this GUIStyle g, params GUIContent[] items)
     {
         float paddingHeight = g.padding.vertical;
@@ -25,13 +26,14 @@ public static class GUIStyleExtensions
             totalHeight += size.y;
             maxWidth = Mathf.Max(maxWidth, size.x + g.padding.horizontal);
         }
-        return new(maxWidth, totalHeight);
+
+        return new Vector2(maxWidth, totalHeight);
     }
 
     public static Vector2 CalcHorizontalSize(this GUIStyle g, params GUIContent[] items)
     {
         float paddingWidth = g.padding.horizontal;
-        float totalWidth = paddingWidth * (items.Length - 1);
+        var totalWidth = paddingWidth * (items.Length - 1);
         float maxHeight = 0;
         foreach (var item in items)
         {
@@ -39,7 +41,8 @@ public static class GUIStyleExtensions
             totalWidth += size.x;
             maxHeight = Mathf.Max(maxHeight, size.y + g.padding.vertical);
         }
-        return new(totalWidth, maxHeight);
+
+        return new Vector2(totalWidth, maxHeight);
     }
 
     public static GUIStyle CloneWithPadding(this GUIStyle g, RectOffset padding, RectOffset margin = null) =>
@@ -47,15 +50,15 @@ public static class GUIStyleExtensions
 
     public static void FadeTextColor(this GUIStyle g, Color startColor, Color endColor, float duration) =>
         g.normal.textColor = Color.Lerp(startColor, endColor, Mathf.PingPong(Time.time / duration, 1f));
-    
+
     public static void WithFontSize(this GUIStyle g, int fontSize, Action drawAction)
     {
-        int originalSize = g.fontSize;
+        var originalSize = g.fontSize;
         g.fontSize = fontSize;
         drawAction?.Invoke();
         g.fontSize = originalSize;
     }
-    
+
     public static void WithFontStyle(this GUIStyle g, FontStyle fontStyle, Action drawAction)
     {
         var originalStyle = g.fontStyle;
@@ -70,21 +73,30 @@ public static class GUIStyleExtensions
         return g;
     }
 
-    public static int AdjustFontSizeToFitWidth(this GUIStyle g, GUIContent content, float maxWidth, int minSize = 8, int maxSize = 40)
+    public static int AdjustFontSizeToFitWidth(this GUIStyle g, GUIContent content, float maxWidth, int minSize = 8,
+        int maxSize = 40)
     {
-        for (int fontSize = maxSize; fontSize >= minSize; --fontSize)
+        for (var fontSize = maxSize; fontSize >= minSize; --fontSize)
         {
             g.fontSize = fontSize;
             if (g.CalcSize(content).x <= maxWidth) return fontSize;
         }
+
         return minSize;
     }
-    
-    public static GUIStyle WithBackground(this GUIStyle g, Texture2D tex) { g.normal.background = tex; return g; }
-    
+
+    public static GUIStyle WithBackground(this GUIStyle g, Texture2D tex)
+    {
+        g.normal.background = tex;
+        return g;
+    }
+
     public static GUIStyle CreateStyle(this GUIStyle g, Font font = null, int fontSize = 12, int pad = 2) =>
-        new(g) { font = font, fontSize = fontSize, padding = new(pad, pad, pad, pad) };
+        new(g) { font = font, fontSize = fontSize, padding = new RectOffset(pad, pad, pad, pad) };
 
     public static GUIStyle CreateStyle(this GUIStyle g, int pad, int margin) =>
-        new(g) { padding = new(pad, pad, pad, pad), margin = new(margin, margin, margin, margin) };
+        new(g)
+        {
+            padding = new RectOffset(pad, pad, pad, pad), margin = new RectOffset(margin, margin, margin, margin)
+        };
 }

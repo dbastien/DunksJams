@@ -3,7 +3,7 @@ using UnityEngine;
 public class TestCompilationWarnings : MonoBehaviour
 {
     // CS0168: Variable declared but never used
-    private int unusedVariable;
+    int unusedVariable;
 
     // CS0162: Unreachable code detected
     void Start()
@@ -15,7 +15,7 @@ public class TestCompilationWarnings : MonoBehaviour
     // CS0219: Variable assigned but never used
     void Update()
     {
-        int assignedButUnused = 42;
+        var assignedButUnused = 42;
     }
 
     // CS0649: Field is never assigned to

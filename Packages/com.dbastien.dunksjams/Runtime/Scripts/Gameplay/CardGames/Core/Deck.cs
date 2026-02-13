@@ -37,7 +37,7 @@ public sealed class Deck<T> where T : CardBase
 
     public IEnumerable<T> Draw(int count)
     {
-        for (int i = 0; i < count; ++i) yield return Draw();
+        for (var i = 0; i < count; ++i) yield return Draw();
     }
 
     public void Discard(T card) => DiscardPile.Add(card);
@@ -46,8 +46,8 @@ public sealed class Deck<T> where T : CardBase
 
     public void RecycleDiscardIntoDraw()
     {
-        bool keepTop = KeepTopDiscardOnRecycle && DiscardPile.Count > 0;
-        T top = keepTop ? DiscardPile.DrawFromTop() : null;
+        var keepTop = KeepTopDiscardOnRecycle && DiscardPile.Count > 0;
+        var top = keepTop ? DiscardPile.DrawFromTop() : null;
 
         DrawPile.AddRange(DiscardPile);
         DiscardPile.Clear();

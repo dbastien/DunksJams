@@ -22,7 +22,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         Insert(0, new GridBackground());
         AddManipulators();
     }
-    
+
     void AddManipulators()
     {
         this.AddManipulator(new ContentDragger());
@@ -33,14 +33,14 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     void BuildMenu(ContextualMenuPopulateEvent evt)
     {
-        Vector2 pos = contentViewContainer.WorldToLocal(evt.mousePosition);
-        foreach (Type type in GetNodeTypes())
+        var pos = contentViewContainer.WorldToLocal(evt.mousePosition);
+        foreach (var type in GetNodeTypes())
             evt.menu.AppendAction($"Create {type.Name}", _ => AddNode(type, pos));
     }
 
     public void AddNode(Type type, Vector2 pos)
     {
-        TNode n = (TNode)Activator.CreateInstance(type);
+        var n = (TNode)Activator.CreateInstance(type);
         n.viewDataKey = Guid.NewGuid().ToString();
         n.Init(pos);
         AddElement(n);
@@ -77,8 +77,8 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         {
             nodes = nodes.Select(SerializeNode).Where(n => n != null).ToList(),
             edges = edges.Where(e => e.input != null && e.output != null)
-                         .Select(SerializeEdge)
-                         .ToList()
+                .Select(SerializeEdge)
+                .ToList()
         };
 
         File.WriteAllText(FilePath, JsonUtility.ToJson(gd, true));
@@ -107,7 +107,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         };
 
         foreach (var fi in n.GetType().GetSerializableFields())
-            nd.fields.Add(new() { name = fi.Name, val = fi.GetValue(n)?.ToString() ?? "" });
+            nd.fields.Add(new FieldData { name = fi.Name, val = fi.GetValue(n)?.ToString() ?? "" });
 
         return nd;
     }
@@ -122,7 +122,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     protected void InstantiateNode(NodeData nd)
     {
-        Node n = CreateNodeFromType(nd.nodeType);
+        var n = CreateNodeFromType(nd.nodeType);
         if (n == null)
         {
             DLog.LogW($"Node type '{nd.nodeType}' not found.");
@@ -158,7 +158,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
     protected Node CreateNodeFromType(string typeName)
     {
         var type = Type.GetType(typeName);
-        if (type != null && typeof(Node).IsAssignableFrom(type)) 
+        if (type != null && typeof(Node).IsAssignableFrom(type))
             return (Node)Activator.CreateInstance(type);
         DLog.LogW($"Node type '{typeName}' not found or is not assignable to Node.");
         return null;
@@ -192,6 +192,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
             (n as ICleanupNode)?.Cleanup();
             RemoveElement(n);
         }
+
         foreach (var e in edges) RemoveElement(e);
         _nodes.Clear();
     }

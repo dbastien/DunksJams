@@ -9,9 +9,9 @@ public static class StandardDeck
         var suits = EnumCache<StandardCard.Suit>.Values;
         var ranks = EnumCache<StandardCard.Rank>.Values;
 
-        IEnumerable<StandardCard> cards = from s in suits
-                                          from r in ranks
-                                          select new StandardCard(s, r);
+        var cards = from s in suits
+            from r in ranks
+            select new StandardCard(s, r);
 
         if (predicate != null) cards = cards.Where(predicate);
         return new Deck<StandardCard>(cards);

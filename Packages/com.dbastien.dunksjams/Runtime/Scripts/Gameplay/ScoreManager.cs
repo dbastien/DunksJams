@@ -9,9 +9,10 @@ public class ScoreManager : MonoBehaviour
 
     [ToggleHeader("useTimer", "Timer")] public bool useTimer;
     [ShowIf("useTimer")] public float initialTime = 300f;
-    
-    [ToggleHeader("useHighScore", "High Score")] public bool useHighScore = true;
-    
+
+    [ToggleHeader("useHighScore", "High Score")]
+    public bool useHighScore = true;
+
     [ToggleHeader("useCombos", "Combos")] public bool useCombos;
     [ShowIf("useCombos")] public int comboThreshold = 5;
     [ShowIf("useCombos")] public float comboResetTime = 2f;
@@ -31,7 +32,7 @@ public class ScoreManager : MonoBehaviour
     public event Action<int> OnLivesChanged;
     public event Action<float> OnTimeChanged;
     public event Action OnGameOver;
-    
+
     public int Score => _score;
     public int Lives => _lives;
     public float TimeRemaining => _timeRemaining;
@@ -95,7 +96,8 @@ public class ScoreManager : MonoBehaviour
         _score += points * _multiplier;
         OnScoreChanged?.Invoke(_score);
         if (useHighScore)
-            if (_score > _highScore) _highScore = _score;
+            if (_score > _highScore)
+                _highScore = _score;
     }
 
     public void DeductLife()
@@ -115,19 +117,19 @@ public class ScoreManager : MonoBehaviour
         useCombos = enableCombo;
         if (!enableCombo) ResetCombo();
     }
-    
+
     public void RestartGame()
     {
         ResetGame();
         _gameOver = false;
     }
-    
+
     public void ResetCombo()
     {
         _comboStreak = 0;
         _multiplier = 1;
     }
-    
+
     public void EndGame()
     {
         _gameOver = true;

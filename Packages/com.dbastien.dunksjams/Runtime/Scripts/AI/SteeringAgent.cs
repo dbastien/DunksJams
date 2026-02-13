@@ -10,7 +10,7 @@ public class SteeringAgent : MonoBehaviour
 
     public Rigidbody RigidBody { get; private set; }
     public Collider Collider { get; private set; }
-    
+
     void Awake()
     {
         Collider = GetComponent<Collider>();
@@ -23,12 +23,12 @@ public class SteeringAgent : MonoBehaviour
     {
         if (behaviors == null || behaviors.Length == 0) return;
 
-        Transform target = targetingStrategy?.GetTarget(this);
+        var target = targetingStrategy?.GetTarget(this);
         if (!target) return;
 
-        Vector3 totalForce = Vector3.zero;
+        var totalForce = Vector3.zero;
 
-        foreach (SteeringBehavior behavior in behaviors)
+        foreach (var behavior in behaviors)
         {
             if (!behavior) continue;
             totalForce += behavior.CalculateForce(this, target) * behavior.weight;
@@ -43,7 +43,7 @@ public class SteeringAgent : MonoBehaviour
         RigidBody.AddForce(force);
         RigidBody.linearVelocity = Vector3.ClampMagnitude(RigidBody.linearVelocity, maxSpeed);
 
-        if (RigidBody.linearVelocity.magnitude > 0.01f) 
+        if (RigidBody.linearVelocity.magnitude > 0.01f)
             RigidBody.rotation = Quaternion.LookRotation(RigidBody.linearVelocity);
     }
 }

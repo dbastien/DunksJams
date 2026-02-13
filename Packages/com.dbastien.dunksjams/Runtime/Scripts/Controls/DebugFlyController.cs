@@ -72,7 +72,8 @@ public class DebugFlyController : MonoBehaviour
         var sprint = sprintAction?.IsPressed() == true ? sprintMultiplier : 1f;
         var speed = baseSpeed * sprint * Time.deltaTime;
 
-        var delta = transform.forward * (move.y * speed) + transform.right * (move.x * speed) + Vector3.up * (up * speed);
+        var delta = transform.forward * (move.y * speed) + transform.right * (move.x * speed) +
+                    Vector3.up * (up * speed);
         if (delta.sqrMagnitude > 0f) transform.position += delta;
     }
 }

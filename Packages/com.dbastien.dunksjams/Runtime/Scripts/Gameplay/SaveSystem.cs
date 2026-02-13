@@ -18,10 +18,10 @@ public class SaveSystem
 
     public void Save<T>(T data, string fileName = DefaultFileName)
     {
-        string filePath = Path.Combine(_saveDir, fileName);
+        var filePath = Path.Combine(_saveDir, fileName);
         try
         {
-            string json = JsonUtility.ToJson(data, true);
+            var json = JsonUtility.ToJson(data, true);
             File.WriteAllText(filePath, json);
             OnSaveSuccess?.Invoke();
         }
@@ -34,14 +34,14 @@ public class SaveSystem
 
     public T Load<T>(string fileName = DefaultFileName)
     {
-        string filePath = Path.Combine(_saveDir, fileName);
+        var filePath = Path.Combine(_saveDir, fileName);
         try
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Save file not found: {filePath}");
 
-            string json = File.ReadAllText(filePath);
-            T data = JsonUtility.FromJson<T>(json);
+            var json = File.ReadAllText(filePath);
+            var data = JsonUtility.FromJson<T>(json);
             OnLoadSuccess?.Invoke();
             return data;
         }
@@ -55,7 +55,7 @@ public class SaveSystem
 
     public void DeleteSave(string fileName = DefaultFileName)
     {
-        string filePath = Path.Combine(_saveDir, fileName);
+        var filePath = Path.Combine(_saveDir, fileName);
         if (File.Exists(filePath))
             File.Delete(filePath);
     }

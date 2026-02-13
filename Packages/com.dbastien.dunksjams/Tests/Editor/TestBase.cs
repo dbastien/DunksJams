@@ -5,8 +5,14 @@ public abstract class TestBase
 {
     protected static void Throws<T>(Action a) where T : Exception
     {
-        try { a(); Assert.Fail($"Expected {typeof(T).Name}"); }
-        catch (T) { }
+        try
+        {
+            a();
+            Assert.Fail($"Expected {typeof(T).Name}");
+        }
+        catch (T)
+        {
+        }
     }
 
     protected static void InRange(float v, float min, float max) =>

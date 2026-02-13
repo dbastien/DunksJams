@@ -13,5 +13,7 @@ public class WorleyNoiseGenerator : INoiseGenerator
 
     public float GetValue(float x) => WorleyNoise.Worley2D(x * Frequency, 0);
     public float GetValue(float x, float y) => WorleyNoise.Worley2D(x * Frequency, y * Frequency);
-    public float GetValue(float x, float y, float z) => WorleyNoise.Worley3D(x * Frequency, y * Frequency, z * Frequency);
+
+    public float GetValue(float x, float y, float z) =>
+        WorleyNoise.Worley3D(x * Frequency, y * Frequency, z * Frequency);
 }

@@ -6,17 +6,16 @@ using UnityEngine.Pool;
 [DisallowMultipleComponent]
 public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 {
-    [Header("Pooling")]
-    [SerializeField] int initialPoolSize = 10;
+    [Header("Pooling")] [SerializeField] int initialPoolSize = 10;
     [SerializeField] int maxPoolSize = 50;
 
-    [Header("Volume")]
-    [SerializeField, Range(0f, 1f)] float masterVolume = 1f;
-    [SerializeField, Range(0f, 1f)] float musicVolume = 1f;
-    [SerializeField, Range(0f, 1f)] float sfxVolume = 1f;
+    [Header("Volume")] [SerializeField] [Range(0f, 1f)]
+    float masterVolume = 1f;
 
-    [Header("Music")]
-    [SerializeField] float musicCrossfadeDuration = 1f;
+    [SerializeField] [Range(0f, 1f)] float musicVolume = 1f;
+    [SerializeField] [Range(0f, 1f)] float sfxVolume = 1f;
+
+    [Header("Music")] [SerializeField] float musicCrossfadeDuration = 1f;
 
     ObjectPool<AudioSource> audioSourcePool;
     readonly List<AudioSource> activeAudioSources = new();
@@ -27,17 +26,31 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
     AudioSource activeMusicSource;
     Coroutine musicCrossfadeCoroutine;
 
-    public float MasterVolume { get => masterVolume; set => masterVolume = Mathf.Clamp01(value); }
-    public float MusicVolume { get => musicVolume; set => musicVolume = Mathf.Clamp01(value); }
-    public float SfxVolume { get => sfxVolume; set => sfxVolume = Mathf.Clamp01(value); }
+    public float MasterVolume
+    {
+        get => masterVolume;
+        set => masterVolume = Mathf.Clamp01(value);
+    }
+
+    public float MusicVolume
+    {
+        get => musicVolume;
+        set => musicVolume = Mathf.Clamp01(value);
+    }
+
+    public float SfxVolume
+    {
+        get => sfxVolume;
+        set => sfxVolume = Mathf.Clamp01(value);
+    }
 
     protected override void InitInternal()
     {
         audioSourcePool = new ObjectPool<AudioSource>(
-            createFunc: CreateAudioSource,
-            actionOnGet: OnGetAudioSource,
-            actionOnRelease: OnReleaseAudioSource,
-            actionOnDestroy: OnDestroyAudioSource,
+            CreateAudioSource,
+            OnGetAudioSource,
+            OnReleaseAudioSource,
+            OnDestroyAudioSource,
             defaultCapacity: initialPoolSize,
             maxSize: maxPoolSize
         );
@@ -158,13 +171,13 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         to.volume = 0f;
         to.Play();
 
-        float elapsed = 0f;
-        float targetVolume = musicVolume * masterVolume;
+        var elapsed = 0f;
+        var targetVolume = musicVolume * masterVolume;
 
         while (elapsed < musicCrossfadeDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / musicCrossfadeDuration;
+            var t = elapsed / musicCrossfadeDuration;
 
             from.volume = Mathf.Lerp(targetVolume, 0f, t);
             to.volume = Mathf.Lerp(0f, targetVolume, t);
@@ -195,8 +208,8 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 
     IEnumerator FadeOutMusic(AudioSource source)
     {
-        float startVolume = source.volume;
-        float elapsed = 0f;
+        var startVolume = source.volume;
+        var elapsed = 0f;
 
         while (elapsed < musicCrossfadeDuration)
         {
@@ -221,18 +234,12 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
             }
         }
 
-        if (activeMusicSource.isPlaying)
-        {
-            activeMusicSource.Pause();
-        }
+        if (activeMusicSource.isPlaying) activeMusicSource.Pause();
     }
 
     public void ResumeAll()
     {
-        foreach (var source in pausedAudioSources)
-        {
-            source.UnPause();
-        }
+        foreach (var source in pausedAudioSources) source.UnPause();
         pausedAudioSources.Clear();
 
         activeMusicSource.UnPause();
@@ -240,10 +247,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 
     public void StopAll()
     {
-        foreach (var source in activeAudioSources.ToArray())
-        {
-            audioSourcePool.Release(source);
-        }
+        foreach (var source in activeAudioSources.ToArray()) audioSourcePool.Release(source);
         pausedAudioSources.Clear();
 
         activeMusicSource.Stop();
@@ -261,9 +265,10 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         StartCoroutine(FadeVolume(source, source.volume, 0f, duration, stopAfter));
     }
 
-    IEnumerator FadeVolume(AudioSource source, float fromVolume, float toVolume, float duration, bool stopAfter = false)
+    IEnumerator FadeVolume(AudioSource source, float fromVolume, float toVolume, float duration,
+        bool stopAfter = false)
     {
-        float elapsed = 0f;
+        var elapsed = 0f;
         source.volume = fromVolume;
 
         while (elapsed < duration)
@@ -293,8 +298,6 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         }
 
         if (activeMusicSource.isPlaying && musicCrossfadeCoroutine == null)
-        {
             activeMusicSource.volume = musicVolume * masterVolume;
-        }
     }
 }

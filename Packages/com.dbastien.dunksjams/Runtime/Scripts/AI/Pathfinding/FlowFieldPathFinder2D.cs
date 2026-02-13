@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class FlowFieldPathfinder2D
 {
-    private readonly int[,] _grid;
-    private readonly Vector2[,] _flowField;
+    readonly int[,] _grid;
+    readonly Vector2[,] _flowField;
 
     public FlowFieldPathfinder2D(int[,] grid)
     {
@@ -25,17 +25,19 @@ public class FlowFieldPathfinder2D
         TracePath(start, goal, result);
     }
 
-    private void ComputeFlowField(Vector2Int goal, bool allowDiag)
+    void ComputeFlowField(Vector2Int goal, bool allowDiag)
     {
         var openSet = new Queue<Vector2Int>();
         var costField = new int[_grid.GetLength(0), _grid.GetLength(1)];
 
-        for (int y = 0; y < _grid.GetLength(1); ++y)
-            for (int x = 0; x < _grid.GetLength(0); ++x)
+        for (var y = 0; y < _grid.GetLength(1); ++y)
+        {
+            for (var x = 0; x < _grid.GetLength(0); ++x)
             {
                 costField[x, y] = int.MaxValue;
                 _flowField[x, y] = Vector2.zero;
             }
+        }
 
         costField[goal.x, goal.y] = 0;
         openSet.Enqueue(goal);
@@ -48,10 +50,10 @@ public class FlowFieldPathfinder2D
             var neighborCount = GridHelper2D.GetValidNeighborsWithPool(current, _grid, out var neighbors, allowDiag);
             try
             {
-                for (int i = 0; i < neighborCount; ++i)
+                for (var i = 0; i < neighborCount; ++i)
                 {
                     var neighbor = neighbors[i];
-                    int newCost = currentCost + 1;
+                    var newCost = currentCost + 1;
                     if (newCost >= costField[neighbor.x, neighbor.y]) continue;
 
                     costField[neighbor.x, neighbor.y] = newCost;
@@ -69,14 +71,14 @@ public class FlowFieldPathfinder2D
         }
     }
 
-    private List<Vector2Int> TracePath(Vector2Int start, Vector2Int goal)
+    List<Vector2Int> TracePath(Vector2Int start, Vector2Int goal)
     {
         var path = new List<Vector2Int>(32);
         TracePath(start, goal, path);
         return path;
     }
 
-    private void TracePath(Vector2Int start, Vector2Int goal, List<Vector2Int> path)
+    void TracePath(Vector2Int start, Vector2Int goal, List<Vector2Int> path)
     {
         path.Clear();
         path.Add(start);

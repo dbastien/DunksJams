@@ -37,6 +37,11 @@ public abstract class UIScreen
         }
     }
 
-    protected virtual void OnShow() { }
-    protected virtual void OnHide() { }
+    protected virtual void OnShow()
+    {
+    }
+
+    protected virtual void OnHide()
+    {
+    }
 }

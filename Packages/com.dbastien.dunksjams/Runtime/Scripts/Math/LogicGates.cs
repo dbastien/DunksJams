@@ -1,6 +1,32 @@
-﻿public enum Gate1InType { BUFFER, NOT }
-public enum Gate2InType { AND, OR, XOR, NAND, NOR, XNOR }
-public enum Gate3InType { TMAJ, TMUX, TAND3, TOR3, TXOR3, TXNOR3, TNAND3, TNOR3, TIMP, TCOF }
+﻿public enum Gate1InType
+{
+    BUFFER,
+    NOT
+}
+
+public enum Gate2InType
+{
+    AND,
+    OR,
+    XOR,
+    NAND,
+    NOR,
+    XNOR
+}
+
+public enum Gate3InType
+{
+    TMAJ,
+    TMUX,
+    TAND3,
+    TOR3,
+    TXOR3,
+    TXNOR3,
+    TNAND3,
+    TNOR3,
+    TIMP,
+    TCOF
+}
 
 public static class LogicGates
 {
@@ -11,7 +37,7 @@ public static class LogicGates
             Gate1InType.NOT => !inA,
             _ => false
         };
-    
+
     public static bool Evaluate(Gate2InType gateType, bool inA, bool inB) =>
         gateType switch
         {
@@ -23,7 +49,7 @@ public static class LogicGates
             Gate2InType.XNOR => inA == inB,
             _ => false
         };
-    
+
     public static bool Evaluate(Gate3InType gateType, bool inA, bool inB, bool inC) =>
         gateType switch
         {
@@ -31,7 +57,7 @@ public static class LogicGates
             Gate3InType.TOR3 => inA || inB || inC,
             Gate3InType.TNAND3 => !(inA && inB && inC),
             Gate3InType.TNOR3 => !(inA || inB || inC),
-            
+
             // TXOR3: true if an odd number of inputs are true
             Gate3InType.TXOR3 => inA ^ inB ^ inC,
 
@@ -45,7 +71,7 @@ public static class LogicGates
             Gate3InType.TMUX => inA ? inC : inB,
 
             // TIMP: Implication - If inA implies inB, or inC is true
-            Gate3InType.TIMP => !(inA && !inB) || inC,     
+            Gate3InType.TIMP => !(inA && !inB) || inC,
 
             // TCOF: Co-factor - True if (inA && !inB) or (!inA && inC)
             Gate3InType.TCOF => (inA && !inB) || (!inA && inC),

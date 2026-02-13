@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ClearConsoleToolbarItem : IToolbarItem
 {
-    private static GUIStyle _commandButtonStyle;
+    static GUIStyle _commandButtonStyle;
 
     public string Name => "Clear Console";
     public ToolbarItemPosition Position => ToolbarItemPosition.Left;
@@ -17,15 +17,11 @@ public class ClearConsoleToolbarItem : IToolbarItem
     {
     }
 
-    public SettingsProvider GetSettingsProvider()
-    {
-        return null;
-    }
+    public SettingsProvider GetSettingsProvider() => null;
 
     public void DrawInToolbar()
     {
         if (_commandButtonStyle == null)
-        {
             _commandButtonStyle = new GUIStyle("Command")
             {
                 fontSize = 12,
@@ -33,9 +29,9 @@ public class ClearConsoleToolbarItem : IToolbarItem
                 imagePosition = ImagePosition.ImageLeft,
                 fixedHeight = 22
             };
-        }
 
-        if (GUILayout.Button(new GUIContent("Clear Console", "Clears the Unity Console"), _commandButtonStyle, GUILayout.Width(100)))
+        if (GUILayout.Button(new GUIContent("Clear Console", "Clears the Unity Console"), _commandButtonStyle,
+                GUILayout.Width(100)))
         {
             var logEntries = Type.GetType("UnityEditor.LogEntries, UnityEditor.dll");
             var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public);

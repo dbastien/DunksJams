@@ -7,7 +7,7 @@ public static class AnimationCurveUtils
     {
         for (var k = 0; k < curve.length; ++k) curve.SmoothTangents(k, 0f);
     }
-     
+
     public static void SetTangentMode(AnimationCurve curve, AnimationUtility.TangentMode tangentMode)
     {
         for (var k = 0; k < curve.length; ++k)

@@ -50,7 +50,7 @@ public class SimpleTwinStickController : MonoBehaviour
             transform.position += dir * moveSpeed * Time.deltaTime;
         }
 
-        Vector3 targetAim = aimDirection;
+        var targetAim = aimDirection;
         if (aimCamera != null && Mouse.current != null)
         {
             var ray = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());

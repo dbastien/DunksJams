@@ -40,7 +40,10 @@ public static class EventManager
 
         // Check if already registered
         foreach (var pl in list)
-            if (pl.OriginalDelegate.Equals(listener)) return;
+        {
+            if (pl.OriginalDelegate.Equals(listener))
+                return;
+        }
 
         list.Add(new PrioritizedListener(priority, e => listener((T)e), listener));
         list.Sort();
@@ -56,7 +59,10 @@ public static class EventManager
         }
 
         foreach (var pl in list)
-            if (pl.OriginalDelegate.Equals(listener)) return;
+        {
+            if (pl.OriginalDelegate.Equals(listener))
+                return;
+        }
 
         list.Add(new PrioritizedListener(priority, listener, listener));
         list.Sort();
@@ -71,6 +77,7 @@ public static class EventManager
             oneShotList = new List<Delegate>();
             _oneShotListeners[type] = oneShotList;
         }
+
         oneShotList.Add(listener);
     }
 
@@ -98,9 +105,9 @@ public static class EventManager
         if (!eventPools.TryGetValue(type, out var pool))
         {
             pool = new ObjectPool<GameEvent>(
-                createFunc: () => new T(),
-                actionOnGet: _ => { },
-                actionOnRelease: _ => { },
+                () => new T(),
+                _ => { },
+                _ => { },
                 collectionCheck: true,
                 maxSize: 100
             );
@@ -113,11 +120,10 @@ public static class EventManager
     public static void TriggerEvent(GameEvent gameEvent)
     {
         if (_listeners.TryGetValue(gameEvent.GetType(), out var list))
-        {
             foreach (var pl in list)
             {
                 if (gameEvent.IsCancelled) break; // Support event cancellation
-                
+
                 try
                 {
                     pl.Callback(gameEvent);
@@ -127,7 +133,6 @@ public static class EventManager
                     DLog.LogE($"Error in event listener: {ex}");
                 }
             }
-        }
 
         if (_oneShotListeners.TryGetValue(gameEvent.GetType(), out var oneShotList))
         {
@@ -149,7 +154,7 @@ public static class EventManager
     {
         if (!_listeners.TryGetValue(eventType, out var list)) return;
 
-        for (int i = list.Count - 1; i >= 0; i--)
+        for (var i = list.Count - 1; i >= 0; i--)
         {
             if (list[i].OriginalDelegate.Equals(listener))
             {

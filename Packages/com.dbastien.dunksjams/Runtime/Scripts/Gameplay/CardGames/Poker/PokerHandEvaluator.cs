@@ -22,18 +22,18 @@ public static class PokerHandEvaluator
 
         var ranks = new int[5];
         var suits = new StandardCard.Suit[5];
-        for (int i = 0; i < cards.Count; ++i)
+        for (var i = 0; i < cards.Count; ++i)
         {
             ranks[i] = (int)cards[i].CardRank;
             suits[i] = cards[i].CardSuit;
         }
 
         Array.Sort(ranks);
-        bool isFlush = IsFlush(suits);
-        bool isStraight = IsStraight(ranks, out int straightHigh);
+        var isFlush = IsFlush(suits);
+        var isStraight = IsStraight(ranks, out var straightHigh);
 
         var rankCounts = new Dictionary<int, int>();
-        for (int i = 0; i < ranks.Length; ++i)
+        for (var i = 0; i < ranks.Length; ++i)
         {
             if (rankCounts.ContainsKey(ranks[i])) rankCounts[ranks[i]]++;
             else rankCounts[ranks[i]] = 1;
@@ -44,17 +44,15 @@ public static class PokerHandEvaluator
         groups.Sort((a, b) => a.Count != b.Count ? b.Count.CompareTo(a.Count) : b.Rank.CompareTo(a.Rank));
 
         if (isStraight && isFlush)
-        {
             return new PokerHand(
                 PokerHandCategory.StraightFlush,
                 new[] { straightHigh },
                 $"Straight Flush ({RankName(straightHigh)} high)");
-        }
 
         if (groups[0].Count == 4)
         {
-            int fourRank = groups[0].Rank;
-            int kicker = groups[1].Rank;
+            var fourRank = groups[0].Rank;
+            var kicker = groups[1].Rank;
             return new PokerHand(
                 PokerHandCategory.FourOfAKind,
                 new[] { fourRank, kicker },
@@ -63,8 +61,8 @@ public static class PokerHandEvaluator
 
         if (groups[0].Count == 3 && groups.Count == 2)
         {
-            int trips = groups[0].Rank;
-            int pair = groups[1].Rank;
+            var trips = groups[0].Rank;
+            var pair = groups[1].Rank;
             return new PokerHand(
                 PokerHandCategory.FullHouse,
                 new[] { trips, pair },
@@ -73,7 +71,7 @@ public static class PokerHandEvaluator
 
         if (isFlush)
         {
-            int[] sorted = SortDescending(ranks);
+            var sorted = SortDescending(ranks);
             return new PokerHand(
                 PokerHandCategory.Flush,
                 sorted,
@@ -81,17 +79,15 @@ public static class PokerHandEvaluator
         }
 
         if (isStraight)
-        {
             return new PokerHand(
                 PokerHandCategory.Straight,
                 new[] { straightHigh },
                 $"Straight ({RankName(straightHigh)} high)");
-        }
 
         if (groups[0].Count == 3)
         {
-            int trips = groups[0].Rank;
-            var kickers = CollectRanks(groups, count: 1);
+            var trips = groups[0].Rank;
+            var kickers = CollectRanks(groups, 1);
             var values = new List<int>(1 + kickers.Count) { trips };
             values.AddRange(kickers);
             return new PokerHand(
@@ -102,9 +98,9 @@ public static class PokerHandEvaluator
 
         if (groups[0].Count == 2 && groups[1].Count == 2)
         {
-            int highPair = Math.Max(groups[0].Rank, groups[1].Rank);
-            int lowPair = Math.Min(groups[0].Rank, groups[1].Rank);
-            int kicker = groups.Count > 2 ? groups[2].Rank : 0;
+            var highPair = Math.Max(groups[0].Rank, groups[1].Rank);
+            var lowPair = Math.Min(groups[0].Rank, groups[1].Rank);
+            var kicker = groups.Count > 2 ? groups[2].Rank : 0;
             return new PokerHand(
                 PokerHandCategory.TwoPair,
                 new[] { highPair, lowPair, kicker },
@@ -113,8 +109,8 @@ public static class PokerHandEvaluator
 
         if (groups[0].Count == 2)
         {
-            int pair = groups[0].Rank;
-            var kickers = CollectRanks(groups, count: 1);
+            var pair = groups[0].Rank;
+            var kickers = CollectRanks(groups, 1);
             var values = new List<int>(1 + kickers.Count) { pair };
             values.AddRange(kickers);
             return new PokerHand(
@@ -123,7 +119,7 @@ public static class PokerHandEvaluator
                 $"One Pair ({RankPluralName(pair)})");
         }
 
-        int[] highCards = SortDescending(ranks);
+        var highCards = SortDescending(ranks);
         return new PokerHand(
             PokerHandCategory.HighCard,
             highCards,
@@ -132,29 +128,32 @@ public static class PokerHandEvaluator
 
     static bool IsFlush(StandardCard.Suit[] suits)
     {
-        for (int i = 1; i < suits.Length; ++i)
+        for (var i = 1; i < suits.Length; ++i)
         {
-            if (suits[i] != suits[0]) return false;
+            if (suits[i] != suits[0])
+                return false;
         }
+
         return true;
     }
 
     static bool IsStraight(int[] ranks, out int high)
     {
         high = 0;
-        for (int i = 1; i < ranks.Length; ++i)
+        for (var i = 1; i < ranks.Length; ++i)
         {
-            if (ranks[i] == ranks[i - 1]) return false;
+            if (ranks[i] == ranks[i - 1])
+                return false;
         }
 
-        bool sequential = ranks[4] - ranks[0] == 4;
+        var sequential = ranks[4] - ranks[0] == 4;
         if (sequential)
         {
             high = ranks[4];
             return true;
         }
 
-        bool wheel = ranks[0] == 2 && ranks[1] == 3 && ranks[2] == 4 && ranks[3] == 5 && ranks[4] == 14;
+        var wheel = ranks[0] == 2 && ranks[1] == 3 && ranks[2] == 4 && ranks[3] == 5 && ranks[4] == 14;
         if (wheel)
         {
             high = 5;
@@ -174,10 +173,12 @@ public static class PokerHandEvaluator
     static List<int> CollectRanks(List<RankGroup> groups, int count)
     {
         var ranks = new List<int>();
-        for (int i = 0; i < groups.Count; ++i)
+        for (var i = 0; i < groups.Count; ++i)
         {
-            if (groups[i].Count == count) ranks.Add(groups[i].Rank);
+            if (groups[i].Count == count)
+                ranks.Add(groups[i].Rank);
         }
+
         ranks.Sort((a, b) => b.CompareTo(a));
         return ranks;
     }
@@ -186,7 +187,7 @@ public static class PokerHandEvaluator
 
     static string RankPluralName(int rank)
     {
-        string name = RankName(rank);
+        var name = RankName(rank);
         return name == "Six" ? "Sixes" : $"{name}s";
     }
 }

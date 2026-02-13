@@ -2,9 +2,9 @@ using System;
 
 public class EnvelopeDetector
 {
-    private float attackCoeff;
-    private float releaseCoeff;
-    private float envelope;
+    float attackCoeff;
+    float releaseCoeff;
+    float envelope;
 
     public EnvelopeDetector(float attackTimeMs, float releaseTimeMs, float sampleRate)
     {
@@ -17,16 +17,12 @@ public class EnvelopeDetector
 
     public float Process(float input)
     {
-        float absInput = MathF.Abs(input);
+        var absInput = MathF.Abs(input);
 
         if (absInput > envelope)
-        {
             envelope += attackCoeff * (absInput - envelope);
-        }
         else
-        {
             envelope += releaseCoeff * (absInput - envelope);
-        }
 
         return envelope;
     }
@@ -40,18 +36,15 @@ public static class EnvelopeDetection
 {
     public static float[] PeakEnvelope(float[] samples, int windowSize = 1)
     {
-        float[] envelope = new float[samples.Length];
+        var envelope = new float[samples.Length];
 
-        for (int i = 0; i < samples.Length; i++)
+        for (var i = 0; i < samples.Length; i++)
         {
-            float peak = 0f;
-            int start = Math.Max(0, i - windowSize);
-            int end = Math.Min(samples.Length, i + windowSize + 1);
+            var peak = 0f;
+            var start = Math.Max(0, i - windowSize);
+            var end = Math.Min(samples.Length, i + windowSize + 1);
 
-            for (int j = start; j < end; j++)
-            {
-                peak = MathF.Max(peak, MathF.Abs(samples[j]));
-            }
+            for (var j = start; j < end; j++) peak = MathF.Max(peak, MathF.Abs(samples[j]));
 
             envelope[i] = peak;
         }
@@ -61,16 +54,16 @@ public static class EnvelopeDetection
 
     public static float[] RMSEnvelope(float[] samples, int windowSize = 32)
     {
-        float[] envelope = new float[samples.Length];
+        var envelope = new float[samples.Length];
 
-        for (int i = 0; i < samples.Length; i++)
+        for (var i = 0; i < samples.Length; i++)
         {
-            float sum = 0f;
-            int count = 0;
-            int start = Math.Max(0, i - windowSize / 2);
-            int end = Math.Min(samples.Length, i + windowSize / 2);
+            var sum = 0f;
+            var count = 0;
+            var start = Math.Max(0, i - windowSize / 2);
+            var end = Math.Min(samples.Length, i + windowSize / 2);
 
-            for (int j = start; j < end; j++)
+            for (var j = start; j < end; j++)
             {
                 sum += samples[j] * samples[j];
                 count++;

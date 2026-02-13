@@ -39,13 +39,13 @@ public abstract class EditableTextAssetInspector : Editor
             EditorGUILayout.HelpBox("Multi-editing is not supported for this view.", MessageType.Warning);
             return;
         }
-        
+
         if (IsBinaryFile(_filePath))
         {
             EditorGUILayout.HelpBox("This is a binary file and cannot be edited.", MessageType.Info);
             return;
         }
-        
+
         HandleContextMenu();
 
         GUI.SetNextControlName("EditableTextArea");
@@ -66,18 +66,18 @@ public abstract class EditableTextAssetInspector : Editor
     {
         if (Event.current.type != EventType.ContextClick) return;
         var menu = new GenericMenu();
-        menu.AddItem(new("Save"), false, SaveFile);  // Add Save option
-        menu.AddItem(new("Reload"), false, ReloadFile);  // Add Reload option
+        menu.AddItem(new GUIContent("Save"), false, SaveFile); // Add Save option
+        menu.AddItem(new GUIContent("Reload"), false, ReloadFile); // Add Reload option
         menu.ShowAsContext();
         Event.current.Use();
     }
-    
+
     void ReloadFile()
     {
         _currentContent = ReadFileSafe(_filePath);
         Repaint();
     }
-    
+
     void SaveFile()
     {
         var fileInfo = new FileInfo(_filePath);
@@ -101,7 +101,10 @@ public abstract class EditableTextAssetInspector : Editor
 
     string ReadFileSafe(string path)
     {
-        try { return File.ReadAllText(path); }
+        try
+        {
+            return File.ReadAllText(path);
+        }
         catch (IOException e)
         {
             DLog.LogE($"Failed to read {path}: {e.Message}");

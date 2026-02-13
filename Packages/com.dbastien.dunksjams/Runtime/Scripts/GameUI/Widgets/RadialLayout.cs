@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class RadialLayout : LayoutGroup
 {
     [SerializeField] float distance = 100f;
-    [SerializeField, Range(0f, 360f)] float startAngle;
+    [SerializeField] [Range(0f, 360f)] float startAngle;
     [SerializeField] float offsetAngle = 30f;
 
     protected override void OnEnable()
@@ -15,8 +15,13 @@ public class RadialLayout : LayoutGroup
         CalculateRadial();
     }
 
-    public override void SetLayoutHorizontal() { }
-    public override void SetLayoutVertical() { }
+    public override void SetLayoutHorizontal()
+    {
+    }
+
+    public override void SetLayoutVertical()
+    {
+    }
 
     public override void CalculateLayoutInputVertical() => CalculateRadial();
     public override void CalculateLayoutInputHorizontal() => CalculateRadial();
@@ -32,19 +37,20 @@ public class RadialLayout : LayoutGroup
     void CalculateRadial()
     {
         m_Tracker.Clear();
-        int childCount = transform.childCount;
-        int activeChildCount = 0;
+        var childCount = transform.childCount;
+        var activeChildCount = 0;
 
-        for (int i = 0; i < childCount; i++)
+        for (var i = 0; i < childCount; i++)
         {
-            if (transform.GetChild(i).gameObject.activeSelf) activeChildCount++;
+            if (transform.GetChild(i).gameObject.activeSelf)
+                activeChildCount++;
         }
 
         if (activeChildCount == 0) return;
 
-        float angle = NormalizeAngle(startAngle - (offsetAngle * (activeChildCount - 1) * 0.5f));
+        var angle = NormalizeAngle(startAngle - offsetAngle * (activeChildCount - 1) * 0.5f);
 
-        for (int i = childCount - 1; i >= 0; i--)
+        for (var i = childCount - 1; i >= 0; i--)
         {
             if (!transform.GetChild(i).gameObject.activeSelf) continue;
 
@@ -56,7 +62,7 @@ public class RadialLayout : LayoutGroup
                 DrivenTransformProperties.AnchoredPosition |
                 DrivenTransformProperties.Pivot);
 
-            float rad = angle * Mathf.Deg2Rad;
+            var rad = angle * Mathf.Deg2Rad;
             Vector3 position = new(Mathf.Cos(rad), Mathf.Sin(rad), 0);
             child.localPosition = position * distance;
             child.anchorMin = child.anchorMax = child.pivot = new Vector2(0.5f, 0.5f);

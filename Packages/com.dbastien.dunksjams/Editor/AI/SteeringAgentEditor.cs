@@ -28,8 +28,8 @@ public class SteeringAgentEditor : Editor
         if (GUILayout.Button("Add Behavior"))
         {
             var menu = new GenericMenu();
-            foreach (Type behaviorType in _cachedBehaviorTypes)
-                menu.AddItem(new(behaviorType.Name), false, () => AddBehavior(behaviorType));
+            foreach (var behaviorType in _cachedBehaviorTypes)
+                menu.AddItem(new GUIContent(behaviorType.Name), false, () => AddBehavior(behaviorType));
             menu.ShowAsContext();
         }
 

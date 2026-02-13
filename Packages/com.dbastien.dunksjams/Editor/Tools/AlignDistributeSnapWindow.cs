@@ -47,7 +47,12 @@ public class AlignDistributeSnapWindow : EditorWindow
     {
         Undo.RecordObjects(Selection.transforms, "Distribute Objects");
         var sorted = Selection.transforms.OrderBy(t => Vector3.Dot(t.position, axis)).ToArray();
-        for (var i = 1; i < sorted.Length; ++i) sorted[i].position = Snap(sorted[i - 1].position + axis * (_uniformDistribution ? _spacing : Vector3.Distance(sorted[i - 1].position, sorted[i].position)));
+        for (var i = 1; i < sorted.Length; ++i)
+        {
+            sorted[i].position = Snap(sorted[i - 1].position + axis * (_uniformDistribution
+                ? _spacing
+                : Vector3.Distance(sorted[i - 1].position, sorted[i].position)));
+        }
     }
 
     Vector3 Snap(Vector3 pos) => _snapToGrid ? SnapToGrid(pos) : pos;

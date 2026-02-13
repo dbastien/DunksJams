@@ -8,15 +8,15 @@ public static class EnumCache<T> where T : Enum
     static readonly Dictionary<T, string> Cache;
     static readonly string[] Strings;
     static readonly string _summary;
-    
+
     static EnumCache()
     {
         Values = (T[])Enum.GetValues(typeof(T));
         Strings = new string[Values.Length];
-        Cache = new(Values.Length);
+        Cache = new Dictionary<T, string>(Values.Length);
 
         StringBuilder sb = new();
-        for (int i = 0; i < Values.Length; ++i)
+        for (var i = 0; i < Values.Length; ++i)
         {
             var val = Values[i];
             var valString = val.ToString();

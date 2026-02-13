@@ -1,6 +1,6 @@
 public enum AssetImporterPlatform
 {
-	Default,
-	Standalone,
-	Android
+    Default,
+    Standalone,
+    Android
 }

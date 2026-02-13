@@ -30,7 +30,7 @@ public static class IOUtils
     public static string GetConsoleClickableLink(string path, int lineNumber = 0)
     {
         if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
-        string relativePath = ToRelativePath(path);
+        var relativePath = ToRelativePath(path);
         return $"{relativePath}:{lineNumber}";
     }
 
@@ -41,21 +41,25 @@ public static class IOUtils
 
         List<string> files = new();
         if (recurse)
-        {
             GetFilesRecursively(dir, files, filter);
-        }
         else
-        {
             foreach (var file in Directory.GetFiles(dir))
-                if (filter == null || filter(file)) files.Add(file);
-        }
+            {
+                if (filter == null || filter(file))
+                    files.Add(file);
+            }
+
         return files;
     }
 
     static void GetFilesRecursively(string dir, List<string> files, Func<string, bool> filter)
     {
         foreach (var file in Directory.GetFiles(dir))
-            if (filter == null || filter(file)) files.Add(file);
+        {
+            if (filter == null || filter(file))
+                files.Add(file);
+        }
+
         foreach (var subDir in Directory.GetDirectories(dir)) GetFilesRecursively(subDir, files, filter);
     }
 
@@ -66,14 +70,14 @@ public static class IOUtils
 
         List<string> directories = new();
         if (recurse)
-        {
             GetDirectoriesRecursively(dir, directories, filter);
-        }
         else
-        {
             foreach (var subDir in Directory.GetDirectories(dir))
-                if (filter == null || filter(subDir)) directories.Add(subDir);
-        }
+            {
+                if (filter == null || filter(subDir))
+                    directories.Add(subDir);
+            }
+
         return directories;
     }
 
@@ -89,8 +93,12 @@ public static class IOUtils
     public static bool IsPathValid(string path)
     {
         if (string.IsNullOrEmpty(path)) return false;
-        foreach (char c in Path.GetInvalidPathChars())
-            if (path.Contains(c)) return false;
+        foreach (var c in Path.GetInvalidPathChars())
+        {
+            if (path.Contains(c))
+                return false;
+        }
+
         return true;
     }
 
@@ -102,14 +110,20 @@ public static class IOUtils
             if (!File.Exists(fullPath)) return false;
             return (File.GetAttributes(fullPath) & FileAttributes.ReadOnly) == 0;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
     }
-    
+
     //todo: ugh on the error handling
     public static string ReadAllTextSafe(string fullPath, out string error)
     {
         error = null;
-        try { return File.ReadAllText(fullPath); }
+        try
+        {
+            return File.ReadAllText(fullPath);
+        }
         catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
         {
             error = e.Message;
@@ -149,7 +163,7 @@ public static class IOUtils
         if (string.IsNullOrEmpty(baseName)) throw new ArgumentNullException(nameof(baseName));
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-        int index = 1;
+        var index = 1;
         string fileName;
         do
         {

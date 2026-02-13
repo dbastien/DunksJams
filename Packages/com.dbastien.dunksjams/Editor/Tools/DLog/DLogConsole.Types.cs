@@ -1,18 +1,19 @@
 // Assets/Editor/DLog/DLogConsole.Types.cs
+
 using System;
 using UnityEngine;
 
 public sealed partial class DLogConsole
 {
     [Serializable]
-    private sealed class LogEntry
+    sealed class LogEntry
     {
         public string message;
         public string stackTrace;
         public LogType type;
 
-        public long timeMsUtc;   // survives serialization (no double)
-        public int count = 1;    // collapsed repeat count (consecutive)
+        public long timeMsUtc; // survives serialization (no double)
+        public int count = 1; // collapsed repeat count (consecutive)
 
         public bool expanded;
 
@@ -35,7 +36,7 @@ public sealed partial class DLogConsole
         [NonSerialized] public Vector2 stackScroll;
     }
 
-    private struct LinkSpan
+    struct LinkSpan
     {
         public bool hasLink;
         public string file;
@@ -44,7 +45,7 @@ public sealed partial class DLogConsole
         public int length;
     }
 
-    private struct StackLineInfo
+    struct StackLineInfo
     {
         public string line;
         public string displayLine;

@@ -16,8 +16,13 @@ public sealed class ArrayHashSetNative<T>
     public int Count => size;
     public bool IsEmpty => size == 0;
 
-    public ArrayHashSetNative() : this(11) { }
-    public ArrayHashSetNative(int capacity) : this(capacity, null) { }
+    public ArrayHashSetNative() : this(11)
+    {
+    }
+
+    public ArrayHashSetNative(int capacity) : this(capacity, null)
+    {
+    }
 
     public ArrayHashSetNative(int capacity, IEqualityComparer<T> comp)
     {
@@ -33,10 +38,10 @@ public sealed class ArrayHashSetNative<T>
 
     public bool Add(T value)
     {
-        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        int index = hash % buckets.Length;
+        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        var index = hash % buckets.Length;
 
-        for (int i = buckets[index] - 1; i >= 0; i = next[i])
+        for (var i = buckets[index] - 1; i >= 0; i = next[i])
         {
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
                 return false;
@@ -55,6 +60,7 @@ public sealed class ArrayHashSetNative<T>
                 Resize(buffer.Length << 1);
                 index = hash % buffer.Length;
             }
+
             freeIndex = lastIndex++;
         }
 
@@ -81,12 +87,13 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        for (int i = buckets[hash % buckets.Length] - 1; i >= 0; i = next[i])
+        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        for (var i = buckets[hash % buckets.Length] - 1; i >= 0; i = next[i])
         {
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
                 return true;
         }
+
         return false;
     }
 
@@ -95,8 +102,8 @@ public sealed class ArrayHashSetNative<T>
 
     public void CopyTo(T[] array, int arrayIndex, int length)
     {
-        int count = 0;
-        for (int i = 0; i < lastIndex && count < length; ++i)
+        var count = 0;
+        for (var i = 0; i < lastIndex && count < length; ++i)
         {
             if (hashes[i] >= 0)
                 array[arrayIndex + count++] = buffer[i];
@@ -106,21 +113,19 @@ public sealed class ArrayHashSetNative<T>
     public void ExceptWith(IEnumerable<T> other)
     {
         if (size > 0)
-        {
-            foreach (T item in other)
+            foreach (var item in other)
                 Remove(item);
-        }
     }
 
     public void ExceptWith(T[] values)
     {
-        for (int i = 0; i < values.Length; ++i)
+        for (var i = 0; i < values.Length; ++i)
             Remove(values[i]);
     }
 
     public void ExceptWith(List<T> values)
     {
-        for (int i = 0; i < values.Count; ++i)
+        for (var i = 0; i < values.Count; ++i)
             Remove(values[i]);
     }
 
@@ -131,11 +136,12 @@ public sealed class ArrayHashSetNative<T>
         if (other is ICollection<T> collection && collection.Count == 0)
             return true;
 
-        foreach (T item in other)
+        foreach (var item in other)
         {
             if (!Contains(item))
                 return false;
         }
+
         return true;
     }
 
@@ -143,11 +149,12 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        foreach (T item in other)
+        foreach (var item in other)
         {
             if (Contains(item))
                 return true;
         }
+
         return false;
     }
 
@@ -155,11 +162,11 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        int index = hash % buckets.Length;
-        int removeIndex = -1;
+        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        var index = hash % buckets.Length;
+        var removeIndex = -1;
 
-        for (int i = buckets[index] - 1; i >= 0; i = next[i])
+        for (var i = buckets[index] - 1; i >= 0; i = next[i])
         {
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
             {
@@ -175,45 +182,44 @@ public sealed class ArrayHashSetNative<T>
                 --size;
                 return true;
             }
+
             removeIndex = i;
         }
+
         return false;
     }
 
     public int RemoveWhere(Predicate<T> match)
     {
-        int removed = 0;
-        for (int i = 0; i < lastIndex; ++i)
+        var removed = 0;
+        for (var i = 0; i < lastIndex; ++i)
         {
             if (hashes[i] >= 0)
             {
-                T value = buffer[i];
+                var value = buffer[i];
                 if (match(value) && Remove(value))
                     ++removed;
             }
         }
+
         return removed;
     }
 
     public void SymmetricExceptWith(IEnumerable<T> other)
     {
         if (size == 0)
-        {
             UnionWith(other);
-        }
         else
-        {
-            foreach (T item in other)
+            foreach (var item in other)
             {
                 if (!Remove(item))
                     Add(item);
             }
-        }
     }
 
     public T[] ToArray()
     {
-        T[] arr = new T[size];
+        var arr = new T[size];
         CopyTo(arr, 0, size);
         return arr;
     }
@@ -226,19 +232,19 @@ public sealed class ArrayHashSetNative<T>
 
     public void UnionWith(IEnumerable<T> other)
     {
-        foreach (T item in other)
+        foreach (var item in other)
             Add(item);
     }
 
     public void UnionWith(T[] values)
     {
-        for (int i = 0; i < values.Length; ++i)
+        for (var i = 0; i < values.Length; ++i)
             Add(values[i]);
     }
 
     public void UnionWith(List<T> values)
     {
-        for (int i = 0; i < values.Count; ++i)
+        for (var i = 0; i < values.Count; ++i)
             Add(values[i]);
     }
 
@@ -273,8 +279,10 @@ public sealed class ArrayHashSetNative<T>
                     current = hashSet.buffer[index++];
                     return true;
                 }
+
                 ++index;
             }
+
             index = hashSet.lastIndex + 1;
             current = default;
             return false;
@@ -289,21 +297,21 @@ public sealed class ArrayHashSetNative<T>
 
     void Resize(int capacity)
     {
-        T[] newBuffer = new T[capacity];
-        int[] newHashes = new int[capacity];
-        int[] newBuckets = new int[capacity];
-        int[] newNext = new int[capacity];
-        int newLastIndex = lastIndex;
-        int newFreeList = freeList;
+        var newBuffer = new T[capacity];
+        var newHashes = new int[capacity];
+        var newBuckets = new int[capacity];
+        var newNext = new int[capacity];
+        var newLastIndex = lastIndex;
+        var newFreeList = freeList;
 
         if (capacity > buffer.Length)
         {
             Array.Copy(buffer, 0, newBuffer, 0, lastIndex);
             Array.Copy(hashes, 0, newHashes, 0, lastIndex);
 
-            for (int i = 0; i < lastIndex; ++i)
+            for (var i = 0; i < lastIndex; ++i)
             {
-                int index = newHashes[i] % capacity;
+                var index = newHashes[i] % capacity;
                 newNext[i] = newBuckets[index] - 1;
                 newBuckets[index] = i + 1;
             }
@@ -312,15 +320,15 @@ public sealed class ArrayHashSetNative<T>
         {
             newFreeList = -1;
             newLastIndex = 0;
-            for (int i = 0; i < lastIndex; ++i)
+            for (var i = 0; i < lastIndex; ++i)
             {
-                int hashCode = hashes[i];
+                var hashCode = hashes[i];
                 if (hashCode >= 0)
                 {
                     newBuffer[newLastIndex] = buffer[i];
                     newHashes[newLastIndex] = hashCode;
 
-                    int index = hashCode % capacity;
+                    var index = hashCode % capacity;
                     newNext[newLastIndex] = newBuckets[index] - 1;
                     newBuckets[index] = newLastIndex + 1;
                     ++newLastIndex;

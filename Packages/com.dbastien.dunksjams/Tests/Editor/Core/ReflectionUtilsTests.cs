@@ -13,7 +13,8 @@ public class ReflectionUtilsTests : TestBase
         public void SetPrivate(int v) => _privateField = v;
     }
 
-    [Test] public void SetValue_Field_Works()
+    [Test]
+    public void SetValue_Field_Works()
     {
         var s = new Sample();
         var mi = typeof(Sample).GetField("PublicField");
@@ -21,7 +22,8 @@ public class ReflectionUtilsTests : TestBase
         Eq(42, s.PublicField);
     }
 
-    [Test] public void SetValue_Property_Works()
+    [Test]
+    public void SetValue_Property_Works()
     {
         var s = new Sample();
         var mi = typeof(Sample).GetProperty("PublicProp");
@@ -29,21 +31,24 @@ public class ReflectionUtilsTests : TestBase
         Eq(99, s.PublicProp);
     }
 
-    [Test] public void GetValue_Field()
+    [Test]
+    public void GetValue_Field()
     {
         var s = new Sample { PublicField = 123 };
         var fi = typeof(Sample).GetField("PublicField");
         Eq(123, fi.GetValue(s));
     }
 
-    [Test] public void GetTypeByName_FindsType()
+    [Test]
+    public void GetTypeByName_FindsType()
     {
         var t = ReflectionUtils.GetTypeByName("Sample");
         NotNull(t);
         Eq(typeof(Sample), t);
     }
 
-    [Test] public void AllInstance_FindsPrivateFields()
+    [Test]
+    public void AllInstance_FindsPrivateFields()
     {
         var fi = typeof(Sample).GetField("_privateField", ReflectionUtils.AllInstance);
         NotNull(fi);

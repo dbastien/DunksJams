@@ -9,18 +9,15 @@ public class FindAssetDependenciesWindow : EditorWindow
     [MenuItem("‽/Asset Management/Find Dependencies")]
     public static void ShowWindow()
     {
-        EditorWindow.GetWindow<FindAssetDependenciesWindow>().Show();
+        GetWindow<FindAssetDependenciesWindow>().Show();
     }
 
-    private Object target;
-    private string results;
+    Object target;
+    string results;
 
     public void OnGUI()
     {
-        if (target == null && Selection.objects != null)
-        {
-            target = Selection.objects[0];
-        }
+        if (target == null && Selection.objects != null) target = Selection.objects[0];
 
         target = EditorGUILayout.ObjectField("Find dependencies of:", target, typeof(GameObject), true);
 

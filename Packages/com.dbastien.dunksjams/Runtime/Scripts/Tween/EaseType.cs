@@ -34,5 +34,5 @@ public enum EaseType
     BackInOut,
     ElasticIn,
     ElasticOut,
-    ElasticInOut,
+    ElasticInOut
 }

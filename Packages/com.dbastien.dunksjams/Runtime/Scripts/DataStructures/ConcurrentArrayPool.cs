@@ -14,17 +14,17 @@ public sealed class ConcurrentArrayPool<T>
 
     ConcurrentArrayPool()
     {
-        for (int i = 0; i < _buckets.Length; ++i)
+        for (var i = 0; i < _buckets.Length; ++i)
         {
             _buckets[i] = new MinimumQueue<T[]>(4);
-            _locks[i] = new SpinLock(false);  // no thread-owner tracking for lower overhead
+            _locks[i] = new SpinLock(false); // no thread-owner tracking for lower overhead
         }
     }
 
     /// <summary> Rent cleared array w/ at least the specified length </summary>
     public T[] RentCleared(int minLen)
     {
-        T[] rentedArray = Rent(minLen);
+        var rentedArray = Rent(minLen);
         Array.Clear(rentedArray, 0, rentedArray.Length);
         return rentedArray;
     }
@@ -36,16 +36,16 @@ public sealed class ConcurrentArrayPool<T>
 
         if (minLen == 0) return _emptyArray;
 
-        int size = minLen.NextPowerOfTwoAtLeast();
-        int index = GetQueueIndex(size);
+        var size = minLen.NextPowerOfTwoAtLeast();
+        var index = GetQueueIndex(size);
 
         if (index < 0 || index >= MaxBuckets) return new T[size];
 
         // Avoid lock if bucket is empty
-        if (_buckets[index].Count == 0) return new T[size];  
+        if (_buckets[index].Count == 0) return new T[size];
 
         ref var spinLock = ref _locks[index];
-        bool lockTaken = false;
+        var lockTaken = false;
         try
         {
             spinLock.TryEnter(ref lockTaken);
@@ -63,11 +63,11 @@ public sealed class ConcurrentArrayPool<T>
         if (array == null) throw new ArgumentNullException(nameof(array));
         if (array.Length == 0) throw new ArgumentException("Array must have positive length.", nameof(array));
 
-        int index = GetQueueIndex(array.Length);
+        var index = GetQueueIndex(array.Length);
         Debug.Assert(index >= 0, $"Invalid bucket index: {index}");
 
         ref var spinLock = ref _locks[index];
-        bool lockTaken = false;
+        var lockTaken = false;
         try
         {
             spinLock.TryEnter(ref lockTaken);

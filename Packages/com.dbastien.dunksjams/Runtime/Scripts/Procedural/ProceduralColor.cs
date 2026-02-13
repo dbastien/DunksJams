@@ -8,29 +8,30 @@ public static class ProceduralColor
 
     public static Color RandomHSV(float? saturation = null, float? value = null, float alpha = 1f)
     {
-        float h = Rand.Rad();
-        float s = saturation ?? Rand.Float();
-        float v = value ?? Rand.Float();
+        var h = Rand.Rad();
+        var s = saturation ?? Rand.Float();
+        var v = value ?? Rand.Float();
         return Color.HSVToRGB(h / MathConsts.Tau, s, v).WithAlpha(alpha);
     }
 
     public static Color RandomHSVInRanges(Vector2 saturationRange, Vector2 valueRange, float alpha = 1f)
     {
-        float h = Rand.Rad();
-        float s = Mathf.Lerp(saturationRange.x, saturationRange.y, Rand.Float());
-        float v = Mathf.Lerp(valueRange.x, valueRange.y, Rand.Float());
+        var h = Rand.Rad();
+        var s = Mathf.Lerp(saturationRange.x, saturationRange.y, Rand.Float());
+        var v = Mathf.Lerp(valueRange.x, valueRange.y, Rand.Float());
         return Color.HSVToRGB(h / MathConsts.Tau, s, v).WithAlpha(alpha);
     }
 
     public static Color RandomGrayscale(float alpha = 1f)
     {
-        float gray = Rand.Float();
-        return new(gray, gray, gray, alpha);
+        var gray = Rand.Float();
+        return new Color(gray, gray, gray, alpha);
     }
 
-    public static Color RandomVariationOf(Color baseColor, float hueVariation = 30f, float satVariation = 0.2f, float valVariation = 0.2f)
+    public static Color RandomVariationOf(Color baseColor, float hueVariation = 30f, float satVariation = 0.2f,
+        float valVariation = 0.2f)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
 
         h += Rand.FloatRanged(-hueVariation, hueVariation) / 360f;
         h = Mathf.Repeat(h, 1f);
@@ -43,27 +44,25 @@ public static class ProceduralColor
 
     public static Color RandomComplementaryVariation(Color baseColor, float variation = 0.1f)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         h = Mathf.Repeat(h + 0.5f + Rand.FloatRanged(-variation, variation), 1f);
         return Color.HSVToRGB(h, s, v).WithAlpha(baseColor.a);
     }
 
     public static Color RandomAnalogousVariation(Color baseColor, float maxHueShift = 30f)
     {
-        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
         h = Mathf.Repeat(h + Rand.FloatRanged(-maxHueShift, maxHueShift) / 360f, 1f);
         return Color.HSVToRGB(h, s, v).WithAlpha(baseColor.a);
     }
 
-    public static Color WithNoise(Color color, float noiseAmount = 0.1f)
-    {
-        return new(
+    public static Color WithNoise(Color color, float noiseAmount = 0.1f) =>
+        new(
             Mathf.Clamp01(color.r + Rand.FloatRanged(-noiseAmount, noiseAmount)),
             Mathf.Clamp01(color.g + Rand.FloatRanged(-noiseAmount, noiseAmount)),
             Mathf.Clamp01(color.b + Rand.FloatRanged(-noiseAmount, noiseAmount)),
             color.a
         );
-    }
 
     public static Color MultiColorGradient(Color[] colors, float t)
     {
@@ -71,11 +70,11 @@ public static class ProceduralColor
         if (colors.Length == 1) return colors[0];
 
         t = Mathf.Clamp01(t);
-        float segment = 1f / (colors.Length - 1);
-        int index = Mathf.FloorToInt(t / segment);
+        var segment = 1f / (colors.Length - 1);
+        var index = Mathf.FloorToInt(t / segment);
         index = Mathf.Clamp(index, 0, colors.Length - 2);
 
-        float localT = (t - index * segment) / segment;
+        var localT = (t - index * segment) / segment;
         return Color.Lerp(colors[index], colors[index + 1], localT);
     }
 
@@ -87,7 +86,7 @@ public static class ProceduralColor
 
     public static Color SineWaveColor(float time, float frequency = 1f, float saturation = 1f, float value = 1f)
     {
-        float hue = (Mathf.Sin(time * frequency * MathConsts.Tau) + 1f) * 0.5f;
+        var hue = (Mathf.Sin(time * frequency * MathConsts.Tau) + 1f) * 0.5f;
         return Color.HSVToRGB(hue, saturation, value);
     }
 

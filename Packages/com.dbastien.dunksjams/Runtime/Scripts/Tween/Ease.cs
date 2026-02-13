@@ -33,6 +33,7 @@ public static class Ease
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float CubicOut(float t) => 1f + --t * t * t;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float CubicInOut(float t) => DoEaseInOut(t, CubicIn, CubicOut);
 
@@ -89,6 +90,7 @@ public static class Ease
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float CircularOut(float t) => MathF.Sqrt((2f - t) * t);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float CircularInOut(float t) => DoEaseInOut(t, CircularIn, CircularOut);
 
@@ -112,16 +114,20 @@ public static class Ease
     public static float BackIn(float t) => t * t * ((BackOvershoot + 1f) * t - BackOvershoot);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float BackOut(float t) => (t - 1f) * (t - 1f) * ((BackOvershoot + 1f) * (t - 1f) + BackOvershoot) + 1f;
+    public static float BackOut(float t) =>
+        (t - 1f) * (t - 1f) * ((BackOvershoot + 1f) * (t - 1f) + BackOvershoot) + 1f;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float BackInOut(float t) => DoEaseInOut(t, BackIn, BackOut);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ElasticIn(float t) => t is 0f or 1f ? t : -MathF.Pow(2f, 10f * (t - 1f)) * MathF.Sin((t - 1.1f) * 5f * Mathf.PI);
+    public static float ElasticIn(float t) =>
+        t is 0f or 1f ? t : -MathF.Pow(2f, 10f * (t - 1f)) * MathF.Sin((t - 1.1f) * 5f * Mathf.PI);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ElasticOut(float t) => t is 0f or 1f ? t : MathF.Pow(2f, -10f * t) * MathF.Sin((t - 0.1f) * 5f * Mathf.PI) + 1f;
+    public static float ElasticOut(float t) =>
+        t is 0f or 1f ? t : MathF.Pow(2f, -10f * t) * MathF.Sin((t - 0.1f) * 5f * Mathf.PI) + 1f;
+
     public static float ElasticInOut(float t)
     {
         if (t is 0f or 1f) return t;
@@ -172,7 +178,7 @@ public static class Ease
         EaseType.ElasticIn => ElasticIn(t),
         EaseType.ElasticOut => ElasticOut(t),
         EaseType.ElasticInOut => ElasticInOut(t),
-        _ => Linear(t),
+        _ => Linear(t)
     };
 
     public static Func<float, float> GetEasingFunction(EaseType easeType) => easeType switch
@@ -212,6 +218,6 @@ public static class Ease
         EaseType.ElasticIn => ElasticIn,
         EaseType.ElasticOut => ElasticOut,
         EaseType.ElasticInOut => ElasticInOut,
-        _ => Linear,
+        _ => Linear
     };
 }

@@ -8,8 +8,7 @@ public class Health : MonoBehaviour
 {
     [ToggleHeader("useDeath", "Death")] public bool useDeath = true;
 
-    [Header("HP")]
-    public int maxHP = 100;
+    [Header("HP")] public int maxHP = 100;
     public int HPModifier;
     public bool useOverheal;
     [ShowIf("useOverheal")] public int maxOverheal = 150;
@@ -24,30 +23,34 @@ public class Health : MonoBehaviour
     [ShowIf("useShield")] public float shieldRegenRate = 10f;
     [ShowIf("useShield")] public int shieldModifier;
 
-    [ToggleHeader("useRegen", "Regeneration")] public bool useRegen;
+    [ToggleHeader("useRegen", "Regeneration")]
+    public bool useRegen;
+
     [ShowIf("useRegen")] public float regenRate = 5f;
 
-    [ToggleHeader("useInvulnerability", "Invulnerability")] public bool useInvulnerability = true;
+    [ToggleHeader("useInvulnerability", "Invulnerability")]
+    public bool useInvulnerability = true;
+
     [ShowIf("useInvulnerability")] public float invulnerabilityTime = 2f;
 
-    [ToggleHeader("useCritHit", "Critical Hit")] public bool useCritHit;
+    [ToggleHeader("useCritHit", "Critical Hit")]
+    public bool useCritHit;
+
     [ShowIf("useCritHit")] [Range(0f, 1f)] public float critChance = 0.2f;
     [ShowIf("useCritHit")] [Range(1f, 3f)] public float critMultiplier = 2f;
 
-    [Header("Damage Resistances")]
-    public SerializableDictionary<DamageType, float> resistances = new();
+    [Header("Damage Resistances")] public SerializableDictionary<DamageType, float> resistances = new();
 
-    [Header("Status Effects")]
-    public float poisonDamagePerSecond = 3f;
+    [Header("Status Effects")] public float poisonDamagePerSecond = 3f;
     public float burnDamagePerSecond = 6f;
 
     public int MaxHPEffective => maxHP + HPModifier;
     public int MaxShieldEffective => maxShield + shieldModifier;
 
-    private bool _isInvulnerable, _isDead;
-    private float _currentHP, _currentShield, _invulnerabilityTimer;
+    bool _isInvulnerable, _isDead;
+    float _currentHP, _currentShield, _invulnerabilityTimer;
 
-    private readonly List<StatusEffectInstance> _activeStatusEffects = new();
+    readonly List<StatusEffectInstance> _activeStatusEffects = new();
 
     public event Action<int> OnHPChanged, OnShieldChanged;
     public event Action<StatusEffect> OnStatusEffectApplied;
@@ -143,9 +146,9 @@ public class Health : MonoBehaviour
     public void RemoveStatusEffect(StatusEffect effect) =>
         _activeStatusEffects.RemoveAll(e => e.effectType == effect);
 
-    private void UpdateStatusEffects()
+    void UpdateStatusEffects()
     {
-        for (int i = _activeStatusEffects.Count - 1; i >= 0; --i)
+        for (var i = _activeStatusEffects.Count - 1; i >= 0; --i)
         {
             var effect = _activeStatusEffects[i];
             if (effect.timer > 0)
@@ -161,10 +164,10 @@ public class Health : MonoBehaviour
         }
     }
 
-    private float ApplyResistance(float dam, DamageType damType) =>
-        resistances.TryGetValue(damType, out float resistance) ? dam * (1 - resistance) : dam;
+    float ApplyResistance(float dam, DamageType damType) =>
+        resistances.TryGetValue(damType, out var resistance) ? dam * (1 - resistance) : dam;
 
-    private void Die()
+    void Die()
     {
         _isDead = true;
         _isInvulnerable = false;

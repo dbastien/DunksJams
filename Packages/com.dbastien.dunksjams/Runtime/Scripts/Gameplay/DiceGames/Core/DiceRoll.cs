@@ -39,13 +39,15 @@ public readonly struct DiceRoll
         if (Rolls.Length > 0)
         {
             sb.Append(" [");
-            for (int i = 0; i < Rolls.Length; i++)
+            for (var i = 0; i < Rolls.Length; i++)
             {
                 if (i > 0) sb.Append(", ");
                 sb.Append(Rolls[i]);
             }
+
             sb.Append(']');
         }
+
         return sb.ToString();
     }
 

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 public class TetherFilter3D : IFilter3D
 {
     public float TetherLength = 0.01f;
@@ -8,10 +9,10 @@ public class TetherFilter3D : IFilter3D
     public Vector3 CurrentValue => tetherPosition;
 
     public bool JustMoved { get; set; }
-    
-    private Vector3 tetherPosition;
 
-    private bool hasValue;
+    Vector3 tetherPosition;
+
+    bool hasValue;
 
     public object Clone() => MemberwiseClone();
 
@@ -22,7 +23,7 @@ public class TetherFilter3D : IFilter3D
         {
             var tetherDiff = s - tetherPosition;
 
-            float distanceBeyondTether = tetherDiff.magnitude - TetherLength;
+            var distanceBeyondTether = tetherDiff.magnitude - TetherLength;
             distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame);
 
             // is the current position outside the tether circle?

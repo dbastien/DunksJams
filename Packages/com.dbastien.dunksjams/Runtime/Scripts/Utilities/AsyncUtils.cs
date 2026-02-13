@@ -60,5 +60,8 @@ public static class AsyncUtils
 public class AsyncRunner : SingletonEagerBehaviour<AsyncRunner>
 {
     protected override bool PersistAcrossScenes => true;
-    protected override void InitInternal() { }
+
+    protected override void InitInternal()
+    {
+    }
 }

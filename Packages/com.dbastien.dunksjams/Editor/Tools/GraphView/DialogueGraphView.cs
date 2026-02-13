@@ -8,6 +8,7 @@ public class DialogueEditorWindow : SerializedGraphViewEditorWindow<DialogueGrap
 {
     [MenuItem("‽/Dialogue Editor")]
     public static void ShowWindow() => GetWindow<DialogueEditorWindow>();
+
     protected override string GetWindowTitle() => "Dialogue Editor";
     protected override string GetGraphViewName() => "DialogueGraph";
 }

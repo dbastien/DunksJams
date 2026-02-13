@@ -14,10 +14,10 @@ public class ObjectPoolEx<T> where T : class, new()
     public ObjectPoolEx(int initialCap = 8, int maxCap = 128)
     {
         _pool = new ObjectPool<T>(
-            createFunc: () => new T(),
-            actionOnGet: obj => (obj as IPoolable)?.OnPoolGet(),
-            actionOnRelease: obj => (obj as IPoolable)?.OnPoolRelease(),
-            actionOnDestroy: obj => (obj as IDisposable)?.Dispose(),
+            () => new T(),
+            obj => (obj as IPoolable)?.OnPoolGet(),
+            obj => (obj as IPoolable)?.OnPoolRelease(),
+            obj => (obj as IDisposable)?.Dispose(),
             defaultCapacity: initialCap,
             maxSize: maxCap
         );

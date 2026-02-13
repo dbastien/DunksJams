@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+
 /*
 public class FolderImporterRules : AssetPostprocessor
 {
@@ -21,7 +22,7 @@ public class FolderImporterRules : AssetPostprocessor
         {
         }
     }
-    
+
     void OnPreprocessModel()
     {
         var importer = (ModelImporter)assetImporter;

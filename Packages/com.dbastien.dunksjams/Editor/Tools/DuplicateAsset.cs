@@ -10,8 +10,5 @@ public static class DuplicateAsset
     }
 
     [MenuItem("Assets/Duplicate", true)]
-    public static bool ValidateDuplicate()
-    {
-        return Selection.activeObject != null;
-    }
+    public static bool ValidateDuplicate() => Selection.activeObject != null;
 }

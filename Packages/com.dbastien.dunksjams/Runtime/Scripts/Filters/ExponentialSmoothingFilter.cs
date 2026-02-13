@@ -1,13 +1,13 @@
 ﻿using System;
-    
+
 public class ExponentialSmoothingFilter : IFilter1D
 {
     public float Alpha;
     public float CurrentValue => previousSample;
 
-    private bool previousSampleSet;
-    private float previousSample;
-    
+    bool previousSampleSet;
+    float previousSample;
+
     public ExponentialSmoothingFilter(float defaultAlpha)
     {
         if (defaultAlpha is < 0f or > 1.0f)
@@ -20,7 +20,7 @@ public class ExponentialSmoothingFilter : IFilter1D
     {
         if (previousSampleSet)
         {
-            previousSample = (Alpha * s) + ((1.0f - Alpha) * previousSample);
+            previousSample = Alpha * s + (1.0f - Alpha) * previousSample;
         }
         else
         {

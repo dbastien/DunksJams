@@ -11,7 +11,7 @@ using ShaderPropertyType = UnityEngine.Rendering.ShaderPropertyType;
 public class ComponentMemberReferenceCurveEditor : Editor
 {
     SerializedProperty _curveProp, _componentProp, _memberProp;
-    
+
     //todo: SerializedProperty[] _startProps, _endProps;
     SerializedProperty _startFloat, _endFloat;
     SerializedProperty _startVector2, _endVector2;
@@ -22,18 +22,18 @@ public class ComponentMemberReferenceCurveEditor : Editor
 
     SerializedProperty _selectedGameObjectProp;
     //SerializedProperty _relativeModeProp;
-    
+
     Component[] _availableComponents;
     string[] _validMembers = Array.Empty<string>();
 
-    const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; 
+    const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
     void OnEnable()
     {
         _componentProp = serializedObject.FindProperty("memberReference.targetComponent");
         _memberProp = serializedObject.FindProperty("memberReference.targetMemberName");
         _selectedGameObjectProp = serializedObject.FindProperty("selectedGameObject");
-        
+
         _curveProp = serializedObject.FindProperty("curve");
 
         _startFloat = serializedObject.FindProperty("startFloat");
@@ -62,25 +62,25 @@ public class ComponentMemberReferenceCurveEditor : Editor
         EditorGUILayout.PropertyField(_curveProp, new GUIContent("Animation Curve"));
 
         //relative mode support
-        
+
         EditorGUILayout.PropertyField(_selectedGameObjectProp, new GUIContent("Target GameObject"));
-        GameObject selectedGameObject = _selectedGameObjectProp.objectReferenceValue as GameObject;
-        
+        var selectedGameObject = _selectedGameObjectProp.objectReferenceValue as GameObject;
+
         if (selectedGameObject)
         {
             _availableComponents = selectedGameObject.GetComponents<Component>();
-            string[] componentNames = _availableComponents
+            var componentNames = _availableComponents
                 .Select(c => c.GetType().Name)
                 .ToArray();
 
             // Display components and select the one referenced in memberReference
-            int currentIndex = _availableComponents
+            var currentIndex = _availableComponents
                 .ToList()
                 .IndexOf((Component)_componentProp.objectReferenceValue);
-            
+
             if (currentIndex == -1) currentIndex = 0; // Default to first if not found
-            
-            int selectedIndex = EditorGUILayout.Popup("Target Component", currentIndex, componentNames);
+
+            var selectedIndex = EditorGUILayout.Popup("Target Component", currentIndex, componentNames);
             if (selectedIndex >= 0 && selectedIndex < _availableComponents.Length)
             {
                 _componentProp.objectReferenceValue = _availableComponents[selectedIndex];
@@ -88,7 +88,7 @@ public class ComponentMemberReferenceCurveEditor : Editor
 
                 if (_validMembers.Length > 0)
                 {
-                    int memberIndex = Mathf.Max(Array.IndexOf(_validMembers, _memberProp.stringValue), 0);
+                    var memberIndex = Mathf.Max(Array.IndexOf(_validMembers, _memberProp.stringValue), 0);
                     memberIndex = EditorGUILayout.Popup("Target Member", memberIndex, _validMembers);
                     _memberProp.stringValue = _validMembers[memberIndex];
 
@@ -139,92 +139,93 @@ public class ComponentMemberReferenceCurveEditor : Editor
                 break;
             default: throw new ArgumentOutOfRangeException();
         }
-        
+
         EditorGUILayout.PropertyField(startProp, new GUIContent("Start"));
         EditorGUILayout.PropertyField(endProp, new GUIContent("End"));
     }
-    
+
     void UpdateValidMembers(Component targetComponent)
     {
         _validMembers = targetComponent is Renderer renderer
             ? GetShaderPropertyNames(renderer.sharedMaterial)
             : GetComponentMemberNames(targetComponent);
     }
-    
+
     string[] GetComponentMemberNames(Component component)
     {
-        Type componentType = component.GetType();
+        var componentType = component.GetType();
 
-        string[] fields = componentType.GetFields(bindingFlags)
+        var fields = componentType.GetFields(bindingFlags)
             .Where(f => IsValidType(f.FieldType))
             .Select(f => f.Name)
             .ToArray();
 
-        string[] properties = componentType.GetProperties(bindingFlags)
+        var properties = componentType.GetProperties(bindingFlags)
             .Where(p => IsValidType(p.PropertyType) && p.GetIndexParameters().Length == 0)
             .Select(p => p.Name)
             .ToArray();
 
         return fields.Concat(properties).ToArray();
     }
-    
+
     string[] GetShaderPropertyNames(Material material)
     {
         if (!material) return Array.Empty<string>();
 
-        Shader shader = material.shader;
-        int propCount = shader.GetPropertyCount();
+        var shader = material.shader;
+        var propCount = shader.GetPropertyCount();
         System.Collections.Generic.List<string> validProperties = new();
 
         for (var i = 0; i < propCount; ++i)
         {
-            ShaderPropertyType propType = shader.GetPropertyType(i);
+            var propType = shader.GetPropertyType(i);
             if (IsShaderPropertyValid(propType)) validProperties.Add(shader.GetPropertyName(i));
         }
 
         return validProperties.ToArray();
     }
-    
+
     bool IsValidType(Type type) =>
-        type == typeof(float)   || type == typeof(Vector2)    || type == typeof(Vector3) ||
+        type == typeof(float) || type == typeof(Vector2) || type == typeof(Vector3) ||
         type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color);
 
-    bool IsShaderPropertyValid(ShaderPropertyType propType) => 
+    bool IsShaderPropertyValid(ShaderPropertyType propType) =>
         propType is
-        ShaderPropertyType.Float or ShaderPropertyType.Range or 
-        ShaderPropertyType.Color or ShaderPropertyType.Vector;
+            ShaderPropertyType.Float or ShaderPropertyType.Range or
+            ShaderPropertyType.Color or ShaderPropertyType.Vector;
 
     void SetCurveTypeBasedOnMember(Component targetComponent, string selectedMember)
     {
         if (targetComponent is Renderer renderer)
         {
             var curveTarget = (ComponentMemberReferenceCurve)target;
-            Material mat = curveTarget.memberReference.GetMaterial(renderer);
+            var mat = curveTarget.memberReference.GetMaterial(renderer);
             if (mat && mat.HasProperty(selectedMember))
             {
                 // Map shader property type to curve type
-                Shader shader = mat.shader;
-                int propertyIndex = shader.FindPropertyIndex(selectedMember);
+                var shader = mat.shader;
+                var propertyIndex = shader.FindPropertyIndex(selectedMember);
                 if (propertyIndex < 0)
                 {
                     DLog.LogE($"Shader property '{selectedMember}' not found.");
                     return;
                 }
-                
-                ShaderPropertyType propertyType = shader.GetPropertyType(propertyIndex);
+
+                var propertyType = shader.GetPropertyType(propertyIndex);
                 switch (propertyType)
                 {
                     case ShaderPropertyType.Color:
                         curveTarget.curveType = CurveType.Color;
                         break;
-                    case ShaderPropertyType.Float: 
+                    case ShaderPropertyType.Float:
                     case ShaderPropertyType.Range:
                         curveTarget.curveType = CurveType.Float;
                         break;
                     case ShaderPropertyType.Vector:
-                        curveTarget.curveType = CurveType.Vector4;  //shader vecs are all V4s in Unity
+                        curveTarget.curveType = CurveType.Vector4; //shader vecs are all V4s in Unity
                         break;
-                    default: DLog.LogE($"Shader property '{selectedMember}' is unsupported type '{propertyType}'.");
+                    default:
+                        DLog.LogE($"Shader property '{selectedMember}' is unsupported type '{propertyType}'.");
                         break;
                 }
             }
@@ -236,22 +237,22 @@ public class ComponentMemberReferenceCurveEditor : Editor
         else
         {
             // Handle non-renderer components by inspecting the type of the selected field/property
-            Type componentType = targetComponent.GetType();
-            FieldInfo fieldInfo = componentType.GetField(selectedMember, bindingFlags);
-            PropertyInfo propertyInfo = componentType.GetProperty(selectedMember, bindingFlags);
+            var componentType = targetComponent.GetType();
+            var fieldInfo = componentType.GetField(selectedMember, bindingFlags);
+            var propertyInfo = componentType.GetProperty(selectedMember, bindingFlags);
 
-            Type memberType = fieldInfo?.FieldType ?? propertyInfo?.PropertyType;
+            var memberType = fieldInfo?.FieldType ?? propertyInfo?.PropertyType;
 
             if (memberType != null)
             {
                 var curveTarget = (ComponentMemberReferenceCurve)target;
 
-                if      (memberType == typeof(float))      curveTarget.curveType = CurveType.Float;
-                else if (memberType == typeof(Vector2))    curveTarget.curveType = CurveType.Vector2;
-                else if (memberType == typeof(Vector3))    curveTarget.curveType = CurveType.Vector3;
-                else if (memberType == typeof(Vector4))    curveTarget.curveType = CurveType.Vector4;
+                if (memberType == typeof(float)) curveTarget.curveType = CurveType.Float;
+                else if (memberType == typeof(Vector2)) curveTarget.curveType = CurveType.Vector2;
+                else if (memberType == typeof(Vector3)) curveTarget.curveType = CurveType.Vector3;
+                else if (memberType == typeof(Vector4)) curveTarget.curveType = CurveType.Vector4;
                 else if (memberType == typeof(Quaternion)) curveTarget.curveType = CurveType.Quaternion;
-                else if (memberType == typeof(Color))      curveTarget.curveType = CurveType.Color;
+                else if (memberType == typeof(Color)) curveTarget.curveType = CurveType.Color;
             }
             else
             {

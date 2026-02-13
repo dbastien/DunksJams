@@ -8,18 +8,19 @@ public class TransformCurveEditor : Editor
 {
     static List<string> _propNames = new();
     static string[] _propNamesArray;
-    
+
     static TransformCurveEditor()
     {
-        MemberInfo[] members = typeof(Transform).GetMembers(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public);
+        var members = typeof(Transform).GetMembers(BindingFlags.SetProperty | BindingFlags.GetProperty |
+                                                   BindingFlags.Instance | BindingFlags.Public);
 
-        foreach (MemberInfo member in members)
+        foreach (var member in members)
         {
             if (member.MemberType != MemberTypes.Property) continue;
             var info = member as PropertyInfo;
             if (info?.PropertyType == typeof(Vector3)) _propNames.Add(info.Name);
         }
-        
+
         _propNamesArray = _propNames.ToArray();
     }
 
@@ -27,11 +28,11 @@ public class TransformCurveEditor : Editor
     {
         var targetCurve = target as TransformCurve;
 
-        int index = _propNames.IndexOf(targetCurve.curveTargetName);
+        var index = _propNames.IndexOf(targetCurve.curveTargetName);
         index = Mathf.Max(0, index);
 
         serializedObject.Update();
-        SerializedProperty curveProperty = serializedObject.FindProperty("Curve");
+        var curveProperty = serializedObject.FindProperty("Curve");
 
         EditorGUILayout.PropertyField(curveProperty);
         serializedObject.ApplyModifiedProperties();
@@ -53,6 +54,7 @@ public class TransformCurveEditor : Editor
                     targetCurve.curveTargetName = _propNamesArray[index];
                     targetCurve.ResetStartEnd();
                 }
+
                 EditorGUIUtility.labelWidth = 90f;
 
                 targetCurve.relativeMode = EditorGUILayout.Toggle("Relative Mode", targetCurve.relativeMode);
@@ -68,12 +70,13 @@ public class TransformCurveEditor : Editor
                 }
 
                 targetCurve.lengthScale = EditorGUILayout.FloatField("length scale", targetCurve.lengthScale);
-                if (targetCurve.lengthScale == 0) EditorGUILayout.HelpBox("Length scale cannot be zero!", MessageType.Error);
+                if (targetCurve.lengthScale == 0)
+                    EditorGUILayout.HelpBox("Length scale cannot be zero!", MessageType.Error);
             }
             EditorGUILayout.EndVertical();
         }
         EditorGUILayout.EndHorizontal();
-        
+
         //reset to default
         EditorGUIUtility.labelWidth = 0;
     }

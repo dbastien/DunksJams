@@ -40,14 +40,20 @@ public static class ListExtensions
 
     public static void RemoveAllByPredicate<T>(this IList<T> l, Predicate<T> match)
     {
-        for (int i = l.Count - 1; i >= 0; --i)
-            if (match(l[i])) l.RemoveAt(i);
+        for (var i = l.Count - 1; i >= 0; --i)
+        {
+            if (match(l[i]))
+                l.RemoveAt(i);
+        }
     }
 
     public static void RemoveAllByValue<T>(this IList<T> l, T value)
     {
-        for (int i = l.Count - 1; i >= 0; --i)
-            if (EqualityComparer<T>.Default.Equals(l[i], value)) l.RemoveAt(i);
+        for (var i = l.Count - 1; i >= 0; --i)
+        {
+            if (EqualityComparer<T>.Default.Equals(l[i], value))
+                l.RemoveAt(i);
+        }
     }
 
     public static void AddRange<T>(this IList<T> l, IEnumerable<T> items)
@@ -55,6 +61,7 @@ public static class ListExtensions
         if (l is List<T> concreteList)
             concreteList.AddRange(items);
         else
-            foreach (var item in items) l.Add(item);
+            foreach (var item in items)
+                l.Add(item);
     }
 }

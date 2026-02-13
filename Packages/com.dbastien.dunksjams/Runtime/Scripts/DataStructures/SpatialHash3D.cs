@@ -7,10 +7,10 @@ public class SpatialHash3D<T>
     readonly float _cellSize;
     readonly Dictionary<Vector3Int, List<(T obj, Vector3 pos)>> _cells = new();
     int _totalObjectCount;
-    
+
     public int CellCount => _cells.Count;
     public int Count => _totalObjectCount;
-    
+
     public SpatialHash3D(float cellSize) =>
         _cellSize = cellSize > 0 ? cellSize : throw new ArgumentOutOfRangeException(nameof(cellSize));
 
@@ -29,6 +29,7 @@ public class SpatialHash3D<T>
             objects = new List<(T, Vector3)>();
             _cells[cell] = objects;
         }
+
         objects.Add((obj, pos));
         ++_totalObjectCount;
     }
@@ -38,7 +39,7 @@ public class SpatialHash3D<T>
         var cell = GetCell(pos);
         if (_cells.TryGetValue(cell, out var objects))
         {
-            int removed = objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj));
+            var removed = objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj));
             if (removed > 0)
             {
                 _totalObjectCount -= removed;
@@ -46,6 +47,7 @@ public class SpatialHash3D<T>
                 return true;
             }
         }
+
         return false;
     }
 
@@ -57,7 +59,7 @@ public class SpatialHash3D<T>
 
     public List<T> Query(Vector3 pos, List<T> result = null)
     {
-        result ??= new();
+        result ??= new List<T>();
         result.Clear();
 
         if (_cells.TryGetValue(GetCell(pos), out var objects))
@@ -68,15 +70,15 @@ public class SpatialHash3D<T>
 
     public List<T> QueryNeighbors(Vector3 pos, int maxDistInCells, List<T> result = null)
     {
-        result ??= new();
+        result ??= new List<T>();
         result.Clear();
 
         var centerCell = GetCell(pos);
-        for (int x = -maxDistInCells; x <= maxDistInCells; ++x)
+        for (var x = -maxDistInCells; x <= maxDistInCells; ++x)
         {
-            for (int y = -maxDistInCells; y <= maxDistInCells; ++y)
+            for (var y = -maxDistInCells; y <= maxDistInCells; ++y)
             {
-                for (int z = -maxDistInCells; z <= maxDistInCells; ++z)
+                for (var z = -maxDistInCells; z <= maxDistInCells; ++z)
                 {
                     var neighborCell = new Vector3Int(centerCell.x + x, centerCell.y + y, centerCell.z + z);
                     if (_cells.TryGetValue(neighborCell, out var objects))
@@ -84,36 +86,36 @@ public class SpatialHash3D<T>
                 }
             }
         }
+
         return result;
     }
 
     public List<T> QueryInRadius(Vector3 pos, float radius, List<T> result = null)
     {
-        result ??= new();
+        result ??= new List<T>();
         result.Clear();
 
         var radiusSquared = radius * radius;
         var minCell = GetCell(pos - new Vector3(radius, radius, radius));
         var maxCell = GetCell(pos + new Vector3(radius, radius, radius));
 
-        for (int z = minCell.z; z <= maxCell.z; ++z)
+        for (var z = minCell.z; z <= maxCell.z; ++z)
         {
-            for (int y = minCell.y; y <= maxCell.y; ++y)
+            for (var y = minCell.y; y <= maxCell.y; ++y)
             {
-                for (int x = minCell.x; x <= maxCell.x; ++x)
+                for (var x = minCell.x; x <= maxCell.x; ++x)
                 {
                     var cell = new Vector3Int(x, y, z);
                     if (_cells.TryGetValue(cell, out var objects))
-                    {
                         foreach (var (obj, objPos) in objects)
                         {
                             if ((objPos - pos).sqrMagnitude <= radiusSquared)
                                 result.Add(obj);
                         }
-                    }
                 }
             }
         }
+
         return result;
     }
 
@@ -122,16 +124,18 @@ public class SpatialHash3D<T>
         _cells.Clear();
         _totalObjectCount = 0;
     }
-    
+
     public IEnumerable<T> AllObjects()
     {
         foreach (var objects in _cells.Values)
-            foreach ((T obj, _) in objects)
+        {
+            foreach (var (obj, _) in objects)
                 yield return obj;
+        }
     }
 
     void ExtractObjects(List<(T obj, Vector3 pos)> objects, List<T> result)
     {
-        foreach ((T obj, _) in objects) result.Add(obj);
+        foreach (var (obj, _) in objects) result.Add(obj);
     }
 }

@@ -18,7 +18,10 @@ public class ExposeMethodInEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Exposed Methods", EditorStyles.boldLabel);
 
-        foreach (MethodInfo method in methods)
-            if (GUILayout.Button(method.Name)) method.Invoke(target, null);
+        foreach (var method in methods)
+        {
+            if (GUILayout.Button(method.Name))
+                method.Invoke(target, null);
+        }
     }
 }

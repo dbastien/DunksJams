@@ -8,15 +8,15 @@ using Object = UnityEngine.Object;
 public class TextureBrowserWindow : AssetBrowserWindow<TextureBrowserTreeView, TextureBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Textures";
-    
+
     [MenuItem("‽/Asset Browser/Textures", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<TextureBrowserWindow>();
-    
+
     protected override void Rebuild()
     {
-        treeViewState ??= new();
-        List<TextureBrowserTreeView.TreeViewItem> items = treeView?.AllItems ?? new(32);
-        treeView = new(treeViewState) { AllItems = items };
+        treeViewState ??= new TreeViewState<int>();
+        var items = treeView?.AllItems ?? new List<TextureBrowserTreeView.TreeViewItem>(32);
+        treeView = new TextureBrowserTreeView(treeViewState) { AllItems = items };
         treeView.Reload();
     }
 }
@@ -32,7 +32,8 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
         public override string AssetName => Asset.name;
         public override AssetImporter AssetImporter => Importer;
 
-        public TreeViewItem(int id, string guid, string path, Texture asset, TextureImporter importer) : base(id, guid, path)
+        public TreeViewItem(int id, string guid, string path, Texture asset, TextureImporter importer) : base(id, guid,
+            path)
         {
             Texture = asset;
             Importer = importer;
@@ -42,30 +43,30 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
         protected sealed override void Rebuild()
         {
             PlatformSettings.Clear();
-            
+
             RuntimeMemory = TextureUtilWrapper.GetRuntimeMemorySizeLong(Texture);
             StorageSize = TextureUtilWrapper.GetStorageMemorySizeLong(Texture);
 
-            foreach (KeyValuePair<AssetImporterPlatform, string> kvp in AssetImporterPlatformStrings)
+            foreach (var kvp in AssetImporterPlatformStrings)
                 PlatformSettings.Add(kvp.Key, Importer.GetPlatformTextureSettings(kvp.Value));
-            
+
             base.Rebuild();
         }
     }
 
     public TextureBrowserTreeView(TreeViewState<int> state) : base(state)
     {
-        multiColumnHeader = new(CreateHeaderState(this));
+        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
         InitHeader(multiColumnHeader);
     }
 
     static void ExtractTexturesFromMaterial(Material mat, HashSet<Texture> uniqueTextures)
     {
-        int propCount = mat.shader.GetPropertyCount();
+        var propCount = mat.shader.GetPropertyCount();
         for (var i = 0; i < propCount; ++i)
         {
             if (mat.shader.GetPropertyType(i) != ShaderPropertyType.Texture) continue;
-            Texture tex = mat.GetTexture(mat.shader.GetPropertyName(i));
+            var tex = mat.GetTexture(mat.shader.GetPropertyName(i));
             if (tex) uniqueTextures.Add(tex);
         }
     }
@@ -74,19 +75,26 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
     protected override string[] GatherGuids(bool sceneOnly, string path)
     {
         if (!sceneOnly) return AssetDatabase.FindAssets("t:Texture", new[] { path });
-        
+
         HashSet<Texture> textures = new();
         List<string> guids = new();
-        Renderer[] renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        foreach (Renderer renderer in renderers)
-            foreach (Material mat in renderer.sharedMaterials)
-                if (mat) ExtractTexturesFromMaterial(mat, textures);
+        foreach (var renderer in renderers)
+        {
+            foreach (var mat in renderer.sharedMaterials)
+            {
+                if (mat)
+                    ExtractTexturesFromMaterial(mat, textures);
+            }
+        }
 
-        foreach (Texture tex in textures)
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(tex, out string guid, out long _))
+        foreach (var tex in textures)
+        {
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(tex, out var guid, out _))
                 guids.Add(guid);
-            
+        }
+
         return guids.ToArray();
     }
 
@@ -94,10 +102,10 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
     {
         var asset = AssetDatabase.LoadAssetAtPath<Texture>(path);
         var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-        
-        if (asset && importer) AllItems.Add(new(id++, guid, path, asset, importer));
+
+        if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
-    
+
     MultiColumnHeaderState CreateHeaderState(TextureBrowserTreeView tv)
     {
         MultiColumnHeaderState.Column[] columns =
@@ -126,6 +134,6 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
             CreateWrittenColumn()
         };
 
-        return new(columns);
+        return new MultiColumnHeaderState(columns);
     }
 }

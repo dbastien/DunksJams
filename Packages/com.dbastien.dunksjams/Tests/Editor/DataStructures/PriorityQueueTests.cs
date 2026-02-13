@@ -3,7 +3,8 @@ using NUnit.Framework;
 
 public class PriorityQueueTests : TestBase
 {
-    [Test] public void Dequeue_ReturnsMinFirst()
+    [Test]
+    public void Dequeue_ReturnsMinFirst()
     {
         var pq = new PriorityQueue<int>();
         pq.Enqueue(5);
@@ -14,7 +15,8 @@ public class PriorityQueueTests : TestBase
         Eq(5, pq.Dequeue());
     }
 
-    [Test] public void Peek_ReturnsMinWithoutRemove()
+    [Test]
+    public void Peek_ReturnsMinWithoutRemove()
     {
         var pq = new PriorityQueue<int>();
         pq.Enqueue(5);
@@ -23,13 +25,15 @@ public class PriorityQueueTests : TestBase
         Eq(2, pq.Count);
     }
 
-    [Test] public void Empty_ThrowsOnDequeue()
+    [Test]
+    public void Empty_ThrowsOnDequeue()
     {
         var pq = new PriorityQueue<int>();
         Throws<InvalidOperationException>(() => pq.Dequeue());
     }
 
-    [Test] public void Count_Accurate()
+    [Test]
+    public void Count_Accurate()
     {
         var pq = new PriorityQueue<int>();
         Eq(0, pq.Count);
@@ -39,13 +43,15 @@ public class PriorityQueueTests : TestBase
         Eq(0, pq.Count);
     }
 
-    [Test] public void TryDequeue_ReturnsFalseWhenEmpty()
+    [Test]
+    public void TryDequeue_ReturnsFalseWhenEmpty()
     {
         var pq = new PriorityQueue<int>();
         False(pq.TryDequeue(out _));
     }
 
-    [Test] public void Contains_FindsItem()
+    [Test]
+    public void Contains_FindsItem()
     {
         var pq = new PriorityQueue<int>();
         pq.Enqueue(5);

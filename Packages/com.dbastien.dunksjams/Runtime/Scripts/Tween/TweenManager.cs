@@ -16,10 +16,10 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
 
     void Update()
     {
-        float deltaTime = Time.deltaTime;
-        for (int i = _tweens.Count - 1; i >= 0; --i)
+        var deltaTime = Time.deltaTime;
+        for (var i = _tweens.Count - 1; i >= 0; --i)
         {
-            ITween tween = _tweens[i];
+            var tween = _tweens[i];
             tween.Update(deltaTime);
             if (tween.IsComplete)
             {
@@ -60,17 +60,29 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
                 tagList = new List<ITween>();
                 _tweensByTag[tween.Tag] = tagList;
             }
+
             tagList.Add(tween);
         }
     }
 
-    public void PauseAll() { foreach (ITween tween in _tweens) tween.Pause(); }
-    public void ResumeAll() { foreach (ITween tween in _tweens) tween.Resume(); }
-    public void RewindAll() { foreach (ITween tween in _tweens) tween.Rewind(); }
+    public void PauseAll()
+    {
+        foreach (var tween in _tweens) tween.Pause();
+    }
+
+    public void ResumeAll()
+    {
+        foreach (var tween in _tweens) tween.Resume();
+    }
+
+    public void RewindAll()
+    {
+        foreach (var tween in _tweens) tween.Rewind();
+    }
 
     public void KillAll()
     {
-        foreach (ITween tween in _tweens) tween.Kill();
+        foreach (var tween in _tweens) tween.Kill();
         _tweens.Clear();
         _tweensById.Clear();
         _tweensByTag.Clear();
@@ -78,25 +90,25 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
 
     public void PauseById(string id)
     {
-        foreach (ITween tween in _tweens)
-            if (tween.Id == id) tween.Pause();
+        foreach (var tween in _tweens)
+        {
+            if (tween.Id == id)
+                tween.Pause();
+        }
     }
 
     public void KillByTag(string tag)
     {
         if (_tweensByTag.TryGetValue(tag, out var tagList))
         {
-            foreach (ITween tween in tagList)
+            foreach (var tween in tagList)
                 tween.Kill();
             _tweens.RemoveAll(t => t.Tag == tag);
             _tweensByTag.Remove(tag);
         }
     }
 
-    public ITween GetById(string id)
-    {
-        return _tweensById.TryGetValue(id, out var tween) ? tween : null;
-    }
+    public ITween GetById(string id) => _tweensById.TryGetValue(id, out var tween) ? tween : null;
 
     public List<ITween> GetByTag(string tag, List<ITween> result = null)
     {
@@ -107,6 +119,7 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
             result.AddRange(tagList);
             return result;
         }
+
         return result ?? new List<ITween>();
     }
 }

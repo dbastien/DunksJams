@@ -8,7 +8,7 @@ public struct Polygon2D : IShape2D
 
     public bool Contains(Vector2 p)
     {
-        bool inside = false;
+        var inside = false;
         for (int i = 0, j = Vertices.Length - 1; i < Vertices.Length; j = i++)
         {
             var vi = Vertices[i];
@@ -17,15 +17,16 @@ public struct Polygon2D : IShape2D
                 p.x < (vj.x - vi.x) * (p.y - vi.y) / (vj.y - vi.y) + vi.x)
                 inside = !inside;
         }
+
         return inside;
     }
 
     public Vector2 NearestPoint(Vector2 p)
     {
-        Vector2 closest = Vertices[0];
-        float minDistSq = float.MaxValue;
+        var closest = Vertices[0];
+        var minDistSq = float.MaxValue;
 
-        for (int i = 0; i < Vertices.Length; ++i)
+        for (var i = 0; i < Vertices.Length; ++i)
         {
             var a = Vertices[i];
             var b = Vertices[(i + 1) % Vertices.Length];
@@ -44,7 +45,7 @@ public struct Polygon2D : IShape2D
 
     public void DrawGizmos()
     {
-        for (int i = 0; i < Vertices.Length; ++i)
+        for (var i = 0; i < Vertices.Length; ++i)
             Gizmos.DrawLine(Vertices[i], Vertices[(i + 1) % Vertices.Length]);
     }
 }

@@ -14,7 +14,8 @@ public static class IStyleExtensions
 
     public static IStyle SetBorderWidth(this IStyle s, float width) => s.SetBorderWidth(width, width, width, width);
 
-    public static IStyle SetBorderWidth(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
+    public static IStyle SetBorderWidth(this IStyle s, float? top = null, float? left = null, float? right = null,
+        float? bottom = null)
     {
         if (top.HasValue) s.borderTopWidth = top.Value;
         if (left.HasValue) s.borderLeftWidth = left.Value;
@@ -32,9 +33,11 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetBorderRadius(this IStyle s, float radius) => s.SetBorderRadius(radius, radius, radius, radius);
+    public static IStyle SetBorderRadius(this IStyle s, float radius) =>
+        s.SetBorderRadius(radius, radius, radius, radius);
 
-    public static IStyle SetBorderRadius(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
+    public static IStyle SetBorderRadius(this IStyle s, float? top = null, float? left = null, float? right = null,
+        float? bottom = null)
     {
         if (top.HasValue) s.borderTopLeftRadius = top.Value;
         if (left.HasValue) s.borderTopRightRadius = left.Value;
@@ -54,7 +57,8 @@ public static class IStyleExtensions
 
     public static IStyle SetMargin(this IStyle s, float length) => s.SetMargin(length, length, length, length);
 
-    public static IStyle SetMargin(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
+    public static IStyle SetMargin(this IStyle s, float? top = null, float? left = null, float? right = null,
+        float? bottom = null)
     {
         if (top.HasValue) s.marginTop = top.Value;
         if (left.HasValue) s.marginLeft = left.Value;
@@ -74,7 +78,8 @@ public static class IStyleExtensions
 
     public static IStyle SetPadding(this IStyle s, float length) => s.SetPadding(length, length, length, length);
 
-    public static IStyle SetPadding(this IStyle s, float? top = null, float? left = null, float? right = null, float? bottom = null)
+    public static IStyle SetPadding(this IStyle s, float? top = null, float? left = null, float? right = null,
+        float? bottom = null)
     {
         if (top.HasValue) s.paddingTop = top.Value;
         if (left.HasValue) s.paddingLeft = left.Value;
@@ -92,7 +97,8 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetPosition(this IStyle s, Position? type = null, float? top = null, float? left = null, float? right = null, float? bottom = null)
+    public static IStyle SetPosition(this IStyle s, Position? type = null, float? top = null, float? left = null,
+        float? right = null, float? bottom = null)
     {
         if (type.HasValue) s.position = type.Value;
         if (top.HasValue) s.top = top.Value;
@@ -125,7 +131,8 @@ public static class IStyleExtensions
         return s;
     }
 
-    public static IStyle SetSlice(this IStyle s, int? top = null, int? left = null, int? right = null, int? bottom = null)
+    public static IStyle SetSlice(this IStyle s, int? top = null, int? left = null, int? right = null,
+        int? bottom = null)
     {
         if (top.HasValue) s.unitySliceTop = top.Value;
         if (left.HasValue) s.unitySliceLeft = left.Value;

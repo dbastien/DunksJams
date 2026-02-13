@@ -9,7 +9,7 @@ public static class ShaderGUIUtils
     //re-implements MaterialEditor internal
     public static Rect GetControlRectForSingleLine() =>
         EditorGUILayout.GetControlRect(true, 18f, EditorStyles.layerMaskField, Array.Empty<GUILayoutOption>());
-    
+
     //re-implements EditorGUI internal
     public static void GetRectsForMiniThumbnailField(Rect rect, out Rect thumbRect, out Rect labelRect)
     {
@@ -18,7 +18,7 @@ public static class ShaderGUIUtils
         thumbRect.height = 18f;
         thumbRect.width = 32f;
         var num = thumbRect.x + 30f;
-        labelRect = new(num, rect.y, thumbRect.x + EditorGUIUtility.labelWidth - num, rect.height);
+        labelRect = new Rect(num, rect.y, thumbRect.x + EditorGUIUtility.labelWidth - num, rect.height);
     }
 
     public static void HeaderSection(string text, Action func)

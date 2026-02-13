@@ -7,11 +7,8 @@ public static class SignalAnalysis
     {
         if (samples.Length == 0) return 0f;
 
-        float sum = 0f;
-        for (int i = 0; i < samples.Length; i++)
-        {
-            sum += samples[i] * samples[i];
-        }
+        var sum = 0f;
+        for (var i = 0; i < samples.Length; i++) sum += samples[i] * samples[i];
 
         return MathF.Sqrt(sum / samples.Length);
     }
@@ -21,12 +18,13 @@ public static class SignalAnalysis
     {
         if (samples.Length == 0) return 0f;
 
-        float peak = 0f;
-        for (int i = 0; i < samples.Length; i++)
+        var peak = 0f;
+        for (var i = 0; i < samples.Length; i++)
         {
-            float abs = MathF.Abs(samples[i]);
+            var abs = MathF.Abs(samples[i]);
             if (abs > peak) peak = abs;
         }
+
         return peak;
     }
 
@@ -35,12 +33,12 @@ public static class SignalAnalysis
     {
         if (samples.Length < 2) return 0;
 
-        int crossings = 0;
-        bool wasPositive = samples[0] >= 0;
+        var crossings = 0;
+        var wasPositive = samples[0] >= 0;
 
-        for (int i = 1; i < samples.Length; i++)
+        for (var i = 1; i < samples.Length; i++)
         {
-            bool isPositive = samples[i] >= 0;
+            var isPositive = samples[i] >= 0;
             if (wasPositive != isPositive)
             {
                 crossings++;
@@ -56,12 +54,12 @@ public static class SignalAnalysis
     {
         if (samples.Length == 0) return 0f;
 
-        float numerator = 0f;
-        float denominator = 0f;
+        var numerator = 0f;
+        var denominator = 0f;
 
-        for (int i = 0; i < samples.Length; i++)
+        for (var i = 0; i < samples.Length; i++)
         {
-            float magnitude = MathF.Abs(samples[i]);
+            var magnitude = MathF.Abs(samples[i]);
             numerator += i * magnitude;
             denominator += magnitude;
         }
@@ -74,12 +72,12 @@ public static class SignalAnalysis
     {
         if (magnitudes.Length == 0) return 0f;
 
-        float numerator = 0f;
-        float denominator = 0f;
+        var numerator = 0f;
+        var denominator = 0f;
 
-        for (int i = 0; i < magnitudes.Length; i++)
+        for (var i = 0; i < magnitudes.Length; i++)
         {
-            float frequency = i * sampleRate / (2f * magnitudes.Length);
+            var frequency = i * sampleRate / (2f * magnitudes.Length);
             numerator += frequency * magnitudes[i];
             denominator += magnitudes[i];
         }

@@ -8,15 +8,19 @@ public static class Combinatorics
     {
         int n = set.Count, resultCount = n.Pow(k);
         List<List<T>> result = new(resultCount);
-        int[] indices = new int[k];
+        var indices = new int[k];
 
-        for (int r = 0; r < resultCount; ++r)
+        for (var r = 0; r < resultCount; ++r)
         {
             result.Add(CreateList(set, indices, k));
 
-            for (int i = k - 1; i >= 0; --i)
-                if (++indices[i] < n) break; else indices[i] = 0;
+            for (var i = k - 1; i >= 0; --i)
+            {
+                if (++indices[i] < n) break;
+                else indices[i] = 0;
+            }
         }
+
         return result;
     }
 
@@ -38,21 +42,24 @@ public static class Combinatorics
     public static List<List<T>> CartesianProduct<T>(List<List<T>> sets)
     {
         List<List<T>> result = new();
+
         void CartesianHelper(List<T> current, int depth)
         {
             if (depth == sets.Count)
             {
-                result.Add(new(current)); // Capture product
+                result.Add(new List<T>(current)); // Capture product
                 return;
             }
-            foreach (T item in sets[depth])
+
+            foreach (var item in sets[depth])
             {
                 current.Add(item);
                 CartesianHelper(current, depth + 1);
                 current.RemoveAt(current.Count - 1); // Backtrack
             }
         }
-        CartesianHelper(new(), 0);
+
+        CartesianHelper(new List<T>(), 0);
         return result;
     }
 
@@ -60,14 +67,19 @@ public static class Combinatorics
     public static List<List<T>> PowerSet<T>(List<T> set)
     {
         List<List<T>> result = new();
-        int powerSetCount = 2.Pow(set.Count);
-        for (int i = 0; i < powerSetCount; ++i)
+        var powerSetCount = 2.Pow(set.Count);
+        for (var i = 0; i < powerSetCount; ++i)
         {
             List<T> subset = new();
-            for (int j = 0; j < set.Count; ++j)
-                if ((i & (1 << j)) != 0) subset.Add(set[j]);
+            for (var j = 0; j < set.Count; ++j)
+            {
+                if ((i & (1 << j)) != 0)
+                    subset.Add(set[j]);
+            }
+
             result.Add(subset);
         }
+
         return result;
     }
 
@@ -75,29 +87,32 @@ public static class Combinatorics
     static List<T> CreateList<T>(List<T> set, int[] indices, int k)
     {
         List<T> result = new(k);
-        for (int i = 0; i < k; ++i) result.Add(set[indices[i]]);
+        for (var i = 0; i < k; ++i) result.Add(set[indices[i]]);
         return result;
     }
-    
+
     // General combinations (with or without repetition)
     static List<List<T>> GetCombinations<T>(List<T> set, int k, bool allowRepetition)
     {
         List<List<T>> result = new();
+
         void Combine(List<T> current, int start)
         {
             if (current.Count == k)
             {
-                result.Add(new(current)); // add combination to result
+                result.Add(new List<T>(current)); // add combination to result
                 return;
             }
-            for (int i = start; i < set.Count; ++i)
+
+            for (var i = start; i < set.Count; ++i)
             {
                 current.Add(set[i]);
                 Combine(current, allowRepetition ? i : i + 1);
                 current.RemoveAt(current.Count - 1); // Backtrack
             }
         }
-        Combine(new(k), 0);
+
+        Combine(new List<T>(k), 0);
         return result;
     }
 
@@ -106,21 +121,23 @@ public static class Combinatorics
     {
         if (start >= set.Count)
         {
-            resultSet.Add(new(set)); // add current permutation
+            resultSet.Add(new List<T>(set)); // add current permutation
             return;
         }
-        for (int i = start; i < set.Count; ++i)
+
+        for (var i = start; i < set.Count; ++i)
         {
             swap(set, i);
             Recurse(set, start + 1, resultSet, swap);
             swap(set, i); // Backtrack (swap back)
         }
     }
-    
+
     // K-permutations without repetition e.g - drawing a specific number of winners from a pool without replacement 
     public static List<List<T>> KPermutationWithoutRepetition<T>(List<T> set, int k)
     {
         var result = new List<List<T>>();
+
         void Permute(List<T> current, bool[] used)
         {
             if (current.Count == k)
@@ -129,7 +146,7 @@ public static class Combinatorics
                 return;
             }
 
-            for (int i = 0; i < set.Count; ++i)
+            for (var i = 0; i < set.Count; ++i)
             {
                 if (used[i]) continue;
                 used[i] = true;
@@ -140,14 +157,15 @@ public static class Combinatorics
             }
         }
 
-        Permute(new(k), new bool[set.Count]);
+        Permute(new List<T>(k), new bool[set.Count]);
         return result;
     }
-    
+
     // Combinations with custom constraints (e.g., selecting items that meet a specific condition)
     public static List<List<T>> CombinationWithConstraints<T>(List<T> set, int k, Func<List<T>, bool> constraint)
     {
         List<List<T>> result = new();
+
         void Combine(List<T> current, int start)
         {
             if (current.Count == k)
@@ -157,7 +175,7 @@ public static class Combinatorics
                 return;
             }
 
-            for (int i = start; i < set.Count; ++i)
+            for (var i = start; i < set.Count; ++i)
             {
                 current.Add(set[i]);
                 Combine(current, i + 1);
@@ -165,7 +183,7 @@ public static class Combinatorics
             }
         }
 
-        Combine(new(k), 0);
+        Combine(new List<T>(k), 0);
         return result;
     }
 }

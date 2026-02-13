@@ -1,4 +1,5 @@
 // Assets/Editor/DLog/DLogConsole.cs
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,9 +9,9 @@ using UnityEngine;
 
 public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
 {
-    private const string TimeFormat = "HH:mm:ss.fff";
-    private const int MaxStackLinesVisible = 10;
-    private const float MaxStackHeight = 260f;
+    const string TimeFormat = "HH:mm:ss.fff";
+    const int MaxStackLinesVisible = 10;
+    const float MaxStackHeight = 260f;
 
     [MenuItem("Window/DLog")]
     public static void ShowWindow()
@@ -33,44 +34,44 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
 
     public static void TestLogWarning() => DLog.LogW("DLog Console test warning.");
 
-    private Vector2 _scroll;
-    private bool _autoScroll = true;
-    private string _filter = "";
-    private bool _showInfo = true;
-    private bool _showWarnings = true;
-    private bool _showErrors = true;
+    Vector2 _scroll;
+    bool _autoScroll = true;
+    string _filter = "";
+    bool _showInfo = true;
+    bool _showWarnings = true;
+    bool _showErrors = true;
 
-    private int _maxShown = 200; // keep IMGUI smooth
-    private int _cachedVersion = -1;
-    private string _cachedFilter = null;
-    private bool _cachedInfo, _cachedWarn, _cachedErr;
+    int _maxShown = 200; // keep IMGUI smooth
+    int _cachedVersion = -1;
+    string _cachedFilter = null;
+    bool _cachedInfo, _cachedWarn, _cachedErr;
 
-    private readonly List<LogEntry> _view = new(256);
-    private int _lastDrawnVersion = -1;
-    private int _expandedCount;
-    private readonly HashSet<LogEntry> _selectedEntries = new();
-    private int _lastSelectedIndex = -1;
+    readonly List<LogEntry> _view = new(256);
+    int _lastDrawnVersion = -1;
+    int _expandedCount;
+    readonly HashSet<LogEntry> _selectedEntries = new();
+    int _lastSelectedIndex = -1;
 
-    private GUIStyle _rowStyle;
-    private GUIStyle _stackStyle;
-    private GUIStyle _stackLineStyle;
-    private GUIStyle _countBadgeStyle;
-    private GUIStyle _timeStyle;
-    private GUIStyle _tooltipStyle;
-    private string _hoverTooltip;
-    private bool _lastProSkin;
-    private bool _showTime = true;
-    private float _timeWidth;
+    GUIStyle _rowStyle;
+    GUIStyle _stackStyle;
+    GUIStyle _stackLineStyle;
+    GUIStyle _countBadgeStyle;
+    GUIStyle _timeStyle;
+    GUIStyle _tooltipStyle;
+    string _hoverTooltip;
+    bool _lastProSkin;
+    bool _showTime = true;
+    float _timeWidth;
 
-    private GUIContent _iconInfoSml;
-    private GUIContent _iconWarnSml;
-    private GUIContent _iconErrSml;
+    GUIContent _iconInfoSml;
+    GUIContent _iconWarnSml;
+    GUIContent _iconErrSml;
 
-    private GUIContent _toolbarInfo;
-    private GUIContent _toolbarWarn;
-    private GUIContent _toolbarErr;
+    GUIContent _toolbarInfo;
+    GUIContent _toolbarWarn;
+    GUIContent _toolbarErr;
 
-    private void OnEnable()
+    void OnEnable()
     {
         DLogHub.Changed -= OnHubChanged;
         DLogHub.Changed += OnHubChanged;
@@ -81,17 +82,16 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         RebuildView();
     }
 
-    private void OnDisable() => DLogHub.Changed -= OnHubChanged;
+    void OnDisable() => DLogHub.Changed -= OnHubChanged;
 
-    private void OnHubChanged() => Repaint();
+    void OnHubChanged() => Repaint();
 
-    private bool EnsureGuiReady()
+    bool EnsureGuiReady()
     {
-        if (_rowStyle != null && _stackStyle != null && _stackLineStyle != null && _iconInfoSml != null && _tooltipStyle != null && _timeStyle != null)
-        {
+        if (_rowStyle != null && _stackStyle != null && _stackLineStyle != null && _iconInfoSml != null &&
+            _tooltipStyle != null && _timeStyle != null)
             if (_lastProSkin == EditorGUIUtility.isProSkin)
                 return true;
-        }
 
         try
         {
@@ -110,7 +110,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         }
     }
 
-    private void BuildStylesAndIcons()
+    void BuildStylesAndIcons()
     {
         _lastProSkin = EditorGUIUtility.isProSkin;
 
@@ -160,11 +160,11 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         // Console-like icons
         _iconInfoSml = IconContentSafe("console.infoicon.sml", "console.infoicon");
         _iconWarnSml = IconContentSafe("console.warnicon.sml", "console.warnicon");
-        _iconErrSml  = IconContentSafe("console.erroricon.sml", "console.erroricon");
+        _iconErrSml = IconContentSafe("console.erroricon.sml", "console.erroricon");
         UpdateTitle();
     }
 
-    private static void SetStyleTextColor(GUIStyle style, Color color)
+    static void SetStyleTextColor(GUIStyle style, Color color)
     {
         if (style == null) return;
         style.normal.textColor = color;
@@ -173,12 +173,12 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         style.focused.textColor = color;
     }
 
-    private static Color StackTextColor()
+    static Color StackTextColor()
         => EditorGUIUtility.isProSkin ? new Color(0.84f, 0.84f, 0.84f) : new Color(0.1f, 0.1f, 0.1f);
 
-    private void UpdateTitle()
+    void UpdateTitle()
     {
-        string iconName = EditorGUIUtility.isProSkin ? "d_UnityEditor.ConsoleWindow" : "UnityEditor.ConsoleWindow";
+        var iconName = EditorGUIUtility.isProSkin ? "d_UnityEditor.ConsoleWindow" : "UnityEditor.ConsoleWindow";
         var icon = EditorGUIUtility.IconContent(iconName).image;
         if (icon == null)
             icon = EditorGUIUtility.IconContent("UnityEditor.ConsoleWindow").image;
@@ -186,7 +186,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         titleContent = new GUIContent("DLog", icon);
     }
 
-    private static GUIContent IconContentSafe(string primary, string fallback)
+    static GUIContent IconContentSafe(string primary, string fallback)
     {
         var c = EditorGUIUtility.IconContent(primary);
         if (c == null || c.image == null)
@@ -194,21 +194,24 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         return c ?? new GUIContent();
     }
 
-    private static GUIStyle TryFindStyle(params string[] names)
+    static GUIStyle TryFindStyle(params string[] names)
     {
         if (names == null || names.Length == 0) return null;
-        for (int i = 0; i < names.Length; ++i)
+        for (var i = 0; i < names.Length; ++i)
         {
             var style = GUI.skin.FindStyle(names[i]);
             if (style != null) return style;
         }
+
         return null;
     }
 
     public void AddItemsToMenu(GenericMenu menu)
     {
-        menu.AddItem(EditorGUIUtility.TrTextContent("Open Player Log"), false, UnityEditorInternal.InternalEditorUtility.OpenPlayerConsole);
-        menu.AddItem(EditorGUIUtility.TrTextContent("Open Editor Log"), false, UnityEditorInternal.InternalEditorUtility.OpenEditorConsole);
+        menu.AddItem(EditorGUIUtility.TrTextContent("Open Player Log"), false,
+            UnityEditorInternal.InternalEditorUtility.OpenPlayerConsole);
+        menu.AddItem(EditorGUIUtility.TrTextContent("Open Editor Log"), false,
+            UnityEditorInternal.InternalEditorUtility.OpenEditorConsole);
         menu.AddSeparator("");
         menu.AddItem(EditorGUIUtility.TrTextContent("Export DLog..."), false, ExportLogToFile);
         menu.AddItem(EditorGUIUtility.TrTextContent("Import DLog..."), false, ImportLogFromFile);
@@ -218,20 +221,20 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         AddStackTraceLoggingMenu(menu);
     }
 
-    private void ToggleShowTime() => _showTime = !_showTime;
+    void ToggleShowTime() => _showTime = !_showTime;
 
-    private void ExportLogToFile()
+    void ExportLogToFile()
     {
-        string path = EditorUtility.SaveFilePanel("Export DLog", "", "DLog.json", "json");
+        var path = EditorUtility.SaveFilePanel("Export DLog", "", "DLog.json", "json");
         if (string.IsNullOrEmpty(path))
             return;
 
         DLogHub.ExportTo(path);
     }
 
-    private void ImportLogFromFile()
+    void ImportLogFromFile()
     {
-        string path = EditorUtility.OpenFilePanel("Import DLog", "", "json");
+        var path = EditorUtility.OpenFilePanel("Import DLog", "", "json");
         if (string.IsNullOrEmpty(path))
             return;
 
@@ -240,25 +243,25 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         Repaint();
     }
 
-    private struct StackTraceLogTypeData
+    struct StackTraceLogTypeData
     {
         public LogType logType;
         public StackTraceLogType stackTraceLogType;
     }
 
-    private void ToggleLogStackTraces(object userData)
+    void ToggleLogStackTraces(object userData)
     {
         var data = (StackTraceLogTypeData)userData;
         PlayerSettings.SetStackTraceLogType(data.logType, data.stackTraceLogType);
     }
 
-    private void ToggleLogStackTracesForAll(object userData)
+    void ToggleLogStackTracesForAll(object userData)
     {
         foreach (LogType logType in Enum.GetValues(typeof(LogType)))
             PlayerSettings.SetStackTraceLogType(logType, (StackTraceLogType)userData);
     }
 
-    private void AddStackTraceLoggingMenu(GenericMenu menu)
+    void AddStackTraceLoggingMenu(GenericMenu menu)
     {
         foreach (LogType logType in Enum.GetValues(typeof(LogType)))
         {
@@ -276,7 +279,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
             }
         }
 
-        int stackTraceLogTypeForAll = (int)PlayerSettings.GetStackTraceLogType(LogType.Log);
+        var stackTraceLogTypeForAll = (int)PlayerSettings.GetStackTraceLogType(LogType.Log);
         foreach (LogType logType in Enum.GetValues(typeof(LogType)))
         {
             if (PlayerSettings.GetStackTraceLogType(logType) != (StackTraceLogType)stackTraceLogTypeForAll)
@@ -296,13 +299,13 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         }
     }
 
-    private static void AppendEntryText(StringBuilder sb, LogEntry e, bool includeStack)
+    static void AppendEntryText(StringBuilder sb, LogEntry e, bool includeStack)
     {
         if (e == null)
             return;
 
-        string message = e.message ?? "";
-        string stack = e.stackTrace ?? "";
+        var message = e.message ?? "";
+        var stack = e.stackTrace ?? "";
 
         if (includeStack && !string.IsNullOrEmpty(stack))
         {
@@ -320,13 +323,13 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         }
     }
 
-    private void CopySelectionToClipboard(bool includeStack)
+    void CopySelectionToClipboard(bool includeStack)
     {
         if (_selectedEntries.Count == 0)
             return;
 
         var sb = new StringBuilder();
-        for (int i = 0; i < _view.Count; i++)
+        for (var i = 0; i < _view.Count; i++)
         {
             var e = _view[i];
             if (!_selectedEntries.Contains(e))
@@ -341,7 +344,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         GUIUtility.systemCopyBuffer = sb.ToString();
     }
 
-    private void HandleCopyShortcut()
+    void HandleCopyShortcut()
     {
         var evt = Event.current;
         if (evt.type != EventType.KeyDown)
@@ -359,7 +362,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         evt.Use();
     }
 
-    private void OnGUI()
+    void OnGUI()
     {
         if (!EnsureGuiReady())
             return;
@@ -370,8 +373,8 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
 
         HandleCopyShortcut();
 
-        bool storeChanged = _cachedVersion != DLogHub.Version;
-        bool filtersChanged =
+        var storeChanged = _cachedVersion != DLogHub.Version;
+        var filtersChanged =
             storeChanged ||
             _cachedFilter != _filter ||
             _cachedInfo != _showInfo ||
@@ -383,7 +386,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         if (filtersChanged)
             RebuildView();
 
-        bool newData = (_lastDrawnVersion != DLogHub.Version);
+        var newData = _lastDrawnVersion != DLogHub.Version;
 
         _scroll = EditorGUILayout.BeginScrollView(_scroll);
 
@@ -392,7 +395,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
             if (_expandedCount == 0)
                 DrawRowsVirtualized();
             else
-                for (int i = 0; i < _view.Count; i++)
+                for (var i = 0; i < _view.Count; i++)
                     DrawRow(_view[i], i);
         }
 
@@ -407,7 +410,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         DrawHoverTooltip();
     }
 
-    private void DrawToolbar()
+    void DrawToolbar()
     {
         // Build toolbar button contents with current counts
         if (_toolbarInfo == null) _toolbarInfo = new GUIContent();
@@ -435,7 +438,8 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
             }
 
             var clearDropContent = new GUIContent("v");
-            Rect clearDropRect = GUILayoutUtility.GetRect(clearDropContent, EditorStyles.toolbarDropDown, GUILayout.Width(18f));
+            var clearDropRect =
+                GUILayoutUtility.GetRect(clearDropContent, EditorStyles.toolbarDropDown, GUILayout.Width(18f));
             if (GUI.Button(clearDropRect, clearDropContent, EditorStyles.toolbarDropDown))
                 ShowClearMenu(clearDropRect);
 
@@ -446,12 +450,13 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
             using (new EditorGUILayout.HorizontalScope(GUIStyle.none))
             {
                 GUI.SetNextControlName("DLogSearchField");
-                var searchStyle = TryFindStyle("ToolbarSearchTextField", "ToolbarSeachTextField") ?? EditorStyles.toolbarTextField;
+                var searchStyle = TryFindStyle("ToolbarSearchTextField", "ToolbarSeachTextField") ??
+                                  EditorStyles.toolbarTextField;
                 _filter = GUILayout.TextField(_filter ?? "", searchStyle, GUILayout.Width(240));
                 var searchRect = GUILayoutUtility.GetLastRect();
                 EditorGUIUtility.AddCursorRect(searchRect, MouseCursor.Text);
 
-                bool hasFilter = !string.IsNullOrEmpty(_filter);
+                var hasFilter = !string.IsNullOrEmpty(_filter);
                 var cancelStyle = TryFindStyle("ToolbarSearchCancelButton") ?? GUIStyle.none;
                 var cancelEmptyStyle = TryFindStyle("ToolbarSearchCancelButtonEmpty") ?? GUIStyle.none;
                 if (GUILayout.Button(GUIContent.none, hasFilter ? cancelStyle : cancelEmptyStyle))
@@ -465,24 +470,29 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
 
             // Console-like type toggles with icon + count
             _showInfo = GUILayout.Toggle(_showInfo, _toolbarInfo, EditorStyles.toolbarButton, GUILayout.MinWidth(52));
-            _showWarnings = GUILayout.Toggle(_showWarnings, _toolbarWarn, EditorStyles.toolbarButton, GUILayout.MinWidth(52));
-            _showErrors = GUILayout.Toggle(_showErrors, _toolbarErr, EditorStyles.toolbarButton, GUILayout.MinWidth(52));
+            _showWarnings = GUILayout.Toggle(_showWarnings, _toolbarWarn, EditorStyles.toolbarButton,
+                GUILayout.MinWidth(52));
+            _showErrors = GUILayout.Toggle(_showErrors, _toolbarErr, EditorStyles.toolbarButton,
+                GUILayout.MinWidth(52));
 
             GUILayout.Space(10);
             _maxShown = EditorGUILayout.IntSlider(_maxShown, 50, 2000, GUILayout.Width(260));
         }
     }
 
-    private void ShowClearMenu(Rect rect)
+    void ShowClearMenu(Rect rect)
     {
         var menu = new GenericMenu();
-        menu.AddItem(new GUIContent("Clear on Play"), DLogHub.ClearOnPlay, () => DLogHub.ClearOnPlay = !DLogHub.ClearOnPlay);
-        menu.AddItem(new GUIContent("Clear on Build"), DLogHub.ClearOnBuild, () => DLogHub.ClearOnBuild = !DLogHub.ClearOnBuild);
-        menu.AddItem(new GUIContent("Clear on Recompile"), DLogHub.ClearOnRecompile, () => DLogHub.ClearOnRecompile = !DLogHub.ClearOnRecompile);
+        menu.AddItem(new GUIContent("Clear on Play"), DLogHub.ClearOnPlay,
+            () => DLogHub.ClearOnPlay = !DLogHub.ClearOnPlay);
+        menu.AddItem(new GUIContent("Clear on Build"), DLogHub.ClearOnBuild,
+            () => DLogHub.ClearOnBuild = !DLogHub.ClearOnBuild);
+        menu.AddItem(new GUIContent("Clear on Recompile"), DLogHub.ClearOnRecompile,
+            () => DLogHub.ClearOnRecompile = !DLogHub.ClearOnRecompile);
         menu.DropDown(rect);
     }
 
-    private void RebuildView()
+    void RebuildView()
     {
         _cachedVersion = DLogHub.Version;
         _cachedFilter = _filter;
@@ -497,8 +507,8 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         if (entries == null || entries.Count == 0)
             return;
 
-        int added = 0;
-        for (int i = entries.Count - 1; i >= 0 && added < _maxShown; i--)
+        var added = 0;
+        for (var i = entries.Count - 1; i >= 0 && added < _maxShown; i--)
         {
             var e = entries[i];
             if (!PassesFilters(e))
@@ -517,18 +527,14 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
             var viewSet = new HashSet<LogEntry>(_view);
             _selectedEntries.RemoveWhere(e => !viewSet.Contains(e));
             if (_selectedEntries.Count == 0)
-            {
                 _lastSelectedIndex = -1;
-            }
             else if (_lastSelectedIndex < 0 || _lastSelectedIndex >= _view.Count ||
                      !_selectedEntries.Contains(_view[_lastSelectedIndex]))
-            {
                 _lastSelectedIndex = _view.FindIndex(e => _selectedEntries.Contains(e));
-            }
         }
     }
 
-    private bool PassesFilters(LogEntry e)
+    bool PassesFilters(LogEntry e)
     {
         switch (e.type)
         {
@@ -557,7 +563,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         return true;
     }
 
-    private GUIContent IconFor(LogType t)
+    GUIContent IconFor(LogType t)
     {
         switch (t)
         {
@@ -568,7 +574,7 @@ public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
         }
     }
 
-    private Color TintFor(LogType t)
+    Color TintFor(LogType t)
     {
         switch (t)
         {

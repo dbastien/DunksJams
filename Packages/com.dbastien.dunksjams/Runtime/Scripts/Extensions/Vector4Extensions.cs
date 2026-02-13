@@ -9,10 +9,10 @@ public static class Vector4Extensions
             Mathf.Clamp(v.y, min.y, max.y),
             Mathf.Clamp(v.z, min.z, max.z),
             Mathf.Clamp(v.w, min.w, max.w));
-    
-    public static Vector4 Scaled(this Vector4 v, Vector4 scale) => 
+
+    public static Vector4 Scaled(this Vector4 v, Vector4 scale) =>
         new(v.x * scale.x, v.y * scale.y, v.z * scale.z, v.w * scale.w);
-    
-    public static bool Approximately(this Vector4 a, Vector4 b) => 
-        Vector4.SqrMagnitude(a - b) < 0.0001f ? true : false;    
+
+    public static bool Approximately(this Vector4 a, Vector4 b) =>
+        Vector4.SqrMagnitude(a - b) < 0.0001f ? true : false;
 }

@@ -10,13 +10,13 @@ public static class Matrix4X4Extensions
     /// <returns>Matrix for transforming an RGB color in HSV space</returns>
     public static Matrix4x4 CreateHSVTransform(float h, float s, float v)
     {
-        float hr = -h * MathConsts.Tau_Div4;
+        var hr = -h * MathConsts.Tau_Div4;
         //float hr = h * Mathf.Deg2Rad;
 
-        float vsu = v * s * MathF.Cos(hr);
-        float vsw = v * s * MathF.Sin(hr);
+        var vsu = v * s * MathF.Cos(hr);
+        var vsw = v * s * MathF.Sin(hr);
 
-        return new()
+        return new Matrix4x4
         {
             m00 = .299f * v + .701f * vsu + .168f * vsw,
             m10 = .587f * v - .587f * vsu + .330f * vsw,
@@ -33,14 +33,14 @@ public static class Matrix4X4Extensions
             m33 = 1
         };
     }
-    
+
     public static Matrix4x4 CreateHueRotationTransform(float degrees)
     {
-        float angleRad = degrees * Mathf.Deg2Rad;
-        float cosA = MathF.Cos(angleRad);
-        float sinA = MathF.Sin(angleRad);
+        var angleRad = degrees * Mathf.Deg2Rad;
+        var cosA = MathF.Cos(angleRad);
+        var sinA = MathF.Sin(angleRad);
 
-        Matrix4x4 m = Matrix4x4.identity;
+        var m = Matrix4x4.identity;
 
         m.m00 = 0.213f + cosA * 0.787f - sinA * 0.213f;
         m.m01 = 0.213f - cosA * 0.213f + sinA * 0.143f;
@@ -57,11 +57,11 @@ public static class Matrix4X4Extensions
         m.m33 = 1f;
         return m;
     }
-    
+
     public static Matrix4x4 CreateSaturationTransform(float sat)
     {
-        Matrix4x4 m = Matrix4x4.identity;
-        float invSat = 1f - sat;
+        var m = Matrix4x4.identity;
+        var invSat = 1f - sat;
 
         m.m00 = invSat * 0.299f + sat;
         m.m01 = invSat * 0.299f;
@@ -78,7 +78,7 @@ public static class Matrix4X4Extensions
         m.m33 = 1f;
         return m;
     }
-    
+
     public static Matrix4x4 CreateGrayscaleTransform()
     {
         Matrix4x4 m = default;
@@ -88,7 +88,7 @@ public static class Matrix4X4Extensions
         m.m33 = 1f;
         return m;
     }
-    
+
     public static Matrix4x4 CreateSepiaFilter()
     {
         Matrix4x4 m = new()
@@ -100,26 +100,26 @@ public static class Matrix4X4Extensions
         };
         return m;
     }
-    
+
     public static Vector2 TransformVector2D(this Matrix4x4 m, Vector2 v) =>
         new(v.x * m.m00 + v.y * m.m10,
             v.x * m.m01 + v.y * m.m11);
 
     public static Vector2 TransformPoint2D(this Matrix4x4 m, Vector2 v) =>
-        new(v.x * m.m00 + v.y * m.m10 + m.m03, 
+        new(v.x * m.m00 + v.y * m.m10 + m.m03,
             v.x * m.m01 + v.y * m.m11 + m.m13);
-    
+
     public static Matrix4x4 CreateScaleRotationTranslation2D(Vector2 scale, float radians, Vector2 translation)
     {
-        float cos = MathF.Cos(radians);
-        float sin = MathF.Sin(radians);
+        var cos = MathF.Cos(radians);
+        var sin = MathF.Sin(radians);
 
-        return new()
+        return new Matrix4x4
         {
             m00 = scale.x * cos, m01 = scale.y * -sin, m03 = translation.x,
-            m10 = scale.x * sin, m11 = scale.y *  cos, m13 = translation.y,
+            m10 = scale.x * sin, m11 = scale.y * cos, m13 = translation.y,
             m22 = 1, // Z-axis scale
-            m33 = 1  // Homogeneous coordinate
+            m33 = 1 // Homogeneous coordinate
         };
     }
 }

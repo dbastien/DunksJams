@@ -16,9 +16,11 @@ public static class AssetBrowserWindowManager
     [MenuItem("‽/Asset Browser/Open All", false, 200)]
     public static void BuildAllWindows()
     {
-        foreach (Type type in WinTypes)
+        foreach (var type in WinTypes)
         {
-            var method = typeof(AssetBrowserWindowManager).GetMethod(nameof(ShowWindow), BindingFlags.Public | BindingFlags.Static);
+            var method =
+                typeof(AssetBrowserWindowManager).GetMethod(nameof(ShowWindow),
+                    BindingFlags.Public | BindingFlags.Static);
             var genericMethod = method?.MakeGenericMethod(type);
             genericMethod?.Invoke(null, new object[] { });
         }
@@ -30,7 +32,7 @@ public static class AssetBrowserWindowManager
         var w = EditorWindow.GetWindow<T>(WinTypes);
         w.minSize = WindowMinSize;
         var titleProperty = typeof(T).GetProperty("WinTitle", BindingFlags.Instance | BindingFlags.NonPublic);
-        w.titleContent = new(titleProperty?.GetValue(w) as string ?? typeof(T).Name);
+        w.titleContent = new GUIContent(titleProperty?.GetValue(w) as string ?? typeof(T).Name);
         typeof(T).GetMethod("Rebuild")?.Invoke(w, null);
         w.Show();
         return w;
@@ -59,13 +61,15 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     static Texture saveIcon;
     static Texture findIcon;
-    
+
     Rect saveDropDownRect;
     Rect gatherDropDownRect;
-    
+
     public delegate void SaveFunction();
 
-    protected virtual void AddCustomSaveFunctions(GenericMenu menu) { }
+    protected virtual void AddCustomSaveFunctions(GenericMenu menu)
+    {
+    }
 
     protected Rect topToolBarRect => new(margin, margin, position.width - margin, 20f);
 
@@ -73,7 +77,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
     protected Rect treeViewRect => new(margin, 30f, position.width - margin, position.height - 30f);
 
     protected const int margin = 5;
-    
+
     void OnGUI()
     {
         InitIfNeeded();
@@ -85,19 +89,23 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
     {
         using var _ = new EditorGUILayout.HorizontalScope();
 
-        sceneOnly = EditorGUILayout.ToggleLeft(new GUIContent("Scene", "Search only the active scene"), sceneOnly, GUILayout.Width(60));
+        sceneOnly = EditorGUILayout.ToggleLeft(new GUIContent("Scene", "Search only the active scene"), sceneOnly,
+            GUILayout.Width(60));
         if (sceneOnly) return;
 
         assetPath = EditorGUILayout.TextField(assetPath);
         if (GUILayout.Button(new GUIContent("…", "Select folder to search"), GUILayout.Width(22)))
         {
-            string absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
+            var absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
             if (absPath.StartsWithFast(IOUtils.ProjectRootFolder))
             {
                 assetPath = absPath[IOUtils.ProjectRootFolder.Length..];
                 if (assetPath.StartsWith("/") || assetPath.StartsWith("\\")) assetPath = assetPath[1..];
             }
-            else if (!string.IsNullOrEmpty(absPath)) DLog.LogE($"Asset path must start with {IOUtils.ProjectRootFolder}");
+            else if (!string.IsNullOrEmpty(absPath))
+            {
+                DLog.LogE($"Asset path must start with {IOUtils.ProjectRootFolder}");
+            }
         }
 
         if (GUILayout.Button("Find", GUILayout.Width(40)))
@@ -115,14 +123,14 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
         GUILayout.FlexibleSpace();
 
-        Rect searchRect = GUILayoutUtility.GetRect(150, EditorGUIUtility.singleLineHeight);
+        var searchRect = GUILayoutUtility.GetRect(150, EditorGUIUtility.singleLineHeight);
         treeView.searchString = searchField.OnGUI(searchRect, treeView.searchString);
         GUILayout.Label($"{treeView.FilteredCount}/{treeView.AllItems.Count}");
     }
 
     void DrawButtonWithMenu(Texture icon, ref Rect dropDownRect, Action showMenu)
     {
-        if (EditorGUILayout.DropdownButton(new(icon), FocusType.Passive))
+        if (EditorGUILayout.DropdownButton(new GUIContent(icon), FocusType.Passive))
             showMenu();
 
         if (Event.current.type == EventType.Repaint)
@@ -132,32 +140,33 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
     void ShowGatherMenu()
     {
         var menu = new GenericMenu();
-        menu.AddItem(new("References"), false, () => treeView?.FindReferences());
-        menu.AddItem(new("Dependencies"), false, () => treeView?.FindDependencies());
+        menu.AddItem(new GUIContent("References"), false, () => treeView?.FindReferences());
+        menu.AddItem(new GUIContent("Dependencies"), false, () => treeView?.FindDependencies());
         menu.DropDown(gatherDropDownRect);
     }
 
     void ShowSaveMenu()
     {
         var menu = new GenericMenu();
-        menu.AddItem(new("Rows"), false, () => SavePanel(Save));
-        menu.AddItem(new("References"), false, () => SavePanel(SaveReferences));
-        menu.AddItem(new("Dependencies"), false, () => SavePanel(SaveDependencies));
+        menu.AddItem(new GUIContent("Rows"), false, () => SavePanel(Save));
+        menu.AddItem(new GUIContent("References"), false, () => SavePanel(SaveReferences));
+        menu.AddItem(new GUIContent("Dependencies"), false, () => SavePanel(SaveDependencies));
         AddCustomSaveFunctions(menu);
         menu.DropDown(saveDropDownRect);
     }
 
     protected void SavePanel(SaveFunction func)
     {
-        string dir = string.IsNullOrEmpty(outPath) ? IOUtils.ProjectRootFolder : System.IO.Path.GetDirectoryName(outPath);
-        outPath = EditorUtility.SaveFilePanel("Save rows to csv file", dir, typeof(TTree).Name + func.GetMethodInfo().Name, "csv");
+        var dir = string.IsNullOrEmpty(outPath) ? IOUtils.ProjectRootFolder : System.IO.Path.GetDirectoryName(outPath);
+        outPath = EditorUtility.SaveFilePanel("Save rows to csv file", dir,
+            typeof(TTree).Name + func.GetMethodInfo().Name, "csv");
         if (!string.IsNullOrEmpty(outPath)) func();
     }
-    
+
     void Save()
     {
-        List<TItem> rows = treeView.AllItems;
-        int[] visibleCols = treeView.multiColumnHeader.state.visibleColumns;
+        var rows = treeView.AllItems;
+        var visibleCols = treeView.multiColumnHeader.state.visibleColumns;
         using var file = new System.IO.StreamWriter(outPath);
 
         var line = "";
@@ -166,9 +175,10 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
             var c = treeView.multiColumnHeader.GetColumn(visibleCols[i]) as AssetBrowserTreeView<TItem>.Column;
             line += c?.Header + (i != visibleCols.Length - 1 ? ',' : ' ');
         }
+
         file.WriteLine(line);
 
-        foreach (TItem r in rows)
+        foreach (var r in rows)
         {
             if (!treeView.DoesItemMatchSearch(r)) continue;
             line = "";
@@ -177,31 +187,38 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
                 var c = treeView.multiColumnHeader.GetColumn(visibleCols[i]) as AssetBrowserTreeView<TItem>.Column;
                 line += (c?.text != null ? c.text(r) : "") + (i != visibleCols.Length - 1 ? ',' : ' ');
             }
+
             file.WriteLine(line);
         }
     }
 
     void SaveReferences()
     {
-        List<TItem> rows = treeView.AllItems;
+        var rows = treeView.AllItems;
         using System.IO.StreamWriter file = new(outPath);
-        foreach (TItem r in rows)
+        foreach (var r in rows)
         {
             if (!treeView.DoesItemMatchSearch(r)) continue;
             var line = $"{r.AssetPath}, {r.AssetName}";
-            List<string> paths = r.Refs.Select(AssetDatabase.GetAssetPath).ToList();
-            foreach (string path in paths) line += $", {path}";
+            var paths = r.Refs.Select(AssetDatabase.GetAssetPath).ToList();
+            foreach (var path in paths) line += $", {path}";
             file.WriteLine(line);
         }
     }
 
 
     //todo: do the to
-    void SaveDependencies() { }
+    void SaveDependencies()
+    {
+    }
 
-    void ChangePlatform(AssetImporterPlatform p) { }
+    void ChangePlatform(AssetImporterPlatform p)
+    {
+    }
 
-    protected virtual void Rebuild() { }
+    protected virtual void Rebuild()
+    {
+    }
 
     void InitIfNeeded()
     {
@@ -214,7 +231,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
         if (initialized) return;
         Rebuild();
-        searchField = new();
+        searchField = new SearchField();
         initialized = true;
     }
 }

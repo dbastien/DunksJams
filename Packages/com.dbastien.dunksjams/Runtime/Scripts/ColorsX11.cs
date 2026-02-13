@@ -85,14 +85,14 @@ public static class ColorsX11
 
     //Cyan colors
     public static readonly Color32 Aqua = new(0, 255, 255, 255);
-    public static readonly Color32 Cyan  = new(0, 255, 255, 255);
+    public static readonly Color32 Cyan = new(0, 255, 255, 255);
     public static readonly Color32 LightCyan = new(224, 255, 255, 255);
     public static readonly Color32 PaleTurquoise = new(175, 238, 238, 255);
     public static readonly Color32 Aquamarine = new(127, 255, 212, 255);
     public static readonly Color32 Turquoise = new(64, 224, 208, 255);
     public static readonly Color32 MediumTurquoise = new(72, 209, 204, 255);
     public static readonly Color32 DarkTurquoise = new(0, 206, 209, 255);
-    public static readonly Color32 LightSeaGreen  = new(32, 178, 170, 255);
+    public static readonly Color32 LightSeaGreen = new(32, 178, 170, 255);
     public static readonly Color32 CadetBlue = new(95, 158, 160, 255);
     public static readonly Color32 DarkCyan = new(0, 139, 139, 255);
     public static readonly Color32 Teal = new(0, 128, 128, 255);
@@ -107,7 +107,7 @@ public static class ColorsX11
     public static readonly Color32 DodgerBlue = new(30, 144, 255, 255);
     public static readonly Color32 CornflowerBlue = new(100, 149, 237, 255);
     public static readonly Color32 SteelBlue = new(70, 130, 180, 255);
-    public static readonly Color32 RoyalBlue  = new(65, 105, 225, 255);
+    public static readonly Color32 RoyalBlue = new(65, 105, 225, 255);
     public static readonly Color32 Blue = new(0, 0, 255, 255);
     public static readonly Color32 MediumBlue = new(0, 0, 205, 255);
     public static readonly Color32 DarkBlue = new(0, 0, 139, 255);
@@ -119,11 +119,11 @@ public static class ColorsX11
     public static readonly Color32 Thistle = new(216, 191, 216, 255);
     public static readonly Color32 Plum = new(221, 160, 221, 255);
     public static readonly Color32 Violet = new(238, 130, 238, 255);
-    public static readonly Color32 Orchid  = new(218, 112, 214, 255);
+    public static readonly Color32 Orchid = new(218, 112, 214, 255);
     public static readonly Color32 Fuchsia = new(255, 0, 255, 255);
-    public static readonly Color32 Magenta  = new(255, 0, 255, 255);
+    public static readonly Color32 Magenta = new(255, 0, 255, 255);
     public static readonly Color32 MediumOrchid = new(186, 85, 211, 255);
-    public static readonly Color32 MediumPurple  = new(147, 112, 219, 255);
+    public static readonly Color32 MediumPurple = new(147, 112, 219, 255);
     public static readonly Color32 BlueViolet = new(138, 43, 226, 255);
     public static readonly Color32 DarkViolet = new(148, 0, 211, 255);
     public static readonly Color32 DarkOrchid = new(153, 50, 204, 255);
@@ -152,7 +152,7 @@ public static class ColorsX11
     public static readonly Color32 Linen = new(250, 240, 230, 255);
     public static readonly Color32 LavenderBlush = new(255, 240, 245, 255);
     public static readonly Color32 MistyRose = new(255, 228, 225, 255);
-    
+
     //Gray and black colors
     public static readonly Color32 Gainsboro = new(220, 220, 220, 255);
     public static readonly Color32 LightGray = new(211, 211, 211, 255);

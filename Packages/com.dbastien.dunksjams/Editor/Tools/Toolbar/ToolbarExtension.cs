@@ -4,59 +4,57 @@ using UnityEditor;
 using UnityEngine;
 
 [InitializeOnLoad]
-public static class CustomToolbarExtension
+public static class ToolbarExtension
 {
-    private static readonly int _toolCount;
-    private static GUIStyle _commandButtonStyle;
+    static readonly int _toolCount;
+    static GUIStyle _commandButtonStyle;
 
     public static event Action<double> OnUpdate;
     public static event Action OnLeftToolbarGUI;
     public static event Action OnRightToolbarGUI;
 
-    private static double _lastUpdateTime;
+    static double _lastUpdateTime;
 
-    static CustomToolbarExtension()
+    static ToolbarExtension()
     {
-        Type toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
-        FieldInfo toolbarIcons = toolbarType.GetField("s_ShownToolIcons", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        var toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
+        var toolbarIcons = toolbarType.GetField("s_ShownToolIcons",
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
         _toolCount = toolbarIcons != null ? ((Array)toolbarIcons.GetValue(null)).Length : 7;
 
-        CustomToolbarCallback.ToolbarGUI -= OnGUI;
-        CustomToolbarCallback.ToolbarGUI += OnGUI;
+        ToolbarCallback.ToolbarGUI -= OnGUI;
+        ToolbarCallback.ToolbarGUI += OnGUI;
 
         EditorApplication.update -= Update;
         EditorApplication.update += Update;
     }
 
-    private static void Update()
+    static void Update()
     {
-        double currentTime = EditorApplication.timeSinceStartup;
-        double deltaTime = currentTime - _lastUpdateTime;
+        var currentTime = EditorApplication.timeSinceStartup;
+        var deltaTime = currentTime - _lastUpdateTime;
         _lastUpdateTime = currentTime;
 
         OnUpdate?.Invoke(deltaTime);
     }
 
-    private static void OnGUI()
+    static void OnGUI()
     {
-        if (_commandButtonStyle == null)
+        _commandButtonStyle ??= new GUIStyle("Command")
         {
-            _commandButtonStyle = new GUIStyle("Command")
-            {
-                fontSize = 12,
-                alignment = TextAnchor.MiddleCenter,
-                imagePosition = ImagePosition.ImageLeft,
-                fixedHeight = 22
-            };
-        }
+            fontSize = 12,
+            alignment = TextAnchor.MiddleCenter,
+            imagePosition = ImagePosition.ImageLeft,
+            fixedHeight = 22
+        };
 
         var screenWidth = EditorGUIUtility.currentViewWidth;
-        
+
         // Approximate positions of Unity's default controls
-        float playButtonsPosition = (screenWidth / 2) - 70;
-        
+        var playButtonsPosition = screenWidth / 2 - 70;
+
         // Left side area (after tools, before play buttons)
-        Rect leftRect = new Rect(0, 5, screenWidth, 24);
+        var leftRect = new Rect(0, 5, screenWidth, 24);
         leftRect.xMin += 32 * _toolCount; // Skip tools
         leftRect.xMin += 10; // Margin
         leftRect.xMin += 64 * 2; // Skip pivot/handle tools
@@ -72,7 +70,7 @@ public static class CustomToolbarExtension
         }
 
         // Right side area (after play buttons, before layout)
-        Rect rightRect = new Rect(0, 5, screenWidth, 24);
+        Rect rightRect = new(0, 5, screenWidth, 24);
         rightRect.xMin = playButtonsPosition + 140; // After play/pause/step
         rightRect.xMax = screenWidth - 350; // Before layout/layers/account
 
@@ -86,11 +84,11 @@ public static class CustomToolbarExtension
         }
     }
 
-    private static void DrawLeftToolbarItems()
+    static void DrawLeftToolbarItems()
     {
     }
 
-    private static void DrawRightToolbarItems()
+    static void DrawRightToolbarItems()
     {
     }
 }

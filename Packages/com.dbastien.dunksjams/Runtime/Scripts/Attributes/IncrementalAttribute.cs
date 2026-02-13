@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-public abstract class IncrementalAttribute : PropertyAttribute { }
+public abstract class IncrementalAttribute : PropertyAttribute
+{
+}
 
 public class FloatIncrementalAttribute : IncrementalAttribute
 {

@@ -42,8 +42,8 @@ public class ScreenSafeArea : MonoBehaviour
 
         if (Screen.width > 0 && Screen.height > 0)
         {
-            Vector2 anchorMin = safeArea.position;
-            Vector2 anchorMax = safeArea.position + safeArea.size;
+            var anchorMin = safeArea.position;
+            var anchorMax = safeArea.position + safeArea.size;
             anchorMin.x /= Screen.width;
             anchorMin.y /= Screen.height;
             anchorMax.x /= Screen.width;

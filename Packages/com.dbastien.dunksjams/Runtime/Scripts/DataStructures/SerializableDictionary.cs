@@ -29,7 +29,7 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
     {
         _keys = new TKey[_dict.Count];
         _values = new TValue[_dict.Count];
-        int i = 0;
+        var i = 0;
 
         foreach (var kvp in _dict)
         {
@@ -49,7 +49,7 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
             return;
         }
 
-        for (int i = 0; i < _keys.Length; ++i)
+        for (var i = 0; i < _keys.Length; ++i)
         {
             if (_dict.ContainsKey(_keys[i]))
             {
@@ -62,9 +62,9 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
 
         //keep the lists around so we can manipulate them in the editor from the property drawer
         //or uh yeah maybe just get rid of them
-#if !UNITY_EDITOR
+    #if !UNITY_EDITOR
         _keys = null;
         _values = null;
-#endif
+    #endif
     }
 }

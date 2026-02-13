@@ -34,10 +34,13 @@ public class SimpleTopDownController : MonoBehaviour
             dir = (f * move.y + r * move.x).normalized;
         }
         else
+        {
             dir = new Vector3(move.x, 0f, move.y).normalized;
+        }
 
         if (dir.sqrMagnitude < 0.01f) return;
         transform.position += dir * moveSpeed * Time.deltaTime;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), turnSpeed * Time.deltaTime);
+        transform.rotation =
+            Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), turnSpeed * Time.deltaTime);
     }
 }

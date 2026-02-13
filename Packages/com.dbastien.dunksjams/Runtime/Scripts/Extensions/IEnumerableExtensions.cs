@@ -25,13 +25,14 @@ public static class IEnumerableExtensions
         if (size <= 0) throw new ArgumentException("Chunk size must be greater than 0.", nameof(size));
 
         var chunk = new List<T>(size);
-        foreach (T item in e)
+        foreach (var item in e)
         {
             chunk.Add(item);
             if (chunk.Count != size) continue;
             yield return new List<T>(chunk);
             chunk.Clear();
         }
+
         if (chunk.Any()) yield return chunk;
     }
 
@@ -43,12 +44,13 @@ public static class IEnumerableExtensions
 
     public static int IndexOf<T>(this IEnumerable<T> e, T element)
     {
-        int index = 0;
-        foreach (T item in e)
+        var index = 0;
+        foreach (var item in e)
         {
             if (EqualityComparer<T>.Default.Equals(item, element)) return index;
             ++index;
         }
+
         return -1;
     }
 
@@ -59,24 +61,25 @@ public static class IEnumerableExtensions
         if (count <= 0) return Enumerable.Empty<T>();
 
         var result = new Queue<T>(count);
-        foreach (T item in e)
+        foreach (var item in e)
         {
             if (result.Count == count) result.Dequeue();
             result.Enqueue(item);
         }
+
         return result;
     }
 
     public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> e, int count)
     {
-        if (count <= 0) 
+        if (count <= 0)
         {
-            foreach (T item in e) yield return item;
+            foreach (var item in e) yield return item;
             yield break;
         }
 
         var buffer = new Queue<T>(count);
-        foreach (T item in e)
+        foreach (var item in e)
         {
             if (buffer.Count == count) yield return buffer.Dequeue();
             buffer.Enqueue(item);
@@ -88,11 +91,12 @@ public static class IEnumerableExtensions
     {
         var matches = new List<T>();
         var nonMatches = new List<T>();
-        foreach (T item in e)
+        foreach (var item in e)
         {
             if (predicate(item)) matches.Add(item);
             else nonMatches.Add(item);
         }
+
         return (matches, nonMatches);
     }
 
@@ -106,7 +110,7 @@ public static class IEnumerableExtensions
     {
         var firstCounts = e.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
 
-        foreach (T item in second)
+        foreach (var item in second)
         {
             if (!firstCounts.TryGetValue(item, out var count) || count == 0) return false;
             --firstCounts[item];
@@ -120,7 +124,7 @@ public static class IEnumerableExtensions
 
     public static T MostFrequent<T>(this IEnumerable<T> e) => e.GroupBy(x => x).MaxBy(g => g.Count()).Key;
     public static T LeastFrequent<T>(this IEnumerable<T> e) => e.GroupBy(x => x).MinBy(g => g.Count()).Key;
-    
+
     public static IEnumerable<T> ExceptBy<T, TKey>(this IEnumerable<T> e, IEnumerable<T> other, Func<T, TKey> key) =>
         e.Where(item => !other.Select(key).Contains(key(item)));
 

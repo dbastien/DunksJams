@@ -6,7 +6,7 @@ public class TarotGame : CardGameBase<TarotCard>
     bool _hasRead;
 
     public TarotGame(TarotReadingSettings settings = null, ICardGameIO io = null)
-        : base(playerCount: 1, maxRounds: 1, io: io)
+        : base(1, 1, io)
     {
         _settings = settings ?? new TarotReadingSettings();
         VariantName = _settings.Spread.ToString();
@@ -18,7 +18,7 @@ public class TarotGame : CardGameBase<TarotCard>
     {
         Deck = CreateDeck();
         Deck.Shuffle();
-        PlayerHands = new List<Hand<TarotCard>>(1) { new Hand<TarotCard>() };
+        PlayerHands = new List<Hand<TarotCard>>(1) { new() };
 
         if (_settings.PromptForSpread) PromptForSpread();
         VariantName = _settings.Spread.ToString();
@@ -53,8 +53,10 @@ public class TarotGame : CardGameBase<TarotCard>
     void PromptForSpread()
     {
         var options = new List<string> { "Single Card", "Three Card (Past/Present/Future)" };
-        int choice = ReadChoice("Choose a tarot spread:", options, (int)_settings.Spread);
-        _settings.Spread = choice == 0 ? TarotReadingSettings.TarotSpread.SingleCard : TarotReadingSettings.TarotSpread.ThreeCard;
+        var choice = ReadChoice("Choose a tarot spread:", options, (int)_settings.Spread);
+        _settings.Spread = choice == 0
+            ? TarotReadingSettings.TarotSpread.SingleCard
+            : TarotReadingSettings.TarotSpread.ThreeCard;
     }
 
     void ReadSingleCard()
@@ -77,8 +79,8 @@ public class TarotGame : CardGameBase<TarotCard>
     TarotCard DrawReadingCard()
     {
         var card = Deck.Draw();
-        EmitCardDrawn(-1, card, isFaceDown: false);
-        DiscardCard(card, playerIndex: -1);
+        EmitCardDrawn(-1, card, false);
+        DiscardCard(card, -1);
         return card;
     }
 }

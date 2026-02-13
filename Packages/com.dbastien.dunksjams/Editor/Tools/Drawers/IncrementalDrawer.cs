@@ -3,8 +3,11 @@ using UnityEngine;
 
 public abstract class IncrementalDrawer<T> : PropertyDrawer
 {
-    public static readonly GUIContent iconToolbarPlus = EditorGUIUtils.IconContentSafe("d_Toolbar Plus", "Toolbar Plus", "Increase");
-    public static readonly GUIContent iconToolbarMinus = EditorGUIUtils.IconContentSafe("d_Toolbar Minus", "Toolbar Minus", "Decrease");
+    public static readonly GUIContent iconToolbarPlus =
+        EditorGUIUtils.IconContentSafe("d_Toolbar Plus", "Toolbar Plus", "Increase");
+
+    public static readonly GUIContent iconToolbarMinus =
+        EditorGUIUtils.IconContentSafe("d_Toolbar Minus", "Toolbar Minus", "Decrease");
 
     public override void OnGUI(Rect rect, SerializedProperty prop, GUIContent label)
     {
@@ -12,7 +15,7 @@ public abstract class IncrementalDrawer<T> : PropertyDrawer
 
         EditorGUI.BeginProperty(rect, label, prop);
 
-        float fieldWidth = rect.width - buttonWidth * 2;
+        var fieldWidth = rect.width - buttonWidth * 2;
 
         var propRect = new Rect(rect.x, rect.y, fieldWidth, rect.height);
         var plusRect = new Rect(propRect.x + propRect.width, rect.y, buttonWidth, rect.height);
@@ -20,7 +23,7 @@ public abstract class IncrementalDrawer<T> : PropertyDrawer
 
         EditorGUI.PropertyField(propRect, prop, label);
 
-        T increment = GetIncrement();
+        var increment = GetIncrement();
 
         if (GUI.Button(minusRect, iconToolbarMinus)) DecrementValue(prop, increment);
         if (GUI.Button(plusRect, iconToolbarPlus)) IncrementValue(prop, increment);

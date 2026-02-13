@@ -17,11 +17,11 @@ public class ComponentMemberReference
     bool _infoCached;
     MaterialPropertyBlock _materialPropBlock;
     ShaderPropertyType? _shaderPropType;
-    
+
     // Cached delegates for performance (avoids reflection every frame)
     Action<object> _cachedSetter;
     Func<object> _cachedGetter;
-    
+
     public string GetTargetMemberName() => targetMemberName;
 
     public bool IsValid() => targetComponent != null && !string.IsNullOrEmpty(targetMemberName) && CacheInfo();
@@ -32,15 +32,16 @@ public class ComponentMemberReference
 
         if (targetComponent is Renderer renderer)
         {
-            Material material = GetMaterial(renderer);
+            var material = GetMaterial(renderer);
             if (material && _shaderPropType.HasValue)
             {
-                ShaderPropertyType propertyType = material.shader.GetPropertyType(material.shader.FindPropertyIndex(targetMemberName));
-        
+                var propertyType = material.shader.GetPropertyType(material.shader.FindPropertyIndex(targetMemberName));
+
                 switch (propertyType)
                 {
                     case ShaderPropertyType.Color: return material.GetColor(targetMemberName);
-                    case ShaderPropertyType.Float or ShaderPropertyType.Range: return material.GetFloat(targetMemberName);
+                    case ShaderPropertyType.Float or ShaderPropertyType.Range:
+                        return material.GetFloat(targetMemberName);
                     case ShaderPropertyType.Vector: return material.GetVector(targetMemberName);
                 }
             }
@@ -60,16 +61,19 @@ public class ComponentMemberReference
 
         if (targetComponent is Renderer renderer)
         {
-            _materialPropBlock ??= new();
+            _materialPropBlock ??= new MaterialPropertyBlock();
             renderer.GetPropertyBlock(_materialPropBlock);
 
             switch (value)
             {
-                case Color val: _materialPropBlock.SetColor(targetMemberName, val);
+                case Color val:
+                    _materialPropBlock.SetColor(targetMemberName, val);
                     break;
-                case float val: _materialPropBlock.SetFloat(targetMemberName, val);
+                case float val:
+                    _materialPropBlock.SetFloat(targetMemberName, val);
                     break;
-                case Vector4 val: _materialPropBlock.SetVector(targetMemberName, val);
+                case Vector4 val:
+                    _materialPropBlock.SetVector(targetMemberName, val);
                     break;
                 default:
                     DLog.Log($"[SetValue] Unsupported type for {targetMemberName}");
@@ -96,13 +100,13 @@ public class ComponentMemberReference
             DLog.LogE("Target component or member name is not set.");
             return false;
         }
-        
-        Type type = targetComponent.GetType();
-        string cleanMemberName = targetMemberName.Split(' ')[0];
+
+        var type = targetComponent.GetType();
+        var cleanMemberName = targetMemberName.Split(' ')[0];
 
         if (targetComponent is Renderer renderer)
         {
-            Material mat = GetMaterial(renderer);
+            var mat = GetMaterial(renderer);
             if (mat && mat.HasProperty(cleanMemberName))
             {
                 _shaderPropType = mat.shader.GetPropertyType(mat.shader.FindPropertyIndex(cleanMemberName));
@@ -111,8 +115,10 @@ public class ComponentMemberReference
             }
         }
 
-        _fieldInfo = type.GetField(cleanMemberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        _propInfo = type.GetProperty(cleanMemberName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        _fieldInfo = type.GetField(cleanMemberName,
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        _propInfo = type.GetProperty(cleanMemberName,
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
         if (_fieldInfo == null && _propInfo == null)
         {

@@ -5,9 +5,10 @@ using System.Collections.Generic;
 public class Inventory<T>
 {
     readonly Dictionary<T, int> _items = new(); // T could be an Item type or ID
-    
+
     /// <summary>Capacity is slot-based (unique item types), not total quantity.</summary>
     public int Capacity { get; private set; }
+
     public int ItemCount => _items.Count;
 
     public event Action<T, int> OnItemAdded, OnItemRemoved;
@@ -18,7 +19,7 @@ public class Inventory<T>
     public bool AddItem(T item, int quantity = 1)
     {
         if (quantity <= 0 || ItemCount >= Capacity) return false;
-        
+
         if (!_items.TryAdd(item, quantity))
             _items[item] += quantity;
 
@@ -29,8 +30,8 @@ public class Inventory<T>
 
     public bool RemoveItem(T item, int quantity = 1)
     {
-        if (!_items.TryGetValue(item, out int currentQuantity) || quantity <= 0) return false;
-        
+        if (!_items.TryGetValue(item, out var currentQuantity) || quantity <= 0) return false;
+
         if (currentQuantity <= quantity)
             _items.Remove(item);
         else
@@ -41,7 +42,7 @@ public class Inventory<T>
         return true;
     }
 
-    public int GetQuantity(T item) => _items.TryGetValue(item, out int quantity) ? quantity : 0;
+    public int GetQuantity(T item) => _items.TryGetValue(item, out var quantity) ? quantity : 0;
 
     public bool ContainsItem(T item) => _items.ContainsKey(item);
 

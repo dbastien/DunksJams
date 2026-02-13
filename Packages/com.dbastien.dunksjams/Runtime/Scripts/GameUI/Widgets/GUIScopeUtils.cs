@@ -7,7 +7,8 @@ public struct GUIScope : IDisposable
     readonly bool prevEnabled;
     readonly int prevFontSize;
 
-    public GUIScope(Color? color = null, Color? backgroundColor = null, Color? contentColor = null, bool? enabled = null, int? fontSize = null)
+    public GUIScope(Color? color = null, Color? backgroundColor = null, Color? contentColor = null,
+        bool? enabled = null, int? fontSize = null)
     {
         prevColor = GUI.color;
         prevBgColor = GUI.backgroundColor;
@@ -35,66 +36,78 @@ public struct GUIScope : IDisposable
 public struct GUIColorScope : IDisposable
 {
     readonly Color prev;
+
     public GUIColorScope(Color color)
     {
         prev = GUI.color;
         if (prev != color) GUI.color = color;
     }
+
     public void Dispose() => GUI.color = prev;
 }
 
 public struct GuiChangedScope : IDisposable
 {
     bool saved;
+
     public GuiChangedScope(bool? setChangedTo = null)
     {
         saved = GUI.changed;
         if (setChangedTo.HasValue) GUI.changed = setChangedTo.Value;
     }
+
     public void Dispose() => GUI.changed = saved;
 }
 
 public struct GUIFontSizeScope : IDisposable
 {
     readonly int prev;
+
     public GUIFontSizeScope(int size)
     {
         prev = GUI.skin.label.fontSize;
         GUI.skin.label.fontSize = size;
     }
+
     public void Dispose() => GUI.skin.label.fontSize = prev;
 }
 
 public struct GUIEnabledScope : IDisposable
 {
     readonly bool prev;
+
     public GUIEnabledScope(bool enabled)
     {
         prev = GUI.enabled;
         GUI.enabled = enabled;
     }
+
     public void Dispose() => GUI.enabled = prev;
 }
 
 public struct GUIBackgroundColorScope : IDisposable
 {
     readonly Color prev;
+
     public GUIBackgroundColorScope(Color color)
     {
         prev = GUI.backgroundColor;
         if (prev != color) GUI.backgroundColor = color;
     }
+
     public void Dispose() => GUI.backgroundColor = prev;
 }
 
 public struct GUIContentColorScope : IDisposable
 {
     readonly Color prev;
+
     public GUIContentColorScope(Color color)
     {
         prev = GUI.contentColor;
         if (prev != color) GUI.contentColor = color;
     }
+
     public void Dispose() => GUI.contentColor = prev;
 }
 

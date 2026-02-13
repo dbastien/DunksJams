@@ -25,7 +25,7 @@ public struct Ellipse2D : IShape2D
         var step = Mathf.Deg2Rad * 360f / seg;
         Vector3 prev = Center + new Vector2(Radii.x, 0), first = prev;
 
-        for (int i = 1; i <= seg; ++i)
+        for (var i = 1; i <= seg; ++i)
         {
             var a = i * step;
             var point = new Vector3(Mathf.Cos(a) * Radii.x + Center.x, Mathf.Sin(a) * Radii.y + Center.y, 0);

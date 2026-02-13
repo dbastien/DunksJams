@@ -19,7 +19,7 @@ public static class DataUtils
         if (lineEndIndex == -1) throw new ArgumentException("Invalid CSV format.");
 
         var headers = data[..lineEndIndex].Trim().Split(',');
-        int langIndex = Array.IndexOf(headers, langCode);
+        var langIndex = Array.IndexOf(headers, langCode);
         langIndex = langIndex != -1 ? langIndex : Array.IndexOf(headers, FallbackLanguage);
         if (langIndex == -1) throw new ArgumentException("Language code not found.");
 
@@ -36,6 +36,7 @@ public static class DataUtils
             var key = parts[0].Trim();
             if (!string.IsNullOrEmpty(key)) result[key] = parts[column].Trim();
         }
+
         return result;
     }
 
@@ -43,8 +44,8 @@ public static class DataUtils
     {
         if (string.IsNullOrEmpty(_googleApiKey))
             throw new InvalidOperationException("Google API key not set. Call SetGoogleApiKey() first.");
-        
-        string url = $"https://sheets.googleapis.com/v4/spreadsheets/{sheetId}/values/{range}?key={_googleApiKey}";
+
+        var url = $"https://sheets.googleapis.com/v4/spreadsheets/{sheetId}/values/{range}?key={_googleApiKey}";
         try
         {
             var response = await _client.GetStringAsync(url);
@@ -59,7 +60,8 @@ public static class DataUtils
         {
             DLog.LogE($"Failed to parse Google Sheets data: {e.Message}");
         }
-        return new();
+
+        return new Dictionary<string, string>();
     }
 
     [Serializable]

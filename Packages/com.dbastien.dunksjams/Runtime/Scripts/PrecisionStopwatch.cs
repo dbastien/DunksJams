@@ -3,7 +3,13 @@ using System.Diagnostics;
 
 public class PrecisionStopwatch : IDisposable
 {
-    public enum TimeUnit { Seconds, Milliseconds, Microseconds, Nanoseconds }
+    public enum TimeUnit
+    {
+        Seconds,
+        Milliseconds,
+        Microseconds,
+        Nanoseconds
+    }
 
     readonly Stopwatch _sw;
     readonly Action<string> _onDisposeAction;
@@ -13,9 +19,18 @@ public class PrecisionStopwatch : IDisposable
     public static bool IsHighResolution => Stopwatch.IsHighResolution;
     public static long Freq => Stopwatch.Frequency;
 
-    public PrecisionStopwatch() : this(TimeUnit.Milliseconds) { }
-    public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately) { }
-    public PrecisionStopwatch(Action<string> onDisposeAction) : this(TimeUnit.Milliseconds, onDisposeAction, startImmediately: true) { }
+    public PrecisionStopwatch() : this(TimeUnit.Milliseconds)
+    {
+    }
+
+    public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately)
+    {
+    }
+
+    public PrecisionStopwatch(Action<string> onDisposeAction) : this(TimeUnit.Milliseconds, onDisposeAction, true)
+    {
+    }
+
     public PrecisionStopwatch(TimeUnit timeUnit, Action<string> onDisposeAction = null, bool startImmediately = false)
     {
         _sw = new Stopwatch();
@@ -25,8 +40,9 @@ public class PrecisionStopwatch : IDisposable
         if (startImmediately) Start();
     }
 
-    public static PrecisionStopwatch StartNew(TimeUnit timeUnit = TimeUnit.Milliseconds, Action<string> onDisposeAction = null)
-        => new(timeUnit, onDisposeAction, startImmediately: true);
+    public static PrecisionStopwatch StartNew(TimeUnit timeUnit = TimeUnit.Milliseconds,
+        Action<string> onDisposeAction = null)
+        => new(timeUnit, onDisposeAction, true);
 
     public void Start() => _sw.Start();
     public void Stop() => _sw.Stop();

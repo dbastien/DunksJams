@@ -7,6 +7,6 @@ public class LogicGate3In : MonoBehaviour
     public bool inA;
     public bool inB;
     public bool inC;
-    
+
     public bool Evaluate() => LogicGates.Evaluate(gateType, inA, inB, inC);
 }

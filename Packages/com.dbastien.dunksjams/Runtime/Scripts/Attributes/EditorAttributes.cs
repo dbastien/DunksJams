@@ -1,12 +1,35 @@
 ﻿using System;
 using UnityEngine;
 
-[AttributeUsage(AttributeTargets.Field)] public class OpenLocalFileAttribute : PropertyAttribute { }
-[AttributeUsage(AttributeTargets.Field)] public class OpenLocalFolderAttribute : PropertyAttribute { }
-[AttributeUsage(AttributeTargets.Field)] public class SaveLocalFileAttribute : PropertyAttribute { }
-[AttributeUsage(AttributeTargets.Method)] public class ButtonAttribute : PropertyAttribute { }
-[AttributeUsage(AttributeTargets.Method)] public class ExposeMethodInEditorAttribute : PropertyAttribute { }
-[AttributeUsage(AttributeTargets.Field)] public class RequiredAttribute : PropertyAttribute { }
+[AttributeUsage(AttributeTargets.Field)]
+public class OpenLocalFileAttribute : PropertyAttribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class OpenLocalFolderAttribute : PropertyAttribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class SaveLocalFileAttribute : PropertyAttribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class ButtonAttribute : PropertyAttribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class ExposeMethodInEditorAttribute : PropertyAttribute
+{
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class RequiredAttribute : PropertyAttribute
+{
+}
 
 [AttributeUsage(AttributeTargets.Field)]
 public class ProgressBarAttribute : PropertyAttribute
@@ -25,7 +48,7 @@ public class HeaderColorAttribute : PropertyAttribute
     public string Header { get; }
 
     public HeaderColorAttribute(float r, float g, float b, string header = "") =>
-        (Color, Header) = (new(r, g, b), header);
+        (Color, Header) = (new Color(r, g, b), header);
 }
 
 [AttributeUsage(AttributeTargets.Field)]

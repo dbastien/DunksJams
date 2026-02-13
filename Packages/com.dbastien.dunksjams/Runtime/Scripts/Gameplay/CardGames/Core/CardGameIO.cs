@@ -59,7 +59,7 @@ public sealed class QueuedCardGameIO : ICardGameIO
 
     public int ReadInt(string prompt, int min, int max, int defaultValue)
     {
-        string input = ReadText(prompt, defaultValue.ToString());
+        var input = ReadText(prompt, defaultValue.ToString());
         return TryParseInt(input, min, max, defaultValue);
     }
 
@@ -70,16 +70,16 @@ public sealed class QueuedCardGameIO : ICardGameIO
 
         var lines = new List<string>(options.Count + 1);
         if (!string.IsNullOrWhiteSpace(prompt)) lines.Add(prompt);
-        for (int i = 0; i < options.Count; ++i) lines.Add($"{i + 1}. {options[i]}");
+        for (var i = 0; i < options.Count; ++i) lines.Add($"{i + 1}. {options[i]}");
         WriteLines(lines);
 
-        int choice = ReadInt("Choice", 1, options.Count, defaultIndex + 1);
+        var choice = ReadInt("Choice", 1, options.Count, defaultIndex + 1);
         return choice - 1;
     }
 
     static int TryParseInt(string input, int min, int max, int defaultValue)
     {
-        if (int.TryParse(input, out int value) && value >= min && value <= max) return value;
+        if (int.TryParse(input, out var value) && value >= min && value <= max) return value;
         return Clamp(defaultValue, min, max);
     }
 
@@ -102,14 +102,14 @@ public sealed class ConsoleCardGameIO : ICardGameIO
     public string ReadText(string prompt, string defaultValue = "")
     {
         if (!string.IsNullOrWhiteSpace(prompt)) Console.WriteLine(prompt);
-        string input = Console.ReadLine();
+        var input = Console.ReadLine();
         return string.IsNullOrWhiteSpace(input) ? defaultValue ?? string.Empty : input;
     }
 
     public int ReadInt(string prompt, int min, int max, int defaultValue)
     {
-        string input = ReadText(prompt, defaultValue.ToString());
-        if (int.TryParse(input, out int value) && value >= min && value <= max) return value;
+        var input = ReadText(prompt, defaultValue.ToString());
+        if (int.TryParse(input, out var value) && value >= min && value <= max) return value;
         return Clamp(defaultValue, min, max);
     }
 
@@ -120,10 +120,10 @@ public sealed class ConsoleCardGameIO : ICardGameIO
 
         var lines = new List<string>(options.Count + 1);
         if (!string.IsNullOrWhiteSpace(prompt)) lines.Add(prompt);
-        for (int i = 0; i < options.Count; ++i) lines.Add($"{i + 1}. {options[i]}");
+        for (var i = 0; i < options.Count; ++i) lines.Add($"{i + 1}. {options[i]}");
         WriteLines(lines);
 
-        int choice = ReadInt("Choice", 1, options.Count, defaultIndex + 1);
+        var choice = ReadInt("Choice", 1, options.Count, defaultIndex + 1);
         return choice - 1;
     }
 

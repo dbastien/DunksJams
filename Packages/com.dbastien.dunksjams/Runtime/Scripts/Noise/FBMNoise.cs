@@ -7,7 +7,7 @@ public static class FBMNoise
     {
         float frequency = 1f, amplitude = 1f, total = 0f, maxAmplitude = 0f;
 
-        for (int i = 0; i < octaves; ++i)
+        for (var i = 0; i < octaves; ++i)
         {
             total += Mathf.PerlinNoise(x * frequency, y * frequency) * amplitude;
             maxAmplitude += amplitude;
@@ -22,7 +22,7 @@ public static class FBMNoise
     {
         float frequency = 1f, amplitude = 1f, total = 0f, maxAmplitude = 0f;
 
-        for (int i = 0; i < octaves; ++i)
+        for (var i = 0; i < octaves; ++i)
         {
             total += PerlinNoise.Perlin3D(x * frequency, y * frequency, z * frequency) * amplitude;
             maxAmplitude += amplitude;
@@ -37,7 +37,7 @@ public static class FBMNoise
     {
         float frequency = 1f, amplitude = 1f, total = 0f, maxAmplitude = 0f;
 
-        for (int i = 0; i < octaves; ++i)
+        for (var i = 0; i < octaves; ++i)
         {
             total += baseNoise(x * frequency, y * frequency) * amplitude;
             maxAmplitude += amplitude;
@@ -55,9 +55,9 @@ public class FBMNoiseGenerator : INoiseGenerator
     public float Persistence { get; set; } = 0.5f;
     public float Frequency { get; set; } = 1f;
 
-    private float _maxAmplitude = -1f;
+    float _maxAmplitude = -1f;
 
-    private float MaxAmplitude
+    float MaxAmplitude
     {
         get
         {
@@ -67,14 +67,15 @@ public class FBMNoiseGenerator : INoiseGenerator
         }
     }
 
-    private float ComputeMaxAmplitude()
+    float ComputeMaxAmplitude()
     {
         float amplitude = 1f, maxAmplitude = 0f;
-        for (int i = 0; i < Octaves; ++i)
+        for (var i = 0; i < Octaves; ++i)
         {
             maxAmplitude += amplitude;
             amplitude *= Persistence;
         }
+
         return maxAmplitude;
     }
 

@@ -4,7 +4,12 @@ using System.Collections.Generic;
 //todo: largely untested
 public class ObjectiveManager
 {
-    public enum ObjectiveStatus { InProgress, Completed, Failed }
+    public enum ObjectiveStatus
+    {
+        InProgress,
+        Completed,
+        Failed
+    }
 
     public class Objective
     {
@@ -51,7 +56,7 @@ public class ObjectiveManager
     public void AddObjective(Objective objective)
     {
         if (objective == null) throw new ArgumentNullException(nameof(objective));
-        
+
         if (_objectives.Add(objective))
             objective.OnStatusChanged += HandleObjectiveStatusChanged;
     }
@@ -65,7 +70,10 @@ public class ObjectiveManager
     public void CheckAllObjectives()
     {
         foreach (var objective in _objectives)
-            if (objective.Status != ObjectiveStatus.Completed) return;
+        {
+            if (objective.Status != ObjectiveStatus.Completed)
+                return;
+        }
 
         OnAllObjectivesCompleted?.Invoke();
     }

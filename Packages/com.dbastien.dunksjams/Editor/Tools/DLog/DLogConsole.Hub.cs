@@ -1,4 +1,5 @@
 // Assets/Editor/DLog/DLogConsole.Hub.cs
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,47 +12,48 @@ using UnityEngine;
 public sealed partial class DLogConsole
 {
     [Serializable]
-    private sealed class LogDump
+    sealed class LogDump
     {
         public List<LogEntry> entries = new();
         public int version;
     }
 
     [InitializeOnLoad]
-    private static class DLogHub
+    static class DLogHub
     {
-        private const int MaxEntries = 2000;
-        private const string SessionKey = "DLogConsole.LogDump.v3";
+        const int MaxEntries = 2000;
+        const string SessionKey = "DLogConsole.LogDump.v3";
 
-        private static readonly ConcurrentQueue<LogEntry> s_pending = new();
-        private static readonly List<LogEntry> s_entries = new(1024);
+        static readonly ConcurrentQueue<LogEntry> s_pending = new();
+        static readonly List<LogEntry> s_entries = new(1024);
 
-        private static int s_version;
-        private static bool s_dirty;
+        static int s_version;
+        static bool s_dirty;
 
-        private static int s_infoCount;
-        private static int s_warnCount;
-        private static int s_errorCount;
+        static int s_infoCount;
+        static int s_warnCount;
+        static int s_errorCount;
 
-        private const string ClearOnPlayKey = "DLogConsole.ClearOnPlay";
-        private const string ClearOnBuildKey = "DLogConsole.ClearOnBuild";
-        private const string ClearOnRecompileKey = "DLogConsole.ClearOnRecompile";
+        const string ClearOnPlayKey = "DLogConsole.ClearOnPlay";
+        const string ClearOnBuildKey = "DLogConsole.ClearOnBuild";
+        const string ClearOnRecompileKey = "DLogConsole.ClearOnRecompile";
 
-        private static bool s_clearOnPlay;
-        private static bool s_clearOnBuild;
-        private static bool s_clearOnRecompile;
+        static bool s_clearOnPlay;
+        static bool s_clearOnBuild;
+        static bool s_clearOnRecompile;
 
         // If Unity prints compiler diagnostics to console, skip those (we capture from CompilationPipeline).
-        private static readonly Regex s_compilerConsoleLine = new(
+        static readonly Regex s_compilerConsoleLine = new(
             @"\(\d+,\d+\):\s*(warning|error)\s+CS\d+:",
             RegexOptions.Compiled);
 
         // Highlight patterns like [file:123] or file.cs:123 (best-effort)
-        private static readonly Regex s_linkLike = new(
+        static readonly Regex s_linkLike = new(
             @"(\[[^\]]+:\d+\])|(\b[\w\./\\-]+\.\w+:\d+\b)",
             RegexOptions.Compiled);
 
-        private static readonly Regex s_compilationFileLine = new(@"^\[COMPILATION\]\s+(.+?)\((\d+)\):", RegexOptions.Compiled);
+        static readonly Regex s_compilationFileLine =
+            new(@"^\[COMPILATION\]\s+(.+?)\((\d+)\):", RegexOptions.Compiled);
 
         static DLogHub()
         {
@@ -129,7 +131,9 @@ public sealed partial class DLogConsole
         public static void Clear()
         {
             s_entries.Clear();
-            while (s_pending.TryDequeue(out _)) { }
+            while (s_pending.TryDequeue(out _))
+            {
+            }
 
             s_infoCount = s_warnCount = s_errorCount = 0;
 
@@ -138,7 +142,7 @@ public sealed partial class DLogConsole
             Changed?.Invoke();
         }
 
-        private static void OnLogThreaded(string message, string stackTrace, LogType type)
+        static void OnLogThreaded(string message, string stackTrace, LogType type)
         {
             // Skip compiler messages emitted to console if we capture via CompilationPipeline.
             if (!string.IsNullOrEmpty(message) && s_compilerConsoleLine.IsMatch(message))
@@ -147,23 +151,23 @@ public sealed partial class DLogConsole
             s_pending.Enqueue(MakeEntry(message, stackTrace, type));
         }
 
-        private static void OnAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] messages)
+        static void OnAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
             if (messages == null || messages.Length == 0)
                 return;
 
             // Only warnings/errors (info spam is not useful)
-            for (int i = 0; i < messages.Length; i++)
+            for (var i = 0; i < messages.Length; i++)
             {
                 var m = messages[i];
                 if (m.type != CompilerMessageType.Warning && m.type != CompilerMessageType.Error)
                     continue;
 
-                var lt = (m.type == CompilerMessageType.Warning) ? LogType.Warning : LogType.Error;
+                var lt = m.type == CompilerMessageType.Warning ? LogType.Warning : LogType.Error;
 
-                string msg = BuildCompilationMessage(m, out string file, out int line, out string richMessage);
+                var msg = BuildCompilationMessage(m, out var file, out var line, out var richMessage);
 
-                var e = MakeEntry(msg, stackTrace: "", lt);
+                var e = MakeEntry(msg, "", lt);
                 e.file = file;
                 e.line = line;
                 e.richMessage = richMessage;
@@ -172,13 +176,13 @@ public sealed partial class DLogConsole
             }
         }
 
-        private static void OnCompilationStarted(object obj)
+        static void OnCompilationStarted(object obj)
         {
             if (s_clearOnRecompile)
                 Clear();
         }
 
-        private static void OnPlayModeStateChanged(PlayModeStateChange state)
+        static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (!s_clearOnPlay)
                 return;
@@ -187,14 +191,14 @@ public sealed partial class DLogConsole
                 Clear();
         }
 
-        private static LogEntry MakeEntry(string message, string stackTrace, LogType type)
+        static LogEntry MakeEntry(string message, string stackTrace, LogType type)
         {
             var e = new LogEntry
             {
                 message = message ?? "",
                 stackTrace = stackTrace ?? "",
                 type = type,
-                timeMsUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                timeMsUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
             // Pre-format once (rich text highlight)
@@ -207,32 +211,33 @@ public sealed partial class DLogConsole
             return e;
         }
 
-        private static string BuildCompilationMessage(CompilerMessage m, out string file, out int line, out string richMessage)
+        static string BuildCompilationMessage(CompilerMessage m, out string file, out int line,
+            out string richMessage)
         {
             file = m.file ?? "";
             line = Mathf.Max(0, m.line);
 
-            string description = StripCompilationPrefix(m.message);
-            string displayFile = ToAssetPath(file);
-            string lineSegment = line > 0 ? $"({line})" : "";
-            string prefix = string.IsNullOrEmpty(displayFile)
+            var description = StripCompilationPrefix(m.message);
+            var displayFile = ToAssetPath(file);
+            var lineSegment = line > 0 ? $"({line})" : "";
+            var prefix = string.IsNullOrEmpty(displayFile)
                 ? "[COMPILATION]"
                 : $"[COMPILATION] {displayFile}{lineSegment}:";
 
-            string msg = string.IsNullOrEmpty(description) ? prefix : $"{prefix} {description}";
+            var msg = string.IsNullOrEmpty(description) ? prefix : $"{prefix} {description}";
             richMessage = ColorizePrefix(m.type, prefix, description);
 
             return msg;
         }
 
-        private static string StripCompilationPrefix(string message)
+        static string StripCompilationPrefix(string message)
         {
             if (string.IsNullOrEmpty(message)) return "";
 
-            int idx = message.IndexOf("):", StringComparison.Ordinal);
+            var idx = message.IndexOf("):", StringComparison.Ordinal);
             if (idx >= 0 && idx + 2 < message.Length)
             {
-                int start = idx + 2;
+                var start = idx + 2;
                 if (message[start] == ' ') start++;
                 return message.Substring(start);
             }
@@ -240,17 +245,17 @@ public sealed partial class DLogConsole
             return message;
         }
 
-        private static string ToAssetPath(string path)
+        static string ToAssetPath(string path)
         {
             if (string.IsNullOrEmpty(path)) return path;
-            string p = path.Replace("\\", "/");
-            int idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+            var p = path.Replace("\\", "/");
+            var idx = p.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
             return idx >= 0 ? p.Substring(idx) : p;
         }
 
-        private static string ColorizePrefix(CompilerMessageType type, string prefix, string description)
+        static string ColorizePrefix(CompilerMessageType type, string prefix, string description)
         {
-            string color = type == CompilerMessageType.Warning
+            var color = type == CompilerMessageType.Warning
                 ? "#FFCC00"
                 : "#FF5555";
 
@@ -259,12 +264,12 @@ public sealed partial class DLogConsole
             return $"<color={color}>{prefix}</color> {description}";
         }
 
-        private static void FlushOnUpdate()
+        static void FlushOnUpdate()
         {
             if (s_pending.IsEmpty)
                 return;
 
-            bool changed = false;
+            var changed = false;
 
             while (s_pending.TryDequeue(out var e))
             {
@@ -298,7 +303,7 @@ public sealed partial class DLogConsole
             // Trim in one shot. If we trimmed, recompute counts (simple + safe).
             if (s_entries.Count > MaxEntries)
             {
-                int remove = s_entries.Count - MaxEntries;
+                var remove = s_entries.Count - MaxEntries;
                 s_entries.RemoveRange(0, remove);
                 RecomputeCounts();
             }
@@ -309,7 +314,7 @@ public sealed partial class DLogConsole
             Changed?.Invoke();
         }
 
-        private static void IncrementTypeCounts(LogType t, int delta)
+        static void IncrementTypeCounts(LogType t, int delta)
         {
             // Match Unity-ish buckets:
             // Info: Log + Assert
@@ -330,13 +335,13 @@ public sealed partial class DLogConsole
             }
         }
 
-        private static void RecomputeCounts()
+        static void RecomputeCounts()
         {
             int i = 0, w = 0, e = 0;
-            for (int k = 0; k < s_entries.Count; k++)
+            for (var k = 0; k < s_entries.Count; k++)
             {
                 var le = s_entries[k];
-                int c = Mathf.Max(1, le.count);
+                var c = Mathf.Max(1, le.count);
                 switch (le.type)
                 {
                     case LogType.Warning: w += c; break;
@@ -345,18 +350,19 @@ public sealed partial class DLogConsole
                     default: i += c; break;
                 }
             }
+
             s_infoCount = i;
             s_warnCount = w;
             s_errorCount = e;
         }
 
-        private static void FlushAndSave()
+        static void FlushAndSave()
         {
             FlushOnUpdate();
             SaveToSession();
         }
 
-        private static void SaveToSession()
+        static void SaveToSession()
         {
             if (!s_dirty) return;
 
@@ -376,11 +382,11 @@ public sealed partial class DLogConsole
             }
         }
 
-        private static void LoadFromSession()
+        static void LoadFromSession()
         {
             try
             {
-                string json = SessionState.GetString(SessionKey, "");
+                var json = SessionState.GetString(SessionKey, "");
                 if (string.IsNullOrEmpty(json))
                 {
                     s_entries.Clear();
@@ -445,7 +451,7 @@ public sealed partial class DLogConsole
 
             try
             {
-                string json = File.ReadAllText(path);
+                var json = File.ReadAllText(path);
                 var dump = JsonUtility.FromJson<LogDump>(json);
                 if (dump?.entries == null)
                     return;
@@ -465,9 +471,9 @@ public sealed partial class DLogConsole
             }
         }
 
-        private static void FixupEntries(IList<LogEntry> entries)
+        static void FixupEntries(IList<LogEntry> entries)
         {
-            for (int i = 0; i < entries.Count; i++)
+            for (var i = 0; i < entries.Count; i++)
             {
                 var e = entries[i];
                 if (string.IsNullOrEmpty(e.richMessage))
@@ -505,7 +511,7 @@ public sealed partial class DLogConsole
             if (!string.IsNullOrEmpty(stack))
             {
                 var lines = stack.Split('\n');
-                for (int i = 0; i < lines.Length; i++)
+                for (var i = 0; i < lines.Length; i++)
                 {
                     var s = lines[i];
                     m = s_stackInLine.Match(s);

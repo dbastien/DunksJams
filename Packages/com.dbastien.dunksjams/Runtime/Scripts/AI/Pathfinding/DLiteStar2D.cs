@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class DStarLitePathfinder2D
 {
-    private readonly PriorityQueue<DStarNode2D> _openSet = new();
-    private readonly Dictionary<Vector2Int, DStarNode2D> _nodes = new();
-    private readonly int[,] _grid;
+    readonly PriorityQueue<DStarNode2D> _openSet = new();
+    readonly Dictionary<Vector2Int, DStarNode2D> _nodes = new();
+    readonly int[,] _grid;
 
-    private DStarNode2D _startNode2D;
-    private DStarNode2D _goalNode2D;
+    DStarNode2D _startNode2D;
+    DStarNode2D _goalNode2D;
 
     public DStarLitePathfinder2D(Vector2Int start, Vector2Int goal, int[,] grid)
     {
@@ -21,17 +21,18 @@ public class DStarLitePathfinder2D
         ComputeShortestPath();
     }
 
-    private DStarNode2D GetNode(Vector2Int position)
+    DStarNode2D GetNode(Vector2Int position)
     {
         if (!_nodes.TryGetValue(position, out var node))
         {
             node = new DStarNode2D(position);
             _nodes[position] = node;
         }
+
         return node;
     }
 
-    private void ComputeShortestPath()
+    void ComputeShortestPath()
     {
         while (_openSet.Count > 0 && (_startNode2D.G != _startNode2D.RHS || _openSet.Peek().F < _startNode2D.F))
         {
@@ -51,7 +52,7 @@ public class DStarLitePathfinder2D
         }
     }
 
-    private void UpdateNode(DStarNode2D node2D)
+    void UpdateNode(DStarNode2D node2D)
     {
         if (node2D.Position != _goalNode2D.Position)
         {
@@ -60,11 +61,11 @@ public class DStarLitePathfinder2D
             var neighborCount = GridHelper2D.GetValidNeighborsWithPool(node2D.Position, _grid, out var neighbors);
             try
             {
-                for (int i = 0; i < neighborCount; ++i)
+                for (var i = 0; i < neighborCount; ++i)
                 {
                     var neighborPos = neighbors[i];
                     var neighbor = GetNode(neighborPos);
-                    float tentativeRHS = neighbor.G + 1f;
+                    var tentativeRHS = neighbor.G + 1f;
                     if (tentativeRHS < node2D.RHS)
                         node2D.RHS = tentativeRHS;
                 }
@@ -78,12 +79,12 @@ public class DStarLitePathfinder2D
         if (node2D.G != node2D.RHS) _openSet.Enqueue(node2D);
     }
 
-    private void UpdateNeighbors(DStarNode2D node2D)
+    void UpdateNeighbors(DStarNode2D node2D)
     {
         var neighborCount = GridHelper2D.GetValidNeighborsWithPool(node2D.Position, _grid, out var neighbors);
         try
         {
-            for (int i = 0; i < neighborCount; ++i)
+            for (var i = 0; i < neighborCount; ++i)
                 UpdateNode(GetNode(neighbors[i]));
         }
         finally
@@ -99,7 +100,7 @@ public class DStarLitePathfinder2D
         var neighborCount = GridHelper2D.GetValidNeighborsWithPool(obstaclePosition, _grid, out var neighbors);
         try
         {
-            for (int i = 0; i < neighborCount; ++i)
+            for (var i = 0; i < neighborCount; ++i)
                 UpdateNode(GetNode(neighbors[i]));
         }
         finally
@@ -124,7 +125,7 @@ public class DStarLitePathfinder2D
             {
                 DStarNode2D nextNode = null;
 
-                for (int i = 0; i < neighborCount; ++i)
+                for (var i = 0; i < neighborCount; ++i)
                 {
                     var neighbor = GetNode(neighbors[i]);
                     if (neighbor.G < float.PositiveInfinity &&
