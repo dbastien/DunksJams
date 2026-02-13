@@ -72,7 +72,7 @@ public class Projectile : MonoBehaviour
     {
         target.TakeDamage(damage);
 
-        if (useStatusEffects && statusEffect != null)
+        if (useStatusEffects)
         {
             float duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
             target.ApplyStatusEffect(statusEffect, duration);

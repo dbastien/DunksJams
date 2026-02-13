@@ -13,7 +13,7 @@ public static class EditorGUIUtils
         return c ?? new GUIContent();
     }
 
-    /// <summary>Load icon with tooltip. Tries fallback icon name if primary fails.</summary>
+    /// <summary>Load the icon with a tooltip. Tries fallback icon name if primary fails.</summary>
     public static GUIContent IconContentSafe(string primary, string fallback, string tooltip)
     {
         var c = IconContentSafe(primary, fallback);

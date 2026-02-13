@@ -1,7 +1,7 @@
 using System;
 using UnityEditor;
 
-public struct EditorGUIIndentLevelScope : IDisposable
+public struct  EditorGUIIndentLevelScope : IDisposable
 {
     readonly int _prev;
     public EditorGUIIndentLevelScope(int indent)

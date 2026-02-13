@@ -6,7 +6,7 @@ public static class LutRegistryBuilder
     const string RegistryPath = "Packages/com.dbastien.dunksjams/Resources/LutRegistry.asset";
     const string LutSearchFolder = "Packages/com.dbastien.dunksjams/Runtime/Textures/LDR LUTs";
 
-    [MenuItem("DunksJams‽/Refresh LUT Registry")]
+    [MenuItem("‽/Refresh LUT Registry")]
     public static void DiscoverAndBuild()
     {
         var guids = AssetDatabase.FindAssets("t:Texture2D", new[] { LutSearchFolder });
