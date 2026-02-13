@@ -7,16 +7,30 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
+[InitializeOnLoad]
 public sealed partial class DLogConsole : EditorWindow, IHasCustomMenu
 {
     const string TimeFormat = "HH:mm:ss.fff";
     const int MaxStackLinesVisible = 10;
     const float MaxStackHeight = 260f;
 
-    [MenuItem("Window/DLog")]
+    static DLogConsole()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (SessionState.GetBool("DLogConsole.StartupShown", false))
+                return;
+
+            SessionState.SetBool("DLogConsole.StartupShown", true);
+            ShowWindow();
+        };
+    }
+
+    [MenuItem("‽/DLog/Window")]
     public static void ShowWindow()
     {
-        var window = GetWindow<DLogConsole>();
+        var consoleType = typeof(EditorWindow).Assembly.GetType("UnityEditor.ConsoleWindow");
+        var window = GetWindow<DLogConsole>("DLog", true, consoleType);
         window.UpdateTitle();
     }
 

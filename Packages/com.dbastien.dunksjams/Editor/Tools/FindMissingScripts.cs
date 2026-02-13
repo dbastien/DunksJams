@@ -5,7 +5,7 @@ public class FindMissingScripts : EditorWindow
 {
     static int go_count = 0, components_count = 0, missing_count = 0;
 
-    [MenuItem("Window/FindMissingScripts")]
+    [MenuItem("‽/FindMissingScripts")]
     public static void ShowWindow()
     {
         GetWindow(typeof(FindMissingScripts));
@@ -23,8 +23,7 @@ public class FindMissingScripts : EditorWindow
         components_count = 0;
         missing_count = 0;
         foreach (var g in go) FindInGO(g);
-        Debug.Log(string.Format("Searched {0} GameObjects, {1} components, found {2} missing", go_count,
-            components_count, missing_count));
+        Debug.Log($"Searched {go_count} GameObjects, {components_count} components, found {missing_count} missing");
     }
 
     static void FindInGO(GameObject g)
