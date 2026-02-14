@@ -30,6 +30,7 @@ public class ClearConsoleToolbarItem : IToolbarItem
                 fixedHeight = 22
             };
 
+        // UnityEngine.Debug.Log("[DEBUG_LOG] Drawing Clear Console Button");
         if (GUILayout.Button(new GUIContent("Clear Console", "Clears the Unity Console"), _commandButtonStyle,
                 GUILayout.Width(100)))
         {

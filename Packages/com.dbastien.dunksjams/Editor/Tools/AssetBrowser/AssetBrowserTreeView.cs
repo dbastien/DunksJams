@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,7 +10,7 @@ using FontStyle = UnityEngine.FontStyle;
 using Object = UnityEngine.Object;
 
 [Serializable]
-public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeViewItem
+public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeViewItem
 {
     [SerializeField] public AssetImporterPlatform Platform;
 
@@ -108,14 +108,16 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
     protected const string TitleReferences = "Searching for References…";
     protected const string TitleDependencies = "Searching for Dependencies…";
 
-    public AssetBrowserTreeView(TreeViewState<int> state) : base(state) => Init();
-
-    protected void InitHeader(MultiColumnHeader header)
+    public AssetBrowserTreeView(TreeViewState<int> state) : base(state)
     {
-        header.sortingChanged += OnSortingChanged;
-        header.ResizeToFit();
-        header.SetSorting(2, false);
+        Init();
+        multiColumnHeader = new MultiColumnHeader(CreateHeaderState());
+        multiColumnHeader.sortingChanged += OnSortingChanged;
+        multiColumnHeader.ResizeToFit();
+        multiColumnHeader.SetSorting(2, false);
     }
+
+    protected abstract MultiColumnHeaderState CreateHeaderState();
 
     void Init()
     {
@@ -198,6 +200,8 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
             Event.current.type == EventType.KeyUp)
             DeleteSelection();
     }
+
+    // ── Column factories ───────────────────────────────────────────────
 
     protected Column CreateColumn<TValue>(string colName, ColumnType colType,
         Func<T, TValue> valueGetter, Func<TValue, string> valueToString = null, Type type = null)
@@ -309,6 +313,8 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
             (rect, t) => EditorGUI.LabelField(rect, (t.StorageSize / 1024).ToString()),
             t => (t.StorageSize / 1024).ToString());
 
+    // ── Search ─────────────────────────────────────────────────────────
+
     protected override bool DoesItemMatchSearch(TreeViewItem<int> item, string search)
     {
         if (string.IsNullOrEmpty(search)) return true;
@@ -326,6 +332,8 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
     }
 
     public bool DoesItemMatchSearch(TreeViewItem<int> item) => DoesItemMatchSearch(item, searchString);
+
+    // ── Selection ──────────────────────────────────────────────────────
 
     protected override void SelectionChanged(IList<int> selectedIds)
     {
@@ -394,11 +402,11 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
         menu.ShowAsContext();
     }
 
+    // ── Asset gathering ────────────────────────────────────────────────
+
     protected virtual string[] GatherGuids(bool sceneOnly, string path) => null;
 
-    protected virtual void AddAsset(ref int id, string guid, string path)
-    {
-    }
+    protected virtual void AddAsset(ref int id, string guid, string path) { }
 
     public void GatherAssets(bool sceneOnly, string path)
     {
@@ -438,9 +446,38 @@ public class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBrowserTreeV
         Reload();
     }
 
-    public virtual void FindReferences()
+    // ── Gather helpers ─────────────────────────────────────────────────
+
+    /// <summary>Find asset GUIDs by type filter string (e.g. "Texture", "Model").</summary>
+    protected static string[] FindAssetGuids(string typeFilter, string path) =>
+        AssetDatabase.FindAssets($"t:{typeFilter}", new[] { path });
+
+    /// <summary>Gather unique asset GUIDs from scene components via a single-asset accessor.</summary>
+    protected static string[] GatherSceneGuids<TComponent>(Func<TComponent, Object> getAsset)
+        where TComponent : Component
     {
+        var unique = new HashSet<Object>();
+        foreach (var c in Object.FindObjectsByType<TComponent>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var asset = getAsset(c);
+            if (asset) unique.Add(asset);
+        }
+        return AssetGuidsFromObjects(unique);
     }
+
+    /// <summary>Convert a collection of Objects to an array of asset GUIDs.</summary>
+    protected static string[] AssetGuidsFromObjects(IEnumerable<Object> objects)
+    {
+        var guids = new List<string>();
+        foreach (var obj in objects)
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out var guid, out _))
+                guids.Add(guid);
+        return guids.ToArray();
+    }
+
+    // ── References / Dependencies ──────────────────────────────────────
+
+    public virtual void FindReferences() { }
 
     public virtual void FindDependencies()
     {

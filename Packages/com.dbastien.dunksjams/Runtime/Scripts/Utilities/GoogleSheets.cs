@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public static class DataUtils
+public static class GoogleSheets
 {
     public static string FallbackLanguage { get; set; } = "en";
     static string _googleApiKey;

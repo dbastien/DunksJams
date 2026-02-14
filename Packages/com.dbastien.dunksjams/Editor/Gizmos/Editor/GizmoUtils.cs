@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Helper class for scene editor gizmos
-/// </summary>
 public static class GizmoUtils
 {
     const float ArrowAngleDegrees = 55.0f;

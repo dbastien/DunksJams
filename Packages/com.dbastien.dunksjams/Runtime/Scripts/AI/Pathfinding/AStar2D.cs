@@ -2,74 +2,163 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStarPathfinder
+public class AStarPathfinder : IPathFinder2D
 {
     readonly PriorityQueue<AStarNode> _openSet = new();
     readonly HashSet<Vector2Int> _closedSet = new();
     readonly Dictionary<Vector2Int, AStarNode> _openSetLookup = new();
+    readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
 
-    public delegate float HeuristicFunc(Vector2Int a, Vector2Int b);
+    int[,] _lastGrid;
 
-    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag = false,
-        HeuristicFunc heuristic = null)
+    // --- IGraph-based API (primary) ---
+
+    public List<Vector2Int> FindPath<THeuristic>(
+        Vector2Int start, Vector2Int goal,
+        IGraph<Vector2Int> graph,
+        THeuristic heuristic,
+        IEdgeMod<Vector2Int> edgeMod = null,
+        int maxExpand = int.MaxValue) where THeuristic : IHeuristic<Vector2Int>
     {
-        if (grid == null) throw new ArgumentNullException(nameof(grid));
+        if (graph == null) throw new ArgumentNullException(nameof(graph));
         if (start == goal) return new List<Vector2Int> { start };
-        if (grid.GetLength(0) == 0 || grid.GetLength(1) == 0)
-            throw new ArgumentException("Grid must not be empty.");
-
-        heuristic ??= Vector2IntExtensions.ManhattanDistance;
 
         _openSet.Clear();
         _closedSet.Clear();
         _openSetLookup.Clear();
 
-        var startNode = new AStarNode(start, 0, heuristic(start, goal), null);
+        var startNode = new AStarNode(start, 0, heuristic.Estimate(start, goal), null);
         _openSet.Enqueue(startNode);
         _openSetLookup[start] = startNode;
 
-        var neighbors = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(8);
-        try
+        int expanded = 0;
+        while (_openSet.Count > 0 && expanded < maxExpand)
         {
-            while (_openSet.Count > 0)
+            var current = _openSet.Dequeue();
+            _openSetLookup.Remove(current.Position);
+
+            if (current.Position == goal)
+                return ReconstructPath(current);
+
+            _closedSet.Add(current.Position);
+            expanded++;
+
+            graph.GetEdges(current.Position, _edgeBuffer);
+            foreach (var edge in _edgeBuffer)
             {
-                var current = _openSet.Dequeue();
-                _openSetLookup.Remove(current.Position);
+                if (_closedSet.Contains(edge.Next)) continue;
 
-                if (current.Position == goal)
-                    return ReconstructPath(current);
+                float cost = edge.Cost;
+                if (edgeMod != null && !edgeMod.ModifyCost(current.Position, edge.Next, ref cost))
+                    continue;
 
-                _closedSet.Add(current.Position);
+                float g = current.G + cost;
+                float h = heuristic.Estimate(edge.Next, goal);
 
-                var neighborCount = GridHelper2D.GetValidNeighbors(current.Position, grid, neighbors, allowDiag);
-                for (var i = 0; i < neighborCount; ++i)
+                if (!_openSetLookup.TryGetValue(edge.Next, out var existing) || g < existing.G)
                 {
-                    var neighbor = neighbors[i];
-                    if (_closedSet.Contains(neighbor)) continue;
-
-                    var g = current.G + GridHelper2D.GetCost(neighbor, grid);
-                    var h = heuristic(neighbor, goal);
-
-                    if (!_openSetLookup.TryGetValue(neighbor, out var existingNode) || g < existingNode.G)
-                    {
-                        var neighborNode = new AStarNode(neighbor, g, h, current);
-                        _openSet.Enqueue(neighborNode);
-                        _openSetLookup[neighbor] = neighborNode;
-                    }
+                    var node = new AStarNode(edge.Next, g, h, current);
+                    _openSet.Enqueue(node);
+                    _openSetLookup[edge.Next] = node;
                 }
             }
         }
-        finally
+
+        return null;
+    }
+
+    /// <summary>Non-generic overload accepting interface references directly.</summary>
+    public List<Vector2Int> FindPath(
+        Vector2Int start, Vector2Int goal,
+        IGraph<Vector2Int> graph,
+        IHeuristic<Vector2Int> heuristic,
+        IEdgeMod<Vector2Int> edgeMod = null,
+        int maxExpand = int.MaxValue) =>
+        FindPathWithInterface(start, goal, graph, heuristic, edgeMod, maxExpand);
+
+    // --- Legacy grid-based API (backward compatible, implements IPathFinder2D) ---
+
+    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag = false)
+    {
+        _lastGrid = grid;
+        var graph = new GridGraph2D(grid, allowDiag);
+        var heuristic = allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
+        return FindPathWithInterface(start, goal, graph, heuristic);
+    }
+
+    public void UpdateObstacle(Vector2Int pos, bool isObstacle)
+    {
+        if (_lastGrid != null)
+            GridHelper2D.UpdateObstacle(pos, _lastGrid, isObstacle);
+    }
+
+    /// <summary>Legacy overload with delegate heuristic for backward compatibility.</summary>
+    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag,
+        Func<Vector2Int, Vector2Int, float> heuristic)
+    {
+        _lastGrid = grid;
+        var graph = new GridGraph2D(grid, allowDiag);
+        if (heuristic != null)
+            return FindPathWithInterface(start, goal, graph, new DelegateHeuristic2D(heuristic));
+        var defaultH = allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
+        return FindPathWithInterface(start, goal, graph, defaultH);
+    }
+
+    List<Vector2Int> FindPathWithInterface(Vector2Int start, Vector2Int goal, IGraph<Vector2Int> graph,
+        IHeuristic<Vector2Int> heuristic, IEdgeMod<Vector2Int> edgeMod = null, int maxExpand = int.MaxValue)
+    {
+        if (graph == null) throw new ArgumentNullException(nameof(graph));
+        if (start == goal) return new List<Vector2Int> { start };
+
+        _openSet.Clear();
+        _closedSet.Clear();
+        _openSetLookup.Clear();
+
+        var startNode = new AStarNode(start, 0, heuristic.Estimate(start, goal), null);
+        _openSet.Enqueue(startNode);
+        _openSetLookup[start] = startNode;
+
+        int expanded = 0;
+        while (_openSet.Count > 0 && expanded < maxExpand)
         {
-            ConcurrentArrayPool<Vector2Int>.Shared.Return(neighbors);
+            var current = _openSet.Dequeue();
+            _openSetLookup.Remove(current.Position);
+
+            if (current.Position == goal)
+                return ReconstructPath(current);
+
+            _closedSet.Add(current.Position);
+            expanded++;
+
+            graph.GetEdges(current.Position, _edgeBuffer);
+            foreach (var edge in _edgeBuffer)
+            {
+                if (_closedSet.Contains(edge.Next)) continue;
+
+                float cost = edge.Cost;
+                if (edgeMod != null && !edgeMod.ModifyCost(current.Position, edge.Next, ref cost))
+                    continue;
+
+                float g = current.G + cost;
+                float h = heuristic.Estimate(edge.Next, goal);
+
+                if (!_openSetLookup.TryGetValue(edge.Next, out var existing) || g < existing.G)
+                {
+                    var node = new AStarNode(edge.Next, g, h, current);
+                    _openSet.Enqueue(node);
+                    _openSetLookup[edge.Next] = node;
+                }
+            }
         }
 
-        return null; // No path found
+        return null;
     }
+
+    // --- Path reconstruction ---
 
     static List<Vector2Int> ReconstructPath(AStarNode node)
     {
-        var pathBuffer = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(64); // Preallocate larger buffer
+        var pathBuffer = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(64);
         var pathIndex = 0;
 
         try
@@ -100,6 +189,8 @@ public class AStarPathfinder
         }
     }
 
+    // --- Internal types ---
+
     public class AStarNode : IComparable<AStarNode>
     {
         public Vector2Int Position;
@@ -118,7 +209,14 @@ public class AStarPathfinder
         public int CompareTo(AStarNode other)
         {
             var compare = F.CompareTo(other.F);
-            return compare == 0 ? H.CompareTo(other.H) : compare; // Tie-break on H
+            return compare == 0 ? H.CompareTo(other.H) : compare;
         }
+    }
+
+    struct DelegateHeuristic2D : IHeuristic<Vector2Int>
+    {
+        readonly Func<Vector2Int, Vector2Int, float> _func;
+        public DelegateHeuristic2D(Func<Vector2Int, Vector2Int, float> func) => _func = func;
+        public float Estimate(Vector2Int from, Vector2Int to) => _func(from, to);
     }
 }

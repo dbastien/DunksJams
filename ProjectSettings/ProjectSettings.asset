@@ -829,7 +829,8 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Standalone: APP_UI_EDITOR_ONLY
+    Android: APP_UI_EDITOR_ONLY;ADDRESSABLES_ENABLED;PHY2D_ENABLED;PHY3D_ENABLED
+    Standalone: APP_UI_EDITOR_ONLY;ADDRESSABLES_ENABLED;PHY2D_ENABLED;PHY3D_ENABLED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

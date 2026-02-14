@@ -1,9 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Scene editor gizmo which displays object normals
-/// </summary>
 public static class NormalsGizmo
 {
     static bool on;

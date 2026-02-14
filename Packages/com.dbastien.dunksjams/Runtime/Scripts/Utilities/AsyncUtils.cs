@@ -32,9 +32,12 @@ public static class AsyncUtils
         yield return _fixedUpdate;
     }
 
-    public static IEnumerator LoadSceneAsync(string sceneName, CancellationToken token)
+    public static IEnumerator LoadSceneAsync(string sceneName, CancellationToken token) =>
+        LoadSceneAsync(sceneName, LoadSceneMode.Single, token);
+
+    public static IEnumerator LoadSceneAsync(string sceneName, LoadSceneMode mode, CancellationToken token)
     {
-        var operation = SceneManager.LoadSceneAsync(sceneName);
+        var operation = SceneManager.LoadSceneAsync(sceneName, mode);
         while (!operation.isDone)
         {
             if (token.IsCancellationRequested) yield break;

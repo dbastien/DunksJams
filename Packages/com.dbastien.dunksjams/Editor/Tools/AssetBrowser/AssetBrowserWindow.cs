@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -218,6 +218,11 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     protected virtual void Rebuild()
     {
+        treeViewState ??= new TreeViewState<int>();
+        var items = treeView?.AllItems ?? new List<TItem>(32);
+        treeView = (TTree)Activator.CreateInstance(typeof(TTree), treeViewState);
+        treeView.AllItems = items;
+        treeView.Reload();
     }
 
     void InitIfNeeded()

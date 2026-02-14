@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class FBMNoise
@@ -46,6 +47,72 @@ public static class FBMNoise
         }
 
         return total / maxAmplitude; // Normalize to [0, 1]
+    }
+
+    /// <summary>
+    /// Perlin fractal noise with lacunarity and gain control, with optional ridged mode.
+    /// Ridged noise inverts the absolute value of each octave for ridge-like features.
+    /// </summary>
+    public static float FBM2D(float x, float y, int octaves, float lacunarity, float gain, bool ridged)
+    {
+        float value = 0f, freq = 1f, amp = gain;
+
+        for (int o = 0; o < octaves; o++)
+        {
+            float octaveValue = Mathf.PerlinNoise(x * freq, y * freq);
+            freq *= lacunarity;
+
+            if (ridged)
+                octaveValue = 1f - Mathf.Abs(octaveValue * 2f - 1f);
+
+            value += octaveValue * amp;
+            amp *= gain;
+        }
+
+        return value;
+    }
+
+    /// <summary>
+    /// Perlin fractal noise with per-octave AnimationCurve modifiers.
+    /// Each curve modifier is evaluated on the octave value before amplitude scaling.
+    /// </summary>
+    public static float FBM2D(float x, float y, int octaves, float lacunarity, float gain,
+        List<AnimationCurve> curveModifiers)
+    {
+        float value = 0f, freq = 1f, amp = gain;
+
+        for (int o = 0; o < octaves; o++)
+        {
+            float octaveValue = Mathf.PerlinNoise(x * freq, y * freq);
+            freq *= lacunarity;
+
+            if (curveModifiers != null)
+                for (int cm = 0; cm < curveModifiers.Count; cm++)
+                    octaveValue = curveModifiers[cm].Evaluate(octaveValue);
+
+            value += octaveValue * amp;
+            amp *= gain;
+        }
+
+        return value;
+    }
+
+    /// <summary>Fast integer power for float base.</summary>
+    public static float IntPow(float num, int pow)
+    {
+        if (pow == 0) return 1f;
+        float ans = num;
+        for (int i = 1; i < pow; i++) ans *= num;
+        return ans;
+    }
+
+    /// <summary>Fast integer power for int base.</summary>
+    public static int IntPow(int num, int pow)
+    {
+        if (pow == 0) return 1;
+        int ans = num;
+        for (int i = 1; i < pow; i++) ans *= num;
+        return ans;
     }
 }
 

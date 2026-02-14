@@ -1,8 +1,9 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 public class AssetBrowserTreeViewItem : TreeViewItem<int>
@@ -49,6 +50,54 @@ public class AssetBrowserTreeViewItem : TreeViewItem<int>
     public void SaveImportSettings()
     {
         AssetDatabase.WriteImportSettingsIfDirty(AssetPath);
-        //AssetDatabase.SaveAssets();
+    }
+}
+
+/// <summary>Generic tree view item for assets without a specific importer.</summary>
+public class AssetBrowserTreeViewItem<TAsset> : AssetBrowserTreeViewItem
+    where TAsset : Object
+{
+    public TAsset TypedAsset;
+
+    public override Object Asset => TypedAsset;
+    public override string AssetName => TypedAsset ? TypedAsset.name : "";
+
+    public AssetBrowserTreeViewItem(int id, string guid, string path, TAsset asset) : base(id, guid, path)
+    {
+        TypedAsset = asset;
+        Rebuild();
+    }
+
+    protected override void Rebuild()
+    {
+        RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(TypedAsset);
+        base.Rebuild();
+    }
+}
+
+/// <summary>Generic tree view item for assets with a typed importer.</summary>
+public class AssetBrowserTreeViewItem<TAsset, TImporter> : AssetBrowserTreeViewItem
+    where TAsset : Object
+    where TImporter : AssetImporter
+{
+    public TAsset TypedAsset;
+    public TImporter TypedImporter;
+
+    public override Object Asset => TypedAsset;
+    public override string AssetName => TypedAsset ? TypedAsset.name : "";
+    public override AssetImporter AssetImporter => TypedImporter;
+
+    public AssetBrowserTreeViewItem(int id, string guid, string path, TAsset asset, TImporter importer)
+        : base(id, guid, path)
+    {
+        TypedAsset = asset;
+        TypedImporter = importer;
+        Rebuild();
+    }
+
+    protected override void Rebuild()
+    {
+        RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(TypedAsset);
+        base.Rebuild();
     }
 }

@@ -6,7 +6,6 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 public class MaterialBrowserWindow : AssetBrowserWindow<MaterialBrowserTreeView, MaterialBrowserTreeView.TreeViewItem>
@@ -15,14 +14,6 @@ public class MaterialBrowserWindow : AssetBrowserWindow<MaterialBrowserTreeView,
 
     [MenuItem("‽/Asset Browser/Materials", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<MaterialBrowserWindow>();
-
-    protected override void Rebuild()
-    {
-        treeViewState ??= new TreeViewState<int>();
-        var items = treeView?.AllItems ?? new List<MaterialBrowserTreeView.TreeViewItem>(32);
-        treeView = new MaterialBrowserTreeView(treeViewState) { AllItems = items };
-        treeView.Reload();
-    }
 
     protected override void AddCustomSaveFunctions(GenericMenu menu)
     {
@@ -99,32 +90,23 @@ public class MaterialBrowserWindow : AssetBrowserWindow<MaterialBrowserTreeView,
 
 public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeView.TreeViewItem>
 {
-    public class TreeViewItem : AssetBrowserTreeViewItem
+    public class TreeViewItem : AssetBrowserTreeViewItem<Material>
     {
-        public Material Mat;
-        public override UnityEngine.Object Asset => Mat;
-        public override string AssetName => Mat.name;
-        //public override AssetImporter AssetImporter => Importer;
+        public Material Mat => TypedAsset;
 
         [SerializeReference] public readonly List<ShaderMessage> Errors = new();
         [SerializeReference] public readonly List<ShaderMessage> Warnings = new();
 
-        public TreeViewItem(int id, string guid, string path, Material asset) : base(id, guid, path)
-        {
-            Mat = asset;
-            Rebuild();
-        }
+        public TreeViewItem(int id, string guid, string path, Material asset) : base(id, guid, path, asset) { }
 
         protected sealed override void Rebuild()
         {
-            RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Asset);
-
             Errors.Clear();
             Warnings.Clear();
 
         #pragma warning disable CS0618 // No modern equivalent for shader message APIs
-            var n = ShaderUtil.GetShaderMessageCount(Mat.shader);
-            var msgs = n > 0 ? ShaderUtil.GetShaderMessages(Mat.shader) : null;
+            var n = ShaderUtil.GetShaderMessageCount(TypedAsset.shader);
+            var msgs = n > 0 ? ShaderUtil.GetShaderMessages(TypedAsset.shader) : null;
         #pragma warning restore CS0618
             for (var i = 0; i < n; ++i)
                 (msgs[i].severity == ShaderCompilerMessageSeverity.Error ? Errors : Warnings).Add(msgs[i]);
@@ -133,39 +115,40 @@ public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeV
         }
     }
 
-    public MaterialBrowserTreeView(TreeViewState<int> state) : base(state)
-    {
-        multiColumnHeader = new MultiColumnHeader(CreateHeaderState());
-        InitHeader(multiColumnHeader);
-    }
+    public MaterialBrowserTreeView(TreeViewState<int> state) : base(state) { }
 
     protected override string[] GatherGuids(bool sceneOnly, string path)
     {
-        if (!sceneOnly) return AssetDatabase.FindAssets("t:Material", new[] { path });
+        if (!sceneOnly) return FindAssetGuids("Material", path);
 
         HashSet<Material> materials = new();
         var renderers = UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
         foreach (var renderer in renderers)
-        {
             foreach (var material in renderer.sharedMaterials)
-            {
-                if (material)
-                    materials.Add(material);
-            }
-        }
-
-        List<string> guids = new();
-        foreach (var material in materials)
-        {
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(material, out var guid, out _))
-                guids.Add(guid);
-        }
-
-        return guids.ToArray();
+                if (material) materials.Add(material);
+        return AssetGuidsFromObjects(materials);
     }
 
     protected override void AddAsset(ref int id, string guid, string path) =>
         AllItems.Add(new TreeViewItem(id++, guid, path, AssetDatabase.LoadAssetAtPath<Material>(path)));
+
+    protected override MultiColumnHeaderState CreateHeaderState() => new(new MultiColumnHeaderState.Column[]
+    {
+        CreateColumn("Object", ColumnType.Object, t => t.Mat, type: typeof(Material)),
+        CreatePathColumn(),
+        CreateRuntimeMemoryColumn(),
+        CreateColumn("Shader", ColumnType.Object, t => t.Mat.shader, shader => shader.name, typeof(Shader)),
+        CreateColumn("Queue", ColumnType.Int, t => t.Mat.renderQueue),
+        CreateCollectionColumn<List<ShaderMessage>, ShaderMessage>("Warnings", ColumnType.Int, DropdownWarn,
+            t => t.Warnings, m => $"{m.file} {m.line}: {m.message}\n"),
+        CreateCollectionColumn<List<ShaderMessage>, ShaderMessage>("Errors", ColumnType.Int, DropdownError,
+            t => t.Errors, m => $"{m.file} {m.line}: {m.message}\n"),
+        CreateCollectionColumn<LocalKeyword[], LocalKeyword>("Keywords", ColumnType.Int, null,
+            t => t.Mat.enabledKeywords, keyword => $"{keyword} "),
+        CreateReferencesColumn(),
+        CreateDependenciesColumn(),
+        CreateWrittenColumn()
+    });
 
     public override void FindReferences()
     {
@@ -217,28 +200,5 @@ public class MaterialBrowserTreeView : AssetBrowserTreeView<MaterialBrowserTreeV
         }
 
         EditorUtility.ClearProgressBar();
-    }
-
-    MultiColumnHeaderState CreateHeaderState()
-    {
-        MultiColumnHeaderState.Column[] cols =
-        {
-            CreateColumn("Object", ColumnType.Object, t => t.Asset as Material, type: typeof(Material)),
-            CreatePathColumn(),
-            CreateRuntimeMemoryColumn(),
-            CreateColumn("Shader", ColumnType.Object, t => t.Mat.shader, shader => shader.name, typeof(Shader)),
-            CreateColumn("Queue", ColumnType.Int, t => t.Mat.renderQueue),
-            CreateCollectionColumn<List<ShaderMessage>, ShaderMessage>("Warnings", ColumnType.Int, DropdownWarn,
-                t => t.Warnings, m => $"{m.file} {m.line}: {m.message}\n"),
-            CreateCollectionColumn<List<ShaderMessage>, ShaderMessage>("Errors", ColumnType.Int, DropdownError,
-                t => t.Errors, m => $"{m.file} {m.line}: {m.message}\n"),
-            CreateCollectionColumn<LocalKeyword[], LocalKeyword>("Keywords", ColumnType.Int, null,
-                t => t.Mat.enabledKeywords, keyword => $"{keyword} "),
-            CreateReferencesColumn(),
-            CreateDependenciesColumn(),
-            CreateWrittenColumn()
-        };
-
-        return new MultiColumnHeaderState(cols);
     }
 }

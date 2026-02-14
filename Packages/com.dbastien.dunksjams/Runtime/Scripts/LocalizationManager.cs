@@ -32,7 +32,7 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
     async Task<bool> LoadLangAsync(string langCode)
     {
         _culture = new CultureInfo(langCode);
-        _texts = await DataUtils.FetchGoogleSheetAsync("<SHEET_ID>", langCode) ??
+        _texts = await GoogleSheets.FetchGoogleSheetAsync("<SHEET_ID>", langCode) ??
                  await LoadFallbackLang();
         return _texts != null;
     }
@@ -40,7 +40,7 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
     async Task<Dictionary<string, string>> LoadFallbackLang()
     {
         DLog.LogW("Loading fallback language.");
-        return await DataUtils.FetchGoogleSheetAsync("<SHEET_ID>", DataUtils.FallbackLanguage);
+        return await GoogleSheets.FetchGoogleSheetAsync("<SHEET_ID>", GoogleSheets.FallbackLanguage);
     }
 
     string AutoDetectLang() =>

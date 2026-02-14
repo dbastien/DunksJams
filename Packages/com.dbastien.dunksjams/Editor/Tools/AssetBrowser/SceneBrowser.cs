@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using UnityEngine.Profiling;
-using Object = UnityEngine.Object;
 
 public class SceneBrowserWindow : AssetBrowserWindow<SceneBrowserTreeView, SceneBrowserTreeView.TreeViewItem>
 {
@@ -11,86 +8,38 @@ public class SceneBrowserWindow : AssetBrowserWindow<SceneBrowserTreeView, Scene
 
     [MenuItem("‽/Asset Browser/Scenes", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<SceneBrowserWindow>();
-
-    protected override void Rebuild()
-    {
-        treeViewState ??= new TreeViewState<int>();
-        var items = treeView?.AllItems ?? new List<SceneBrowserTreeView.TreeViewItem>(32);
-        treeView = new SceneBrowserTreeView(treeViewState) { AllItems = items };
-        treeView.Reload();
-    }
 }
 
 public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.TreeViewItem>
 {
-    public class TreeViewItem : AssetBrowserTreeViewItem
+    public class TreeViewItem : AssetBrowserTreeViewItem<SceneAsset, AssetImporter>
     {
-        public override Object Asset => Scene;
-        public SceneAsset Scene;
-        public AssetImporter Importer;
-        public override string AssetName => Asset.name;
-        public override AssetImporter AssetImporter => Importer;
-
-        public TreeViewItem(int id, string guid, string path, SceneAsset asset, AssetImporter importer) : base(id, guid,
-            path)
-        {
-            Scene = asset;
-            Importer = importer;
-            Rebuild();
-        }
-
-        protected sealed override void Rebuild()
-        {
-            RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Scene);
-            //StorageSize = new FileInfo(AssetDatabase.GetAssetPath(Mesh)).Length;
-
-            base.Rebuild();
-        }
+        public TreeViewItem(int id, string guid, string path, SceneAsset asset, AssetImporter importer)
+            : base(id, guid, path, asset, importer) { }
     }
 
-    public SceneBrowserTreeView(TreeViewState<int> state) : base(state)
-    {
-        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
-        InitHeader(multiColumnHeader);
-    }
+    public SceneBrowserTreeView(TreeViewState<int> state) : base(state) { }
 
-    protected override string[] GatherGuids(bool sceneOnly, string path)
-    {
-        if (!sceneOnly) return AssetDatabase.FindAssets("t:SceneAsset", new[] { path });
-
-        List<string> guids = new();
-        var scenes = Object.FindObjectsByType<SceneAsset>(FindObjectsSortMode.None);
-
-        foreach (var scene in scenes)
-        {
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(scene, out var guid, out _))
-                guids.Add(guid);
-        }
-
-        return guids.ToArray();
-    }
+    protected override string[] GatherGuids(bool sceneOnly, string path) =>
+        sceneOnly
+            ? GatherSceneGuids<Transform>(_ => null) // scenes can't be gathered from scene
+            : FindAssetGuids("SceneAsset", path);
 
     protected override void AddAsset(ref int id, string guid, string path)
     {
         var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
         var importer = AssetImporter.GetAtPath(path);
-
         if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
 
-    MultiColumnHeaderState CreateHeaderState(SceneBrowserTreeView tv)
+    protected override MultiColumnHeaderState CreateHeaderState() => new(new MultiColumnHeaderState.Column[]
     {
-        MultiColumnHeaderState.Column[] columns =
-        {
-            CreateColumn("Object", ColumnType.Object, t => t.Asset as SceneAsset, type: typeof(SceneAsset)),
-            CreatePathColumn(),
-            CreateRuntimeMemoryColumn(),
-            CreateStorageSizeColumn(),
-            CreateReferencesColumn(),
-            CreateDependenciesColumn(),
-            CreateWrittenColumn()
-        };
-
-        return new MultiColumnHeaderState(columns);
-    }
+        CreateColumn("Object", ColumnType.Object, t => t.TypedAsset, type: typeof(SceneAsset)),
+        CreatePathColumn(),
+        CreateRuntimeMemoryColumn(),
+        CreateStorageSizeColumn(),
+        CreateReferencesColumn(),
+        CreateDependenciesColumn(),
+        CreateWrittenColumn()
+    });
 }

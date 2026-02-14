@@ -30,8 +30,8 @@ public class BuiltInResourceViewerWindow : EditorWindow
     GUIContent inactiveText = new("inactive");
     GUIContent activeText = new("active");
 
-    const float top = 36.0f;
-
+    const float toolbarPad = 4.0f;
+    const float scrollbarWidth = 16.0f;
     const float xPad = 32.0f;
     const float xMin = 5.0f;
     const float yMin = 5.0f;
@@ -44,7 +44,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
             oldPosition = position;
         }
 
-        GUILayout.BeginHorizontal();
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
         if (GUILayout.Toggle(showingStyles, "Icons", EditorStyles.toolbarButton) != showingStyles)
         {
@@ -60,23 +60,28 @@ public class BuiltInResourceViewerWindow : EditorWindow
 
         GUILayout.EndHorizontal();
 
+        var top = GUILayoutUtility.GetLastRect().yMax + toolbarPad;
+
         if (drawings == null)
         {
             drawings = new List<Drawing>();
 
-            maxY = showingStyles ? ShowStyles() : ShowIcons();
+            var contentWidth = position.width - scrollbarWidth;
+            maxY = showingStyles ? ShowStyles(contentWidth) : ShowIcons(contentWidth);
         }
 
         var r = position;
         r.y = top;
         r.height -= r.y;
-        r.x = r.width - 16.0f;
-        r.width = 16.0f;
+        r.x = r.width - scrollbarWidth;
+        r.width = scrollbarWidth;
 
         var areaHeight = position.height - top;
-        scrollPos = GUI.VerticalScrollbar(r, scrollPos, areaHeight, 0f, maxY);
+        var scrollMax = Mathf.Max(maxY, areaHeight);
+        scrollPos = GUI.VerticalScrollbar(r, scrollPos, areaHeight, 0f, scrollMax);
+        scrollPos = Mathf.Clamp(scrollPos, 0f, Mathf.Max(0f, maxY - areaHeight));
 
-        var area = new Rect(0, top, position.width - 16.0f, areaHeight);
+        var area = new Rect(0, top, position.width - scrollbarWidth, areaHeight);
         GUILayout.BeginArea(area);
 
         var count = 0;
@@ -98,10 +103,11 @@ public class BuiltInResourceViewerWindow : EditorWindow
         GUILayout.EndArea();
     }
 
-    float ShowStyles()
+    float ShowStyles(float availableWidth)
     {
         var x = xMin;
         var y = yMin;
+        const float height = 60f;
 
         foreach (var ss in GUI.skin.customStyles)
         {
@@ -114,9 +120,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
                             ss.CalcSize(inactiveText, activeText).x)
                         + 16f;
 
-            const float height = 60f;
-
-            if (x + width > position.width - xPad && x > xMin)
+            if (x + width > availableWidth - xPad && x > xMin)
             {
                 x = xMin;
                 y += height + 10f;
@@ -142,10 +146,10 @@ public class BuiltInResourceViewerWindow : EditorWindow
             drawings.Add(draw);
         }
 
-        return y;
+        return y + height + yMin;
     }
 
-    float ShowIcons()
+    float ShowIcons(float availableWidth)
     {
         var x = xMin;
         var y = yMin;
@@ -177,10 +181,17 @@ public class BuiltInResourceViewerWindow : EditorWindow
                 textureSize *= scale;
             }
 
-            var width = textureNameSize.x + 8f;
+            var maxIconWidth = availableWidth - xPad - 8f;
+            if (maxIconWidth > 0f && textureSize.x > maxIconWidth)
+            {
+                var scale = maxIconWidth / textureSize.x;
+                textureSize *= scale;
+            }
+
+            var width = Mathf.Max(textureNameSize.x, textureSize.x) + 8f;
             var height = textureSize.y + textureNameSize.y + 8f;
 
-            if (x + width > position.width - xPad)
+            if (x + width > availableWidth - xPad && x > xMin)
             {
                 x = xMin;
                 y += rowHeight + 8.0f;
@@ -209,7 +220,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
             drawings.Add(draw);
         }
 
-        return y;
+        return y + rowHeight + yMin;
     }
 
     void CopyText(string text)

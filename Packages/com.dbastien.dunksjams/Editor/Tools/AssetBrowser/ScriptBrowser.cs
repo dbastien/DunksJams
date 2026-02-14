@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using UnityEngine.Profiling;
-using Object = UnityEngine.Object;
 
 public class ScriptBrowserWindow : AssetBrowserWindow<ScriptBrowserTreeView, ScriptBrowserTreeView.TreeViewItem>
 {
@@ -11,63 +8,30 @@ public class ScriptBrowserWindow : AssetBrowserWindow<ScriptBrowserTreeView, Scr
 
     [MenuItem("‽/Asset Browser/Scripts", false, 100)]
     public static void ShowWindow() => AssetBrowserWindowManager.ShowWindow<ScriptBrowserWindow>();
-
-    protected override void Rebuild()
-    {
-        treeViewState ??= new TreeViewState<int>();
-        var items = treeView?.AllItems ?? new List<ScriptBrowserTreeView.TreeViewItem>(32);
-        treeView = new ScriptBrowserTreeView(treeViewState) { AllItems = items };
-        treeView.Reload();
-    }
 }
 
 public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.TreeViewItem>
 {
-    public class TreeViewItem : AssetBrowserTreeViewItem
+    public class TreeViewItem : AssetBrowserTreeViewItem<MonoScript, MonoImporter>
     {
-        public override Object Asset => Script;
-        public MonoScript Script;
-        public MonoImporter Importer;
-        public override string AssetName => Asset.name;
-        public override AssetImporter AssetImporter => Importer;
+        public MonoScript Script => TypedAsset;
 
-        public TreeViewItem(int id, string guid, string path, MonoScript asset, MonoImporter importer) : base(id, guid,
-            path)
-        {
-            Script = asset;
-            Importer = importer;
-            Rebuild();
-        }
-
-        protected sealed override void Rebuild()
-        {
-            RuntimeMemory = Profiler.GetRuntimeMemorySizeLong(Script);
-            //StorageSize = new FileInfo(AssetDatabase.GetAssetPath(Mesh)).Length;
-
-            base.Rebuild();
-        }
+        public TreeViewItem(int id, string guid, string path, MonoScript asset, MonoImporter importer)
+            : base(id, guid, path, asset, importer) { }
     }
 
-    public ScriptBrowserTreeView(TreeViewState<int> state) : base(state)
-    {
-        multiColumnHeader = new MultiColumnHeader(CreateHeaderState(this));
-        InitHeader(multiColumnHeader);
-    }
+    public ScriptBrowserTreeView(TreeViewState<int> state) : base(state) { }
 
     protected override string[] GatherGuids(bool sceneOnly, string path)
     {
-        if (!sceneOnly) return AssetDatabase.FindAssets("t:Script", new[] { path });
+        if (!sceneOnly) return FindAssetGuids("Script", path);
 
-        List<string> guids = new();
         var scripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-
+        var guids = new System.Collections.Generic.List<string>();
         foreach (var script in scripts)
-        {
             if (MonoScript.FromMonoBehaviour(script) is { } monoScript &&
                 AssetDatabase.TryGetGUIDAndLocalFileIdentifier(monoScript, out var guid, out _))
                 guids.Add(guid);
-        }
-
         return guids.ToArray();
     }
 
@@ -75,23 +39,17 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
     {
         var asset = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
         var importer = AssetImporter.GetAtPath(path) as MonoImporter;
-
         if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
 
-    MultiColumnHeaderState CreateHeaderState(ScriptBrowserTreeView tv)
+    protected override MultiColumnHeaderState CreateHeaderState() => new(new MultiColumnHeaderState.Column[]
     {
-        MultiColumnHeaderState.Column[] columns =
-        {
-            CreateColumn("Object", ColumnType.Object, t => t.Asset as MonoBehaviour, type: typeof(MonoBehaviour)),
-            CreatePathColumn(),
-            CreateRuntimeMemoryColumn(),
-            CreateStorageSizeColumn(),
-            CreateReferencesColumn(),
-            CreateDependenciesColumn(),
-            CreateWrittenColumn()
-        };
-
-        return new MultiColumnHeaderState(columns);
-    }
+        CreateColumn("Object", ColumnType.Object, t => t.Script, type: typeof(MonoScript)),
+        CreatePathColumn(),
+        CreateRuntimeMemoryColumn(),
+        CreateStorageSizeColumn(),
+        CreateReferencesColumn(),
+        CreateDependenciesColumn(),
+        CreateWrittenColumn()
+    });
 }

@@ -1,12 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Scene editor gizmo which displays useful object information via labels
-/// </summary>
 public static class LabelGizmo
 {
-    //todo: make menu option to toggle stuff
     static bool showGameObjectName = true;
     static bool showVertexCount = true;
     static bool showMaterialName;
