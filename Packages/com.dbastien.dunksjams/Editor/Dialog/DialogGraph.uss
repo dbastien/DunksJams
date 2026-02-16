@@ -1,0 +1,101 @@
+﻿/* Grid Background */
+GridBackground {
+    --grid-background-color: rgb(40, 40, 40);
+    --line-color: rgba(193, 196, 192, 0.1);
+    --thick-line-color: rgba(193, 196, 192, 0.1);
+    --spacing: 15.0;
+}
+
+/* Graph View */
+DialogGraphView {
+    flex-grow: 1;
+}
+
+.unity-graph-view {
+    flex-grow: 1;
+}
+
+/* Text Fields */
+.unity-text-field {
+    flex-direction: column;
+}
+
+.unity-text-field__label {
+    min-width: 50px;
+    padding-bottom: 2px;
+    color: rgb(193, 196, 192);
+}
+
+.unity-text-field__input {
+    background-color: rgb(30, 30, 30);
+    border-color: rgb(60, 60, 60);
+    border-radius: 3px;
+    padding: 3px;
+    color: rgb(210, 210, 210);
+}
+
+/* Buttons */
+Button {
+    background-color: rgb(60, 60, 60);
+    border-color: rgb(80, 80, 80);
+    border-width: 1px;
+    border-radius: 3px;
+    color: rgb(210, 210, 210);
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+Button:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+Button:active {
+    background-color: rgb(50, 50, 50);
+}
+
+/* Node Styling */
+.unity-node {
+    background-color: rgb(56, 56, 56);
+    border-color: rgb(80, 80, 80);
+    border-width: 1px;
+    border-radius: 8px;
+    min-width: 200px;
+}
+
+.unity-node #title {
+    background-color: rgb(48, 48, 48);
+    border-radius: 8px 8px 0 0;
+}
+
+.unity-node #title-label {
+    color: rgb(210, 210, 210);
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+/* Port Styling */
+.unity-port {
+    height: 24px;
+}
+
+.unity-port > .unity-port__connector {
+    border-color: rgb(130, 130, 130);
+    background-color: rgb(80, 80, 80);
+    border-width: 2px;
+}
+
+.unity-port > .unity-port__connector:hover {
+    border-color: rgb(180, 180, 180);
+    background-color: rgb(100, 100, 100);
+}
+
+/* Edge Styling */
+.unity-edge {
+    --edge-width: 3px;
+}
+
+/* Container */
+#lines-container {
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+}

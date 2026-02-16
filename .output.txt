@@ -1,0 +1,203 @@
+﻿
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                Documentation
+d-----         2/15/2026   6:20 PM                Editor
+d-----         2/15/2026   6:20 PM                Resources
+d-----         2/15/2026   6:20 PM                Sample
+d-----         2/15/2026   6:20 PM                Scripts
+-a----          7/3/2025   9:14 AM            172 Documentation.meta
+-a----          7/3/2025   9:14 AM            172 Editor.meta
+-a----          7/3/2025   9:14 AM            172 Resources.meta
+-a----          7/3/2025   9:14 AM            172 Sample.meta
+-a----          7/3/2025   9:14 AM            172 Scripts.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Documentation
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM        3630589 Documentation.pdf
+-a----         2/15/2026   6:20 PM            374 Documentation.pdf.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Editor
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM           1239 DGECreateDialogWindow.cs
+-a----         2/15/2026   6:20 PM            279 DGECreateDialogWindow.cs.meta
+-a----          7/3/2025   9:14 AM          11870 DGEDialogManager.cs
+-a----         2/15/2026   6:20 PM            274 DGEDialogManager.cs.meta
+-a----          7/3/2025   9:14 AM           3656 DGEDialogSelectionEditor.cs
+-a----         2/15/2026   6:20 PM            282 DGEDialogSelectionEditor.cs.m
+                                                  eta
+-a----          7/3/2025   9:14 AM          19614 DGEGraphNode.cs
+-a----         2/15/2026   6:20 PM            270 DGEGraphNode.cs.meta
+-a----          7/3/2025   9:14 AM           2393 DGEGraphToolbar.cs
+-a----         2/15/2026   6:20 PM            273 DGEGraphToolbar.cs.meta
+-a----          7/3/2025   9:14 AM          21710 DGEGraphView.cs
+-a----         2/15/2026   6:20 PM            270 DGEGraphView.cs.meta
+-a----          7/3/2025   9:14 AM            731 DGEGraphWindow.cs
+-a----         2/15/2026   6:20 PM            455 DGEGraphWindow.cs.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Resources
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                DGEDialogs
+-a----          7/3/2025   9:14 AM            172 DGEDialogs.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Resour
+    ces\DGEDialogs
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                Default
+d-----         2/15/2026   6:20 PM                Sample
+-a----          7/3/2025   9:14 AM            172 Default.meta
+-a----          7/3/2025   9:14 AM            172 Sample.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Resour
+    ces\DGEDialogs\Default
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM            545 StartNode_2b6c3069-0dbb-4be2-
+                                                  928f-59dd98c0603a.asset
+-a----         2/15/2026   6:20 PM            458 StartNode_2b6c3069-0dbb-4be2-
+                                                  928f-59dd98c0603a.asset.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Resour
+    ces\DGEDialogs\Sample
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM            616 Action_0404b168-bd5c-47dc-ae5
+                                                  5-1ca99e10400f.asset
+-a----         2/15/2026   6:20 PM            454 Action_0404b168-bd5c-47dc-ae5
+                                                  5-1ca99e10400f.asset.meta
+-a----          7/3/2025   9:14 AM            626 Action_1b2d16e0-0f1f-4142-9cb
+                                                  c-a47865f66dd1.asset
+-a----         2/15/2026   6:20 PM            454 Action_1b2d16e0-0f1f-4142-9cb
+                                                  c-a47865f66dd1.asset.meta
+-a----          7/3/2025   9:14 AM            628 Action_4955c56b-c628-4ddd-819
+                                                  b-f4c27d08e7d1.asset
+-a----         2/15/2026   6:20 PM            454 Action_4955c56b-c628-4ddd-819
+                                                  b-f4c27d08e7d1.asset.meta
+-a----          7/3/2025   9:14 AM            555 Action_64ce7c29-aef6-4474-a5b
+                                                  5-d2cc0891e1f3.asset
+-a----         2/15/2026   6:20 PM            454 Action_64ce7c29-aef6-4474-a5b
+                                                  5-d2cc0891e1f3.asset.meta
+-a----          7/3/2025   9:14 AM            620 Action_c52b7518-bf8d-46ed-831
+                                                  c-bccfbe4759f3.asset
+-a----         2/15/2026   6:20 PM            454 Action_c52b7518-bf8d-46ed-831
+                                                  c-bccfbe4759f3.asset.meta
+-a----          7/3/2025   9:14 AM            627 Action_e1fb47bc-d468-4d3d-96f
+                                                  f-93e1a29ce055.asset
+-a----         2/15/2026   6:20 PM            454 Action_e1fb47bc-d468-4d3d-96f
+                                                  f-93e1a29ce055.asset.meta
+-a----          7/3/2025   9:14 AM            624 Action_e738ee44-a2f6-4c5c-b29
+                                                  d-4f3f84c5fd5c.asset
+-a----         2/15/2026   6:20 PM            454 Action_e738ee44-a2f6-4c5c-b29
+                                                  d-4f3f84c5fd5c.asset.meta
+-a----          7/3/2025   9:14 AM            625 Action_fa076af6-1092-4d83-be1
+                                                  9-76626f90b457.asset
+-a----         2/15/2026   6:20 PM            454 Action_fa076af6-1092-4d83-be1
+                                                  9-76626f90b457.asset.meta
+-a----          7/3/2025   9:14 AM            798 Random_006c7e7b-ff27-4067-a8b
+                                                  8-df966300cd3d.asset
+-a----         2/15/2026   6:20 PM            454 Random_006c7e7b-ff27-4067-a8b
+                                                  8-df966300cd3d.asset.meta
+-a----          7/3/2025   9:14 AM            630 StartNode_7550832e-3b6f-4314-
+                                                  bf5f-0b956fe287e9.asset
+-a----         2/15/2026   6:20 PM            457 StartNode_7550832e-3b6f-4314-
+                                                  bf5f-0b956fe287e9.asset.meta
+-a----          7/3/2025   9:14 AM            943 Text_317fd4ee-db0d-4899-8612-
+                                                  d5a715ea27e5.asset
+-a----         2/15/2026   6:20 PM            452 Text_317fd4ee-db0d-4899-8612-
+                                                  d5a715ea27e5.asset.meta
+-a----          7/3/2025   9:14 AM            678 Text_46c8392d-9b9b-4648-9015-
+                                                  1b8459fd4f62.asset
+-a----         2/15/2026   6:20 PM            452 Text_46c8392d-9b9b-4648-9015-
+                                                  1b8459fd4f62.asset.meta
+-a----          7/3/2025   9:14 AM            668 Text_5f459eeb-b0f7-4a51-adbc-
+                                                  c9499dec4cc9.asset
+-a----         2/15/2026   6:20 PM            452 Text_5f459eeb-b0f7-4a51-adbc-
+                                                  c9499dec4cc9.asset.meta
+-a----          7/3/2025   9:14 AM            678 Text_8a23c8ff-42f3-4f07-9f95-
+                                                  1fad50418b2c.asset
+-a----         2/15/2026   6:20 PM            452 Text_8a23c8ff-42f3-4f07-9f95-
+                                                  1fad50418b2c.asset.meta
+-a----          7/3/2025   9:14 AM            668 Text_97229290-d8a6-40ed-9f08-
+                                                  406804972e30.asset
+-a----         2/15/2026   6:20 PM            452 Text_97229290-d8a6-40ed-9f08-
+                                                  406804972e30.asset.meta
+-a----          7/3/2025   9:14 AM            680 Text_98f99942-f1a1-49bc-812f-
+                                                  eaf9787ff5a8.asset
+-a----         2/15/2026   6:20 PM            452 Text_98f99942-f1a1-49bc-812f-
+                                                  eaf9787ff5a8.asset.meta
+-a----          7/3/2025   9:14 AM            668 Text_bf2b7f06-6c42-45cc-8945-
+                                                  8338f79ae3ef.asset
+-a----         2/15/2026   6:20 PM            452 Text_bf2b7f06-6c42-45cc-8945-
+                                                  8338f79ae3ef.asset.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Sample
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                Art
+d-----         2/15/2026   6:20 PM                Prefabs
+d-----         2/15/2026   6:20 PM                Scenes
+d-----         2/15/2026   6:20 PM                Scripts
+-a----          7/3/2025   9:14 AM            172 Art.meta
+-a----          7/3/2025   9:14 AM            172 Prefabs.meta
+-a----          7/3/2025   9:14 AM            172 Scenes.meta
+-a----          7/3/2025   9:14 AM            172 Scripts.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Sample\Art
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM          17493 actor.png
+-a----         2/15/2026   6:20 PM           4158 actor.png.meta
+-a----          7/3/2025   9:14 AM           9623 button.png
+-a----         2/15/2026   6:20 PM           4163 button.png.meta
+-a----          7/3/2025   9:14 AM          12028 dialog.png
+-a----         2/15/2026   6:20 PM           4165 dialog.png.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Sample\Prefabs
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM           6013 ActionButton.prefab
+-a----         2/15/2026   6:20 PM            376 ActionButton.prefab.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Sample\Scenes
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM          41950 SampleScene.unity
+-a----         2/15/2026   6:20 PM            374 SampleScene.unity.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Sample\Scripts
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM           1942 GamePanel.cs
+-a----         2/15/2026   6:20 PM            275 GamePanel.cs.meta
+-a----          7/3/2025   9:14 AM           1078 TextAnimation.cs
+-a----         2/15/2026   6:20 PM            279 TextAnimation.cs.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Scripts
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                Nodes
+-a----          7/3/2025   9:14 AM           4157 DGEDialogSelection.cs
+-a----         2/15/2026   6:20 PM            277 DGEDialogSelection.cs.meta
+-a----          7/3/2025   9:14 AM            172 Nodes.meta
+    Directory:
+    C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Scripts\Nodes
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/15/2026   6:20 PM                Base
+-a----          7/3/2025   9:14 AM            172 Base.meta
+-a----          7/3/2025   9:14 AM            395 DGEActionNode.cs
+-a----         2/15/2026   6:20 PM            278 DGEActionNode.cs.meta
+-a----          7/3/2025   9:14 AM           1186 DGERandomNode.cs
+-a----         2/15/2026   6:20 PM            278 DGERandomNode.cs.meta
+-a----          7/3/2025   9:14 AM            392 DGEStartNode.cs
+-a----         2/15/2026   6:20 PM            277 DGEStartNode.cs.meta
+-a----          7/3/2025   9:14 AM            204 DGETextNode.cs
+-a----         2/15/2026   6:20 PM            276 DGETextNode.cs.meta
+    Directory: C:\code\DunksJams\Assets\NovaVertexCode\DialogGraphEngine\Script
+    s\Nodes\Base
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          7/3/2025   9:14 AM            478 DGEBaseNode.cs
+-a----         2/15/2026   6:20 PM            281 DGEBaseNode.cs.meta
+-a----          7/3/2025   9:14 AM            213 DGEBaseSelectableNode.cs
+-a----         2/15/2026   6:20 PM            291 DGEBaseSelectableNode.cs.meta

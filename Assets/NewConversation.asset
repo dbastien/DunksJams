@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6832177743906481736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e493cc99efea58c4c999ba2c659e1c67, type: 3}
+  m_Name: Logic_9efbce29
+  m_EditorClassIdentifier: DunksJams::DialogEntry
+  nodeID: 9efbce29-591a-471b-8579-0f9ef4e98e63
+  canvasRect:
+    serializedVersion: 2
+    x: 347.33334
+    y: -47.333332
+    width: 250
+    height: 300
+  nodeType: 2
+  lines: []
+  outgoingLinks:
+  - guid: 0799fb42-1d22-4e55-a5c7-2f4b9c0bbc02
+    text: Next
+    destination: {fileID: 0}
+    condition: 
+    priority: 0
+    portName: 
+    fields: []
+  condition: 
+  onExecuteScript: 
+  fields: []
+--- !u!114 &-4047952332413520092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e493cc99efea58c4c999ba2c659e1c67, type: 3}
+  m_Name: Dialogue_6e704529
+  m_EditorClassIdentifier: DunksJams::DialogEntry
+  nodeID: 6e704529-9c92-4613-a678-1d2b422cc72b
+  canvasRect:
+    serializedVersion: 2
+    x: 282
+    y: -94.666664
+    width: 250
+    height: 300
+  nodeType: 0
+  lines: []
+  outgoingLinks: []
+  condition: 
+  onExecuteScript: 
+  fields: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b45755e71f1329479346a18aff9b2df, type: 3}
+  m_Name: NewConversation
+  m_EditorClassIdentifier: DunksJams::DialogConversation
+  conversationName: NewConversation
+  entries:
+  - {fileID: -6832177743906481736}
+  - {fileID: 5937871799887785846}
+  - {fileID: -4047952332413520092}
+  startNodeGUID: 
+--- !u!114 &5937871799887785846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e493cc99efea58c4c999ba2c659e1c67, type: 3}
+  m_Name: Event_cbc59ab0
+  m_EditorClassIdentifier: DunksJams::DialogEntry
+  nodeID: cbc59ab0-ceb7-43c3-a62c-99b35d613a63
+  canvasRect:
+    serializedVersion: 2
+    x: 347.33334
+    y: -52
+    width: 250
+    height: 300
+  nodeType: 3
+  lines: []
+  outgoingLinks:
+  - guid: 8c5d4106-b50e-4903-bcd2-6766ad829bc0
+    text: Next
+    destination: {fileID: 0}
+    condition: 
+    priority: 0
+    portName: 
+    fields: []
+  - guid: 655e0331-b9f3-488e-a08e-10e4d4bfdb74
+    text: Choice Text
+    destination: {fileID: 0}
+    condition: 
+    priority: 0
+    portName: 
+    fields: []
+  - guid: fc5b004d-77a7-4d13-8a57-74645cc20849
+    text: Choice Text
+    destination: {fileID: 0}
+    condition: 
+    priority: 0
+    portName: 
+    fields: []
+  condition: 
+  onExecuteScript: 
+  fields: []
