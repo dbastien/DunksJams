@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameOverScreen : UIScreen
+public class GameOverScreen : MenuScreenBase
 {
-    Text scoreText;
+    Text _summaryText;
 
     public GameOverScreen(Transform canvas) : base(canvas)
     {
@@ -11,25 +11,21 @@ public class GameOverScreen : UIScreen
 
     public override void Setup()
     {
-        var scoreObj = UIBuilder.CreateUIElement("ScoreText", Panel.transform, typeof(Text));
-        UIBuilder.SetupRectTransform(scoreObj.GetComponent<RectTransform>(), new Vector2(400, 100),
-            new Vector2(0, 100));
-        scoreText = UIBuilder.InitText(scoreObj, "Game Over", Resources.GetBuiltinResource<Font>("Arial.ttf"),
+        base.Setup();
+
+        var summaryObj = UIBuilder.CreateUIElement("SummaryText", Panel.transform, typeof(Text));
+        UIBuilder.SetupRectTransform(summaryObj.GetComponent<RectTransform>(), new Vector2(600, 140),
+            new Vector2(0, 120));
+        _summaryText = UIBuilder.InitText(summaryObj, "Game Over", Resources.GetBuiltinResource<Font>("Arial.ttf"),
             Color.white);
-
-        UIBuilder.CreateButton(Panel.transform, "Restart", OnRestart, size: new Vector2(200, 50),
-            position: new Vector2(0, -50));
-        UIBuilder.CreateButton(Panel.transform, "Main Menu", OnMainMenu, size: new Vector2(200, 50),
-            position: new Vector2(0, -110));
     }
 
-    public void SetScore(int score) => scoreText.text = $"Game Over\nScore: {score}";
-
-    void OnRestart()
+    protected override void OnShow()
     {
-        DLog.Log("Restarting game...");
-        UIManager.Instance?.HideCurrentScreen();
+        var flow = GameFlowManager.Instance;
+        var def = flow?.ActiveDefinition;
+        _summaryText.text = def?.BuildGameOverSummary(flow) ?? "Game Over";
+        RebuildMenu(def?.EndScreen ?? ScreenSpec.DefaultEnd(), "Game Over");
+        _summaryText.transform.SetAsLastSibling();
     }
-
-    void OnMainMenu() => UIManager.Instance?.ShowScreen<StartScreen>(false);
 }

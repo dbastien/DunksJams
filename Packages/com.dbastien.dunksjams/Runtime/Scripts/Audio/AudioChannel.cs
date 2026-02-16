@@ -27,8 +27,5 @@ public class AudioChannel : ScriptableObject
     [System.NonSerialized] public AudioSource ActiveSource;
     [System.NonSerialized] public Coroutine CrossfadeCoroutine;
 
-    public float GetEffectiveVolume()
-    {
-        return volume;
-    }
+    public float GetEffectiveVolume() => volume;
 }

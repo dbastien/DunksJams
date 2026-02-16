@@ -44,4 +44,6 @@ public abstract class UIScreen
     protected virtual void OnHide()
     {
     }
+
+    // Use TransformExtensions.DestroyChildren(this Transform) instead of duplicating logic here.
 }

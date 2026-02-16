@@ -19,10 +19,7 @@ public class AudioCategory : ScriptableObject
     public float GetEffectiveVolume()
     {
         float effectiveVolume = volume;
-        if (parentCategory != null)
-        {
-            effectiveVolume *= parentCategory.GetEffectiveVolume();
-        }
+        if (parentCategory != null) effectiveVolume *= parentCategory.GetEffectiveVolume();
         return effectiveVolume;
     }
 }

@@ -49,11 +49,9 @@ public class AudioEmitter : MonoBehaviour
 
     public void Stop()
     {
-        if (activeSource != null)
-        {
-            AudioSystem.Instance?.StopLooped(activeSource);
-            activeSource = null;
-        }
+        if (activeSource == null) return;
+        AudioSystem.Instance?.StopLooped(activeSource);
+        activeSource = null;
     }
 
     void OnDestroy() => Stop();

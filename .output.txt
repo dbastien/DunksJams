@@ -1,346 +1,267 @@
-﻿On branch main
-Your branch is up to date with 'origin/main'.
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-        deleted:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar.meta
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ClearConsoleToolbarItem.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ClearConsoleToolbarItem.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ClearConsoleToolbarItem.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ClearConsoleToolbarItem.cs.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/IToolbarItem.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/IToolbarItem.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/IToolbarItem.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/IToolbarItem.cs.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/CustomToolbarCallback.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarCallback.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/CustomToolbarCallback.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarCallback.cs.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ToolbarDrawer.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarDrawer.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ToolbarDrawer.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarDrawer.cs.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/CustomToolbarExtension.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarExtension.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/CustomToolbarExtension.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarExtension.cs.meta
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ToolbarGatherer.cs -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarGatherer.cs
-        renamed:    Packages/com.dbastien.dunksjams/Editor/Tools/CustomToolbar/ToolbarGatherer.cs.meta -> Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarGatherer.cs.meta
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   .idea/.idea.DunksJams/.idea/codeStyles/codeStyleConfig.xml
-        modified:   Assets/Editor Default Resources/GridBackground.uss
-        modified:   Assets/Editor Default Resources/Node.uss
-        modified:   Packages/com.dbastien.dunksjams/Data/DialogueGraph.json
-        modified:   Packages/com.dbastien.dunksjams/Data/DialogueGraphData.json
-        modified:   Packages/com.dbastien.dunksjams/Data/WaveformGraphData.json
-        modified:   Packages/com.dbastien.dunksjams/Editor/AI/SteeringAgentEditor.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/AnimationCurveUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/ComponentMemberReferenceCurveEditor.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/CurvePresetGenerator.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/CurvePresetLibraryWrapper.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/NormalizedAnimationCurveDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Curves/TransformCurveEditor.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Gizmos/Editor/FacingGizmo.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Gizmos/Editor/GizmoUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Gizmos/Editor/LabelGizmo.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Gizmos/Editor/NormalsGizmo.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonBehaviourResetter.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Singletons/SingletonEditorBehaviour.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AdvancedMeshMenu.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AlignDistributeSnapWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/AssetBrowserTreeView.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/AssetBrowserTreeViewItem.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/AssetBrowserWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/AssetImporterPlatform.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/MaterialBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/ModelBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/SceneBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/ScriptBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/ShaderBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetBrowser/TextureBrowser.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetImport/FolderImporterRules.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/AssetDatabaseUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/FindAssetDependenciesWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/FindMissingAssetReferencesWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/FindReferencesInAssetsWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/FindUnusedAssetsInFolderWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/AssetManagement/PropertyTableTreeView.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/BuiltInResourceViewerWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/CopyCatWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.Build.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.Hub.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.Parsing.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.Rendering.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.Types.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLog/DLogConsole.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DLogConsoleTest.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/DropdownDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/FileDrawers.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/HideIfDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/IncrementalDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/SerializableDictionaryDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Drawers/ToggleHeaderDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/DuplicateAsset.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/EditableTextAssetInspector.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/EditorGUIScopeUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/EditorGUIUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/ExposeMethodInEditor.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Extensions/UnityEditorExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/FavoritesManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/FindMissingScripts.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/FoldoutScopes.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GameCameraFromSceneCamera.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GaussianBlurKernelGeneratorWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GenericFieldEditorWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GenericSettingsProvider.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/DialogueGraphView.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/DialogueNodes.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/SerializedGraphNode.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/SerializedGraphView.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/SerializedGraphViewEditorWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/WaveformGraphNodes.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/GraphView/WaveformGraphView.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/HierarchyAutoIcons.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/LutRegistryBuilder.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/MethodBenchmarkWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/PersistentEditorParameter.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/SelectableLabelEditorWindow.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Shaders/MaterialEditorUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Shaders/ShaderGUIUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/TabManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ClearConsoleToolbarItem.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/IToolbarItem.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarCallback.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarDrawer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarExtension.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Toolbar/ToolbarGatherer.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Wrappers/ColorPresetLibraryWrapper.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Wrappers/ShaderUtilWrapper.cs
-        modified:   Packages/com.dbastien.dunksjams/Editor/Tools/Wrappers/TextureUtilWrapper.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/Pathfinding/AStar2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/Pathfinding/DLiteStar2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/Pathfinding/FlowFieldPathFinder2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/Pathfinding/GridHelper2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/SteeringAgent.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/SteeringBehaviorSystem.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AI/TargetingStrategy.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/AdvancedProjectionBehaviour.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Attributes/ConsoleCommandAttribute.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Attributes/EditorAttributes.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Attributes/HideInStackTraceAttribute.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Attributes/IncrementalAttribute.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Attributes/ShowIfHideIfAttributes.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Audio/AudioClipReference.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Audio/AudioEmitter.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Audio/AudioHistory.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Audio/AudioSystem.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Audio/PlayAudioEvent.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/LogicGate1In.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/LogicGate2In.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/LogicGate3In.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/Orbit.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/SelfDestructAfterDuration.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/SelfDestructAfterEffectsDone.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Behaviors/SelfDestructOnCollisionTrigger.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/ColorsX11.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/DebugFlyController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/SimpleFirstPersonController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/SimpleSidescrollerController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/SimpleThirdPersonController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/SimpleTopDownController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Controls/SimpleTwinStickController.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Curves/Attributes/NormalizedAnimationCurveAttribute.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Curves/Scripts/ComponentMemberReference.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Curves/Scripts/ComponentMemberReferenceCurve.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Curves/Scripts/TextMeshCurve.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Curves/Scripts/TransformCurve.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ArrayHashSetNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ArrayPool.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ArrayQueueNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ArrayStackNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ConcurrentArrayPool.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/Deque.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/LRUCache.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/MinimumQueue.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/NativeAtomicCounterNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/NativeReferenceNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/NativeRingBufferNative.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/ObjectPoolEx.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/PriorityQueue.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/RingBuffer.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/SerializableDictionary.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/SpatialHash2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DataStructures/SpatialHash3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DefaultResources.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/DevConsole.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/EnumCache.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/EventSystem/EventManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/EventSystem/EventManagerUpdater.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/EventSystem/Events.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/ArrayExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/CameraExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Color32Extensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/ColorExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/DictionaryExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/FloatExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/GUIStyleExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/GameObjectExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/ICollectionExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/IEnumerableExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/IStyleExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/IntExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/ListExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/MaterialExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Matrix4x4Extensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/MeshExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/QuaternionExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/RectExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/RendererExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/StackFrameExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/StackTraceExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/StringExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/TextureExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/TransformExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/UintExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Vector2Extensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Vector2IntExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Vector3Extensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Vector3IntExtensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Extensions/Vector4Extensions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/FSM/FiniteStateMachine.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/FSM/FiniteStates.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/DoubleExponentialSmoothingFilter3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/ExponentialSmoothingFilter.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/ExponentialSmoothingFilter3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/HistogramPeakFilter.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/IFilter1D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/IFilter2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/IFilter3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/TetherFilter1D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/TetherFilter2D1D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Filters/TetherFilter3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Core/UIManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Core/UIScreen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Screens/ConfigScreen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Screens/GameOverScreen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Screens/PauseScreen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Screens/StartScreen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/GUIScopeUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/OptionSpinner.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/RadialLayout.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/ScreenSafeArea.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/UIBuilder.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/UIComponents.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/GameUI/Widgets/UIView.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/CardBase.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/CardCollection.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/CardGameBase.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/CardGameEvents.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/CardGameIO.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/Deck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Core/Hand.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/CardGameLauncher.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/EuchreGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/PinochleGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/PokerGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/SkatGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/TarotGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/UnoGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Games/WarGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Poker/PokerGameSettings.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Poker/PokerHand.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Poker/PokerHandEvaluator.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Standard/EuchreDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Standard/PinochleDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Standard/SkatDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Standard/StandardCard.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Standard/StandardDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Tarot/TarotCard.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Tarot/TarotDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Tarot/TarotReadingSettings.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Uno/UnoCard.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Uno/UnoDeck.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/CardGames/Uno/UnoGameSettings.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/CeeLo/CeeLoOutcome.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/CeeLo/CeeLoResult.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/CeeLo/CeeLoRules.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/Core/Dice.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/Core/DiceRoll.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/Core/DieType.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/Games/CeeLoGame.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/DiceGames/Games/DiceGameLauncher.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/Health.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/Inventory.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/ObjectiveManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/Projectile.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/SaveSystem.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/ScoreManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/StatusEffectSystem.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/WaveManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Gameplay/Weapon.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/HapticsManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/LocalizationManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Logging/DLog.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Logging/MultiLogHandler.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/LutRegistry.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Combinatorics.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/EnvelopeDetection.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/FFT.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/FIRFilters.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/Histogram.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/NoiseGeneration.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/SignalAnalysis.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/DSP/Windowing.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Eigen.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/LogicGates.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Matrix3x2.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/OrientedBox.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Rand.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Shapes2D/Ellipse2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/Shapes2D/Polygon2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Math/SpatialMath3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/ColoredNoiseGenerators.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/FBMNoise.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/PerlinNoise.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/SimplexNoise.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/ValueNoise.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Noise/WorleyNoise.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/OptionsManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Palettes.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/PrecisionStopwatch.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Procedural/ProceduralColor.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Procedural/ProceduralPoints2D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Procedural/ProceduralPoints3D.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Procedural/ProceduralRotation.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/ScopedActions.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Singletons/SingletonEagerBehaviour.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Singletons/SingletonLazyBehaviour.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/TestCompilationWarnings.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/TextEffects.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/Ease.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/EaseType.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/ITween.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/Tween.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/TweenAPI.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/TweenExample.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/TweenLoopType.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Tween/TweenManager.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/AsyncUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/DataUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/GameObjectUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/IOUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/ReflectionUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Runtime/Scripts/Utilities/TextureUtils.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Core/CombinatoricsTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Core/EnumCacheTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Core/RandTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Core/ReflectionUtilsTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/DataStructures/DequeTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/DataStructures/LRUCacheTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/DataStructures/PriorityQueueTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/DataStructures/RingBufferTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Extensions/FloatExtensionsTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Extensions/IntExtensionsTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Extensions/StringExtensionsTests.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/TestBase.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/TestHelpers.cs
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Tests.asmdef
-        modified:   Packages/com.dbastien.dunksjams/Tests/Editor/Tween/EaseTests.cs
-        modified:   Packages/manifest.json
-        modified:   Packages/packages-lock.json
-        modified:   ProjectSettings/PackageManagerSettings.asset
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        .editorconfig
+﻿
+    Directory: C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           2546 AlignDistributeSnapWindow.cs
+-a----         2/11/2026   6:53 PM             60 AlignDistributeSnapWindow.cs.
+                                                  meta
+-a----         2/11/2026   6:53 PM            180 AssetBrowser.meta
+-a----         2/14/2026  11:07 AM            180 AssetImport.meta
+-a----         2/11/2026   6:53 PM            180 AssetManagement.meta
+-a----         2/14/2026  11:07 AM           6899 BuiltInResourceViewerWindow.c
+                                                  s
+-a----         2/14/2026  11:07 AM            275 BuiltInResourceViewerWindow.c
+                                                  s.meta
+-a----         2/14/2026  11:07 AM           4460 CopyCatWindow.cs
+-a----         2/11/2026   6:53 PM             85 CopyCatWindow.cs.meta
+-a----         2/11/2026   6:53 PM            180 DLog.meta
+-a----         2/11/2026   6:53 PM             88 Drawers.meta
+-a----         2/14/2026  11:07 AM            429 DuplicateAsset.cs
+-a----         2/14/2026  11:07 AM            274 DuplicateAsset.cs.meta
+-a----         2/14/2026  11:07 AM           3215 EditableTextAssetInspector.cs
+-a----         2/11/2026   6:53 PM             60 EditableTextAssetInspector.cs
+                                                  .meta
+-a----         2/14/2026  11:07 AM             88 EditorGUI.meta
+-a----         2/14/2026  11:07 AM            719 ExposeMethodInEditor.cs
+-a----         2/11/2026   6:53 PM             88 ExposeMethodInEditor.cs.meta
+-a----         2/11/2026   6:53 PM             88 Extensions.meta
+-a----         2/14/2026  11:07 AM           9947 FavoritesManager.cs
+-a----         2/11/2026   6:53 PM             60 FavoritesManager.cs.meta
+-a----         2/14/2026  11:07 AM           1673 FindMissingScripts.cs
+-a----         2/14/2026  11:07 AM            186 FindMissingScripts.cs.meta
+-a----         2/14/2026  11:07 AM          11025 FoldoutScopes.cs
+-a----         2/11/2026   6:53 PM             60 FoldoutScopes.cs.meta
+-a----         2/14/2026  11:07 AM            747 GameCameraFromSceneCamera.cs
+-a----         2/11/2026   6:53 PM             60 GameCameraFromSceneCamera.cs.
+                                                  meta
+-a----         2/14/2026  11:07 AM           2564 GaussianBlurKernelGeneratorWi
+                                                  ndow.cs
+-a----         2/11/2026   6:53 PM             60 GaussianBlurKernelGeneratorWi
+                                                  ndow.cs.meta
+-a----         2/14/2026  11:07 AM           1995 GenericFieldEditorWindow.cs
+-a----         2/11/2026   6:53 PM             60 GenericFieldEditorWindow.cs.m
+                                                  eta
+-a----         2/14/2026  11:07 AM           4620 GenericSettingsProvider.cs
+-a----         2/11/2026   6:53 PM             88 GenericSettingsProvider.cs.me
+                                                  ta
+-a----         2/11/2026   6:53 PM             88 GraphView.meta
+-a----         2/14/2026  11:07 AM           4049 HierarchyAutoIcons.cs
+-a----         2/11/2026   6:53 PM             85 HierarchyAutoIcons.cs.meta
+-a----         2/14/2026  11:07 AM           1389 LutRegistryBuilder.cs
+-a----         2/14/2026  11:07 AM             60 LutRegistryBuilder.cs.meta
+-a----         2/14/2026  11:07 AM             88 MeshGeneration.meta
+-a----         2/14/2026  11:07 AM           8254 MethodBenchmarkWindow.cs
+-a----         2/11/2026   6:53 PM             85 MethodBenchmarkWindow.cs.meta
+-a----         2/14/2026  11:07 AM           8148 PersistentEditorParameter.cs
+-a----         2/11/2026   6:53 PM             60 PersistentEditorParameter.cs.
+                                                  meta
+-a----         2/14/2026  11:07 AM           1154 SelectableLabelEditorWindow.c
+                                                  s
+-a----         2/11/2026   6:53 PM             60 SelectableLabelEditorWindow.c
+                                                  s.meta
+-a----         2/11/2026   6:53 PM            180 Shaders.meta
+-a----         2/14/2026  11:07 AM             36 TabManager.cs
+-a----         2/11/2026   6:53 PM             60 TabManager.cs.meta
+-a----         2/14/2026  11:07 AM            180 Toolbar.meta
+-a----         2/11/2026   6:53 PM            180 Utilities.meta
+-a----         2/11/2026   6:53 PM             88 Wrappers.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\AssetBrowser
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           3038 AnimationClipBrowser.cs
+-a----         2/14/2026  11:07 AM             60 AnimationClipBrowser.cs.meta
+-a----         2/14/2026  11:07 AM          19925 AssetBrowserTreeView.cs
+-a----         2/11/2026   6:53 PM            254 AssetBrowserTreeView.cs.meta
+-a----         2/14/2026  11:07 AM           3170 AssetBrowserTreeViewItem.cs
+-a----         2/11/2026   6:53 PM            254 AssetBrowserTreeViewItem.cs.m
+                                                  eta
+-a----         2/14/2026  11:07 AM           8544 AssetBrowserWindow.cs
+-a----         2/11/2026   6:53 PM            254 AssetBrowserWindow.cs.meta
+-a----         2/14/2026  11:07 AM             83 AssetImporterPlatform.cs
+-a----         2/11/2026   6:53 PM             60 AssetImporterPlatform.cs.meta
+-a----         2/14/2026  11:07 AM           2921 AudioClipBrowser.cs
+-a----         2/14/2026  11:07 AM             88 AudioClipBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           1723 ComputeShaderBrowser.cs
+-a----         2/14/2026  11:07 AM             60 ComputeShaderBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2226 FontBrowser.cs
+-a----         2/14/2026  11:07 AM             60 FontBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           8779 MaterialBrowser.cs
+-a----         2/11/2026   6:53 PM            254 MaterialBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2285 ModelBrowser.cs
+-a----         2/11/2026   6:53 PM             88 ModelBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2514 PrefabBrowser.cs
+-a----         2/14/2026  11:07 AM             60 PrefabBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           1835 SceneBrowser.cs
+-a----         2/11/2026   6:53 PM             88 SceneBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2038 ScriptableObjectBrowser.cs
+-a----         2/14/2026  11:07 AM             60 ScriptableObjectBrowser.cs.me
+                                                  ta
+-a----         2/14/2026  11:07 AM           2258 ScriptBrowser.cs
+-a----         2/11/2026   6:53 PM             88 ScriptBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           8409 ShaderBrowser.cs
+-a----         2/11/2026   6:53 PM            254 ShaderBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2978 SpriteBrowser.cs
+-a----         2/14/2026  11:07 AM             60 SpriteBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           4617 TextureBrowser.cs
+-a----         2/11/2026   6:53 PM            254 TextureBrowser.cs.meta
+-a----         2/14/2026  11:07 AM           2437 VideoClipBrowser.cs
+-a----         2/14/2026  11:07 AM             60 VideoClipBrowser.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\AssetImport
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           1178 FolderImporterRules.cs
+-a----         2/14/2026  11:07 AM             60 FolderImporterRules.cs.meta
+    Directory: C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\A
+    ssetManagement
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           1863 AssetDatabaseUtils.cs
+-a----         2/11/2026   6:53 PM            274 AssetDatabaseUtils.cs.meta
+-a----         2/14/2026  11:07 AM           1267 FindAssetDependenciesWindow.c
+                                                  s
+-a----         2/11/2026   6:53 PM            274 FindAssetDependenciesWindow.c
+                                                  s.meta
+-a----         2/14/2026  11:07 AM           2975 FindMissingAssetReferencesWin
+                                                  dow.cs
+-a----         2/11/2026   6:53 PM            274 FindMissingAssetReferencesWin
+                                                  dow.cs.meta
+-a----         2/14/2026  11:07 AM           3069 FindReferencesInAssetsWindow.
+                                                  cs
+-a----         2/11/2026   6:53 PM            274 FindReferencesInAssetsWindow.
+                                                  cs.meta
+-a----         2/14/2026  11:07 AM           5565 FindUnusedAssetsInFolderWindo
+                                                  w.cs
+-a----         2/11/2026   6:53 PM            274 FindUnusedAssetsInFolderWindo
+                                                  w.cs.meta
+-a----         2/14/2026  11:07 AM          39832 PropertyTableTreeView.cs
+-a----         2/11/2026   6:53 PM             60 PropertyTableTreeView.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\DLog
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM            508 DLogConsole.Build.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.Build.cs.meta
+-a----         2/14/2026  11:07 AM          19882 DLogConsole.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.cs.meta
+-a----         2/14/2026  11:07 AM          17909 DLogConsole.Hub.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.Hub.cs.meta
+-a----         2/14/2026  11:07 AM          13936 DLogConsole.Parsing.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.Parsing.cs.meta
+-a----         2/14/2026  11:07 AM          13428 DLogConsole.Rendering.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.Rendering.cs.meta
+-a----         2/14/2026  11:07 AM           1472 DLogConsole.Types.cs
+-a----         2/11/2026   6:53 PM             60 DLogConsole.Types.cs.meta
+-a----         2/14/2026  11:07 AM           1251 DLogConsoleTest.cs
+-a----         2/14/2026  11:07 AM            282 DLogConsoleTest.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\Drawers
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM            711 DropdownDrawer.cs
+-a----         2/11/2026   6:53 PM             60 DropdownDrawer.cs.meta
+-a----         2/14/2026  11:07 AM           1687 FileDrawers.cs
+-a----         2/11/2026   6:53 PM             60 FileDrawers.cs.meta
+-a----         2/14/2026  11:07 AM           1169 HideIfDrawer.cs
+-a----         2/11/2026   6:53 PM             60 HideIfDrawer.cs.meta
+-a----         2/14/2026  11:07 AM           2305 IncrementalDrawer.cs
+-a----         2/11/2026   6:53 PM            275 IncrementalDrawer.cs.meta
+-a----         2/11/2026   6:53 PM            478 MinMaxSliderDrawer.cs
+-a----         2/11/2026   6:53 PM             60 MinMaxSliderDrawer.cs.meta
+-a----         2/14/2026  11:07 AM           2447 SerializableDictionaryDrawer.
+                                                  cs
+-a----         2/11/2026   6:53 PM             60 SerializableDictionaryDrawer.
+                                                  cs.meta
+-a----         2/14/2026  11:07 AM           1148 ToggleHeaderDrawer.cs
+-a----         2/11/2026   6:53 PM             60 ToggleHeaderDrawer.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\EditorGUI
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM            331 EditorGUIScopeUtils.cs
+-a----         2/14/2026  11:07 AM             60 EditorGUIScopeUtils.cs.meta
+-a----         2/14/2026  11:07 AM            919 EditorGUIUtils.cs
+-a----         2/14/2026  11:07 AM             60 EditorGUIUtils.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\Extensions
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/11/2026   6:53 PM           2403 SerializedPropertyExtensions.
+                                                  cs
+-a----         2/11/2026   6:53 PM             88 SerializedPropertyExtensions.
+                                                  cs.meta
+-a----         2/14/2026  11:07 AM           2123 UnityEditorExtensions.cs
+-a----         2/11/2026   6:53 PM             60 UnityEditorExtensions.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\GraphView
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM            778 DialogueGraphView.cs
+-a----         2/11/2026   6:53 PM             88 DialogueGraphView.cs.meta
+-a----         2/14/2026  11:07 AM           1034 DialogueNodes.cs
+-a----         2/11/2026   6:53 PM             88 DialogueNodes.cs.meta
+-a----         2/11/2026   6:53 PM            657 GraphData.cs
+-a----         2/11/2026   6:53 PM             88 GraphData.cs.meta
+-a----         2/14/2026  11:07 AM           4344 SerializedGraphNode.cs
+-a----         2/11/2026   6:53 PM             85 SerializedGraphNode.cs.meta
+-a----         2/14/2026  11:07 AM           6233 SerializedGraphView.cs
+-a----         2/11/2026   6:53 PM             88 SerializedGraphView.cs.meta
+-a----         2/14/2026  11:07 AM           2068 SerializedGraphViewEditorWind
+                                                  ow.cs
+-a----         2/11/2026   6:53 PM             85 SerializedGraphViewEditorWind
+                                                  ow.cs.meta
+-a----         2/14/2026  11:07 AM          15632 WaveformGraphNodes.cs
+-a----         2/11/2026   6:53 PM             60 WaveformGraphNodes.cs.meta
+-a----         2/14/2026  11:07 AM           1621 WaveformGraphView.cs
+-a----         2/11/2026   6:53 PM             85 WaveformGraphView.cs.meta
+    Directory: C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\M
+    eshGeneration
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           3839 AdvancedMeshMenu.cs
+-a----         2/14/2026  11:07 AM             60 AdvancedMeshMenu.cs.meta
+-a----         2/14/2026  11:07 AM           3300 MeshCutterWindow.cs
+-a----         2/14/2026  11:07 AM             60 MeshCutterWindow.cs.meta
+-a----         2/14/2026  11:07 AM           1040 MeshExportMenu.cs
+-a----         2/14/2026  11:07 AM             60 MeshExportMenu.cs.meta
+-a----         2/14/2026  11:07 AM          14824 MeshGeneratorWindow.cs
+-a----         2/14/2026  11:07 AM             60 MeshGeneratorWindow.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\Shaders
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           2979 MaterialEditorUtils.cs
+-a----         2/11/2026   6:53 PM             60 MaterialEditorUtils.cs.meta
+-a----         2/14/2026  11:07 AM           2053 ShaderGUIUtils.cs
+-a----         2/11/2026   6:53 PM             60 ShaderGUIUtils.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\Toolbar
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           1745 ClearConsoleToolbarItem.cs
+-a----         2/14/2026  11:07 AM             88 ClearConsoleToolbarItem.cs.me
+                                                  ta
+-a----         2/14/2026  11:07 AM            593 IToolbarItem.cs
+-a----         2/14/2026  11:07 AM             88 IToolbarItem.cs.meta
+-a----         2/14/2026  11:07 AM           3338 ToolbarCallback.cs
+-a----         2/14/2026  11:07 AM             60 ToolbarCallback.cs.meta
+-a----         2/14/2026  11:07 AM           4807 ToolbarDebugger.cs
+-a----         2/14/2026  11:07 AM             88 ToolbarDebugger.cs.meta
+-a----         2/14/2026  11:07 AM           2579 ToolbarDrawer.cs
+-a----         2/14/2026  11:07 AM             88 ToolbarDrawer.cs.meta
+-a----         2/14/2026  11:07 AM           1254 ToolbarExtension.cs
+-a----         2/14/2026  11:07 AM             60 ToolbarExtension.cs.meta
+-a----         2/14/2026  11:07 AM           3548 ToolbarGatherer.cs
+-a----         2/14/2026  11:07 AM             88 ToolbarGatherer.cs.meta
+    Directory:
+    C:\code\DunksJams\Packages\com.dbastien.dunksjams\Editor\Tools\Wrappers
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----         2/14/2026  11:07 AM           1644 ColorPresetLibraryWrapper.cs
+-a----         2/11/2026   6:53 PM            275 ColorPresetLibraryWrapper.cs.
+                                                  meta
+-a----         2/14/2026  11:07 AM           3557 ShaderUtilWrapper.cs
+-a----         2/11/2026   6:53 PM             60 ShaderUtilWrapper.cs.meta
+-a----         2/14/2026  11:07 AM           1808 TextureUtilWrapper.cs
+-a----         2/11/2026   6:53 PM             60 TextureUtilWrapper.cs.meta
