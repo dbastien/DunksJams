@@ -90,6 +90,31 @@ Instead of assigning an actor to every single node, Conversa can look "up" the s
 
 ---
 
+## Lessons from NovaVertexCode/DialogGraphEngine
+
+### 1. ScriptableObject-per-Node Folder Pattern
+Unlike other systems that use one large asset, DGE treats a **Project Folder** as a conversation.
+- **The Concept**: Each node (Text, Action, Random) is a separate `.asset` file saved within a specific directory.
+- **The Takeaway**: While this creates file clutter, it's highly modular and avoids "gigantic asset" corruption risks. We could consider a hybrid where we use **Sub-Assets** inside one main ScriptableObject to get the best of both worlds.
+
+### 2. Embedded GraphView UI
+DGE embeds `TextField` elements directly into the node's `mainContainer` in the graph.
+- **The Takeaway**: This is a massive UX win. Designers can type dialog directly into the graph without clicking a node and then moving their eyes/mouse to the Inspector. We should definitely implement this.
+
+### 3. Placeholder Text System
+It uses a custom placeholder system for UIElements `TextField`.
+- **The Takeaway**: Implementing a `Label` that hides when the `TextField` has content makes the "Empty" state of the graph much clearer for designers (e.g., "Actor name...", "Text...").
+
+### 4. Direct Asset "Ping" from Graph
+Each node in the graph has a small button (📌) that calls `EditorGUIUtility.PingObject()` on the underlying asset.
+- **The Takeaway**: This provides a quick "escape hatch" to find the raw data if the graph editor becomes limiting.
+
+### 5. USS-Based Node Styling
+DGE makes extensive use of `AddToClassList` and `.uss` files for node styling.
+- **The Takeaway**: We should leverage USS (Unity Style Sheets) for our graph editor to keep the UI code clean and allow for easy "Themes" or color-coding (e.g., green for text, blue for logic).
+
+---
+
 ## Roadmap
 
 1.  **Phase 1**: Implement `DialogTextProcessor` for variable replacement.
