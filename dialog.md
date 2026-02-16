@@ -44,23 +44,49 @@ Dialogue entries can directly update quest states (e.g., `Quest["FindGold"].Stat
 
 ### 1. Visual Node Graph Editor
 This is the standout feature. Managing long conversations in the Inspector is difficult.
-- **The Takeaway**: Implement a `DialogueGraphWindow` using Unity's **GraphView API** to visualize `DialogEntry` connections as nodes.
+- **The Takeaway**: Implement a `DialogueGraphWindow`. While NBDS uses manual **IMGUI** drawing (`OnGUI`, `DrawGridBackground`), we may prefer Unity's modern **GraphView API** for better performance and built-in zoom/pan.
 
-### 2. Typed Variable Config
+### 2. Typed Variable Config & Persistence
 Unlike our string-only variables, this system uses a `VariablesConfig` asset to define typed variables (Int, Bool, Float).
-- **The Takeaway**: Create a `DialogVariables` ScriptableObject that defines "Global Variables" with default values.
+- **The Takeaway**: 
+    - Create a `DialogVariables` ScriptableObject that defines "Global Variables" with default values.
+    - Implement **Persistence**: NBDS uses `PlayerPrefs` (prefixed with `V_`) to save variable states between sessions.
 
 ### 3. Timeline Integration
 A dedicated `DialogueTrack` and `DialogueClip` for Unity Timeline.
 - **The Takeaway**: Build a Timeline track that can trigger `DialogManager.PlayEntry()` at specific points in a cinematic.
 
 ### 4. Text Processing Tags
-Advanced tag replacement in strings (e.g., `[var=PlayerName]`, `[lua(math.random(1,10))]`).
-- **The Takeaway**: Implement a `DialogTextProcessor` that runs regex on strings before they are sent to the UI.
+Advanced tag replacement in strings (e.g., `{variableName}`, `[lua(math.random(1,10))]`).
+- **The Takeaway**: Implement a `DialogTextProcessor` that runs regex on strings before they are sent to the UI. Support for `{var}` syntax is more standard.
 
-### 5. External Function Nodes
-Nodes that trigger specific C# events or delegates without using the Sequencer string.
-- **The Takeaway**: Add an `Events` list to `DialogEntry` that designers can hook up via the Inspector (UnityEvents).
+### 5. Centralized External Functions
+NBDS uses a `DialogExternalFunctionsHandler` to bind C# actions to string names.
+- **The Takeaway**: Instead of just `UnityEvents` on nodes, use a delegate dictionary to bind code at runtime. This keeps the data asset clean and the code centralized.
+
+### 6. Official Localization Integration
+NBDS includes a `NodeGraphLocalizer` that attempts to interface with Unity's official `Localization` package.
+- **The Takeaway**: Ensure our `Field` system can easily map to `LocalizedString` entries.
+
+---
+
+## Lessons from Conversa
+
+### 1. Stack-Based Linear Nodes (Blocks)
+Conversa uses a "Stack" node that contains multiple "Blocks" (lines of dialog).
+- **The Takeaway**: In our future Graph Editor, allow grouping multiple linear dialog entries into a single visual "Stack" to reduce graph clutter.
+
+### 2. Separated Data Flow (IValueNode)
+Conversa cleanly separates **Execution Flow** (connecting nodes that *happen*) from **Data Flow** (connecting nodes that *provide values*).
+- **The Takeaway**: Implement a port system where a `Message` field can be connected to a `String Concatenation` node or a `Global Variable` node, allowing dynamic text generation without complex scripting.
+
+### 3. Attribute-Driven Ports
+Ports are defined using a `[Slot]` attribute on C# properties.
+- **The Takeaway**: Use Reflection in the Graph Editor to automatically generate ports based on attributes in the `DialogEntry` classes. This makes adding new node types (e.g., "Random Number", "Check Item") trivial.
+
+### 4. "Sticky" Actor Context
+Instead of assigning an actor to every single node, Conversa can look "up" the stack to find the last defined actor.
+- **The Takeaway**: Implement an `ActorContext` that persists through a conversation until changed, reducing redundant data entry for designers.
 
 ---
 
@@ -68,5 +94,6 @@ Nodes that trigger specific C# events or delegates without using the Sequencer s
 
 1.  **Phase 1**: Implement `DialogTextProcessor` for variable replacement.
 2.  **Phase 2**: Add `SimStatus` tracking and persistence.
-3.  **Phase 3**: Create a basic **GraphView** editor for conversations.
-4.  **Phase 4**: Build Timeline integration clips.
+3.  **Phase 3**: Refactor `DialogEntry` to support **Ports/Slots** for data flow.
+4.  **Phase 4**: Create a **GraphView** editor supporting **Stacks** and **Value Nodes**.
+5.  **Phase 5**: Build Timeline integration clips.
