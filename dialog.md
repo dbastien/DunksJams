@@ -23,20 +23,36 @@ Pixel Crushers tracks whether a node has been displayed (`WasDisplayed`), which 
 
 ### 3. Advanced Sequencer Commands
 Pixel Crushers has a rich library of commands for cinematic control.
-- **The Takeaway**: Expand `DialogSequencer.cs` with:
-    - `Animation(animName, [target])`: Play legacy or Animator animations.
-    - `Camera(angle, [target], [duration])`: Smoothly move the camera.
-    - `Fade(in/out, [duration])`: Screen fades.
-    - `LoadLevel(sceneName)`: Change scenes from dialog.
-    - `TextInput(variableName)`: Open a prompt for player input.
+- **The Takeaway**: 
+    - Expand `DialogSequencer.cs` with `Animation`, `Camera`, `Fade`, `LoadLevel`, and `TextInput`.
+    - **MonoBehaviour Commands**: For complex, multi-frame commands, consider the Pixel Crushers approach where each command is a temporary `MonoBehaviour` with an `Update` loop, allowing for much more robust timing than simple reflection.
 
-### 4. Database Merging
+### 4. Database Merging & Sync
 Support for multiple small databases that can be loaded/unloaded at runtime.
-- **The Takeaway**: Allow `DialogManager` to "mount" multiple `DialogConversation` assets into a master runtime lookup table.
+- **The Takeaway**: 
+    - Allow `DialogManager` to "mount" multiple `DialogConversation` assets.
+    - Implement a "Sync Info" system where small level-specific databases can reference a "Master" database for Actor profiles and Global Variables.
 
 ### 5. Quest System Integration
 Dialogue entries can directly update quest states (e.g., `Quest["FindGold"].State = "success"`).
 - **The Takeaway**: Create a unified `GameVariable` system that both Dialog and Quests can read/write.
+
+### 6. Bark System
+Barks are transient lines of dialog spoken in the world without a full conversation UI.
+- **The Takeaway**: 
+    - Implement a `BarkHistory` class to handle sequential/random/shuffled bark order.
+    - Add priority levels to barks so a "Combat" bark can interrupt a "Generic Idle" bark.
+    - Use `IBarkUI` (world-space or screen-space overlay) separate from the main Dialog UI.
+
+### 7. Emphasis Settings
+Centralized text styles (e.g., "Critical", "Whisper").
+- **The Takeaway**: Instead of hardcoding colors in text tags, use `[em1]...[/em1]` which look up settings (Color, Bold, Italic) from a global configuration.
+
+### 8. Rich Text Typewriter
+Robust handling of tags and timing.
+- **The Takeaway**: 
+    - **Tokenization**: Parse the string into tokens before typing to ensure rich text tags (`<b>`) don't break or count towards character timing.
+    - **Pause Tags**: Support embedded pause commands like `[p=0.5]` directly in the text string to give designers fine-grained control over speech rhythm.
 
 ---
 
@@ -67,6 +83,25 @@ NBDS uses a `DialogExternalFunctionsHandler` to bind C# actions to string names.
 ### 6. Official Localization Integration
 NBDS includes a `NodeGraphLocalizer` that attempts to interface with Unity's official `Localization` package.
 - **The Takeaway**: Ensure our `Field` system can easily map to `LocalizedString` entries.
+
+---
+
+## Lessons from DialogGraphSystem
+
+### 1. History / Backlog Overlay
+A standard feature in Visual Novels and RPGs.
+- **The Takeaway**: 
+    - Implement a `DialogHistory` component that listens to `OnLineShown` and `OnChoicePicked`.
+    - Create a UI overlay that allows users to scroll back through the last 50-100 lines.
+    - **Pause Integration**: Ensure the `DialogManager` can "Pause" the current conversation flow (including typewriter and autoplay) while the history window is open.
+
+### 2. Blocking Action Nodes
+Specialized nodes that stop the dialog flow until a task is complete.
+- **The Takeaway**: Support "Blocking" commands in the Sequencer. For example, a `FadeOut` command that waits for the screen to be fully black before the next dialog line is shown.
+
+### 3. JSON Import/Export
+For external editing and AI generation.
+- **The Takeaway**: Provide buttons to dump a `DialogConversation` to JSON and re-import it, allowing for batch edits or AI-assisted content creation.
 
 ---
 
@@ -117,8 +152,10 @@ DGE makes extensive use of `AddToClassList` and `.uss` files for node styling.
 
 ## Roadmap
 
-1.  **Phase 1**: Implement `DialogTextProcessor` for variable replacement.
+1.  **Phase 1**: Implement `DialogTextProcessor` for variable replacement. (✓)
 2.  **Phase 2**: Add `SimStatus` tracking and persistence.
-3.  **Phase 3**: Refactor `DialogEntry` to support **Ports/Slots** for data flow.
-4.  **Phase 4**: Create a **GraphView** editor supporting **Stacks** and **Value Nodes**.
-5.  **Phase 5**: Build Timeline integration clips.
+3.  **Phase 3**: Implement a **History Backlog** system.
+4.  **Phase 4**: Add **Bark System** support with priority handling.
+5.  **Phase 5**: Refactor `DialogEntry` to support **Ports/Slots** for data flow.
+6.  **Phase 6**: Create a **GraphView** editor supporting **Stacks**, **Value Nodes**, and **Embedded UI**.
+7.  **Phase 7**: Build Timeline integration clips.
