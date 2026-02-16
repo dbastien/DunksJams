@@ -74,6 +74,8 @@ public static class PaletteGenerator
                 return 4;
             case PaletteScheme.Spectrum:
                 return 8;
+            case PaletteScheme.UI_Kit:
+                return 6;
             default:
                 return 1;
         }
@@ -186,6 +188,14 @@ public static class PaletteGenerator
                     var h = Mathf.Repeat(baseH + t, 1f);
                     colors.Add(Color.HSVToRGB(h, baseS, baseV).WithAlpha(alpha));
                 }
+                break;
+            case PaletteScheme.UI_Kit:
+                colors.Add(primary); // Primary
+                colors.Add(Hue(baseH + 0.1f)); // Secondary
+                colors.Add(Hue(baseH + 0.5f)); // Accent
+                colors.Add(Color.HSVToRGB(baseH, baseS * 0.15f, 0.15f).WithAlpha(alpha)); // Background
+                colors.Add(Color.HSVToRGB(baseH, baseS * 0.2f, 0.25f).WithAlpha(alpha)); // Surface
+                colors.Add(Color.HSVToRGB(baseH, baseS * 0.05f, 0.95f).WithAlpha(alpha)); // Text
                 break;
             case PaletteScheme.Custom:
             default:

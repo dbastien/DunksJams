@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class PaletteStudioWindow : EditorWindow
     [SerializeField] bool _showTagFilter;
     [SerializeField] string _tagFilter = "";
     [SerializeField] int _colorTheoryMode;
-    [SerializeField] bool _showPaletteOverview = true;
+    [SerializeField] bool _showPaletteOverview = false;
     [SerializeField] bool _showColorBlindPreview;
     [SerializeField] int _colorBlindMode;
     [SerializeField] int _selectedPaletteColorIndex = -1;
@@ -29,7 +30,6 @@ public class PaletteStudioWindow : EditorWindow
     [SerializeField] Color _selectedColor = Color.white;
     [SerializeField] float _h, _s, _v, _a = 1f;
     [SerializeField] PaletteScheme _schemePreview = PaletteScheme.Custom;
-    [SerializeField] int _lutSize = 16;
     [SerializeField] Texture2D _lutSourceTexture;
     [SerializeField, Range(2, 128)] int _texturePaletteCount = 16;
     [SerializeField] int _palettePickerId = -1;
@@ -38,6 +38,7 @@ public class PaletteStudioWindow : EditorWindow
 
     Texture2D _hueWheel;
     Texture2D _centerPie;
+    Texture2D _lightnessBar;
 
     const int WheelSize = 200;
     const float SwatchMinSize = 14f;
@@ -300,15 +301,27 @@ public class PaletteStudioWindow : EditorWindow
 
     void DrawLightnessSlider(ref bool colorChanged)
     {
-        EditorGUI.BeginChangeCheck();
-        var v = EditorGUILayout.Slider("Lightness", _v * 100f, 0f, 100f) / 100f;
-        if (EditorGUI.EndChangeCheck())
+        EditorGUILayout.LabelField("Lightness", EditorStyles.miniLabel);
+        var rect = EditorGUILayout.GetControlRect(GUILayout.Height(18));
+        
+        if (_lightnessBar == null) GenerateTextures();
+        GUI.DrawTexture(rect, _lightnessBar);
+
+        // Marker for current V
+        var markerX = rect.x + _v * rect.width;
+        var markerRect = new Rect(markerX - 2, rect.y - 2, 4, rect.height + 4);
+        EditorGUI.DrawRect(markerRect, Color.white);
+        DrawRectOutline(markerRect, Color.black, 1);
+
+        var e = Event.current;
+        if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && rect.Contains(e.mousePosition))
         {
-            _v = v;
+            _v = Mathf.Clamp01((e.mousePosition.x - rect.x) / rect.width);
             UpdateSelectedColorFromHSV();
             colorChanged = true;
             if (_selectedPalette != null && _selectedPalette.GenerationMode == PaletteGenerationMode.Generated)
                 ApplyPickerSvToPalette();
+            e.Use();
         }
     }
 
@@ -355,7 +368,6 @@ public class PaletteStudioWindow : EditorWindow
 
     void DrawSchemeControls()
     {
-        EditorGUILayout.LabelField("Scheme", EditorStyles.boldLabel);
         var scheme = GetActiveScheme();
         EditorGUI.BeginChangeCheck();
         scheme = (PaletteScheme)EditorGUILayout.EnumPopup("Scheme", scheme);
@@ -379,6 +391,211 @@ public class PaletteStudioWindow : EditorWindow
         GUILayout.Space(10);
         DrawPaletteBottomButtons(_selectedPalette);
     }
+
+    void ShowImportMenu(ColorPalette palette)
+    {
+        var menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Image..."), false, () => {
+            var path = EditorUtility.OpenFilePanel("Import Palette from Image", "Assets", "png,jpg,jpeg");
+            if (!string.IsNullOrEmpty(path))
+            {
+                var bytes = File.ReadAllBytes(path);
+                var tex = new Texture2D(2, 2);
+                if (tex.LoadImage(bytes))
+                {
+                    CreatePaletteFromTexture(tex, _texturePaletteCount);
+                }
+                DestroyImmediate(tex);
+            }
+        });
+        menu.AddItem(new GUIContent("JSON..."), false, () => ImportJson(palette));
+        menu.AddItem(new GUIContent("Unity Palette (.colors)..."), false, () => ImportUnityPalette(palette));
+        menu.AddItem(new GUIContent("HEX List..."), false, () => ImportHex(palette));
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Tools/GPL (GIMP)..."), false, () => ImportGpl(palette));
+        menu.AddItem(new GUIContent("Tools/ASE (Adobe)..."), false, () => ImportAse(palette));
+        menu.AddItem(new GUIContent("Tools/ACO..."), false, () => ImportAco(palette));
+        menu.ShowAsContext();
+    }
+
+    void ShowExportMenu(ColorPalette palette)
+    {
+        var menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Texture (PNG)..."), false, () => ExportPaletteTexture(palette));
+        menu.AddItem(new GUIContent("LUT/16..."), false, () => ExportPaletteLut(palette, 16));
+        menu.AddItem(new GUIContent("LUT/32..."), false, () => ExportPaletteLut(palette, 32));
+        menu.AddItem(new GUIContent("Unity Palette (.colors)..."), false, () => ExportUnityPalette(palette));
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Data/JSON..."), false, () => ExportJson(palette));
+        menu.AddItem(new GUIContent("Data/HEX List..."), false, () => ExportHex(palette));
+        menu.AddItem(new GUIContent("Code/C# Array"), false, () => ExportCSharp(palette));
+        menu.AddItem(new GUIContent("Code/CSS Variables"), false, () => ExportCss(palette));
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Tools/GPL (GIMP)"), false, () => ExportGpl(palette));
+        menu.AddItem(new GUIContent("Tools/ASE (Adobe)"), false, () => ExportAse(palette));
+        menu.AddItem(new GUIContent("Tools/ACO"), false, () => ExportAco(palette));
+        menu.AddItem(new GUIContent("Tools/SVG"), false, () => ExportSvg(palette));
+        menu.ShowAsContext();
+    }
+
+    void ImportJson(ColorPalette palette)
+    {
+        var path = EditorUtility.OpenFilePanel("Import JSON Palette", "Assets", "json");
+        if (string.IsNullOrEmpty(path)) return;
+        var json = File.ReadAllText(path);
+
+        if (palette == null)
+        {
+            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", "NewPalette", "asset", "");
+            if (string.IsNullOrEmpty(assetPath)) return;
+            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            JsonUtility.FromJsonOverwrite(json, palette);
+            AssetDatabase.CreateAsset(palette, assetPath);
+        }
+        else
+        {
+            Undo.RecordObject(palette, "Import JSON Palette");
+            JsonUtility.FromJsonOverwrite(json, palette);
+        }
+
+        EditorUtility.SetDirty(palette);
+        AssetDatabase.SaveAssets();
+        PaletteDatabase.Refresh();
+        SelectPalette(palette);
+    }
+
+    void ImportUnityPalette(ColorPalette palette)
+    {
+        var path = EditorUtility.OpenFilePanel("Import Unity Palette", "Assets", "colors");
+        if (string.IsNullOrEmpty(path)) return;
+
+        var relativePath = path;
+        if (path.StartsWith(Application.dataPath))
+            relativePath = "Assets" + path.Substring(Application.dataPath.Length - 6);
+
+        var lib = AssetDatabase.LoadAssetAtPath<ScriptableObject>(relativePath);
+        if (lib == null) return;
+
+        var count = ColorPresetLibraryWrapper.Count(lib);
+        var colors = new List<Color>();
+        for (int i = 0; i < count; i++)
+            colors.Add(ColorPresetLibraryWrapper.GetPreset(lib, i));
+
+        if (colors.Count == 0) return;
+
+        if (palette == null)
+        {
+            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", Path.GetFileNameWithoutExtension(path), "asset", "");
+            if (string.IsNullOrEmpty(assetPath)) return;
+            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            palette.paletteName = Path.GetFileNameWithoutExtension(assetPath);
+            palette.colors = colors.ToArray();
+            palette.GenerationMode = PaletteGenerationMode.Manual;
+            AssetDatabase.CreateAsset(palette, assetPath);
+        }
+        else
+        {
+            Undo.RecordObject(palette, "Import Unity Palette");
+            palette.colors = colors.ToArray();
+            palette.GenerationMode = PaletteGenerationMode.Manual;
+        }
+
+        EditorUtility.SetDirty(palette);
+        AssetDatabase.SaveAssets();
+        PaletteDatabase.Refresh();
+        SelectPalette(palette);
+    }
+
+    void ImportHex(ColorPalette palette)
+    {
+        var path = EditorUtility.OpenFilePanel("Import HEX List", "Assets", "txt");
+        if (string.IsNullOrEmpty(path)) return;
+
+        var lines = File.ReadAllLines(path);
+        var colors = new List<Color>();
+        foreach (var line in lines)
+        {
+            if (ColorUtility.TryParseHtmlString(line.Trim(), out var c))
+                colors.Add(c);
+        }
+
+        if (colors.Count == 0) return;
+
+        if (palette == null)
+        {
+            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", Path.GetFileNameWithoutExtension(path), "asset", "");
+            if (string.IsNullOrEmpty(assetPath)) return;
+            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            palette.paletteName = Path.GetFileNameWithoutExtension(assetPath);
+            palette.colors = colors.ToArray();
+            palette.GenerationMode = PaletteGenerationMode.Manual;
+            AssetDatabase.CreateAsset(palette, assetPath);
+        }
+        else
+        {
+            Undo.RecordObject(palette, "Import HEX List");
+            palette.colors = colors.ToArray();
+            palette.GenerationMode = PaletteGenerationMode.Manual;
+        }
+
+        EditorUtility.SetDirty(palette);
+        AssetDatabase.SaveAssets();
+        PaletteDatabase.Refresh();
+        SelectPalette(palette);
+    }
+
+    void ImportGpl(ColorPalette palette) => Debug.Log("GPL Import not yet implemented.");
+    void ImportAse(ColorPalette palette) => Debug.Log("ASE Import not yet implemented.");
+    void ImportAco(ColorPalette palette) => Debug.Log("ACO Import not yet implemented.");
+
+    void ExportJson(ColorPalette palette)
+    {
+        if (palette == null) return;
+        var path = EditorUtility.SaveFilePanel("Export JSON", "Assets", GetPaletteDisplayName(palette), "json");
+        if (string.IsNullOrEmpty(path)) return;
+        File.WriteAllText(path, JsonUtility.ToJson(palette, true));
+        AssetDatabase.Refresh();
+    }
+
+    void ExportHex(ColorPalette palette)
+    {
+        if (palette == null) return;
+        var path = EditorUtility.SaveFilePanel("Export HEX List", "Assets", GetPaletteDisplayName(palette), "txt");
+        if (string.IsNullOrEmpty(path)) return;
+        var lines = palette.colors.Select(c => "#" + ColorUtility.ToHtmlStringRGBA(c)).ToArray();
+        File.WriteAllLines(path, lines);
+        AssetDatabase.Refresh();
+    }
+
+    void ExportCSharp(ColorPalette palette)
+    {
+        if (palette == null) return;
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"public static readonly Color[] {GetPaletteDisplayName(palette).Replace(" ", "_")} = new Color[] {{");
+        foreach (var c in palette.colors)
+            sb.AppendLine($"    new Color({c.r}f, {c.g}f, {c.b}f, {c.a}f),");
+        sb.AppendLine("};");
+        EditorGUIUtility.systemCopyBuffer = sb.ToString();
+        EditorUtility.DisplayDialog("Export C#", "C# array code copied to clipboard.", "OK");
+    }
+
+    void ExportCss(ColorPalette palette)
+    {
+        if (palette == null) return;
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine(":root {");
+        var name = GetPaletteDisplayName(palette).ToLower().Replace(" ", "-");
+        for (int i = 0; i < palette.colors.Length; i++)
+            sb.AppendLine($"    --{name}-{i}: #{ColorUtility.ToHtmlStringRGBA(palette.colors[i])};");
+        sb.AppendLine("}");
+        EditorGUIUtility.systemCopyBuffer = sb.ToString();
+        EditorUtility.DisplayDialog("Export CSS", "CSS variables copied to clipboard.", "OK");
+    }
+
+    void ExportGpl(ColorPalette palette) => Debug.Log("GPL Export not yet implemented.");
+    void ExportAse(ColorPalette palette) => Debug.Log("ASE Export not yet implemented.");
+    void ExportSvg(ColorPalette palette) => Debug.Log("SVG Export not yet implemented.");
+    void ExportAco(ColorPalette palette) => Debug.Log("ACO Export not yet implemented.");
 
     void DrawPalettePreview(ColorPalette palette)
     {
@@ -538,79 +755,25 @@ public class PaletteStudioWindow : EditorWindow
 
     void DrawPaletteBottomButtons(ColorPalette palette)
     {
-        var width = Mathf.Max(20, EditorGUIUtility.currentViewWidth / 3f - 10f);
-        var twoColumns = false;
-        if (width < 120)
-        {
-            twoColumns = true;
-            width = Mathf.Max(20, EditorGUIUtility.currentViewWidth / 2f - 12f);
-        }
-
-        if (twoColumns)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("New", GUILayout.Width(width)))
-                CreateNewPaletteWindow.ShowWindow();
-
-            GUI.enabled = palette != null;
-            if (GUILayout.Button("Save", GUILayout.Width(width)))
-                SavePaletteAsset(palette);
-            GUI.enabled = true;
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            GUI.enabled = palette != null;
-            if (GUILayout.Button(new GUIContent("Save As", "Save a duplicate of the palette"), GUILayout.Width(width)))
-                DuplicatePalette(palette);
-            GUI.enabled = true;
-
-            if (GUILayout.Button("Load", GUILayout.Width(width)))
-                OpenPalettePicker();
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(new GUIContent("LUT", "LUT size"), GUILayout.Width(28));
-            _lutSize = EditorGUILayout.IntPopup(_lutSize, new[] { "16", "32" }, new[] { 16, 32 }, GUILayout.Width(width - 28f));
-            if (GUILayout.Button("Export LUT", GUILayout.Width(width)))
-                ExportPaletteLut(palette, _lutSize);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button(new GUIContent("Export Tex", "Export palette texture"), GUILayout.Width(width)))
-                ExportPaletteTexture(palette);
-            if (GUILayout.Button(new GUIContent("Export Unity", "Export Unity color preset library (.colors)"), GUILayout.Width(width)))
-                ExportUnityPalette(palette);
-            EditorGUILayout.EndHorizontal();
-            return;
-        }
-
+        var width = Mathf.Max(20, (EditorGUIUtility.currentViewWidth - 40) / 3f);
+        
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("New", GUILayout.Width(width)))
-            CreateNewPaletteWindow.ShowWindow();
-
+        if (GUILayout.Button("New", GUILayout.Width(width))) CreateNewPaletteWindow.ShowWindow();
+        if (GUILayout.Button("Load", GUILayout.Width(width))) OpenPalettePicker();
+        
         GUI.enabled = palette != null;
-        if (GUILayout.Button("Save", GUILayout.Width(width)))
-            SavePaletteAsset(palette);
-        if (GUILayout.Button(new GUIContent("Save As", "Save a duplicate of the palette"), GUILayout.Width(width)))
-            DuplicatePalette(palette);
+        if (GUILayout.Button("Save", GUILayout.Width(width))) SavePaletteAsset(palette);
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Save As", GUILayout.Width(width))) DuplicatePalette(palette);
+        
+        if (EditorGUILayout.DropdownButton(new GUIContent("Import"), FocusType.Passive, GUILayout.Width(width)))
+            ShowImportMenu(palette);
+            
+        if (EditorGUILayout.DropdownButton(new GUIContent("Export"), FocusType.Passive, GUILayout.Width(width)))
+            ShowExportMenu(palette);
         GUI.enabled = true;
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Load", GUILayout.Width(width)))
-            OpenPalettePicker();
-
-        EditorGUILayout.LabelField(new GUIContent("LUT", "LUT size"), GUILayout.Width(28));
-        _lutSize = EditorGUILayout.IntPopup(_lutSize, new[] { "16", "32" }, new[] { 16, 32 }, GUILayout.Width(width - 28f));
-        if (GUILayout.Button("Export LUT", GUILayout.Width(width)))
-            ExportPaletteLut(palette, _lutSize);
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button(new GUIContent("Export Tex", "Export palette texture"), GUILayout.Width(width)))
-            ExportPaletteTexture(palette);
-        if (GUILayout.Button(new GUIContent("Export Unity", "Export Unity color preset library (.colors)"), GUILayout.Width(width)))
-            ExportUnityPalette(palette);
         EditorGUILayout.EndHorizontal();
     }
 
@@ -724,9 +887,14 @@ public class PaletteStudioWindow : EditorWindow
     {
         Color.RGBToHSV(_selectedColor, out _h, out _s, out _v);
         _a = _selectedColor.a;
+        UpdateLightnessBarTexture();
     }
 
-    void UpdateSelectedColorFromHSV() => _selectedColor = Color.HSVToRGB(_h, _s, _v).WithAlpha(_a);
+    void UpdateSelectedColorFromHSV()
+    {
+        _selectedColor = Color.HSVToRGB(_h, _s, _v).WithAlpha(_a);
+        UpdateLightnessBarTexture();
+    }
 
     void GenerateTextures()
     {
@@ -754,6 +922,20 @@ public class PaletteStudioWindow : EditorWindow
             }
             _hueWheel.Apply();
         }
+        UpdateLightnessBarTexture();
+    }
+
+    void UpdateLightnessBarTexture()
+    {
+        if (_lightnessBar == null)
+            _lightnessBar = new Texture2D(256, 1, TextureFormat.RGBA32, false);
+
+        for (var i = 0; i < 256; i++)
+        {
+            var v = i / 255f;
+            _lightnessBar.SetPixel(i, 0, Color.HSVToRGB(_h, _s, v));
+        }
+        _lightnessBar.Apply();
     }
 
     void DestroyTextures()
@@ -767,6 +949,11 @@ public class PaletteStudioWindow : EditorWindow
         {
             DestroyImmediate(_centerPie);
             _centerPie = null;
+        }
+        if (_lightnessBar != null)
+        {
+            DestroyImmediate(_lightnessBar);
+            _lightnessBar = null;
         }
     }
 
@@ -808,6 +995,10 @@ public class PaletteStudioWindow : EditorWindow
 
         switch (scheme)
         {
+            case PaletteScheme.UI_Kit:
+                hues.Add(Mathf.Repeat(_h + 0.1f, 1f));
+                hues.Add(Mathf.Repeat(_h + 0.5f, 1f));
+                break;
             case PaletteScheme.Complementary:
                 hues.Add(Mathf.Repeat(_h + 0.5f, 1f));
                 break;

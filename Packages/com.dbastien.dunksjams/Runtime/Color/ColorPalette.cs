@@ -16,7 +16,8 @@ public enum PaletteScheme
     Triadic,
     Tetradic,
     Square,
-    Spectrum
+    Spectrum,
+    UI_Kit
 }
 
 [CreateAssetMenu(fileName = "ColorPalette", menuName = "DunksJams/Color Palette")]
