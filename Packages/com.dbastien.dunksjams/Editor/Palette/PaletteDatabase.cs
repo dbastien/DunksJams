@@ -1,11 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 
-/// <summary>
-/// Simple editor cache for ColorPalette assets.
-/// </summary>
 public static class PaletteDatabase
 {
     static List<ColorPalette> _palettes;

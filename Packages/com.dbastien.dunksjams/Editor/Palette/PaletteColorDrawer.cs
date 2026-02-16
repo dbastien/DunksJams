@@ -48,11 +48,11 @@ public class PaletteColorDrawer : PropertyDrawer
             }
         }
 
-        // Advanced Picker button
+        // Advanced Picker button - opens Palette Studio in Picker mode
         var pickerRect = new Rect(gearRect.xMax + Spacing, position.y, SwatchSize, SwatchSize);
         if (GUI.Button(pickerRect, EditorGUIUtility.IconContent("d_EyeDropper"), EditorStyles.iconButton))
         {
-            DunksColorPickerWindow.ShowWindow(c =>
+            PaletteStudioWindow.ShowPicker(c =>
             {
                 property.colorValue = c;
                 property.serializedObject.ApplyModifiedProperties();
@@ -95,9 +95,6 @@ public class PaletteColorDrawer : PropertyDrawer
         }
     }
 
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return base.GetPropertyHeight(property, label);
-    }
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => base.GetPropertyHeight(property, label);
 }
 #endif
