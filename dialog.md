@@ -54,6 +54,14 @@ Robust handling of tags and timing.
     - **Tokenization**: Parse the string into tokens before typing to ensure rich text tags (`<b>`) don't break or count towards character timing.
     - **Pause Tags**: Support embedded pause commands like `[p=0.5]` directly in the text string to give designers fine-grained control over speech rhythm.
 
+### 9. World-Space Bubble UI
+Cartoon bubbles over actors' heads.
+- **The Concept**: Use `DialogueActor` to assign per-character UI prefabs.
+- **The Takeaway**: 
+    - Implement a `WorldSpaceCanvas` or `ScreenSpaceOverlay` component that anchors to a "Head" transform on the actor.
+    - Support **Prefab Overrides**: Allow specific NPCs to use a "Thought Bubble" or "Spiky Combat Bubble" instead of the default.
+    - **Smart Positioning**: Implement logic to keep bubbles within the screen bounds (view clamping).
+
 ---
 
 ## Lessons from DialogNodeBasedSystem
@@ -155,7 +163,7 @@ DGE makes extensive use of `AddToClassList` and `.uss` files for node styling.
 1.  **Phase 1**: Implement `DialogTextProcessor` for variable replacement. (✓)
 2.  **Phase 2**: Add `SimStatus` tracking and persistence.
 3.  **Phase 3**: Implement a **History Backlog** system.
-4.  **Phase 4**: Add **Bark System** support with priority handling.
+4.  **Phase 4**: Add **Bark System** support with priority handling and **World-Space Bubbles**.
 5.  **Phase 5**: Refactor `DialogEntry` to support **Ports/Slots** for data flow.
 6.  **Phase 6**: Create a **GraphView** editor supporting **Stacks**, **Value Nodes**, and **Embedded UI**.
 7.  **Phase 7**: Build Timeline integration clips.
