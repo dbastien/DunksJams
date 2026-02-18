@@ -1,7 +1,5 @@
 #if UNITY_EDITOR
 
-#region
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,112 +13,117 @@ using static ColorExtensions;
 using static ReflectionUtils;
 using Object = UnityEngine.Object;
 
-#endregion
-
 public class TabifyGUI
 {
     public void TabStripGUI(Rect stripRect)
     {
-        void addTabButton()
-        {
-            if (!TabifyMenu.addTabButtonEnabled) return;
-
-            Rect buttonRect = stripRect.SetX(tabEndPositions.Last()).
-                SetWidth(0).
-                SetWidthFromMid(24).
-                MoveX(TabifyMenu.neatTabStyleEnabled ? 12 : 13);
-
-            float distToRight = stripRect.xMax - buttonRect.xMax;
-
-            if (distToRight < 10) return;
-
-            interactiveRects.Add(item: buttonRect);
-
-            var fadeStart = 10;
-            var fadeEnd = 25;
-            float fadeK = ((distToRight - fadeStart) / (fadeEnd - fadeStart)).Clamp01().Pow(2);
-
-            string iconName = stripRect.IsHovered() && curEvent.holdingAlt() && tabInfosForReopening.Any()
-                ? "d_Refresh"
-                : "d_Toolbar Plus";
-            var iconSize = 16;
-            Color colorNormal = Greyscale(isDarkTheme ? .5f : .47f, alpha: fadeK);
-            Color colorHovered = Greyscale(isDarkTheme ? 1f : .1f);
-            Color colorPressed = Greyscale(isDarkTheme ? .75f : .5f);
-
-            if (TabifyAddTabWindow.instance && TabifyAddTabWindow.instance.dockArea == dockArea)
-                colorNormal = colorHovered;
-
-            if (DragAndDrop.objectReferences.Any())
-                colorHovered = colorNormal;
-
-            if (!IconButton(rect: buttonRect, iconName: iconName, iconSize: iconSize, colorNormal: colorNormal,
-                    colorHovered: colorHovered, colorPressed: colorPressed)) return;
-
-            if (curEvent.holdingAlt())
-            {
-                if (tabInfosForReopening.Any())
-                    ReopenClosedTab();
-
-                return;
-            }
-
-            if (TabifyAddTabWindow.instance)
-                TabifyAddTabWindow.instance.Close();
-            else
-                TabifyAddTabWindow.Open(dockArea: dockArea);
-        }
-
-        void closeTabButton()
-        {
-            if (!TabifyMenu.closeTabButtonEnabled) return;
-            if (tabs.Count == 1 && !curEvent.holdingAlt()) return;
-
-            isCloseButtonHovered = false;
-
-            if (hoveredTab == null) return;
-            if (hoveredTab == hideCloseButtonOnTab) return;
-
-            Rect buttonRect = stripRect.SetX(tabEndPositions[index: hoveredTabIndex]).
-                SetWidth(0).
-                SetSizeFromMid(12).
-                MoveX(TabifyMenu.largeTabStyleEnabled ? -16 : -14);
-
-            if (buttonRect.xMax > stripRect.xMax - 10) return;
-
-            interactiveRects.Add(item: buttonRect);
-
-            isCloseButtonHovered = buttonRect.IsHovered();
-
-            var iconName = "Cross";
-            var iconSize = 14;
-            Color colorNormal = Greyscale(isDarkTheme ? .55f : .35f);
-            Color colorHovered = Greyscale(isDarkTheme ? 1f : .0f);
-            Color colorPressed = Greyscale(isDarkTheme ? .75f : .5f);
-
-            if (!IconButton(rect: buttonRect, iconName: iconName, iconSize: iconSize, colorNormal: colorNormal,
-                    colorHovered: colorHovered, colorPressed: colorPressed)) return;
-
-            void closeNextUpdate()
-            {
-                CloseTab(tab: hoveredTab);
-
-                EditorApplication.update -= closeNextUpdate;
-            }
-
-            if (tabs.Count == 1)
-                EditorApplication.update += closeNextUpdate; // prevents error on dockarea destruction
-            else
-                CloseTab(tab: hoveredTab);
-        }
-
         interactiveRects.Clear();
 
         if (curEvent.isLayout())
             UpdateState();
 
-        addTabButton();
-        closeTabButton();
+        if (TabifyMenu.addTabButtonEnabled)
+        {
+            Rect buttonRect1 = stripRect.SetX(tabEndPositions.Last()).
+                SetWidth(0).
+                SetSizeFromMid(24).
+                MoveX(TabifyMenu.neatTabStyleEnabled ? 12 : 13);
+
+            float distToRight = stripRect.xMax - buttonRect1.xMax;
+
+            if (distToRight >= 10)
+            {
+                interactiveRects.Add(item: buttonRect1);
+
+                var fadeStart = 10;
+                var fadeEnd = 25;
+                float fadeK = ((distToRight - fadeStart) / (fadeEnd - fadeStart)).Clamp01().Pow(2);
+
+                string iconName1 = stripRect.IsHovered() && curEvent.holdingAlt() && tabInfosForReopening.Any()
+                    ? "d_Refresh"
+                    : "d_Toolbar Plus";
+                var iconSize1 = 16;
+                Color colorNormal1 = Greyscale(isDarkTheme ? .5f : .47f, alpha: fadeK);
+                Color colorHovered1 = Greyscale(isDarkTheme ? 1f : .1f);
+                Color colorPressed1 = Greyscale(isDarkTheme ? .75f : .5f);
+
+                if (TabifyAddTabWindow.instance && TabifyAddTabWindow.instance.dockArea == dockArea)
+                    colorNormal1 = colorHovered1;
+
+                if (DragAndDrop.objectReferences.Any())
+                    colorHovered1 = colorNormal1;
+
+                if (IconButton(rect: buttonRect1, iconName: iconName1, iconSize: iconSize1, colorNormal: colorNormal1,
+                        colorHovered: colorHovered1, colorPressed: colorPressed1))
+                {
+                    if (curEvent.holdingAlt())
+                    {
+                        if (tabInfosForReopening.Any())
+                            ReopenClosedTab();
+                    }
+                    else
+                    {
+                        if (TabifyAddTabWindow.instance)
+                            TabifyAddTabWindow.instance.Close();
+                        else
+                            TabifyAddTabWindow.Open(dockArea: dockArea);
+                    }
+                }
+            }
+        }
+
+        if (TabifyMenu.closeTabButtonEnabled && (tabs.Count != 1 || curEvent.holdingAlt()))
+        {
+            isCloseButtonHovered = false;
+
+            if (hoveredTab != null && hoveredTab != hideCloseButtonOnTab)
+            {
+                Rect buttonRect = stripRect.SetX(tabEndPositions[index: hoveredTabIndex]).
+                    SetWidth(0).
+                    SetSizeFromMid(12).
+                    MoveX(TabifyMenu.largeTabStyleEnabled ? -16 : -14);
+
+                if (buttonRect.xMax <= stripRect.xMax - 10)
+                {
+                    interactiveRects.Add(item: buttonRect);
+
+                    isCloseButtonHovered = buttonRect.IsHovered();
+
+                    // Draw simple X button
+                    bool isPressed = isCloseButtonHovered && curEvent.isMouseDown();
+                    Color buttonColor = isPressed
+                        ? Greyscale(isDarkTheme ? .75f : .5f)
+                        : isCloseButtonHovered
+                            ? Greyscale(isDarkTheme ? 1f : .0f)
+                            : Greyscale(isDarkTheme ? .55f : .35f);
+
+                    SetGUIColor(c: buttonColor);
+                    var style = new GUIStyle(EditorStyles.label)
+                    {
+                        alignment = TextAnchor.MiddleCenter,
+                        fontSize = 16,
+                        fontStyle = FontStyle.Bold
+                    };
+                    GUI.Label(buttonRect, "×", style);
+                    ResetGUIColor();
+
+                    if (isCloseButtonHovered && curEvent.isMouseUp())
+                    {
+                        void closeNextUpdate()
+                        {
+                            CloseTab(tab: hoveredTab);
+                            EditorApplication.update -= closeNextUpdate;
+                        }
+
+                        if (tabs.Count == 1)
+                            EditorApplication.update +=
+                                closeNextUpdate; // prevents error on dockarea destruction
+                        else
+                            CloseTab(tab: hoveredTab);
+                    }
+                }
+            }
+        }
 
         tabStripElement.pickingMode = interactiveRects.Any(r => r.IsHovered())
             ? PickingMode.Position
@@ -202,18 +205,79 @@ public class TabifyGUI
 
         if (e is not WheelEvent scrollEvent) return;
 
-        void switchTab(int dir)
+        if (TabifyMenu.switchTabShortcutEnabled)
         {
-            int i0 = tabs.IndexOf(item: activeTab);
-            int i1 = Mathf.Clamp(i0 + dir, 0, tabs.Count - 1);
+            if (scrollEvent.modifiers == EventModifiers.Shift ||
+                scrollEvent.modifiers == (EventModifiers.Shift | EventModifiers.Control) ||
+                scrollEvent.modifiers == (EventModifiers.Shift | EventModifiers.Command))
+            {
+                float scrollDelta1 = Application.platform == RuntimePlatform.OSXEditor
+                    ? scrollEvent.delta.x // osx sends delta.y as delta.x when shift is pressed
+                    : scrollEvent.delta.x -
+                      scrollEvent.delta.y; // some software on windows (eg logitech options) may do that too
+                if (TabifyMenu.reverseScrollDirectionEnabled)
+                    scrollDelta1 *= -1;
 
-            tabs[index: i1].Focus();
+                if (scrollDelta1 != 0)
+                {
+                    e.StopPropagation();
 
-            UpdateTitle(tabs[index: i1]);
+                    if (scrollEvent.ctrlKey || scrollEvent.commandKey)
+                    {
+                        int dir = scrollDelta1 > 0 ? 1 : -1;
+                        int i0 = tabs.IndexOf(item: activeTab);
+                        int i1 = Mathf.Clamp(i0 + dir, 0, tabs.Count - 1);
+
+                        (tabs[index: i0], tabs[index: i1]) = (tabs[index: i1], tabs[index: i0]);
+
+                        tabs[index: i1].Focus();
+                    }
+                    else
+                    {
+                        int dir = scrollDelta1 > 0 ? 1 : -1;
+                        int i0 = tabs.IndexOf(item: activeTab);
+                        int i1 = Mathf.Clamp(i0 + dir, 0, tabs.Count - 1);
+
+                        tabs[index: i1].Focus();
+
+                        UpdateTitle(tabs[index: i1]);
+                    }
+                }
+            }
         }
 
-        void moveTab(int dir)
+        if (!TabifyMenu.sidescrollEnabled) return;
+
+        if (scrollEvent.modifiers != EventModifiers.None &&
+            scrollEvent.modifiers != EventModifiers.Command &&
+            scrollEvent.modifiers != EventModifiers.Control) return;
+
+        if (scrollEvent.delta.x.Abs() < scrollEvent.delta.y.Abs())
         {
+            sidescrollPosition = 0;
+            return;
+        }
+
+        e.StopPropagation();
+
+        if (scrollEvent.delta.x.Abs() <= 0.06f) return;
+
+        var
+            dampenK = 5; // the larger this k is - the smaller big deltas are, and the less is sidescroll's dependency on scroll speed
+        float a = scrollEvent.delta.x.Abs() * dampenK;
+        float deltaDampened = (a < 1 ? a : Mathf.Log(f: a) + 1) / dampenK * -scrollEvent.delta.x.Sign();
+
+        var sensitivityK = .22f;
+        float scrollDelta = deltaDampened * TabifyMenu.sidescrollSensitivity * sensitivityK;
+
+        if (TabifyMenu.reverseScrollDirectionEnabled)
+            scrollDelta *= -1;
+
+        if (sidescrollPosition.RoundToInt() == (sidescrollPosition += scrollDelta).RoundToInt()) return;
+
+        if (scrollEvent.ctrlKey || scrollEvent.commandKey)
+        {
+            int dir = scrollDelta > 0 ? 1 : -1;
             int i0 = tabs.IndexOf(item: activeTab);
             int i1 = Mathf.Clamp(i0 + dir, 0, tabs.Count - 1);
 
@@ -221,71 +285,16 @@ public class TabifyGUI
 
             tabs[index: i1].Focus();
         }
-
-        void shiftscroll()
+        else
         {
-            if (!TabifyMenu.switchTabShortcutEnabled) return;
+            int dir = scrollDelta > 0 ? 1 : -1;
+            int i0 = tabs.IndexOf(item: activeTab);
+            int i1 = Mathf.Clamp(i0 + dir, 0, tabs.Count - 1);
 
-            if (scrollEvent.modifiers != EventModifiers.Shift &&
-                scrollEvent.modifiers != (EventModifiers.Shift | EventModifiers.Control) &&
-                scrollEvent.modifiers != (EventModifiers.Shift | EventModifiers.Command)) return;
+            tabs[index: i1].Focus();
 
-            float scrollDelta = Application.platform == RuntimePlatform.OSXEditor
-                ? scrollEvent.delta.x // osx sends delta.y as delta.x when shift is pressed
-                : scrollEvent.delta.x -
-                  scrollEvent.delta.y; // some software on windows (eg logitech options) may do that too
-            if (TabifyMenu.reverseScrollDirectionEnabled)
-                scrollDelta *= -1;
-
-            if (scrollDelta == 0) return;
-
-            e.StopPropagation();
-
-            if (scrollEvent.ctrlKey || scrollEvent.commandKey)
-                moveTab(scrollDelta > 0 ? 1 : -1);
-            else
-                switchTab(scrollDelta > 0 ? 1 : -1);
+            UpdateTitle(tabs[index: i1]);
         }
-
-        void sidescroll()
-        {
-            if (!TabifyMenu.sidescrollEnabled) return;
-
-            if (scrollEvent.modifiers != EventModifiers.None &&
-                scrollEvent.modifiers != EventModifiers.Command &&
-                scrollEvent.modifiers != EventModifiers.Control) return;
-
-            if (scrollEvent.delta.x.Abs() < scrollEvent.delta.y.Abs())
-            {
-                sidescrollPosition = 0;
-                return;
-            }
-
-            e.StopPropagation();
-
-            if (scrollEvent.delta.x.Abs() <= 0.06f) return;
-
-            var
-                dampenK = 5; // the larger this k is - the smaller big deltas are, and the less is sidescroll's dependency on scroll speed
-            float a = scrollEvent.delta.x.Abs() * dampenK;
-            float deltaDampened = (a < 1 ? a : Mathf.Log(f: a) + 1) / dampenK * -scrollEvent.delta.x.Sign();
-
-            var sensitivityK = .22f;
-            float scrollDelta = deltaDampened * TabifyMenu.sidescrollSensitivity * sensitivityK;
-
-            if (TabifyMenu.reverseScrollDirectionEnabled)
-                scrollDelta *= -1;
-
-            if (sidescrollPosition.RoundToInt() == (sidescrollPosition += scrollDelta).RoundToInt()) return;
-
-            if (scrollEvent.ctrlKey || scrollEvent.commandKey)
-                moveTab(scrollDelta > 0 ? 1 : -1);
-            else
-                switchTab(scrollDelta > 0 ? 1 : -1);
-        }
-
-        shiftscroll();
-        sidescroll();
     }
 
     private float sidescrollPosition;
@@ -295,7 +304,7 @@ public class TabifyGUI
         if (!TabifyMenu.dragndropEnabled) return;
 
         Rect dragndropArea =
-            panel.visualTree.contentRect.SetHeight(activeTab.GetType() == t_SceneHierarchyWindow ? 20 : 40);
+            panel.visualTree.contentRect.SetHeight(activeTab.GetType() == SceneHierarchyWindowType ? 20 : 40);
 
         if (!dragndropArea.Contains(point: e.originalMousePosition)) return;
 
@@ -377,36 +386,24 @@ public class TabifyGUI
     public EditorWindow AddTab(TabInfo tabInfo, bool atOriginalTabIndex = false)
     {
         object lastInteractedBrowser =
-            t_ProjectBrowser.GetFieldValue("s_LastInteractedProjectBrowser"); // changes on new browser creation
+            ProjectBrowserType.GetFieldValue("s_LastInteractedProjectBrowser"); // changes on new browser creation
 
         var window = (EditorWindow)ScriptableObject.CreateInstance(className: tabInfo.typeName);
 
-        void notifyVFavorites() { mi_VFavorites_BeforeWindowCreated?.Invoke(null, new object[] { dockArea }); }
+        if (atOriginalTabIndex)
+            dockArea.InvokeMethod("AddTab", tabInfo.originalTabIndex, window, true);
+        else
+            dockArea.InvokeMethod("AddTab", window, true);
 
-        void addToDockArea()
+        if (tabInfo.isBrowser)
         {
-            if (atOriginalTabIndex)
-                dockArea.InvokeMethod("AddTab", tabInfo.originalTabIndex, window, true);
-            else
-                dockArea.InvokeMethod("AddTab", window, true);
-        }
+            window.InvokeMethod("Init");
 
-        void setupBrowser()
-        {
-            if (!tabInfo.isBrowser) return;
-
-            void setSavedGridSize()
-            {
-                if (!tabInfo.isGridSizeSaved) return;
-
+            if (tabInfo.isGridSizeSaved)
                 window.GetFieldValue("m_ListArea")?.SetMemberValue("gridSize", val: tabInfo.savedGridSize);
-            }
 
-            void setLastUsedGridSize()
+            if (!tabInfo.isGridSizeSaved && lastInteractedBrowser != null)
             {
-                if (tabInfo.isGridSizeSaved) return;
-                if (lastInteractedBrowser == null) return;
-
                 object listAreaSource = lastInteractedBrowser.GetFieldValue("m_ListArea");
                 object listAreaDest = window.GetFieldValue("m_ListArea");
 
@@ -414,39 +411,26 @@ public class TabifyGUI
                     listAreaDest.SetPropertyValue("gridSize", listAreaSource.GetPropertyValue("gridSize"));
             }
 
-            void setSavedLayout()
+            if (tabInfo.isLayoutSaved)
             {
-                if (!tabInfo.isLayoutSaved) return;
-
                 var layoutEnum = Enum.ToObject(
-                    enumType: t_ProjectBrowser.GetField("m_ViewMode", bindingAttr: maxBindingFlags).FieldType,
+                    enumType: ProjectBrowserType.GetField("m_ViewMode", bindingAttr: maxBindingFlags).FieldType,
                     value: tabInfo.savedLayout);
 
                 window.InvokeMethod("SetViewMode", layoutEnum);
             }
 
-            void setLastUsedLayout()
-            {
-                if (tabInfo.isLayoutSaved) return;
-                if (lastInteractedBrowser == null) return;
-
+            if (!tabInfo.isLayoutSaved && lastInteractedBrowser != null)
                 window.InvokeMethod("SetViewMode", lastInteractedBrowser.GetMemberValue("m_ViewMode"));
-            }
 
-            void setLastUsedListWidth()
-            {
-                if (lastInteractedBrowser == null) return;
-
+            if (lastInteractedBrowser != null)
                 window.SetFieldValue("m_DirectoriesAreaWidth",
                     lastInteractedBrowser.GetFieldValue("m_DirectoriesAreaWidth"));
-            }
 
-            void lockToFolder_twoColumns()
+            if (tabInfo.isLocked &&
+                window.GetMemberValue<int>("m_ViewMode") == 1 &&
+                !tabInfo.folderGuid.IsNullOrEmpty())
             {
-                if (!tabInfo.isLocked) return;
-                if (window.GetMemberValue<int>("m_ViewMode") != 1) return;
-                if (tabInfo.folderGuid.IsNullOrEmpty()) return;
-
                 int iid = AssetDatabase.
                     LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(guid: tabInfo.folderGuid)).
                     GetInstanceID();
@@ -457,22 +441,20 @@ public class TabifyGUI
                         iid
                     });
 
-                t_ProjectBrowser.InvokeMethod("OpenSelectedFolders");
+                ProjectBrowserType.InvokeMethod("OpenSelectedFolders");
 
                 window.SetPropertyValue("isLocked", true);
             }
 
-            void lockToFolder_oneColumn()
+            if (tabInfo.isLocked &&
+                window.GetMemberValue<int>("m_ViewMode") == 0 &&
+                !tabInfo.folderGuid.IsNullOrEmpty() &&
+                window.GetMemberValue("m_AssetTree") is { } m_AssetTree &&
+                m_AssetTree.GetMemberValue("data") is { } data)
             {
-                if (!tabInfo.isLocked) return;
-                if (window.GetMemberValue<int>("m_ViewMode") != 0) return;
-                if (tabInfo.folderGuid.IsNullOrEmpty()) return;
-
-                if (window.GetMemberValue("m_AssetTree") is not { } m_AssetTree) return;
-                if (m_AssetTree.GetMemberValue("data") is not { } data) return;
-
                 string folderPath = tabInfo.folderGuid.ToPath();
-                int folderIid = AssetDatabase.LoadAssetAtPath<Object>(assetPath: folderPath).GetInstanceID();
+                int folderIid = AssetDatabase.LoadAssetAtPath<Object>(assetPath: folderPath).
+                    GetInstanceID();
 
                 data.SetMemberValue("m_rootInstanceID", (EntityId)folderIid);
 
@@ -483,65 +465,42 @@ public class TabifyGUI
                 window.SetPropertyValue("isLocked", true);
             }
 
-            window.InvokeMethod("Init");
-
-            setSavedGridSize();
-            setLastUsedGridSize();
-
-            setSavedLayout();
-            setLastUsedLayout();
-
-            setLastUsedListWidth();
-
-            lockToFolder_twoColumns();
-            lockToFolder_oneColumn();
-
             UpdateTitle(window: window);
         }
 
-        void setupPropertyEditor()
+        if (tabInfo.isPropertyEditor)
         {
-            if (!tabInfo.isPropertyEditor) return;
-
             Object lockTo = tabInfo.globalId.GetObject();
 
             if (tabInfo.lockedPrefabAssetObject)
                 lockTo = tabInfo.
                     lockedPrefabAssetObject; // globalId api doesn't work for prefab asset objects, so we use direct object reference in such cases
 
-            if (!lockTo) return;
+            if (lockTo)
+            {
+                window.GetMemberValue("tracker").
+                    InvokeMethod("SetObjectsLockedByThisTracker", new List<Object>
+                    {
+                        lockTo
+                    });
 
-            window.GetMemberValue("tracker").InvokeMethod("SetObjectsLockedByThisTracker", new List<Object> { lockTo });
+                if (StageUtility.GetCurrentStage() is PrefabStage && tabInfo.globalId.isNull)
+                    window.SetMemberValue("m_GlobalObjectId", GlobalID.GetForPrefabStageObject(o: lockTo).ToString());
+                else
+                    window.SetMemberValue("m_GlobalObjectId", tabInfo.globalId.ToString());
 
-            if (StageUtility.GetCurrentStage() is PrefabStage && tabInfo.globalId.isNull)
-                window.SetMemberValue("m_GlobalObjectId", GlobalID.GetForPrefabStageObject(o: lockTo).ToString());
-            else
-                window.SetMemberValue("m_GlobalObjectId", tabInfo.globalId.ToString());
+                window.SetMemberValue("m_InspectedObject", val: lockTo);
 
-            window.SetMemberValue("m_InspectedObject", val: lockTo);
-
-            UpdateTitle(window: window);
+                UpdateTitle(window: window);
+            }
         }
 
-        void setCustomEditorWindowTitle()
-        {
-            if (window.titleContent.text != window.GetType().FullName) return;
-            if (tabInfo.originalTitle.IsNullOrEmpty()) return;
-
+        if (window.titleContent.text == window.GetType().FullName && !tabInfo.originalTitle.IsNullOrEmpty())
             window.titleContent.text = tabInfo.originalTitle;
 
-            // custom EditorWindows often have their titles set in EditorWindow.GetWindow
-            // and when such windows are created via ScriptableObject.CreateInstance, their titles default to window type name
-            // so we have to set original window title in such cases
-        }
-
-        notifyVFavorites();
-        addToDockArea();
-
-        setupBrowser();
-        setupPropertyEditor();
-
-        setCustomEditorWindowTitle();
+        // custom EditorWindows often have their titles set in EditorWindow.GetWindow
+        // and when such windows are created via ScriptableObject.CreateInstance, their titles default to window type name
+        // so we have to set original window title in such cases
 
         window.Focus();
         return window;
@@ -588,7 +547,6 @@ public class TabifyGUI
 
         float targScrollPos = GetTargetScrollPosition();
 
-        // var animationSpeed = 1f;
         var animationSpeed = 7f;
 
         float newScrollPos = MathUtil.SmoothDamp(current: curScrollPos, target: targScrollPos, speed: animationSpeed,
@@ -680,10 +638,12 @@ public class TabifyGUI
     {
         bool isLocked(EditorWindow window)
         {
-            if (window.GetType() == t_SceneHierarchyWindow)
+            var t = window.GetType();
+
+            if (t == SceneHierarchyWindowType)
                 return window.GetMemberValue("m_SceneHierarchy").GetMemberValue<bool>("isLocked");
 
-            if (window.GetType() == t_InspectorWindow)
+            if (t == InspectorWindowType)
                 return window.GetMemberValue<bool>("isLocked");
 
             return false;

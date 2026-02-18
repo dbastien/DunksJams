@@ -1,12 +1,8 @@
 #if UNITY_EDITOR
 
-#region
-
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-
-#endregion
 
 [FilePath("Library/Tabify Cache.asset", location: FilePathAttribute.Location.ProjectFolder)]
 public class TabifyCache : ScriptableSingleton<TabifyCache>

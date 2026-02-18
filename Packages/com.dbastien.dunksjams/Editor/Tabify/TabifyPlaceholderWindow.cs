@@ -1,7 +1,5 @@
 #if UNITY_EDITOR
 
-#region
-
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -10,8 +8,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static EditorGUIUtil;
 using static Tabify;
-
-#endregion
 
 public class TabifyPlaceholderWindow : EditorWindow
 {
@@ -22,105 +18,78 @@ public class TabifyPlaceholderWindow : EditorWindow
 
     private void OnGUI()
     {
-        // GUILayout.Label(objectGlobalID.ToString());
-        // GUILayout.Label(objectGlobalID.guid.ToPath());
-
-        // if (isSceneObject)
-        //     GUILayout.Label("scene object");
-
-        // if (isPrefabObject)
-        //     GUILayout.Label("prefab object");
-
         var fontSize = 13;
         string assetName = objectGlobalID.guid.ToPath().GetFilename();
         Texture assetIcon = AssetDatabase.GetCachedIcon(objectGlobalID.guid.ToPath());
 
-        void Label()
-        {
-            GUI.skin.label.fontSize = fontSize;
-
-            GUILayout.Label("This object is from      " + assetName + ", which isn't loaded");
-
-            Rect iconRect = lastRect.MoveX("This object is from".GetLabelWidth()).
-                SetWidth(20).
-                SetSizeFromMid(16).
-                MoveX(.5f);
-
-            GUI.DrawTexture(position: iconRect, image: assetIcon);
-
-            GUI.skin.label.fontSize = 0;
-        }
-
-        void Button()
-        {
-            GUI.skin.button.fontSize = fontSize;
-
-            string buttonText = "Load      " + assetName;
-
-            if (GUILayout.Button(text: buttonText, GUILayout.Height(30),
-                    GUILayout.Width(buttonText.GetLabelWidth(fontSize: fontSize) + 34)))
-                if (isPrefabObject)
-                    PrefabStageUtility.OpenPrefab(objectGlobalID.guid.ToPath());
-                else if (isSceneObject)
-                    EditorSceneManager.OpenScene(objectGlobalID.guid.ToPath());
-
-            Rect iconRect = lastRect.MoveX("Load".GetLabelWidth()).SetWidth(20).SetSizeFromMid(16).MoveX(23 - 3);
-
-            GUI.DrawTexture(position: iconRect, image: assetIcon);
-
-            GUI.skin.button.fontSize = 0;
-        }
-
         GUILayout.Space(15);
-        // BeginIndent(10);
         GUILayout.BeginHorizontal();
         GUILayout.Space(10);
         GUILayout.BeginVertical();
 
-        Label();
+        GUI.skin.label.fontSize = fontSize;
+
+        GUILayout.Label("This object is from      " + assetName + ", which isn't loaded");
+
+        Rect iconRect1 = lastRect.MoveX("This object is from".GetLabelWidth()).
+            SetWidth(20).
+            SetSizeFromMid(16).
+            MoveX(.5f);
+
+        GUI.DrawTexture(position: iconRect1, image: assetIcon);
+
+        GUI.skin.label.fontSize = 0;
 
         Space(10);
-        Button();
+        GUI.skin.button.fontSize = fontSize;
+
+        string buttonText = "Load      " + assetName;
+
+        if (GUILayout.Button(text: buttonText, GUILayout.Height(30),
+                GUILayout.Width(buttonText.GetLabelWidth(fontSize: fontSize) + 34)))
+            if (isPrefabObject)
+                PrefabStageUtility.OpenPrefab(objectGlobalID.guid.ToPath());
+            else if (isSceneObject)
+                EditorSceneManager.OpenScene(objectGlobalID.guid.ToPath());
+
+        Rect iconRect = lastRect.MoveX("Load".GetLabelWidth()).SetWidth(20).SetSizeFromMid(16).MoveX(23 - 3);
+
+        GUI.DrawTexture(position: iconRect, image: assetIcon);
+
+        GUI.skin.button.fontSize = 0;
 
         GUILayout.EndVertical();
         GUILayout.EndHorizontal();
 
-        void TryLoadPrefabObject()
+        if (isPrefabObject &&
+            StageUtility.GetCurrentStage() is PrefabStage prefabStage &&
+            prefabStage.assetPath == objectGlobalID.guid.ToPath() &&
+            objectGlobalID.GetObject() is { } prefabAssetObject)
         {
-            if (!isPrefabObject) return;
-            if (StageUtility.GetCurrentStage() is not PrefabStage prefabStage) return;
-            if (prefabStage.assetPath != objectGlobalID.guid.ToPath()) return;
-
-            if (objectGlobalID.GetObject() is not { } prefabAssetObject) return;
-
             if (prefabAssetObject is Component assetComponent)
                 if (prefabStage.prefabContentsRoot.GetComponentsInChildren(assetComponent.GetType()).
-                        FirstOrDefault(r => GlobalID.GetForPrefabStageObject(o: r) == objectGlobalID) is { } instanceComoponent)
-                    CloseAndOpenPropertyEditor(o: instanceComoponent);
+                        FirstOrDefault(r => GlobalID.GetForPrefabStageObject(o: r) == objectGlobalID) is
+                    { } instanceComponent)
+                    CloseAndOpenPropertyEditor(o: instanceComponent);
 
             if (prefabAssetObject is GameObject assetGo)
                 if (prefabStage.prefabContentsRoot.GetComponentsInChildren<Transform>().
                         Select(r => r.gameObject).
-                        FirstOrDefault(r => GlobalID.GetForPrefabStageObject(o: r) == objectGlobalID) is { } isntanceGo)
-                    CloseAndOpenPropertyEditor(o: isntanceGo);
+                        FirstOrDefault(r => GlobalID.GetForPrefabStageObject(o: r) == objectGlobalID) is
+                    { } instanceGo)
+                    CloseAndOpenPropertyEditor(o: instanceGo);
         }
 
-        void TryLoadSceneObject()
-        {
-            if (!isSceneObject) return;
+        if (!isSceneObject) return;
 
-            IEnumerable<Scene> loadedScenes = Enumerable.Range(0, count: EditorSceneManager.sceneCount).
-                Select(i => EditorSceneManager.GetSceneAt(index: i)).
-                Where(r => r.isLoaded);
-            if (!loadedScenes.Any(r => r.path == objectGlobalID.guid.ToPath())) return;
+        IEnumerable<Scene> loadedScenes = Enumerable.Range(0, count: EditorSceneManager.sceneCount).
+            Select(i => EditorSceneManager.GetSceneAt(index: i)).
+            Where(r => r.isLoaded);
+        if (!loadedScenes.Any(r => r.path == objectGlobalID.guid.ToPath())) return;
 
-            if (objectGlobalID.GetObject() is not { } loadedObject) return;
+        if (objectGlobalID.GetObject() is not { } loadedObject) return;
 
-            CloseAndOpenPropertyEditor(o: loadedObject);
-        }
-
-        TryLoadPrefabObject();
-        TryLoadSceneObject();
+        CloseAndOpenPropertyEditor(o: loadedObject);
     }
 
     public void CloseAndOpenPropertyEditor(Object o)
@@ -133,7 +102,7 @@ public class TabifyPlaceholderWindow : EditorWindow
             originalTabIndex = tabIndex
         };
 
-        guis_byDockArea[key: dockArea].AddTab(tabInfo: tabInfo, true);
+        GuisByDockArea[key: dockArea].AddTab(tabInfo: tabInfo, true);
 
         Close();
     }

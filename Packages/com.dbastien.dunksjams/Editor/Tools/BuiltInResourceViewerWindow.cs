@@ -165,8 +165,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
 
         foreach (Object oo in objects)
         {
-            var texture = (Texture)oo;
-
+            if (oo is not Texture texture) continue;
             if (texture.name == string.Empty) continue;
 
             var draw = new Drawing();

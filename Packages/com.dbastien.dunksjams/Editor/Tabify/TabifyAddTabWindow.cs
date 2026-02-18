@@ -1,7 +1,5 @@
 #if UNITY_EDITOR
 
-#region
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,8 +12,6 @@ using static Tabify;
 using static EditorGUIUtil;
 using static ColorExtensions;
 using SearchField = UnityEditor.IMGUI.Controls.SearchField;
-
-#endregion
 
 public class TabifyAddTabWindow : EditorWindow
 {
@@ -147,7 +143,7 @@ public class TabifyAddTabWindow : EditorWindow
         // Outline (non-Mac only)
         if (Application.platform != RuntimePlatform.OSXEditor) position.SetPos(0, 0).DrawOutline(Greyscale(.1f));
 
-        if (draggingBookmark || animatingDroppedBookmark || animatingGaps)
+        if (curEvent.type == EventType.MouseMove || draggingBookmark || animatingDroppedBookmark || animatingGaps)
             Repaint();
     }
 
@@ -398,8 +394,6 @@ public class TabifyAddTabWindow : EditorWindow
             curEvent.Use();
             EditorGUIUtility.hotControl = 0;
 
-            // DragAndDrop.PrepareStartDrag(); // fixes phantom dragged component indicator after reordering bookmarks
-
             this.RecordUndo();
 
             draggingBookmark = false;
@@ -578,7 +572,7 @@ public class TabifyAddTabWindow : EditorWindow
 
             allEntries.Add(new()
             {
-                name = "Test Runnder", iconName = "",
+                name = "Test Runner", iconName = "",
                 typeString =
                     "UnityEditor.TestTools.TestRunner.TestRunnerWindow, UnityEditor.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
             });
@@ -636,7 +630,6 @@ public class TabifyAddTabWindow : EditorWindow
 
                 "Lighting",
                 "Light Explorer",
-                // "Viewer",
                 "Occlusion",
 
                 "UI Toolkit Debugger",
@@ -656,7 +649,7 @@ public class TabifyAddTabWindow : EditorWindow
         }
 
         // Remember all open tabs
-        foreach (EditorWindow window in allEditorWindows)
+        foreach (EditorWindow window in AllEditorWindows)
             RememberWindow(window: window);
 
         // Remove blacklisted
@@ -670,9 +663,9 @@ public class TabifyAddTabWindow : EditorWindow
     public static void RememberWindow(EditorWindow window)
     {
         if (!window.docked) return;
-        if (window.GetType() == t_PropertyEditor) return;
-        if (window.GetType() == t_InspectorWindow) return;
-        if (window.GetType() == t_ProjectBrowser) return;
+        if (window.GetType() == PropertyEditorType) return;
+        if (window.GetType() == InspectorWindowType) return;
+        if (window.GetType() == ProjectBrowserType) return;
 
         string typeString = window.GetType().AssemblyQualifiedName;
 
@@ -711,6 +704,7 @@ public class TabifyAddTabWindow : EditorWindow
 
     private void OnEnable()
     {
+        wantsMouseMove = true;
         UpdateAllEntries();
         GetBookmarkedEntries();
     }
@@ -901,24 +895,23 @@ public class TabifyAddTabWindow : EditorWindow
     {
         instance = CreateInstance<TabifyAddTabWindow>();
 
-        instance.ShowPopup();
-        instance.Focus();
-
-        TabifyGUI gui = guis_byDockArea[key: dockArea];
+        TabifyGUI gui = GuisByDockArea[key: dockArea];
 
         var windowRect = dockArea.GetMemberValue("actualView").GetMemberValue<Rect>("position");
 
         Vector2 lastTabEndPosition = windowRect.position +
                                      Vector2.right * gui.tabEndPositions.Last().ClampMax(windowRect.width - 30);
 
-        var width = 161;
-        var height = 276;
+        const int width = 161;
+        const int height = 276;
+        const int offsetX = -26;
+        const int offsetY = 24;
 
-        int offsetX = -26;
-        var offsetY = 24;
+        // Set position before ShowPopup so the OS window is created at the right place, not at 0,0 first
+        instance.position = new Rect(lastTabEndPosition.x + offsetX, lastTabEndPosition.y + offsetY, width, height);
 
-        instance.position = instance.position.SetPos(lastTabEndPosition + new Vector2(x: offsetX, y: offsetY)).
-            SetSize(w: width, h: height);
+        instance.ShowPopup();
+        instance.Focus();
 
         instance.dockArea = dockArea;
 

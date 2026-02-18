@@ -1,12 +1,8 @@
 #if UNITY_EDITOR
 
-#region
-
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
-
-#endregion
 
 public static class TabifyMenu
 {
@@ -49,10 +45,6 @@ public static class TabifyMenu
         get => EditorPrefsCached.GetInt("tabify-backgroundStyle");
         set => EditorPrefsCached.SetInt("tabify-backgroundStyle", value: value);
     }
-
-    public static bool DefaultBackgroundEnabled => backgroundStyle == 0 || !Application.unityVersion.StartsWith("6000");
-    public static bool ClassicBackgroundEnabled => backgroundStyle == 1 && Application.unityVersion.StartsWith("6000");
-    public static bool GreyBackgroundEnabled => backgroundStyle == 2 && Application.unityVersion.StartsWith("6000");
 
     public static bool switchTabShortcutEnabled
     {
@@ -102,7 +94,7 @@ public static class TabifyMenu
         set => EditorPrefsCached.SetBool("tabify-pluginDisabled", value: value);
     }
 
-    private const string dir = "Tools/Tabify/";
+    private const string dir = "‽/Tabify/";
     private const string cmd = "Ctrl";
 
     private const string dragndrop = dir + "Create tabs with Drag-and-Drop";
@@ -175,13 +167,10 @@ public static class TabifyMenu
         return !pluginDisabled;
     }
 
-#if UNITY_6000_0_OR_NEWER
-
     [MenuItem(itemName: defaultTabStyle, false, 8)]
     private static void SetDefaultTabStyle()
     {
         tabStyle = 0;
-        Tabify.UpdateStyleSheet();
     }
 
     [MenuItem(itemName: defaultTabStyle, true, 8)]
@@ -195,7 +184,6 @@ public static class TabifyMenu
     private static void SetLargeTabStyle()
     {
         tabStyle = 1;
-        Tabify.UpdateStyleSheet();
     }
 
     [MenuItem(itemName: largeTabs, true, 9)]
@@ -209,7 +197,6 @@ public static class TabifyMenu
     private static void SetNeatTabStyle()
     {
         tabStyle = 2;
-        Tabify.UpdateStyleSheet();
     }
 
     [MenuItem(itemName: neatTabs, true, 10)]
@@ -220,11 +207,7 @@ public static class TabifyMenu
     }
 
     [MenuItem(itemName: defaultBackgroundStyle, false, 11)]
-    private static void SetDefaultBackgroundStyle()
-    {
-        backgroundStyle = 0;
-        Tabify.UpdateStyleSheet();
-    }
+    private static void SetDefaultBackgroundStyle() => backgroundStyle = 0;
 
     [MenuItem(itemName: defaultBackgroundStyle, true, 11)]
     private static bool ValidateDefaultBackgroundStyle()
@@ -234,22 +217,24 @@ public static class TabifyMenu
     }
 
     [MenuItem(itemName: classicBackground, false, 12)]
-    private static void SetClassicBackgroundStyle()
-    {
-        backgroundStyle = 1;
-        Tabify.UpdateStyleSheet();
-    }
+    private static void SetClassicBackground() => backgroundStyle = 1;
 
     [MenuItem(itemName: classicBackground, true, 12)]
-    private static bool ValidateClassicBackgroundStyle()
+    private static bool ValidateClassicBackground()
     {
         Menu.SetChecked(menuPath: classicBackground, backgroundStyle == 1);
         return !pluginDisabled;
     }
 
-    // [MenuItem(greyBackground, false, 12)] static void SetGreyBackgroundStyle() { backgroundStyle = 2; Tabify.UpdateStyleSheet(); }
-    // [MenuItem(greyBackground, true, 12)] static bool ValidateGreyBackgroundStyle() { Menu.SetChecked(greyBackground, backgroundStyle == 2); return !pluginDisabled; }
-#endif
+    [MenuItem(itemName: greyBackground, false, 13)]
+    private static void SetGreyBackground() => backgroundStyle = 2;
+
+    [MenuItem(itemName: greyBackground, true, 13)]
+    private static bool ValidateGreyBackground()
+    {
+        Menu.SetChecked(menuPath: greyBackground, backgroundStyle == 2);
+        return !pluginDisabled;
+    }
 
     [MenuItem(dir + "Shortcuts", false, 101)]
     private static void ShortcutsHeader() { }
@@ -304,7 +289,6 @@ public static class TabifyMenu
     private static void ToggleDisablePlugin()
     {
         pluginDisabled = !pluginDisabled;
-        Tabify.UpdateStyleSheet();
         CompilationPipeline.RequestScriptCompilation();
     }
 
