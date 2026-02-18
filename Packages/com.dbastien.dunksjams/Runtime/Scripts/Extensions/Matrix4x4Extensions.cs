@@ -3,15 +3,9 @@ using UnityEngine;
 
 public static class Matrix4X4Extensions
 {
-    /// <summary>Creates a matrix for transforming an RGB color in HSV space</summary>
-    /// <param name="h">Hue shift in degrees</param>
-    /// <param name="s">Saturation multiplier</param>
-    /// <param name="v">Value multiplier</param>
-    /// <returns>Matrix for transforming an RGB color in HSV space</returns>
     public static Matrix4x4 CreateHSVTransform(float h, float s, float v)
     {
-        float hr = -h * MathConsts.Tau_Div4;
-        //float hr = h * Mathf.Deg2Rad;
+        float hr = -h * Mathf.Deg2Rad;
 
         float vsu = v * s * MathF.Cos(hr);
         float vsw = v * s * MathF.Sin(hr);
@@ -30,7 +24,7 @@ public static class Matrix4X4Extensions
             m12 = .587f * v - .588f * vsu - 1.05f * vsw,
             m22 = .114f * v + .886f * vsu - .203f * vsw,
 
-            m33 = 1
+            m33 = 1f
         };
     }
 
@@ -82,44 +76,55 @@ public static class Matrix4X4Extensions
     public static Matrix4x4 CreateGrayscaleTransform()
     {
         Matrix4x4 m = default;
-        m.m00 = m.m01 = m.m02 = 0.299f; // R
-        m.m10 = m.m11 = m.m12 = 0.587f; // G
-        m.m20 = m.m21 = m.m22 = 0.114f; // B
+        m.m00 = m.m01 = m.m02 = 0.299f;
+        m.m10 = m.m11 = m.m12 = 0.587f;
+        m.m20 = m.m21 = m.m22 = 0.114f;
         m.m33 = 1f;
         return m;
     }
 
     public static Matrix4x4 CreateSepiaFilter()
     {
-        Matrix4x4 m = new()
+        return new Matrix4x4
         {
             m00 = 0.393f, m01 = 0.349f, m02 = 0.272f,
             m10 = 0.769f, m11 = 0.686f, m12 = 0.534f,
             m20 = 0.189f, m21 = 0.168f, m22 = 0.131f,
             m33 = 1f
         };
-        return m;
     }
 
-    public static Vector2 TransformVector2D(this Matrix4x4 m, Vector2 v) =>
-        new(v.x * m.m00 + v.y * m.m10,
-            v.x * m.m01 + v.y * m.m11);
+    public static Vector2 TransformVector2D(this Matrix4x4 m, Vector2 v)
+    {
+        Vector3 r = m.MultiplyVector(new Vector3(v.x, v.y, 0f));
+        return new Vector2(r.x, r.y);
+    }
 
-    public static Vector2 TransformPoint2D(this Matrix4x4 m, Vector2 v) =>
-        new(v.x * m.m00 + v.y * m.m10 + m.m03,
-            v.x * m.m01 + v.y * m.m11 + m.m13);
+    public static Vector2 TransformPoint2D(this Matrix4x4 m, Vector2 v)
+    {
+        Vector3 r = m.MultiplyPoint3x4(new Vector3(v.x, v.y, 0f));
+        return new Vector2(r.x, r.y);
+    }
 
     public static Matrix4x4 CreateScaleRotationTranslation2D(Vector2 scale, float radians, Vector2 translation)
     {
-        float cos = MathF.Cos(radians);
-        float sin = MathF.Sin(radians);
+        float c = MathF.Cos(radians);
+        float s = MathF.Sin(radians);
 
-        return new Matrix4x4
-        {
-            m00 = scale.x * cos, m01 = scale.y * -sin, m03 = translation.x,
-            m10 = scale.x * sin, m11 = scale.y * cos, m13 = translation.y,
-            m22 = 1, // Z-axis scale
-            m33 = 1 // Homogeneous coordinate
-        };
+        Matrix4x4 m = Matrix4x4.identity;
+
+        m.m00 = c * scale.x;
+        m.m10 = s * scale.x;
+
+        m.m01 = -s * scale.y;
+        m.m11 = c * scale.y;
+
+        m.m03 = translation.x;
+        m.m13 = translation.y;
+
+        m.m22 = 1f;
+        m.m33 = 1f;
+
+        return m;
     }
 }
