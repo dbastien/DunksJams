@@ -26,11 +26,11 @@ public class TabifyGUI
         {
             Rect buttonRect1 = stripRect
                 .SetX(tabEndPositions.Last())
-                .SetWidth(24)
-                .SetHeight(24)
-                .SetMidPos(
-                    tabEndPositions.Last() + (TabifyMenu.neatTabStyleEnabled ? 12 : 13) + 12,
-                    stripRect.center.y);
+                .SetY(stripRect.y)
+                .SetWidth(0)
+                .SetHeight(stripRect.height)
+                .SetSizeFromMid(24)
+                .MoveX(TabifyMenu.neatTabStyleEnabled ? 12 : 13);
 
             float distToRight = stripRect.xMax - buttonRect1.xMax;
 
