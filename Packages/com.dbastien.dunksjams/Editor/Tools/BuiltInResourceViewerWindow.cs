@@ -7,11 +7,7 @@ using Object = UnityEngine.Object;
 public class BuiltInResourceViewerWindow : EditorWindow
 {
     [MenuItem("‽/Built-in Assets Viewer Window")]
-    public static void ShowWindow()
-    {
-        var w = GetWindow<BuiltInResourceViewerWindow>();
-        w.Show();
-    }
+    public static void ShowWindow() => GetWindow<BuiltInResourceViewerWindow>().Show();
 
     private struct Drawing
     {
@@ -19,217 +15,258 @@ public class BuiltInResourceViewerWindow : EditorWindow
         public Action Draw;
     }
 
+    private readonly GUIContent inactiveText = new("inactive");
+    private readonly GUIContent activeText = new("active");
+
+    private const float ToolbarPad = 4f;
+    private const float XPad = 32f;
+    private const float XMin = 5f;
+    private const float YMin = 5f;
+
     private List<Drawing> drawings;
+    private List<Object> textures;
 
-    private List<Object> objects;
-    private float scrollPos;
-    private float maxY;
-    private Rect oldPosition;
+    private Vector2 scrollPos;
+    private float contentHeight;
 
-    private bool showingStyles = true;
+    private Rect lastWindowRect;
+    private bool showingIcons = true;
 
-    private GUIContent inactiveText = new("inactive");
-    private GUIContent activeText = new("active");
-
-    private const float toolbarPad = 4.0f;
-    private const float scrollbarWidth = 16.0f;
-    private const float xPad = 32.0f;
-    private const float xMin = 5.0f;
-    private const float yMin = 5.0f;
-
-    public void OnGUI()
+    private void OnGUI()
     {
-        if (position.width != oldPosition.width && Event.current.type == EventType.Layout)
-        {
-            drawings = null;
-            oldPosition = position;
-        }
+        DrawToolbar();
 
-        GUILayout.BeginHorizontal(EditorStyles.toolbar);
+        var scrollArea = GetScrollAreaRect();
 
-        if (GUILayout.Toggle(showingStyles, "Icons", EditorStyles.toolbarButton) != showingStyles)
-        {
-            showingStyles = !showingStyles;
-            drawings = null;
-        }
+        EnsureLayout(scrollArea.width);
 
-        if (GUILayout.Toggle(!showingStyles, "Styles", EditorStyles.toolbarButton) == showingStyles)
-        {
-            showingStyles = !showingStyles;
-            drawings = null;
-        }
-
-        GUILayout.EndHorizontal();
-
-        float top = GUILayoutUtility.GetLastRect().yMax + toolbarPad;
-
-        if (drawings == null)
-        {
-            drawings = new List<Drawing>();
-
-            float contentWidth = position.width - scrollbarWidth;
-            maxY = showingStyles ? ShowStyles(contentWidth) : ShowIcons(contentWidth);
-        }
-
-        Rect r = position;
-        r.y = top;
-        r.height -= r.y;
-        r.x = r.width - scrollbarWidth;
-        r.width = scrollbarWidth;
-
-        float areaHeight = position.height - top;
-        float scrollMax = Mathf.Max(maxY, areaHeight);
-        scrollPos = GUI.VerticalScrollbar(r, scrollPos, areaHeight, 0f, scrollMax);
-        scrollPos = Mathf.Clamp(scrollPos, 0f, Mathf.Max(0f, maxY - areaHeight));
-
-        var area = new Rect(0, top, position.width - scrollbarWidth, areaHeight);
-        GUILayout.BeginArea(area);
-
-        var count = 0;
-        foreach (Drawing draw in drawings)
-        {
-            Rect newRect = draw.Rect;
-            newRect.y -= scrollPos;
-
-            if (newRect.y + newRect.height > 0 && newRect.y < areaHeight)
-            {
-                GUILayout.BeginArea(newRect, GUI.skin.textField);
-                draw.Draw();
-                GUILayout.EndArea();
-
-                ++count;
-            }
-        }
-
-        GUILayout.EndArea();
+        DrawScrollArea(scrollArea);
     }
 
-    private float ShowStyles(float availableWidth)
+    private void DrawToolbar()
     {
-        float x = xMin;
-        float y = yMin;
-        const float height = 60f;
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-        foreach (GUIStyle ss in GUI.skin.customStyles)
+        bool iconsPressed = GUILayout.Toggle(showingIcons, "Icons", EditorStyles.toolbarButton);
+        bool stylesPressed = GUILayout.Toggle(!showingIcons, "Styles", EditorStyles.toolbarButton);
+
+        bool nextShowingIcons = showingIcons;
+
+        if (iconsPressed != showingIcons) nextShowingIcons = true;
+        else if (stylesPressed == showingIcons) nextShowingIcons = false;
+
+        if (nextShowingIcons != showingIcons)
         {
-            GUIStyle thisStyle = ss;
-
-            var draw = new Drawing();
-
-            float width = Mathf.Max(100f,
-                              GUI.skin.button.CalcSize(new GUIContent(ss.name)).x,
-                              ss.CalcSize(inactiveText, activeText).x) +
-                          16f;
-
-            if (x + width > availableWidth - xPad && x > xMin)
-            {
-                x = xMin;
-                y += height + 10f;
-            }
-
-            draw.Rect = new Rect(x, y, width, height);
-
-            width -= 8f;
-
-            draw.Draw = () =>
-            {
-                if (GUILayout.Button(thisStyle.name, GUILayout.Width(width)))
-                    CopyText("(GUIStyle)\"" + thisStyle.name + "\"");
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Toggle(false, inactiveText, thisStyle, GUILayout.Width(width * 0.5f));
-                GUILayout.Toggle(false, activeText, thisStyle, GUILayout.Width(width * 0.5f));
-                GUILayout.EndHorizontal();
-            };
-
-            x += width + 18.0f;
-
-            drawings.Add(draw);
+            showingIcons = nextShowingIcons;
+            InvalidateLayout(resetScroll: true);
         }
 
-        return y + height + yMin;
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
     }
 
-    private float ShowIcons(float availableWidth)
+    private Rect GetScrollAreaRect()
     {
-        float x = xMin;
-        float y = yMin;
+        float top = GUILayoutUtility.GetLastRect().yMax + ToolbarPad;
+        return new Rect(0f, top, position.width, position.height - top);
+    }
 
-        if (objects == null)
+    private void EnsureLayout(float availableWidth)
+    {
+        bool windowSizeChanged =
+            !Mathf.Approximately(position.width, lastWindowRect.width) ||
+            !Mathf.Approximately(position.height, lastWindowRect.height);
+
+        if (windowSizeChanged && Event.current.type == EventType.Layout)
         {
-            objects = new List<Object>(Resources.FindObjectsOfTypeAll(typeof(Texture2D)));
-            objects.Sort((pA, pB) => string.Compare(pA.name, pB.name, StringComparison.OrdinalIgnoreCase));
+            lastWindowRect = position;
+            InvalidateLayout(resetScroll: false);
         }
 
-        var rowHeight = 0f;
+        if (drawings != null) return;
 
-        foreach (Object oo in objects)
+        drawings = new List<Drawing>(2048);
+
+        float contentWidth = Mathf.Max(0f, availableWidth);
+        contentHeight = showingIcons ? BuildIcons(contentWidth) : BuildStyles(contentWidth);
+    }
+
+    private void InvalidateLayout(bool resetScroll)
+    {
+        drawings = null;
+
+        if (resetScroll)
+            scrollPos = Vector2.zero;
+    }
+
+    private void DrawScrollArea(Rect scrollArea)
+    {
+        if (scrollArea.width <= 0f || scrollArea.height <= 0f) return;
+
+        float contentWidth = scrollArea.width - 1f;
+        var contentRect = new Rect(0f, 0f, contentWidth, Mathf.Max(contentHeight, scrollArea.height));
+
+        scrollPos = GUI.BeginScrollView(scrollArea, scrollPos, contentRect, false, true);
+
+        float visibleTop = scrollPos.y;
+        float visibleBottom = scrollPos.y + scrollArea.height;
+
+        for (int i = 0; i < drawings.Count; i++)
         {
-            if (oo is not Texture texture) continue;
-            if (texture.name == string.Empty) continue;
+            var d = drawings[i];
 
-            var draw = new Drawing();
+            float y0 = d.Rect.y;
+            float y1 = d.Rect.y + d.Rect.height;
 
-            Vector2 textureNameSize = GUI.skin.button.CalcSize(new GUIContent(texture.name));
-            var textureSize = new Vector2(texture.width, texture.height);
+            if (y1 < visibleTop || y0 > visibleBottom)
+                continue;
 
-            //don't scale if very vertical
-            float aspect = textureSize.x / textureSize.y;
+            // IMPORTANT: use GUILayout.BeginArea so GUILayout calls inside d.Draw()
+            // compute rects in the correct local layout context.
+            GUILayout.BeginArea(d.Rect, GUI.skin.textField);
+            d.Draw();
+            GUILayout.EndArea();
+        }
+
+        GUI.EndScrollView();
+    }
+
+    private float BuildStyles(float availableWidth)
+    {
+        float x = XMin;
+        float y = YMin;
+        const float tileHeight = 60f;
+
+        foreach (GUIStyle style in GUI.skin.customStyles)
+        {
+            GUIStyle thisStyle = style;
+
+            float tileWidth = Mathf.Max(
+                100f,
+                GUI.skin.button.CalcSize(new GUIContent(thisStyle.name)).x,
+                thisStyle.CalcSize(inactiveText, activeText).x
+            ) + 16f;
+
+            if (x + tileWidth > availableWidth - XPad && x > XMin)
+            {
+                x = XMin;
+                y += tileHeight + 10f;
+            }
+
+            var rect = new Rect(x, y, tileWidth, tileHeight);
+            float innerWidth = tileWidth - 8f;
+
+            drawings.Add(new Drawing
+            {
+                Rect = rect,
+                Draw = () =>
+                {
+                    GUILayout.BeginVertical();
+
+                    if (GUILayout.Button(thisStyle.name, GUILayout.Width(innerWidth)))
+                        CopyText("(GUIStyle)\"" + thisStyle.name + "\"");
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Toggle(false, inactiveText, thisStyle, GUILayout.Width(innerWidth * 0.5f));
+                    GUILayout.Toggle(false, activeText, thisStyle, GUILayout.Width(innerWidth * 0.5f));
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.EndVertical();
+                }
+            });
+
+            x += tileWidth + 18f;
+        }
+
+        return y + tileHeight + YMin;
+    }
+
+    private float BuildIcons(float availableWidth)
+    {
+        float x = XMin;
+        float y = YMin;
+
+        EnsureTextureList();
+
+        float rowHeight = 0f;
+
+        foreach (Object obj in textures)
+        {
+            if (obj is not Texture2D texture) continue;
+            if (string.IsNullOrEmpty(texture.name)) continue;
+
+            Vector2 nameSize = GUI.skin.button.CalcSize(new GUIContent(texture.name));
+            Vector2 texSize = new(texture.width, texture.height);
+
+            float aspect = texSize.x / Mathf.Max(1f, texSize.y);
             if (aspect > 0.25f)
             {
-                float scale = textureNameSize.x / textureSize.x;
-                textureSize *= scale;
+                float scale = nameSize.x / Mathf.Max(1f, texSize.x);
+                texSize *= scale;
             }
 
-            float maxIconWidth = availableWidth - xPad - 8f;
-            if (maxIconWidth > 0f && textureSize.x > maxIconWidth)
+            float maxIconWidth = availableWidth - XPad - 8f;
+            if (maxIconWidth > 0f && texSize.x > maxIconWidth)
             {
-                float scale = maxIconWidth / textureSize.x;
-                textureSize *= scale;
+                float scale = maxIconWidth / Mathf.Max(1f, texSize.x);
+                texSize *= scale;
             }
 
-            float width = Mathf.Max(textureNameSize.x, textureSize.x) + 8f;
-            float height = textureSize.y + textureNameSize.y + 8f;
+            float tileWidth = Mathf.Max(nameSize.x, texSize.x) + 8f;
+            float tileHeight = texSize.y + nameSize.y + 8f;
 
-            if (x + width > availableWidth - xPad && x > xMin)
+            if (x + tileWidth > availableWidth - XPad && x > XMin)
             {
-                x = xMin;
-                y += rowHeight + 8.0f;
+                x = XMin;
+                y += rowHeight + 8f;
                 rowHeight = 0f;
             }
 
-            draw.Rect = new Rect(x, y, width, height);
+            var rect = new Rect(x, y, tileWidth, tileHeight);
+            float innerWidth = tileWidth - 8f;
 
-            rowHeight = Mathf.Max(rowHeight, height);
-
-            width -= 8f;
-
-            draw.Draw = () =>
+            drawings.Add(new Drawing
             {
-                if (GUILayout.Button(texture.name, GUILayout.Width(width)))
-                    CopyText("EditorGUIUtility.FindTexture( \"" + texture.name + "\" )");
+                Rect = rect,
+                Draw = () =>
+                {
+                    GUILayout.BeginVertical();
 
-                Rect textureRect = GUILayoutUtility.GetRect(
-                    textureSize.x, textureSize.x, textureSize.y, textureSize.y, GUILayout.ExpandHeight(false),
-                    GUILayout.ExpandWidth(false));
-                EditorGUI.DrawTextureTransparent(textureRect, texture);
-            };
+                    if (GUILayout.Button(texture.name, GUILayout.Width(innerWidth)))
+                        CopyText("EditorGUIUtility.FindTexture(\"" + texture.name + "\")");
 
-            x += width + 8.0f;
+                    // This MUST run under a proper GUILayout area/context (we do that in DrawScrollArea).
+                    Rect texRect = GUILayoutUtility.GetRect(
+                        texSize.x, texSize.x,
+                        texSize.y, texSize.y,
+                        GUILayout.ExpandHeight(false),
+                        GUILayout.ExpandWidth(false)
+                    );
 
-            drawings.Add(draw);
+                    EditorGUI.DrawTextureTransparent(texRect, texture);
+
+                    GUILayout.EndVertical();
+                }
+            });
+
+            rowHeight = Mathf.Max(rowHeight, tileHeight);
+            x += tileWidth + 8f;
         }
 
-        return y + rowHeight + yMin;
+        return y + rowHeight + YMin;
     }
 
-    private void CopyText(string text)
+    private void EnsureTextureList()
     {
-        var editor = new TextEditor
-        {
-            text = text
-        };
+        if (textures != null) return;
 
+        textures = new List<Object>(Resources.FindObjectsOfTypeAll(typeof(Texture2D)));
+        textures.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void CopyText(string text)
+    {
+        var editor = new TextEditor { text = text };
         editor.SelectAll();
         editor.Copy();
     }

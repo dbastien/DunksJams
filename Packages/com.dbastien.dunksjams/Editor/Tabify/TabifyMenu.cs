@@ -37,14 +37,9 @@ public static class TabifyMenu
     }
 
     public static bool defaultTabStyleEnabled => tabStyle == 0 || !Application.unityVersion.StartsWith("6000");
-    public static bool largeTabStyleEnabled => tabStyle == 1 && Application.unityVersion.StartsWith("6000");
-    public static bool neatTabStyleEnabled => tabStyle == 2 && Application.unityVersion.StartsWith("6000");
+    public static bool largeTabStyleEnabled => tabStyle == 1;
+    public static bool neatTabStyleEnabled => tabStyle == 2;
 
-    public static int backgroundStyle
-    {
-        get => EditorPrefsCached.GetInt("tabify-backgroundStyle");
-        set => EditorPrefsCached.SetInt("tabify-backgroundStyle", value: value);
-    }
 
     public static bool switchTabShortcutEnabled
     {
@@ -107,10 +102,6 @@ public static class TabifyMenu
     private const string largeTabs = dir + "Tab style/Large";
     private const string neatTabs = dir + "Tab style/Neat";
 
-    private const string defaultBackgroundStyle = dir + "Background style/Default";
-    private const string classicBackground = dir + "Background style/Classic";
-    private const string greyBackground = dir + "Background style/Grey";
-
     private const string switchTabShortcut = dir + "Shift-Scroll to switch tab";
     private const string addTabShortcut = dir + cmd + "-T to add tab";
     private const string closeTabShortcut = dir + cmd + "-W to close tab";
@@ -124,6 +115,20 @@ public static class TabifyMenu
 
     [MenuItem(dir + "Features", false, 1)] private static void FeaturesHeader() { }
     [MenuItem(dir + "Features", true, 1)] private static bool FeaturesHeaderValidate() => false;
+
+    [MenuItem(itemName: dragndrop, false, 2)]
+    private static void ToggleDragndrop()
+    {
+        dragndropEnabled = !dragndropEnabled;
+        Tabify.RepaintAllDockAreas();
+    }
+
+    [MenuItem(itemName: dragndrop, true, 2)]
+    private static bool ValidateDragndrop()
+    {
+        Menu.SetChecked(menuPath: dragndrop, isChecked: dragndropEnabled);
+        return !pluginDisabled;
+    }
 
     [MenuItem(itemName: addTabButton, false, 3)]
     private static void ToggleAddTabButton()
@@ -206,76 +211,82 @@ public static class TabifyMenu
         return !pluginDisabled;
     }
 
-    [MenuItem(itemName: defaultBackgroundStyle, false, 11)]
-    private static void SetDefaultBackgroundStyle() => backgroundStyle = 0;
-
-    [MenuItem(itemName: defaultBackgroundStyle, true, 11)]
-    private static bool ValidateDefaultBackgroundStyle()
-    {
-        Menu.SetChecked(menuPath: defaultBackgroundStyle, backgroundStyle == 0);
-        return !pluginDisabled;
-    }
-
-    [MenuItem(itemName: classicBackground, false, 12)]
-    private static void SetClassicBackground() => backgroundStyle = 1;
-
-    [MenuItem(itemName: classicBackground, true, 12)]
-    private static bool ValidateClassicBackground()
-    {
-        Menu.SetChecked(menuPath: classicBackground, backgroundStyle == 1);
-        return !pluginDisabled;
-    }
-
-    [MenuItem(itemName: greyBackground, false, 13)]
-    private static void SetGreyBackground() => backgroundStyle = 2;
-
-    [MenuItem(itemName: greyBackground, true, 13)]
-    private static bool ValidateGreyBackground()
-    {
-        Menu.SetChecked(menuPath: greyBackground, backgroundStyle == 2);
-        return !pluginDisabled;
-    }
-
     [MenuItem(dir + "Shortcuts", false, 101)]
     private static void ShortcutsHeader() { }
 
     [MenuItem(dir + "Shortcuts", true, 101)]
     private static bool ShortcutsHeaderValidate() => false;
 
-    [MenuItem(itemName: switchTabShortcut, false, 102)]
+    [MenuItem(itemName: sidescroll, false, 102)]
+    private static void ToggleSidescroll()
+    {
+        sidescrollEnabled = !sidescrollEnabled;
+        Tabify.RepaintAllDockAreas();
+    }
+
+    [MenuItem(itemName: sidescroll, true, 102)]
+    private static bool ValidateSidescroll()
+    {
+        Menu.SetChecked(menuPath: sidescroll, isChecked: sidescrollEnabled);
+        return !pluginDisabled;
+    }
+
+    [MenuItem(itemName: increaseSensitivity, false, 103)]
+    private static void IncreaseSensitivity() => sidescrollSensitivity = (sidescrollSensitivity + .5f).ClampMin(0);
+
+    [MenuItem(itemName: increaseSensitivity, true, 103)]
+    private static bool ValidateIncreaseSensitivity() => !pluginDisabled;
+
+    [MenuItem(itemName: decreaseSensitivity, false, 104)]
+    private static void DecreaseSensitivity() => sidescrollSensitivity = (sidescrollSensitivity - .5f).ClampMin(0);
+
+    [MenuItem(itemName: decreaseSensitivity, true, 104)]
+    private static bool ValidateDecreaseSensitivity() => !pluginDisabled;
+
+    [MenuItem(itemName: reverseScrollDirection, false, 105)]
+    private static void ToggleReverseScrollDirection() => reverseScrollDirectionEnabled = !reverseScrollDirectionEnabled;
+
+    [MenuItem(itemName: reverseScrollDirection, true, 105)]
+    private static bool ValidateReverseScrollDirection()
+    {
+        Menu.SetChecked(menuPath: reverseScrollDirection, isChecked: reverseScrollDirectionEnabled);
+        return !pluginDisabled;
+    }
+
+    [MenuItem(itemName: switchTabShortcut, false, 110)]
     private static void ToggleSwitchTabShortcut() => switchTabShortcutEnabled = !switchTabShortcutEnabled;
 
-    [MenuItem(itemName: switchTabShortcut, true, 102)]
+    [MenuItem(itemName: switchTabShortcut, true, 110)]
     private static bool ValidateSwitchTabShortcut()
     {
         Menu.SetChecked(menuPath: switchTabShortcut, isChecked: switchTabShortcutEnabled);
         return !pluginDisabled;
     }
 
-    [MenuItem(itemName: addTabShortcut, false, 103)]
+    [MenuItem(itemName: addTabShortcut, false, 111)]
     private static void ToggleAddTabShortcut() => addTabShortcutEnabled = !addTabShortcutEnabled;
 
-    [MenuItem(itemName: addTabShortcut, true, 103)]
+    [MenuItem(itemName: addTabShortcut, true, 111)]
     private static bool ValidateAddTabShortcut()
     {
         Menu.SetChecked(menuPath: addTabShortcut, isChecked: addTabShortcutEnabled);
         return !pluginDisabled;
     }
 
-    [MenuItem(itemName: closeTabShortcut, false, 104)]
+    [MenuItem(itemName: closeTabShortcut, false, 112)]
     private static void ToggleCloseTabShortcut() => closeTabShortcutEnabled = !closeTabShortcutEnabled;
 
-    [MenuItem(itemName: closeTabShortcut, true, 104)]
+    [MenuItem(itemName: closeTabShortcut, true, 112)]
     private static bool ValidateCloseTabShortcut()
     {
         Menu.SetChecked(menuPath: closeTabShortcut, isChecked: closeTabShortcutEnabled);
         return !pluginDisabled;
     }
 
-    [MenuItem(itemName: reopenTabShortcut, false, 105)]
+    [MenuItem(itemName: reopenTabShortcut, false, 113)]
     private static void ToggleReopenTabShortcut() => reopenTabShortcutEnabled = !reopenTabShortcutEnabled;
 
-    [MenuItem(itemName: reopenTabShortcut, true, 105)]
+    [MenuItem(itemName: reopenTabShortcut, true, 113)]
     private static bool ValidateReopenTabShortcut()
     {
         Menu.SetChecked(menuPath: reopenTabShortcut, isChecked: reopenTabShortcutEnabled);
