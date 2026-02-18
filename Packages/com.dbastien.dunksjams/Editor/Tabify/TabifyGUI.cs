@@ -24,12 +24,12 @@ public class TabifyGUI
 
         if (TabifyMenu.addTabButtonEnabled)
         {
-            Rect buttonRect1 = stripRect.SetX(tabEndPositions.Last()).
-                SetY(stripRect.center.y).
-                SetWidth(0).
-                SetHeight(0).
-                SetSizeFromMid(24).
-                MoveX(TabifyMenu.neatTabStyleEnabled ? 12 : 13);
+            float buttonSize = 24;
+            Rect buttonRect1 = new Rect(
+                tabEndPositions.Last() + (TabifyMenu.neatTabStyleEnabled ? 12 : 13),
+                stripRect.y + (stripRect.height - buttonSize) / 2,
+                buttonSize,
+                buttonSize);
 
             float distToRight = stripRect.xMax - buttonRect1.xMax;
 
