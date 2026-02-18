@@ -11,19 +11,19 @@ public static class CardGameLauncher
             "Tarot Reading"
         };
 
-        var choice = io.ReadChoice("Select a card game:", options);
+        int choice = io.ReadChoice("Select a card game:", options);
         switch (choice)
         {
             case 1:
             {
-                var players = io.ReadInt("Player count (2-6):", 2, 6, 2);
+                int players = io.ReadInt("Player count (2-6):", 2, 6, 2);
                 using var game = new UnoGame(playerCount: players, io: io);
                 game.RunGame();
                 break;
             }
             case 2:
             {
-                var players = io.ReadInt("Player count (2-6):", 2, 6, 2);
+                int players = io.ReadInt("Player count (2-6):", 2, 6, 2);
                 using var game = new PokerGame(playerCount: players, io: io);
                 game.RunGame();
                 break;

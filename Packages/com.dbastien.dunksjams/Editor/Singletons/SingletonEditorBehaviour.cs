@@ -6,16 +6,13 @@
 /// </summary>
 public abstract class SingletonEditorBehaviour<T> : ScriptableSingleton<T> where T : SingletonEditorBehaviour<T>
 {
-    bool _initialized;
+    private bool _initialized;
 
     public static T Instance => instance;
 
-    protected virtual void OnEnable()
-    {
-        EnsureInit();
-    }
+    protected virtual void OnEnable() { EnsureInit(); }
 
-    void EnsureInit()
+    private void EnsureInit()
     {
         if (_initialized) return;
         _initialized = true;

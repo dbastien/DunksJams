@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class FlowFieldPathfinder2D : IPathFinder2D
 {
-    readonly int[,] _grid;
-    readonly float[,] _costGrid;
-    readonly Vector2[,] _flowField;
-    readonly float[,] _integrationField;
-    readonly bool _useFloatCosts;
+    private readonly int[,] _grid;
+    private readonly float[,] _costGrid;
+    private readonly Vector2[,] _flowField;
+    private readonly float[,] _integrationField;
+    private readonly bool _useFloatCosts;
 
-    int _width, _height;
+    private int _width, _height;
 
     /// <summary>Creates a flow field pathfinder from a legacy int grid (0=free, 1=obstacle).</summary>
     public FlowFieldPathfinder2D(int[,] grid)
@@ -45,23 +45,23 @@ public class FlowFieldPathfinder2D : IPathFinder2D
         TracePath(start, goal, result);
     }
 
-    void ComputeFlowField(Vector2Int goal, bool allowDiag)
+    private void ComputeFlowField(Vector2Int goal, bool allowDiag)
     {
         var openSet = new Queue<Vector2Int>();
 
-        for (int y = 0; y < _height; y++)
-            for (int x = 0; x < _width; x++)
-            {
-                _integrationField[x, y] = float.MaxValue;
-                _flowField[x, y] = Vector2.zero;
-            }
+        for (var y = 0; y < _height; y++)
+        for (var x = 0; x < _width; x++)
+        {
+            _integrationField[x, y] = float.MaxValue;
+            _flowField[x, y] = Vector2.zero;
+        }
 
         _integrationField[goal.x, goal.y] = 0;
         openSet.Enqueue(goal);
 
         while (openSet.Count > 0)
         {
-            var current = openSet.Dequeue();
+            Vector2Int current = openSet.Dequeue();
             float currentCost = _integrationField[current.x, current.y];
 
             int neighborCount;
@@ -74,9 +74,9 @@ public class FlowFieldPathfinder2D : IPathFinder2D
 
             try
             {
-                for (int i = 0; i < neighborCount; i++)
+                for (var i = 0; i < neighborCount; i++)
                 {
-                    var neighbor = neighbors[i];
+                    Vector2Int neighbor = neighbors[i];
                     float moveCost = GetMovementCost(neighbor);
                     float newCost = currentCost + moveCost;
 
@@ -90,39 +90,36 @@ public class FlowFieldPathfinder2D : IPathFinder2D
                     openSet.Enqueue(neighbor);
                 }
             }
-            finally
-            {
-                GridHelper2D.ReturnNeighbors(neighbors);
-            }
+            finally { GridHelper2D.ReturnNeighbors(neighbors); }
         }
     }
 
-    float GetMovementCost(Vector2Int pos)
+    private float GetMovementCost(Vector2Int pos)
     {
         if (_useFloatCosts)
             return 1f + (_costGrid != null ? _costGrid[pos.x, pos.y] : 0f);
         return 1f;
     }
 
-    List<Vector2Int> TracePath(Vector2Int start, Vector2Int goal)
+    private List<Vector2Int> TracePath(Vector2Int start, Vector2Int goal)
     {
         var path = new List<Vector2Int>(32);
         TracePath(start, goal, path);
         return path;
     }
 
-    void TracePath(Vector2Int start, Vector2Int goal, List<Vector2Int> path)
+    private void TracePath(Vector2Int start, Vector2Int goal, List<Vector2Int> path)
     {
         path.Clear();
         path.Add(start);
-        var current = start;
+        Vector2Int current = start;
         int safetyLimit = _width * _height;
 
         while (current != goal && safetyLimit-- > 0)
         {
             if (current.x < 0 || current.x >= _width || current.y < 0 || current.y >= _height) break;
 
-            var flow = _flowField[current.x, current.y];
+            Vector2 flow = _flowField[current.x, current.y];
             if (flow == Vector2.zero) break;
 
             current += new Vector2Int(Mathf.RoundToInt(flow.x), Mathf.RoundToInt(flow.y));

@@ -9,13 +9,13 @@ using UnityEngine;
 /// </summary>
 public class GridGraph2D : IGraph<Vector2Int>
 {
-    const float Sqrt2 = 1.41421356237f;
+    private const float Sqrt2 = 1.41421356237f;
 
-    readonly float[,] _costs;
-    readonly bool _allowDiag;
+    private readonly float[,] _costs;
+    private readonly bool _allowDiag;
 
-    static readonly Vector2Int[] CardinalDirs = { new(0, 1), new(0, -1), new(1, 0), new(-1, 0) };
-    static readonly Vector2Int[] DiagonalDirs = { new(1, 1), new(-1, -1), new(1, -1), new(-1, 1) };
+    private static readonly Vector2Int[] CardinalDirs = { new(0, 1), new(0, -1), new(1, 0), new(-1, 0) };
+    private static readonly Vector2Int[] DiagonalDirs = { new(1, 1), new(-1, -1), new(1, -1), new(-1, 1) };
 
     public int Width => _costs.GetLength(0);
     public int Height => _costs.GetLength(1);
@@ -33,9 +33,9 @@ public class GridGraph2D : IGraph<Vector2Int>
         if (grid == null) throw new ArgumentNullException(nameof(grid));
         int w = grid.GetLength(0), h = grid.GetLength(1);
         _costs = new float[w, h];
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y < h; y++)
-                _costs[x, y] = grid[x, y] == 1 ? float.PositiveInfinity : 0f;
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
+            _costs[x, y] = grid[x, y] == 1 ? float.PositiveInfinity : 0f;
         _allowDiag = allowDiag;
     }
 
@@ -43,9 +43,9 @@ public class GridGraph2D : IGraph<Vector2Int>
     {
         edgeBuffer.Clear();
 
-        for (int i = 0; i < CardinalDirs.Length; i++)
+        for (var i = 0; i < CardinalDirs.Length; i++)
         {
-            var next = node + CardinalDirs[i];
+            Vector2Int next = node + CardinalDirs[i];
             if (!InBounds(next)) continue;
             float enterCost = _costs[next.x, next.y];
             if (float.IsPositiveInfinity(enterCost)) continue;
@@ -54,9 +54,9 @@ public class GridGraph2D : IGraph<Vector2Int>
 
         if (!_allowDiag) return;
 
-        for (int i = 0; i < DiagonalDirs.Length; i++)
+        for (var i = 0; i < DiagonalDirs.Length; i++)
         {
-            var next = node + DiagonalDirs[i];
+            Vector2Int next = node + DiagonalDirs[i];
             if (!InBounds(next)) continue;
             float enterCost = _costs[next.x, next.y];
             if (float.IsPositiveInfinity(enterCost)) continue;

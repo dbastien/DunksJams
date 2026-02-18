@@ -12,13 +12,13 @@ public class TextEffects : MonoBehaviour
     public AudioClip typingSound;
     public bool useDynamicScaling = true;
 
-    TextMeshProUGUI _tmp;
-    string _originalText;
-    AudioSource _audioSource;
-    Dictionary<int, (string tag, string value)> _taggedEvents = new();
-    List<int> _eventIndexes = new();
+    private TextMeshProUGUI _tmp;
+    private string _originalText;
+    private AudioSource _audioSource;
+    private Dictionary<int, (string tag, string value)> _taggedEvents = new();
+    private List<int> _eventIndexes = new();
 
-    void Awake()
+    private void Awake()
     {
         _tmp = GetComponent<TextMeshProUGUI>();
         _audioSource = gameObject.AddComponent<AudioSource>();
@@ -32,7 +32,7 @@ public class TextEffects : MonoBehaviour
         StartCoroutine(AnimateText());
     }
 
-    IEnumerator AnimateText()
+    private IEnumerator AnimateText()
     {
         _tmp.text = "";
         _tmp.ForceMeshUpdate();
@@ -54,27 +54,27 @@ public class TextEffects : MonoBehaviour
         }
     }
 
-    void StartBounceFade(int idx)
+    private void StartBounceFade(int idx)
     {
-        var textInfo = _tmp.textInfo;
-        var matIdx = textInfo.characterInfo[idx].materialReferenceIndex;
-        var vertIdx = textInfo.characterInfo[idx].vertexIndex;
-        var vertices = textInfo.meshInfo[matIdx].vertices;
-        var origScale = vertices[vertIdx];
+        TMP_TextInfo textInfo = _tmp.textInfo;
+        int matIdx = textInfo.characterInfo[idx].materialReferenceIndex;
+        int vertIdx = textInfo.characterInfo[idx].vertexIndex;
+        Vector3[] vertices = textInfo.meshInfo[matIdx].vertices;
+        Vector3 origScale = vertices[vertIdx];
 
         StartCoroutine(BounceFadeCoroutine(idx, origScale));
     }
 
-    IEnumerator BounceFadeCoroutine(int idx, Vector3 origScale)
+    private IEnumerator BounceFadeCoroutine(int idx, Vector3 origScale)
     {
-        var textInfo = _tmp.textInfo;
-        var matIdx = textInfo.characterInfo[idx].materialReferenceIndex;
-        var vertIdx = textInfo.characterInfo[idx].vertexIndex;
-        var verts = textInfo.meshInfo[matIdx].vertices;
+        TMP_TextInfo textInfo = _tmp.textInfo;
+        int matIdx = textInfo.characterInfo[idx].materialReferenceIndex;
+        int vertIdx = textInfo.characterInfo[idx].vertexIndex;
+        Vector3[] verts = textInfo.meshInfo[matIdx].vertices;
 
         for (float t = 0; t <= fadeDuration; t += Time.deltaTime)
         {
-            var easeT = Ease.SmootherStep(t / fadeDuration);
+            float easeT = Ease.SmootherStep(t / fadeDuration);
             for (var j = 0; j < 4; ++j)
                 verts[vertIdx + j] = Vector3.Lerp(origScale, origScale.Scaled(bounceScale), easeT);
 
@@ -83,27 +83,27 @@ public class TextEffects : MonoBehaviour
         }
     }
 
-    void PlayTypingSound()
+    private void PlayTypingSound()
     {
         if (typingSound) _audioSource.PlayOneShot(typingSound, Rand.Float() * 0.2f + 0.9f);
     }
 
-    void TriggerCharacterEvent(int idx)
+    private void TriggerCharacterEvent(int idx)
     {
-        if (_taggedEvents.TryGetValue(idx, out var tagData))
+        if (_taggedEvents.TryGetValue(idx, out (string tag, string value) tagData))
             // Custom event handling here (could log or invoke additional behavior)
             DLog.Log($"Triggered event '{tagData.tag}' with value '{tagData.value}' at index {idx}");
     }
 
-    bool ProcessTag(ref int idx)
+    private bool ProcessTag(ref int idx)
     {
-        var closingTag = _originalText.IndexOf('>', idx);
+        int closingTag = _originalText.IndexOf('>', idx);
         if (closingTag == -1) return false;
 
-        var tagContent = _originalText.Substring(idx + 1, closingTag - idx - 1);
-        var split = tagContent.Split('=');
-        var tag = split[0];
-        var val = split.Length > 1 ? split[1] : null;
+        string tagContent = _originalText.Substring(idx + 1, closingTag - idx - 1);
+        string[] split = tagContent.Split('=');
+        string tag = split[0];
+        string val = split.Length > 1 ? split[1] : null;
 
         if (tag == "event") _eventIndexes.Add(_tmp.text.Length);
         _taggedEvents[_tmp.text.Length] = (tag, val);
@@ -112,17 +112,17 @@ public class TextEffects : MonoBehaviour
         return true;
     }
 
-    string ParseText(string text)
+    private string ParseText(string text)
     {
         var parsed = new StringBuilder();
         for (var i = 0; i < text.Length; ++i)
         {
             if (text[i] == '[')
             {
-                var closeBracket = text.IndexOf(']', i);
+                int closeBracket = text.IndexOf(']', i);
                 if (closeBracket > i)
                 {
-                    var tagContent = text.Substring(i + 1, closeBracket - i - 1);
+                    string tagContent = text.Substring(i + 1, closeBracket - i - 1);
                     if (ProcessBracketTag(parsed, tagContent))
                     {
                         i = closeBracket;
@@ -137,11 +137,11 @@ public class TextEffects : MonoBehaviour
         return parsed.ToString();
     }
 
-    bool ProcessBracketTag(StringBuilder parsed, string tagContent)
+    private bool ProcessBracketTag(StringBuilder parsed, string tagContent)
     {
-        var split = tagContent.Split('=');
-        var val = split.Length > 1 ? split[1] : null;
-        var tag = split[0];
+        string[] split = tagContent.Split('=');
+        string val = split.Length > 1 ? split[1] : null;
+        string tag = split[0];
         switch (tag)
         {
             case "event":

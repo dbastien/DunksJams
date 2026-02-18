@@ -37,7 +37,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
         for (var round = 0; round < MaxRounds && !IsGameOver(); ++round)
         {
-            var playerIdx = round % PlayerHands.Count;
+            int playerIdx = round % PlayerHands.Count;
             EmitTurnStarted(round, playerIdx);
             PlayTurn(playerIdx);
             EmitTurnEnded(round, playerIdx);
@@ -55,9 +55,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
     {
         Deck = CreateDeck();
         Deck.Shuffle();
-        PlayerHands = Enumerable.Range(0, PlayerCount)
-            .Select(_ => new Hand<TCard>())
-            .ToList();
+        PlayerHands = Enumerable.Range(0, PlayerCount).Select(_ => new Hand<TCard>()).ToList();
 
         DistributeDeck(Deck);
         DLog.Log("Game setup complete.");
@@ -65,12 +63,10 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
     protected virtual void DistributeDeck(Deck<TCard> deck)
     {
-        var cardsPerPlayer = deck.Count / PlayerCount;
+        int cardsPerPlayer = deck.Count / PlayerCount;
         for (var p = 0; p < PlayerHands.Count; ++p)
-        {
-            for (var i = 0; i < cardsPerPlayer; ++i)
-                DealCardToPlayer(p, true);
-        }
+        for (var i = 0; i < cardsPerPlayer; ++i)
+            DealCardToPlayer(p, true);
     }
 
     protected virtual string GetPlayerName(int playerIndex) => $"Player {playerIndex + 1}";
@@ -89,7 +85,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
     protected TCard DealCardToPlayer(int playerIndex, bool isFaceDown)
     {
-        var card = Deck.Draw();
+        TCard card = Deck.Draw();
         PlayerHands[playerIndex].Add(card);
         EmitCardDealt(playerIndex, card, isFaceDown);
         return card;
@@ -97,7 +93,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
     protected TCard DrawCardToPlayer(int playerIndex, bool isFaceDown)
     {
-        var card = Deck.Draw();
+        TCard card = Deck.Draw();
         PlayerHands[playerIndex].Add(card);
         EmitCardDrawn(playerIndex, card, isFaceDown);
         return card;
@@ -105,7 +101,7 @@ public abstract class CardGameBase<TCard> : IDisposable where TCard : CardBase
 
     protected TCard RemoveCardFromHand(int playerIndex, int cardIndex)
     {
-        var card = PlayerHands[playerIndex][cardIndex];
+        TCard card = PlayerHands[playerIndex][cardIndex];
         PlayerHands[playerIndex].RemoveAt(cardIndex);
         return card;
     }

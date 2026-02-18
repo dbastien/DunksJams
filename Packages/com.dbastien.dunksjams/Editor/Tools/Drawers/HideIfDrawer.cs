@@ -13,9 +13,10 @@ public abstract class ConditionalPropertyDrawer : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty prop, GUIContent label) =>
         EvaluateCondition(prop) ? EditorGUI.GetPropertyHeight(prop, label) : -2f;
 
-    bool EvaluateCondition(SerializedProperty prop)
+    private bool EvaluateCondition(SerializedProperty prop)
     {
-        var condition = prop.serializedObject.FindProperty(((ConditionalAttribute)attribute).ConditionField);
+        SerializedProperty condition =
+            prop.serializedObject.FindProperty(((ConditionalAttribute)attribute).ConditionField);
         return condition != null && ShouldShow(condition.boolValue);
     }
 }

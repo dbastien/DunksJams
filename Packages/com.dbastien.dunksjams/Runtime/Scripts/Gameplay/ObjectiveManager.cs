@@ -47,7 +47,7 @@ public class ObjectiveManager
         }
     }
 
-    readonly HashSet<Objective> _objectives = new();
+    private readonly HashSet<Objective> _objectives = new();
     public IEnumerable<Objective> Objectives => _objectives;
 
     public event Action<Objective> OnObjectiveCompleted, OnObjectiveFailed;
@@ -69,21 +69,19 @@ public class ObjectiveManager
 
     public void CheckAllObjectives()
     {
-        foreach (var objective in _objectives)
-        {
+        foreach (Objective objective in _objectives)
             if (objective.Status != ObjectiveStatus.Completed)
                 return;
-        }
 
         OnAllObjectivesCompleted?.Invoke();
     }
 
     public void ResetAllObjectives()
     {
-        foreach (var objective in _objectives) objective.Reset();
+        foreach (Objective objective in _objectives) objective.Reset();
     }
 
-    void HandleObjectiveStatusChanged(Objective objective)
+    private void HandleObjectiveStatusChanged(Objective objective)
     {
         switch (objective.Status)
         {

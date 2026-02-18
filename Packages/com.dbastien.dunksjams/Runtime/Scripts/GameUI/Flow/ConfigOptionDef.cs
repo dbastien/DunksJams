@@ -14,7 +14,7 @@ public abstract class ConfigOptionDef
 
     protected static GameObject CreateOptionRoot(Transform parent, string name)
     {
-        var root = UIBuilder.CreateUIElement(name, parent, typeof(RectTransform), typeof(VerticalLayoutGroup));
+        GameObject root = UIBuilder.CreateUIElement(name, parent, typeof(RectTransform), typeof(VerticalLayoutGroup));
         var layout = root.GetComponent<VerticalLayoutGroup>();
         layout.spacing = 4;
         layout.childAlignment = TextAnchor.MiddleCenter;
@@ -23,7 +23,7 @@ public abstract class ConfigOptionDef
 
     protected static Text CreateLabel(Transform parent, string text)
     {
-        var labelObj = UIBuilder.CreateUIElement("Label", parent, typeof(Text));
+        GameObject labelObj = UIBuilder.CreateUIElement("Label", parent, typeof(Text));
         return UIBuilder.InitText(labelObj, text, DefaultFont, Color.white);
     }
 
@@ -37,11 +37,11 @@ public abstract class ConfigOptionDef
 
 public sealed class IntSliderOption : ConfigOptionDef
 {
-    readonly Func<int> _get;
-    readonly Action<int> _set;
-    readonly int _min;
-    readonly int _max;
-    readonly string _format;
+    private readonly Func<int> _get;
+    private readonly Action<int> _set;
+    private readonly int _min;
+    private readonly int _max;
+    private readonly string _format;
 
     public IntSliderOption(string label, Func<int> get, Action<int> set, int min, int max, string format = "0")
         : base(label)
@@ -55,34 +55,37 @@ public sealed class IntSliderOption : ConfigOptionDef
 
     public override void BuildUI(Transform parent)
     {
-        var root = CreateOptionRoot(parent, $"{Label}_Option");
-        var label = CreateLabel(root.transform, BuildLabel(_get()));
+        GameObject root = CreateOptionRoot(parent, $"{Label}_Option");
+        Text label = CreateLabel(root.transform, BuildLabel(_get()));
 
-        var slider = UIBuilder.CreateSlider(root.transform, _min, _max, _get(), value =>
+        Slider slider = UIBuilder.CreateSlider(root.transform, _min, _max, _get(), value =>
         {
-            var intValue = Mathf.RoundToInt(value);
+            int intValue = Mathf.RoundToInt(value);
             if (intValue == _get()) return;
             _set(intValue);
             label.text = BuildLabel(intValue);
             RaiseConfigChanged(Label, intValue.ToString());
-        }, size: new Vector2(300, 20));
+        }, new Vector2(300, 20));
 
         slider.wholeNumbers = true;
     }
 
-    string BuildLabel(int value) => $"{Label}: {value.ToString(_format)}";
+    private string BuildLabel(int value) => $"{Label}: {value.ToString(_format)}";
 }
 
 public sealed class FloatSliderOption : ConfigOptionDef
 {
-    readonly Func<float> _get;
-    readonly Action<float> _set;
-    readonly float _min;
-    readonly float _max;
-    readonly string _format;
+    private readonly Func<float> _get;
+    private readonly Action<float> _set;
+    private readonly float _min;
+    private readonly float _max;
+    private readonly string _format;
 
-    public FloatSliderOption(string label, Func<float> get, Action<float> set, float min, float max,
-        string format = "0.##")
+    public FloatSliderOption
+    (
+        string label, Func<float> get, Action<float> set, float min, float max,
+        string format = "0.##"
+    )
         : base(label)
     {
         _get = get;
@@ -94,8 +97,8 @@ public sealed class FloatSliderOption : ConfigOptionDef
 
     public override void BuildUI(Transform parent)
     {
-        var root = CreateOptionRoot(parent, $"{Label}_Option");
-        var label = CreateLabel(root.transform, BuildLabel(_get()));
+        GameObject root = CreateOptionRoot(parent, $"{Label}_Option");
+        Text label = CreateLabel(root.transform, BuildLabel(_get()));
 
         UIBuilder.CreateSlider(root.transform, _min, _max, _get(), value =>
         {
@@ -103,16 +106,16 @@ public sealed class FloatSliderOption : ConfigOptionDef
             _set(value);
             label.text = BuildLabel(value);
             RaiseConfigChanged(Label, value.ToString(_format));
-        }, size: new Vector2(300, 20));
+        }, new Vector2(300, 20));
     }
 
-    string BuildLabel(float value) => $"{Label}: {value.ToString(_format)}";
+    private string BuildLabel(float value) => $"{Label}: {value.ToString(_format)}";
 }
 
 public sealed class BoolOption : ConfigOptionDef
 {
-    readonly Func<bool> _get;
-    readonly Action<bool> _set;
+    private readonly Func<bool> _get;
+    private readonly Action<bool> _set;
 
     public BoolOption(string label, Func<bool> get, Action<bool> set) : base(label)
     {
@@ -122,18 +125,19 @@ public sealed class BoolOption : ConfigOptionDef
 
     public override void BuildUI(Transform parent)
     {
-        var root = CreateOptionRoot(parent, $"{Label}_Option");
-        var button = UIBuilder.CreateButton(root.transform, BuildButtonText(_get()), null, size: new Vector2(220, 40));
+        GameObject root = CreateOptionRoot(parent, $"{Label}_Option");
+        Button button =
+            UIBuilder.CreateButton(root.transform, BuildButtonText(_get()), null, size: new Vector2(220, 40));
         var text = button.GetComponentInChildren<Text>();
 
         button.onClick.AddListener(() =>
         {
-            var value = !_get();
+            bool value = !_get();
             _set(value);
             if (text != null) text.text = BuildButtonText(value);
             RaiseConfigChanged(Label, value ? "On" : "Off");
         });
     }
 
-    string BuildButtonText(bool value) => $"{Label}: {(value ? "On" : "Off")}";
+    private string BuildButtonText(bool value) => $"{Label}: {(value ? "On" : "Off")}";
 }

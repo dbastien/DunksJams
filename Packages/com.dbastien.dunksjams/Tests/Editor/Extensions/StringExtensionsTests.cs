@@ -42,9 +42,5 @@ public class StringExtensionsTests : TestBase
         False("abc".IsAllDigits());
     }
 
-    [Test]
-    public void CsvSafe()
-    {
-        Eq("a b c", "a,b,c".CsvSafe());
-    }
+    [Test] public void CsvSafe() { Eq("a b c", "a,b,c".CsvSafe()); }
 }

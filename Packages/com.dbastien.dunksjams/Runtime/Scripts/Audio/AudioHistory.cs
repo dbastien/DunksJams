@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class AudioHistory
 {
-    readonly Queue<AudioHistoryEntry> queue = new();
-    int maxSize = 50;
-    string search = string.Empty;
-    Vector2 scrollPos;
+    private readonly Queue<AudioHistoryEntry> queue = new();
+    private int maxSize = 50;
+    private string search = string.Empty;
+    private Vector2 scrollPos;
 
     public void Enqueue(AudioHistoryEntry entry)
     {
@@ -30,7 +30,7 @@ public class AudioHistory
 
         GUILayout.Label($"{"Event"}\t{"Object"}\t{"Time"}");
         scrollPos = GUILayout.BeginScrollView(scrollPos);
-        foreach (var entry in queue)
+        foreach (AudioHistoryEntry entry in queue)
         {
             if (!string.IsNullOrEmpty(entry.eventName) &&
                 !entry.eventName.StartsWith(search) &&
@@ -38,7 +38,7 @@ public class AudioHistory
                 continue;
 
             GUILayout.BeginHorizontal();
-            var prev = GUI.contentColor;
+            Color prev = GUI.contentColor;
             if (entry.failed) GUI.contentColor = Color.red;
 
             GUILayout.Label(entry.eventName);

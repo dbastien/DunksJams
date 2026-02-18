@@ -4,9 +4,11 @@ using UnityEngine;
 /// <summary>Generates a flat disc (circle / ellipse) mesh lying on the XZ plane.</summary>
 public static class DiscGenerator
 {
-    public static Mesh Generate(
+    public static Mesh Generate
+    (
         float radiusX = 0.5f, float radiusZ = 0.5f,
-        int segments = 32)
+        int segments = 32
+    )
     {
         segments = Mathf.Max(segments, 3);
 
@@ -31,7 +33,7 @@ public static class DiscGenerator
             normals[i + 1] = Vector3.up;
             uvs[i + 1] = new Vector2(x * 0.5f + 0.5f, z * 0.5f + 0.5f);
 
-            tris[i * 3]     = 0;
+            tris[i * 3] = 0;
             tris[i * 3 + 1] = i + 1;
             tris[i * 3 + 2] = i < segments - 1 ? i + 2 : 1;
         }

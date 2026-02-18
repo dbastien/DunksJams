@@ -10,9 +10,9 @@ public class TetherFilter3D : IFilter3D
 
     public bool JustMoved { get; set; }
 
-    Vector3 tetherPosition;
+    private Vector3 tetherPosition;
 
-    bool hasValue;
+    private bool hasValue;
 
     public object Clone() => MemberwiseClone();
 
@@ -21,9 +21,9 @@ public class TetherFilter3D : IFilter3D
         // apply 2D filter
         if (TetherLength > 0.0f && hasValue)
         {
-            var tetherDiff = s - tetherPosition;
+            Vector3 tetherDiff = s - tetherPosition;
 
-            var distanceBeyondTether = tetherDiff.magnitude - TetherLength;
+            float distanceBeyondTether = tetherDiff.magnitude - TetherLength;
             distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame);
 
             // is the current position outside the tether circle?
@@ -32,20 +32,14 @@ public class TetherFilter3D : IFilter3D
                 // motion continues past the edge of the circle, relocate circle
                 // so that current position is on the outer edge of it
                 tetherDiff.Normalize();
-                var tetherDelta = tetherDiff * distanceBeyondTether;
+                Vector3 tetherDelta = tetherDiff * distanceBeyondTether;
                 tetherPosition += tetherDelta;
 
                 JustMoved = true;
             }
-            else
-            {
-                JustMoved = false;
-            }
+            else { JustMoved = false; }
         }
-        else
-        {
-            tetherPosition = s;
-        }
+        else { tetherPosition = s; }
 
         if (!hasValue) hasValue = true;
     }

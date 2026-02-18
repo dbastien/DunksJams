@@ -24,15 +24,15 @@ public static class MeshOperations
         var newTangents = new List<Vector4>();
 
         var oldToNew = new Dictionary<int, int>();
-        int newIdx = 0;
+        var newIdx = 0;
 
-        var verts = baseMesh.vertices;
-        var normals = baseMesh.normals ?? System.Array.Empty<Vector3>();
-        var colors = baseMesh.colors ?? System.Array.Empty<Color>();
-        var tangents = baseMesh.tangents ?? System.Array.Empty<Vector4>();
-        var uvs = baseMesh.uv ?? System.Array.Empty<Vector2>();
+        Vector3[] verts = baseMesh.vertices;
+        Vector3[] normals = baseMesh.normals ?? System.Array.Empty<Vector3>();
+        Color[] colors = baseMesh.colors ?? System.Array.Empty<Color>();
+        Vector4[] tangents = baseMesh.tangents ?? System.Array.Empty<Vector4>();
+        Vector2[] uvs = baseMesh.uv ?? System.Array.Empty<Vector2>();
 
-        for (int i = 0; i < verts.Length; i++)
+        for (var i = 0; i < verts.Length; i++)
         {
             if (!triangles.Contains(i)) continue;
 
@@ -46,7 +46,7 @@ public static class MeshOperations
         }
 
         var newTris = new int[triangles.Count];
-        for (int i = 0; i < triangles.Count; i++)
+        for (var i = 0; i < triangles.Count; i++)
             newTris[i] = oldToNew[triangles[i]];
 
         newMesh.vertices = newVerts.ToArray();
@@ -69,14 +69,14 @@ public static class MeshOperations
     {
         if (mesh?.normals == null || mesh.normals.Length == 0) return;
 
-        var flipped = mesh.normals;
-        for (int i = 0; i < flipped.Length; i++)
+        Vector3[] flipped = mesh.normals;
+        for (var i = 0; i < flipped.Length; i++)
             flipped[i] = -flipped[i];
 
-        for (int sub = 0; sub < mesh.subMeshCount; sub++)
+        for (var sub = 0; sub < mesh.subMeshCount; sub++)
         {
-            var tris = mesh.GetTriangles(sub);
-            for (int t = 0; t < tris.Length; t += 3)
+            int[] tris = mesh.GetTriangles(sub);
+            for (var t = 0; t < tris.Length; t += 3)
                 (tris[t], tris[t + 1]) = (tris[t + 1], tris[t]);
             mesh.SetTriangles(tris, sub);
         }
@@ -90,10 +90,10 @@ public static class MeshOperations
     /// </summary>
     public static void CalculateTangents(Mesh mesh)
     {
-        var tris = mesh.triangles;
-        var verts = mesh.vertices;
-        var uv = mesh.uv;
-        var normals = mesh.normals;
+        int[] tris = mesh.triangles;
+        Vector3[] verts = mesh.vertices;
+        Vector2[] uv = mesh.uv;
+        Vector3[] normals = mesh.normals;
 
         int triCount = tris.Length;
         int vertCount = verts.Length;
@@ -102,7 +102,7 @@ public static class MeshOperations
         var tan2 = new Vector3[vertCount];
         var tangents = new Vector4[vertCount];
 
-        for (int a = 0; a < triCount; a += 3)
+        for (var a = 0; a < triCount; a += 3)
         {
             int i1 = tris[a], i2 = tris[a + 1], i3 = tris[a + 2];
 
@@ -121,11 +121,15 @@ public static class MeshOperations
             var sdir = new Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
             var tdir = new Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
 
-            tan1[i1] += sdir; tan1[i2] += sdir; tan1[i3] += sdir;
-            tan2[i1] += tdir; tan2[i2] += tdir; tan2[i3] += tdir;
+            tan1[i1] += sdir;
+            tan1[i2] += sdir;
+            tan1[i3] += sdir;
+            tan2[i1] += tdir;
+            tan2[i2] += tdir;
+            tan2[i3] += tdir;
         }
 
-        for (int a = 0; a < vertCount; a++)
+        for (var a = 0; a < vertCount; a++)
         {
             Vector3 n = normals[a], t = tan1[a];
             Vector3.OrthoNormalize(ref n, ref t);
@@ -144,10 +148,10 @@ public static class MeshOperations
         if (transform == null) return default;
 
         var bounds = new Bounds(transform.position, Vector3.zero);
-        var renderers = transform.GetComponentsInChildren<MeshRenderer>(includeInactive);
+        MeshRenderer[] renderers = transform.GetComponentsInChildren<MeshRenderer>(includeInactive);
 
         if (renderers != null)
-            foreach (var r in renderers)
+            foreach (MeshRenderer r in renderers)
                 bounds.Encapsulate(r.bounds);
 
         return bounds;

@@ -7,8 +7,8 @@
 /// </summary>
 public static class PauseManager
 {
-    static int _pauseCount = 0;
-    static float _previousTimeScale = 1f;
+    private static int _pauseCount;
+    private static float _previousTimeScale = 1f;
 
     public static bool IsPaused => _pauseCount > 0;
 
@@ -27,10 +27,7 @@ public static class PauseManager
     {
         if (_pauseCount <= 0) return;
         _pauseCount--;
-        if (_pauseCount == 0)
-        {
-            Time.timeScale = _previousTimeScale;
-        }
+        if (_pauseCount == 0) Time.timeScale = _previousTimeScale;
     }
 
     public static void ForceResume()

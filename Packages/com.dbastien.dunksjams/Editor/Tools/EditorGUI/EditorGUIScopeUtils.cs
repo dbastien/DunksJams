@@ -3,7 +3,7 @@ using UnityEditor;
 
 public struct EditorGUIIndentLevelScope : IDisposable
 {
-    readonly int _prev;
+    private readonly int _prev;
 
     public EditorGUIIndentLevelScope(int indent)
     {

@@ -6,8 +6,8 @@ using UnityEngine;
 /// </summary>
 public class LutRegistry : ScriptableObject
 {
-    [SerializeField] Texture2D[] _luts = { };
-    [SerializeField] string[] _names = { };
+    [SerializeField] private Texture2D[] _luts = { };
+    [SerializeField] private string[] _names = { };
 
     public int Count => _luts?.Length ?? 0;
     public Texture2D this[int i] => _luts != null && i >= 0 && i < _luts.Length ? _luts[i] : null;
@@ -18,13 +18,11 @@ public class LutRegistry : ScriptableObject
         lut = null;
         if (_names == null || _luts == null) return false;
         for (var i = 0; i < _names.Length; i++)
-        {
             if (_names[i] == name)
             {
                 lut = _luts[i];
                 return true;
             }
-        }
 
         return false;
     }

@@ -3,16 +3,16 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class AudioEmitter : MonoBehaviour
 {
-    [SerializeField] AudioClipReference audioClip;
-    [SerializeField] bool playOnAwake;
-    [SerializeField] bool loop;
-    [SerializeField] bool is3D = true;
+    [SerializeField] private AudioClipReference audioClip;
+    [SerializeField] private bool playOnAwake;
+    [SerializeField] private bool loop;
+    [SerializeField] private bool is3D = true;
 
-    [SerializeField] float delay;
+    [SerializeField] private float delay;
 
-    AudioSource activeSource;
+    private AudioSource activeSource;
 
-    void Awake()
+    private void Awake()
     {
         if (playOnAwake && audioClip != null)
             Play();
@@ -54,5 +54,5 @@ public class AudioEmitter : MonoBehaviour
         activeSource = null;
     }
 
-    void OnDestroy() => Stop();
+    private void OnDestroy() => Stop();
 }

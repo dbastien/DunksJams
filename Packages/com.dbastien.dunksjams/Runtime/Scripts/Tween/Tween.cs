@@ -15,53 +15,57 @@ public class Tween<T> : ITween, IPoolable
     //todo: not sure?
     public float Duration => _duration + Delay;
 
-    T _startValue;
-    T _endValue;
-    float _duration;
-    EaseType _easeType = EaseType.Linear;
-    Func<float, float> _customEase;
-    Action<T> _onUpdateValue;
-    Func<T, T, float, T> _interpolator;
+    private T _startValue;
+    private T _endValue;
+    private float _duration;
+    private EaseType _easeType = EaseType.Linear;
+    private Func<float, float> _customEase;
+    private Action<T> _onUpdateValue;
+    private Func<T, T, float, T> _interpolator;
 
-    float _elapsedTime;
-    bool _isPaused;
-    bool _isCancelled;
+    private float _elapsedTime;
+    private bool _isPaused;
+    private bool _isCancelled;
 
     // Control variables
-    bool _hasStarted;
-    int _completedLoops;
-    float _delayElapsed;
+    private bool _hasStarted;
+    private int _completedLoops;
+    private float _delayElapsed;
 
     // Callbacks
-    Action _onStart;
-    Action _onUpdate;
-    Action _onComplete;
-    Action _onStepComplete;
-    Action _onRewind;
+    private Action _onStart;
+    private Action _onUpdate;
+    private Action _onComplete;
+    private Action _onStepComplete;
+    private Action _onRewind;
 
     public Tween()
     {
         // Default constructor for pooling
     }
 
-    public Tween(
+    public Tween
+    (
         T startValue,
         T endValue,
         float duration,
         Func<float, float> easingFunction,
         Action<T> onUpdateValue,
-        Func<T, T, float, T> interpolator)
+        Func<T, T, float, T> interpolator
+    )
     {
         Initialize(startValue, endValue, duration, easingFunction, onUpdateValue, interpolator);
     }
 
-    public void Initialize(
+    public void Initialize
+    (
         T startValue,
         T endValue,
         float duration,
         Func<float, float> easingFunction,
         Action<T> onUpdateValue,
-        Func<T, T, float, T> interpolator)
+        Func<T, T, float, T> interpolator
+    )
     {
         _startValue = startValue;
         _endValue = endValue;
@@ -215,10 +219,10 @@ public class Tween<T> : ITween, IPoolable
         }
 
         _elapsedTime += deltaTime;
-        var t = Mathf.Clamp01(_elapsedTime / _duration);
-        var easedT = Evaluate(t);
+        float t = Mathf.Clamp01(_elapsedTime / _duration);
+        float easedT = Evaluate(t);
 
-        var currentValue = _interpolator(_startValue, _endValue, easedT);
+        T currentValue = _interpolator(_startValue, _endValue, easedT);
         _onUpdate?.Invoke();
         _onUpdateValue(currentValue);
 
@@ -293,16 +297,12 @@ public class Tween<T> : ITween, IPoolable
     }
 
     // IPoolable implementation
-    public void OnPoolGet()
-    {
-    }
+    public void OnPoolGet() { }
 
-    public void OnPoolRelease()
-    {
-    }
+    public void OnPoolRelease() { }
 
     // Pool management
-    void ReturnToPool()
+    private void ReturnToPool()
     {
         // Return to appropriate pool based on type
         if (this is Tween<float>) TweenAPI.ReturnToFloatPool(this as Tween<float>);

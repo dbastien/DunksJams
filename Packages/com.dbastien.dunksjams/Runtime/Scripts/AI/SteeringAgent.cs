@@ -11,7 +11,7 @@ public class SteeringAgent : MonoBehaviour
     public Rigidbody RigidBody { get; private set; }
     public Collider Collider { get; private set; }
 
-    void Awake()
+    private void Awake()
     {
         Collider = GetComponent<Collider>();
         RigidBody = GetComponent<Rigidbody>();
@@ -19,16 +19,16 @@ public class SteeringAgent : MonoBehaviour
         RigidBody.angularDamping = 0f;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (behaviors == null || behaviors.Length == 0) return;
 
-        var target = targetingStrategy?.GetTarget(this);
+        Transform target = targetingStrategy?.GetTarget(this);
         if (!target) return;
 
-        var totalForce = Vector3.zero;
+        Vector3 totalForce = Vector3.zero;
 
-        foreach (var behavior in behaviors)
+        foreach (SteeringBehavior behavior in behaviors)
         {
             if (!behavior) continue;
             totalForce += behavior.CalculateForce(this, target) * behavior.weight;
@@ -37,7 +37,7 @@ public class SteeringAgent : MonoBehaviour
         ApplyForce(totalForce);
     }
 
-    void ApplyForce(Vector3 force)
+    private void ApplyForce(Vector3 force)
     {
         force = Vector3.ClampMagnitude(force, maxForce);
         RigidBody.AddForce(force);

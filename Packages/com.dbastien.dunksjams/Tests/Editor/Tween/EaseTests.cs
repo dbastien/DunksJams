@@ -21,7 +21,7 @@ public class EaseTests : TestBase
             Ease.SineIn, Ease.SineOut, Ease.SineInOut,
             Ease.SmoothStep, Ease.SmootherStep
         };
-        foreach (var f in funcs)
+        foreach (Func<float, float> f in funcs)
             Approx(0f, f(0f), 0.001f);
     }
 
@@ -35,7 +35,7 @@ public class EaseTests : TestBase
             Ease.SineIn, Ease.SineOut, Ease.SineInOut,
             Ease.SmoothStep, Ease.SmootherStep
         };
-        foreach (var f in funcs)
+        foreach (Func<float, float> f in funcs)
             Approx(1f, f(1f), 0.001f);
     }
 

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent, SingletonAutoCreate]
+[DisallowMultipleComponent]
+[SingletonAutoCreate]
 public class VehicleManager : SingletonEagerBehaviour<VehicleManager>
 {
-    readonly List<VehicleController> _vehicles = new();
-    VehicleController _activeVehicle;
+    private readonly List<VehicleController> _vehicles = new();
+    private VehicleController _activeVehicle;
 
     public IReadOnlyList<VehicleController> Vehicles => _vehicles;
     public VehicleController ActiveVehicle => _activeVehicle;

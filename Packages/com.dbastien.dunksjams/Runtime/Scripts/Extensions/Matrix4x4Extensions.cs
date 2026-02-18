@@ -10,11 +10,11 @@ public static class Matrix4X4Extensions
     /// <returns>Matrix for transforming an RGB color in HSV space</returns>
     public static Matrix4x4 CreateHSVTransform(float h, float s, float v)
     {
-        var hr = -h * MathConsts.Tau_Div4;
+        float hr = -h * MathConsts.Tau_Div4;
         //float hr = h * Mathf.Deg2Rad;
 
-        var vsu = v * s * MathF.Cos(hr);
-        var vsw = v * s * MathF.Sin(hr);
+        float vsu = v * s * MathF.Cos(hr);
+        float vsw = v * s * MathF.Sin(hr);
 
         return new Matrix4x4
         {
@@ -36,11 +36,11 @@ public static class Matrix4X4Extensions
 
     public static Matrix4x4 CreateHueRotationTransform(float degrees)
     {
-        var angleRad = degrees * Mathf.Deg2Rad;
-        var cosA = MathF.Cos(angleRad);
-        var sinA = MathF.Sin(angleRad);
+        float angleRad = degrees * Mathf.Deg2Rad;
+        float cosA = MathF.Cos(angleRad);
+        float sinA = MathF.Sin(angleRad);
 
-        var m = Matrix4x4.identity;
+        Matrix4x4 m = Matrix4x4.identity;
 
         m.m00 = 0.213f + cosA * 0.787f - sinA * 0.213f;
         m.m01 = 0.213f - cosA * 0.213f + sinA * 0.143f;
@@ -60,8 +60,8 @@ public static class Matrix4X4Extensions
 
     public static Matrix4x4 CreateSaturationTransform(float sat)
     {
-        var m = Matrix4x4.identity;
-        var invSat = 1f - sat;
+        Matrix4x4 m = Matrix4x4.identity;
+        float invSat = 1f - sat;
 
         m.m00 = invSat * 0.299f + sat;
         m.m01 = invSat * 0.299f;
@@ -111,8 +111,8 @@ public static class Matrix4X4Extensions
 
     public static Matrix4x4 CreateScaleRotationTranslation2D(Vector2 scale, float radians, Vector2 translation)
     {
-        var cos = MathF.Cos(radians);
-        var sin = MathF.Sin(radians);
+        float cos = MathF.Cos(radians);
+        float sin = MathF.Sin(radians);
 
         return new Matrix4x4
         {

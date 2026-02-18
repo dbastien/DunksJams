@@ -1,5 +1,3 @@
 ﻿using UnityEngine;
 
-public class NormalizedAnimationCurveAttribute : PropertyAttribute
-{
-}
+public class NormalizedAnimationCurveAttribute : PropertyAttribute { }

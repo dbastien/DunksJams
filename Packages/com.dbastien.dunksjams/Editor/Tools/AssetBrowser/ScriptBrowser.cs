@@ -26,11 +26,11 @@ public class ScriptBrowserTreeView : AssetBrowserTreeView<ScriptBrowserTreeView.
     {
         if (!sceneOnly) return FindAssetGuids("Script", path);
 
-        var scripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+        MonoBehaviour[] scripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
         var guids = new System.Collections.Generic.List<string>();
-        foreach (var script in scripts)
+        foreach (MonoBehaviour script in scripts)
             if (MonoScript.FromMonoBehaviour(script) is { } monoScript &&
-                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(monoScript, out var guid, out _))
+                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(monoScript, out string guid, out _))
                 guids.Add(guid);
         return guids.ToArray();
     }

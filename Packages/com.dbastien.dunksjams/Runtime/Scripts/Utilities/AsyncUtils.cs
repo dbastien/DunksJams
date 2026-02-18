@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 
 public static class AsyncUtils
 {
-    static readonly WaitForEndOfFrame _endOfFrame = new();
-    static readonly WaitForFixedUpdate _fixedUpdate = new();
+    private static readonly WaitForEndOfFrame _endOfFrame = new();
+    private static readonly WaitForFixedUpdate _fixedUpdate = new();
 
     public static IEnumerator Delay(float seconds, CancellationToken token)
     {
@@ -37,7 +37,7 @@ public static class AsyncUtils
 
     public static IEnumerator LoadSceneAsync(string sceneName, LoadSceneMode mode, CancellationToken token)
     {
-        var operation = SceneManager.LoadSceneAsync(sceneName, mode);
+        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName, mode);
         while (!operation.isDone)
         {
             if (token.IsCancellationRequested) yield break;
@@ -51,7 +51,7 @@ public static class AsyncUtils
         AsyncRunner.Instance.StartCoroutine(RunCoroutine(action));
     }
 
-    static IEnumerator RunCoroutine(Action action)
+    private static IEnumerator RunCoroutine(Action action)
     {
         action();
         yield break;
@@ -64,7 +64,5 @@ public class AsyncRunner : SingletonEagerBehaviour<AsyncRunner>
 {
     protected override bool PersistAcrossScenes => true;
 
-    protected override void InitInternal()
-    {
-    }
+    protected override void InitInternal() { }
 }

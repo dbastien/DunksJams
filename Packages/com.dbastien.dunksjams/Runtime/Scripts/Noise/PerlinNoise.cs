@@ -6,9 +6,9 @@ public static class PerlinNoise
 
     public static float Perlin3D(float x, float y, float z)
     {
-        var xy = Mathf.PerlinNoise(x, y);
-        var yz = Mathf.PerlinNoise(y, z);
-        var zx = Mathf.PerlinNoise(z, x);
+        float xy = Mathf.PerlinNoise(x, y);
+        float yz = Mathf.PerlinNoise(y, z);
+        float zx = Mathf.PerlinNoise(z, x);
         return (xy + yz + zx) / 3f;
     }
 }

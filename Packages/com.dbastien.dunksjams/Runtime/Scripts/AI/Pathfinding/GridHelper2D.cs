@@ -3,18 +3,18 @@ using UnityEngine;
 
 public static class GridHelper2D
 {
-    static readonly Vector2Int[] CardinalDirections = { new(0, 1), new(0, -1), new(1, 0), new(-1, 0) };
-    static readonly Vector2Int[] DiagonalDirections = { new(1, 1), new(-1, -1), new(1, -1), new(-1, 1) };
+    private static readonly Vector2Int[] CardinalDirections = { new(0, 1), new(0, -1), new(1, 0), new(-1, 0) };
+    private static readonly Vector2Int[] DiagonalDirections = { new(1, 1), new(-1, -1), new(1, -1), new(-1, 1) };
     public static readonly Vector2Int[] CombinedDirections = Combine(CardinalDirections, DiagonalDirections);
 
     public static int GetValidNeighbors(Vector2Int pos, int[,] grid, Vector2Int[] result, bool allowDiag = false)
     {
         var count = 0;
-        var directions = allowDiag ? CombinedDirections : CardinalDirections;
+        Vector2Int[] directions = allowDiag ? CombinedDirections : CardinalDirections;
 
-        foreach (var dir in directions)
+        foreach (Vector2Int dir in directions)
         {
-            var neighbor = pos + dir;
+            Vector2Int neighbor = pos + dir;
             if (!IsWalkable(neighbor, grid)) continue;
             if (count >= result.Length)
                 throw new IndexOutOfRangeException("Result array is too small to hold all neighbors.");
@@ -24,8 +24,11 @@ public static class GridHelper2D
         return count;
     }
 
-    public static int GetValidNeighborsWithPool(Vector2Int pos, int[,] grid, out Vector2Int[] result,
-        bool allowDiag = false)
+    public static int GetValidNeighborsWithPool
+    (
+        Vector2Int pos, int[,] grid, out Vector2Int[] result,
+        bool allowDiag = false
+    )
     {
         result = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(8);
         return GetValidNeighbors(pos, grid, result, allowDiag);
@@ -58,11 +61,11 @@ public static class GridHelper2D
     public static int GetValidNeighbors(Vector2Int pos, float[,] grid, Vector2Int[] result, bool allowDiag = false)
     {
         var count = 0;
-        var directions = allowDiag ? CombinedDirections : CardinalDirections;
+        Vector2Int[] directions = allowDiag ? CombinedDirections : CardinalDirections;
 
-        foreach (var dir in directions)
+        foreach (Vector2Int dir in directions)
         {
-            var neighbor = pos + dir;
+            Vector2Int neighbor = pos + dir;
             if (!IsWalkable(neighbor, grid)) continue;
             if (count >= result.Length)
                 throw new IndexOutOfRangeException("Result array is too small to hold all neighbors.");
@@ -72,8 +75,11 @@ public static class GridHelper2D
         return count;
     }
 
-    public static int GetValidNeighborsWithPool(Vector2Int pos, float[,] grid, out Vector2Int[] result,
-        bool allowDiag = false)
+    public static int GetValidNeighborsWithPool
+    (
+        Vector2Int pos, float[,] grid, out Vector2Int[] result,
+        bool allowDiag = false
+    )
     {
         result = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(8);
         return GetValidNeighbors(pos, grid, result, allowDiag);
@@ -84,11 +90,11 @@ public static class GridHelper2D
     public static Vector2Int[] Combine(params Vector2Int[][] arrays)
     {
         var totalLen = 0;
-        foreach (var array in arrays) totalLen += array.Length;
+        foreach (Vector2Int[] array in arrays) totalLen += array.Length;
 
         var result = new Vector2Int[totalLen];
         var offset = 0;
-        foreach (var array in arrays)
+        foreach (Vector2Int[] array in arrays)
         {
             array.CopyTo(result, offset);
             offset += array.Length;
@@ -125,8 +131,17 @@ public static class GridHelper2D
             if (x == to.x && y == to.y) return true;
 
             int e2 = 2 * err;
-            if (e2 > -dy) { err -= dy; x += sx; }
-            if (e2 < dx) { err += dx; y += sy; }
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x += sx;
+            }
+
+            if (e2 < dx)
+            {
+                err += dx;
+                y += sy;
+            }
         }
     }
 
@@ -146,8 +161,17 @@ public static class GridHelper2D
             if (x == to.x && y == to.y) return true;
 
             int e2 = 2 * err;
-            if (e2 > -dy) { err -= dy; x += sx; }
-            if (e2 < dx) { err += dx; y += sy; }
+            if (e2 > -dy)
+            {
+                err -= dy;
+                x += sx;
+            }
+
+            if (e2 < dx)
+            {
+                err += dx;
+                y += sy;
+            }
         }
     }
 }

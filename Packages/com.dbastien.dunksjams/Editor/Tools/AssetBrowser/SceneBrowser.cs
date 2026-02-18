@@ -28,7 +28,7 @@ public class SceneBrowserTreeView : AssetBrowserTreeView<SceneBrowserTreeView.Tr
     protected override void AddAsset(ref int id, string guid, string path)
     {
         var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
-        var importer = AssetImporter.GetAtPath(path);
+        AssetImporter importer = AssetImporter.GetAtPath(path);
         if (asset && importer) AllItems.Add(new TreeViewItem(id++, guid, path, asset, importer));
     }
 

@@ -33,10 +33,10 @@ public class DialogEmphasisSettings : ScriptableObject
         if (string.IsNullOrEmpty(text)) return text;
 
         string result = text;
-        foreach (var style in styles)
+        foreach (EmphasisStyle style in styles)
         {
-            string tag = $"[{style.name}]";
-            string endTag = $"[/{style.name}]";
+            var tag = $"[{style.name}]";
+            var endTag = $"[/{style.name}]";
 
             // This is a simple replacement, more robust regex could be used
             int index;
@@ -49,12 +49,10 @@ public class DialogEmphasisSettings : ScriptableObject
                     string replaced = style.Apply(content);
                     result = result.Remove(index, endIndex + endTag.Length - index).Insert(index, replaced);
                 }
-                else
-                {
-                    break;
-                }
+                else { break; }
             }
         }
+
         return result;
     }
 }

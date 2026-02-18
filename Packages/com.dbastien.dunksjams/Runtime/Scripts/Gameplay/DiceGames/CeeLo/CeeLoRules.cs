@@ -7,7 +7,7 @@ public static class CeeLoRules
 
     public static CeeLoResult RollOnce()
     {
-        var dice = new[]
+        int[] dice = new[]
         {
             Dice.Roll(DieType.D6),
             Dice.Roll(DieType.D6),
@@ -43,7 +43,7 @@ public static class CeeLoRules
             throw new ArgumentException("Cee-Lo requires exactly three dice.", nameof(dice));
         }
 
-        var sorted = new[] { dice[0], dice[1], dice[2] };
+        int[] sorted = new[] { dice[0], dice[1], dice[2] };
         Array.Sort(sorted);
 
         if (sorted[0] == 1 && sorted[1] == 2 && sorted[2] == 3)

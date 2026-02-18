@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class FacingGizmo : MonoBehaviour
 {
-    static bool on;
+    private static bool on;
 
     [DrawGizmo(GizmoType.Selected | GizmoType.NonSelected | GizmoType.Active | GizmoType.Pickable)]
     public static void DrawGizmo(Transform t, GizmoType type)

@@ -47,10 +47,10 @@ public class Health : MonoBehaviour
     public int MaxHPEffective => maxHP + HPModifier;
     public int MaxShieldEffective => maxShield + shieldModifier;
 
-    bool _isInvulnerable, _isDead;
-    float _currentHP, _currentShield, _invulnerabilityTimer;
+    private bool _isInvulnerable, _isDead;
+    private float _currentHP, _currentShield, _invulnerabilityTimer;
 
-    readonly List<StatusEffectInstance> _activeStatusEffects = new();
+    private readonly List<StatusEffectInstance> _activeStatusEffects = new();
 
     public event Action<int> OnHPChanged, OnShieldChanged;
     public event Action<StatusEffect> OnStatusEffectApplied;
@@ -63,9 +63,9 @@ public class Health : MonoBehaviour
         public float timer; // -1 indicates a permanent effect
     }
 
-    void Start() => ResetHP();
+    private void Start() => ResetHP();
 
-    void Update()
+    private void Update()
     {
         if (_isInvulnerable && (_invulnerabilityTimer -= Time.deltaTime) <= 0)
             _isInvulnerable = false;
@@ -128,7 +128,7 @@ public class Health : MonoBehaviour
     {
         if (_isDead) return;
 
-        var existingEffect = _activeStatusEffects.Find(e => e.effectType == effect);
+        StatusEffectInstance existingEffect = _activeStatusEffects.Find(e => e.effectType == effect);
 
         if (existingEffect != null)
         {
@@ -146,11 +146,11 @@ public class Health : MonoBehaviour
     public void RemoveStatusEffect(StatusEffect effect) =>
         _activeStatusEffects.RemoveAll(e => e.effectType == effect);
 
-    void UpdateStatusEffects()
+    private void UpdateStatusEffects()
     {
-        for (var i = _activeStatusEffects.Count - 1; i >= 0; --i)
+        for (int i = _activeStatusEffects.Count - 1; i >= 0; --i)
         {
-            var effect = _activeStatusEffects[i];
+            StatusEffectInstance effect = _activeStatusEffects[i];
             if (effect.timer > 0)
                 effect.timer -= Time.deltaTime;
 
@@ -164,10 +164,10 @@ public class Health : MonoBehaviour
         }
     }
 
-    float ApplyResistance(float dam, DamageType damType) =>
-        resistances.TryGetValue(damType, out var resistance) ? dam * (1 - resistance) : dam;
+    private float ApplyResistance(float dam, DamageType damType) =>
+        resistances.TryGetValue(damType, out float resistance) ? dam * (1 - resistance) : dam;
 
-    void Die()
+    private void Die()
     {
         _isDead = true;
         _isInvulnerable = false;
@@ -192,7 +192,7 @@ public class Health : MonoBehaviour
 
     public void ChangeHP(float amount)
     {
-        var newHP = Mathf.Clamp(_currentHP + amount, 0, MaxHPEffective);
+        float newHP = Mathf.Clamp(_currentHP + amount, 0, MaxHPEffective);
         if (Mathf.Approximately(newHP, _currentHP)) return;
         _currentHP = newHP;
         OnHPChanged?.Invoke(Mathf.FloorToInt(_currentHP));

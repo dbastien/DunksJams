@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 public class TarotGame : CardGameBase<TarotCard>
 {
-    readonly TarotReadingSettings _settings;
-    bool _hasRead;
+    private readonly TarotReadingSettings _settings;
+    private bool _hasRead;
 
     public TarotGame(TarotReadingSettings settings = null, ICardGameIO io = null)
         : base(1, 1, io)
@@ -50,35 +50,35 @@ public class TarotGame : CardGameBase<TarotCard>
 
     protected override string GetResultSummary() => _hasRead ? "Reading complete." : null;
 
-    void PromptForSpread()
+    private void PromptForSpread()
     {
         var options = new List<string> { "Single Card", "Three Card (Past/Present/Future)" };
-        var choice = ReadChoice("Choose a tarot spread:", options, (int)_settings.Spread);
+        int choice = ReadChoice("Choose a tarot spread:", options, (int)_settings.Spread);
         _settings.Spread = choice == 0
             ? TarotReadingSettings.TarotSpread.SingleCard
             : TarotReadingSettings.TarotSpread.ThreeCard;
     }
 
-    void ReadSingleCard()
+    private void ReadSingleCard()
     {
-        var card = DrawReadingCard();
+        TarotCard card = DrawReadingCard();
         WriteLine($"Single card draw: {card}");
     }
 
-    void ReadThreeCard()
+    private void ReadThreeCard()
     {
-        var past = DrawReadingCard();
-        var present = DrawReadingCard();
-        var future = DrawReadingCard();
+        TarotCard past = DrawReadingCard();
+        TarotCard present = DrawReadingCard();
+        TarotCard future = DrawReadingCard();
         WriteLine("Three card spread:");
         WriteLine($"Past: {past}");
         WriteLine($"Present: {present}");
         WriteLine($"Future: {future}");
     }
 
-    TarotCard DrawReadingCard()
+    private TarotCard DrawReadingCard()
     {
-        var card = Deck.Draw();
+        TarotCard card = Deck.Draw();
         EmitCardDrawn(-1, card, false);
         DiscardCard(card, -1);
         return card;

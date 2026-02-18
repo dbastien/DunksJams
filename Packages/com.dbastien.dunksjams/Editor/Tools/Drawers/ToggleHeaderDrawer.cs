@@ -7,7 +7,7 @@ public class ToggleHeaderDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         var toggleHeader = (ToggleHeaderAttribute)attribute;
-        var toggleProperty = property.serializedObject.FindProperty(toggleHeader.ToggleField);
+        SerializedProperty toggleProperty = property.serializedObject.FindProperty(toggleHeader.ToggleField);
 
         if (toggleProperty != null)
         {
@@ -18,10 +18,7 @@ public class ToggleHeaderDrawer : PropertyDrawer
             toggleProperty.boolValue = EditorGUI.ToggleLeft(position, new GUIContent(toggleHeader.Header),
                 toggleProperty.boolValue, EditorStyles.boldLabel);
         }
-        else
-        {
-            EditorGUI.LabelField(position, "Toggle field not found.");
-        }
+        else { EditorGUI.LabelField(position, "Toggle field not found."); }
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label) =>

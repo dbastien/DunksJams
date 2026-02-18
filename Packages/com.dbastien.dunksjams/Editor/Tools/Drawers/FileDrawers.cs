@@ -15,7 +15,7 @@ public abstract class BasePathDrawer : PropertyDrawer
 
         if (GUI.Button(new Rect(rect.x + rect.width - btnWidth, rect.y, btnWidth, rect.height), "…"))
         {
-            var path = GetPath();
+            string path = GetPath();
             if (!string.IsNullOrEmpty(path) && path.StartsWith(Application.dataPath))
                 prop.stringValue = path[(Application.dataPath.Length + 1)..].Replace("/", "\\");
         }

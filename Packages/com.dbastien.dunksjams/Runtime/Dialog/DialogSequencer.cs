@@ -11,17 +11,14 @@ public class DialogSequencer : MonoBehaviour
 
     private Dictionary<string, Type> _commandTypeCache;
 
-    private void Awake()
-    {
-        _commandTypeCache = DialogUtility.DiscoverTypesWithPrefix("SequencerCommand");
-    }
+    private void Awake() { _commandTypeCache = DialogUtility.DiscoverTypesWithPrefix("SequencerCommand"); }
 
     public void PlaySequence(string sequence)
     {
         if (string.IsNullOrEmpty(sequence)) return;
 
         string[] commands = sequence.Split(';');
-        foreach (var cmd in commands) ParseAndExecute(cmd.Trim());
+        foreach (string cmd in commands) ParseAndExecute(cmd.Trim());
     }
 
     private void ParseAndExecute(string cmdString)
@@ -37,14 +34,11 @@ public class DialogSequencer : MonoBehaviour
 
         if (openParen > 0 && closeParen > openParen)
         {
-            commandName = cmdString.Substring(0, openParen);
+            commandName = cmdString[..openParen];
             string argsString = cmdString.Substring(openParen + 1, closeParen - openParen - 1);
             args = DialogUtility.ParseCommandArguments(argsString);
         }
-        else
-        {
-            commandName = cmdString;
-        }
+        else { commandName = cmdString; }
 
         ExecuteCommand(commandName, args);
     }
@@ -64,7 +58,9 @@ public class DialogSequencer : MonoBehaviour
         }
 
         // 2. Fallback to method-based commands (legacy/internal)
-        MethodInfo mi = GetType().GetMethod("OnSeq_" + name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+        MethodInfo mi = GetType().
+            GetMethod("OnSeq_" + name,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
         if (mi != null)
             mi.Invoke(this, new object[] { args });
         else
@@ -88,7 +84,8 @@ public class DialogSequencer : MonoBehaviour
 
     private void OnSeq_Wait(string[] args)
     {
-        if (args != null && args.Length > 0 && float.TryParse(args[0], out var duration)) StartCoroutine(TrackCommand(WaitCoroutine(duration)));
+        if (args != null && args.Length > 0 && float.TryParse(args[0], out float duration))
+            StartCoroutine(TrackCommand(WaitCoroutine(duration)));
     }
 
     private IEnumerator TrackCommand(IEnumerator coroutine)
@@ -120,10 +117,7 @@ public class DialogSequencer : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitCoroutine(float duration)
-    {
-        yield return new WaitForSeconds(duration);
-    }
+    private IEnumerator WaitCoroutine(float duration) { yield return new WaitForSeconds(duration); }
 
     // Add more here or use a dedicated command discovery system
 }

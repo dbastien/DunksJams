@@ -26,11 +26,11 @@ public class TMP_AnimatedText : MonoBehaviour
         if (_textComponent == null || _textComponent.textInfo.characterCount == 0) return;
 
         _textComponent.ForceMeshUpdate();
-        var textInfo = _textComponent.textInfo;
+        TMP_TextInfo textInfo = _textComponent.textInfo;
 
-        for (int i = 0; i < textInfo.characterCount; i++)
+        for (var i = 0; i < textInfo.characterCount; i++)
         {
-            var charInfo = textInfo.characterInfo[i];
+            TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
             if (!charInfo.isVisible) continue;
 
             // Simple squiggle/wave effect
@@ -50,7 +50,7 @@ public class TMP_AnimatedText : MonoBehaviour
             sourceVertices[vertexIndex + 3].y += offset;
         }
 
-        for (int i = 0; i < textInfo.meshInfo.Length; i++)
+        for (var i = 0; i < textInfo.meshInfo.Length; i++)
         {
             textInfo.meshInfo[i].mesh.vertices = textInfo.meshInfo[i].vertices;
             _textComponent.UpdateGeometry(textInfo.meshInfo[i].mesh, i);

@@ -4,7 +4,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public enum SceneTransitionState : byte { Idle, FadingOut, Loading, WaitingForInput, FadingIn }
+public enum SceneTransitionState : byte
+{
+    Idle,
+    FadingOut,
+    Loading,
+    WaitingForInput,
+    FadingIn
+}
 
 [Serializable]
 public class SceneTransitionSettings
@@ -17,8 +24,15 @@ public class SceneTransitionSettings
     public Color OverlayColor = Color.black;
 }
 
-public class SceneTransitionStartEvent : GameEvent { public string SceneName; }
-public class SceneTransitionCompleteEvent : GameEvent { public string SceneName; }
+public class SceneTransitionStartEvent : GameEvent
+{
+    public string SceneName;
+}
+
+public class SceneTransitionCompleteEvent : GameEvent
+{
+    public string SceneName;
+}
 
 /// <summary>
 /// Manages scene transitions with fade overlay, progress bar, optional audio fade, and event hooks.
@@ -30,15 +44,15 @@ public class SceneTransitionCompleteEvent : GameEvent { public string SceneName;
 [DisallowMultipleComponent]
 public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionManager>
 {
-    [SerializeField] SceneTransitionSettings _defaultSettings = new();
+    [SerializeField] private SceneTransitionSettings _defaultSettings = new();
 
-    SceneTransitionState _state = SceneTransitionState.Idle;
-    CanvasGroup _overlay;
-    Image _overlayImage;
-    RectTransform _fillRT;
-    GameObject _barRoot;
-    float _displayProgress;
-    Coroutine _activeTransition;
+    private SceneTransitionState _state = SceneTransitionState.Idle;
+    private CanvasGroup _overlay;
+    private Image _overlayImage;
+    private RectTransform _fillRT;
+    private GameObject _barRoot;
+    private float _displayProgress;
+    private Coroutine _activeTransition;
 
     public SceneTransitionState State => _state;
     public float DisplayProgress => _displayProgress;
@@ -64,7 +78,7 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
     // Transition logic
     // ========================================================================
 
-    void BeginTransition(string sceneName, LoadSceneMode mode, SceneTransitionSettings settings)
+    private void BeginTransition(string sceneName, LoadSceneMode mode, SceneTransitionSettings settings)
     {
         if (_state != SceneTransitionState.Idle)
         {
@@ -79,14 +93,14 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
         _activeTransition = StartCoroutine(RunTransition(sceneName, mode, settings));
     }
 
-    IEnumerator RunTransition(string sceneName, LoadSceneMode mode, SceneTransitionSettings settings)
+    private IEnumerator RunTransition(string sceneName, LoadSceneMode mode, SceneTransitionSettings settings)
     {
         _displayProgress = 0f;
         _state = SceneTransitionState.FadingOut;
         EventManager.QueueEvent<SceneTransitionStartEvent>(e => e.SceneName = sceneName, true);
 
         if (settings.FadeAudio)
-            AudioSystem.Instance?.StopMusic(fadeOut: true);
+            AudioSystem.Instance?.StopMusic(true);
 
         yield return Fade(0f, 1f, settings.FadeOutDuration);
         SetBarVisible(true);
@@ -94,7 +108,7 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
         // async load — Unity reports 0→0.9 while loading, then stalls until activation
         _state = SceneTransitionState.Loading;
         float loadStart = Time.unscaledTime;
-        var op = SceneManager.LoadSceneAsync(sceneName, mode);
+        AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, mode);
         op.allowSceneActivation = false;
 
         while (op.progress < 0.9f)
@@ -112,7 +126,7 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
         {
             float remaining = settings.MinLoadDuration - elapsed;
             float from = _displayProgress;
-            for (float t = 0f; t < remaining; t += Time.unscaledDeltaTime)
+            for (var t = 0f; t < remaining; t += Time.unscaledDeltaTime)
             {
                 _displayProgress = Mathf.Lerp(from, 1f, t / remaining);
                 UpdateBar();
@@ -150,40 +164,38 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
     // Fade helpers (uses unscaledDeltaTime so it works at timeScale 0)
     // ========================================================================
 
-    IEnumerator Fade(float from, float to, float duration)
+    private IEnumerator Fade(float from, float to, float duration)
     {
         _overlay.blocksRaycasts = true;
 
-        if (duration <= 0f)
-        {
-            _overlay.alpha = to;
-        }
+        if (duration <= 0f) { _overlay.alpha = to; }
         else
         {
-            for (float t = 0f; t < duration; t += Time.unscaledDeltaTime)
+            for (var t = 0f; t < duration; t += Time.unscaledDeltaTime)
             {
                 _overlay.alpha = Mathf.Lerp(from, to, t / duration);
                 yield return null;
             }
+
             _overlay.alpha = to;
         }
 
         _overlay.blocksRaycasts = to > 0.01f;
     }
 
-    void UpdateBar()
+    private void UpdateBar()
     {
         if (_fillRT != null)
             _fillRT.anchorMax = new Vector2(_displayProgress, 1f);
     }
 
-    void SetBarVisible(bool visible) => _barRoot?.SetActive(visible);
+    private void SetBarVisible(bool visible) => _barRoot?.SetActive(visible);
 
     // ========================================================================
     // UI construction (programmatic — no prefab required)
     // ========================================================================
 
-    void BuildUI()
+    private void BuildUI()
     {
         // canvas — highest sort order so it renders on top of everything
         var canvasGo = new GameObject("TransitionCanvas",
@@ -232,7 +244,7 @@ public class SceneTransitionManager : SingletonEagerBehaviour<SceneTransitionMan
         SetBarVisible(false);
     }
 
-    static void StretchFull(RectTransform rt)
+    private static void StretchFull(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;

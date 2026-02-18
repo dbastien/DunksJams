@@ -4,7 +4,7 @@ public class OrientedBox
 {
     public Vector3 Size;
     public Vector3 Pos;
-    Quaternion invRot;
+    private Quaternion invRot;
 
     public Quaternion Rot { get; private set; }
 
@@ -40,7 +40,7 @@ public class OrientedBox
 
         for (var i = 0; i < 8; ++i)
         {
-            var worldPt = B.TransformPointToWorld(Points[i]);
+            Vector3 worldPt = B.TransformPointToWorld(Points[i]);
             Vector3 localVert;
             if (!Contains(worldPt, out localVert))
                 return false;

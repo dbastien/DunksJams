@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ClearConsoleToolbarItem : IToolbarItem
 {
-    static GUIStyle _commandButtonStyle;
+    private static GUIStyle _commandButtonStyle;
 
     public string Name => "Clear Console";
     public ToolbarItemPosition Position => ToolbarItemPosition.Left;
@@ -13,9 +13,7 @@ public class ClearConsoleToolbarItem : IToolbarItem
     public int Priority => -100;
     public bool Enabled => true;
 
-    public void Init()
-    {
-    }
+    public void Init() { }
 
     public SettingsProvider GetSettingsProvider() => null;
 
@@ -35,7 +33,7 @@ public class ClearConsoleToolbarItem : IToolbarItem
                 GUILayout.Width(100)))
         {
             var logEntries = Type.GetType("UnityEditor.LogEntries, UnityEditor.dll");
-            var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public);
             clearMethod?.Invoke(null, null);
         }
     }
@@ -45,7 +43,7 @@ public class ClearConsoleToolbarItem : IToolbarItem
         if (GUILayout.Button("Clear Console"))
         {
             var logEntries = Type.GetType("UnityEditor.LogEntries, UnityEditor.dll");
-            var clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public);
+            MethodInfo clearMethod = logEntries?.GetMethod("Clear", BindingFlags.Static | BindingFlags.Public);
             clearMethod?.Invoke(null, null);
         }
     }

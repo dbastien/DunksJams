@@ -15,7 +15,11 @@ public class CreateNodeCommand : DialogGraphCommand
 
     public override string Name => $"Create {_nodeType} Node";
 
-    public CreateNodeCommand(DialogConversation conversation, DialogGraphView graphView, DialogNodeType nodeType, Rect rect, string guid = null)
+    public CreateNodeCommand
+    (
+        DialogConversation conversation, DialogGraphView graphView, DialogNodeType nodeType, Rect rect,
+        string guid = null
+    )
     {
         _conversation = conversation;
         _graphView = graphView;

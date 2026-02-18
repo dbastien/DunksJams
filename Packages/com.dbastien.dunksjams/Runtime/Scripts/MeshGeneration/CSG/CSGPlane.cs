@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class CSGPlane
 {
-    const float _epsilon = 1e-6f;
+    private const float _epsilon = 1e-6f;
 
     public Vector3 Normal;
     public float Distance;
@@ -19,25 +19,42 @@ public class CSGPlane
         Distance = Vector3.Dot(Normal, a);
     }
 
-    public CSGPlane(CSGPlane other) { Normal = other.Normal; Distance = other.Distance; }
+    public CSGPlane(CSGPlane other)
+    {
+        Normal = other.Normal;
+        Distance = other.Distance;
+    }
 
-    public void Flip() { Normal = -Normal; Distance = -Distance; }
+    public void Flip()
+    {
+        Normal = -Normal;
+        Distance = -Distance;
+    }
 
     [Flags]
-    enum PointClass { Coplanar = 0, Front = 1, Back = 2, Spanning = 3 }
-
-    public void Split(CSGPolygon polygon,
-        List<CSGPolygon> coplanarFront, List<CSGPolygon> coplanarBack,
-        List<CSGPolygon> front, List<CSGPolygon> back)
+    private enum PointClass
     {
-        var count = polygon.Vertices.Count;
+        Coplanar = 0,
+        Front = 1,
+        Back = 2,
+        Spanning = 3
+    }
+
+    public void Split
+    (
+        CSGPolygon polygon,
+        List<CSGPolygon> coplanarFront, List<CSGPolygon> coplanarBack,
+        List<CSGPolygon> front, List<CSGPolygon> back
+    )
+    {
+        int count = polygon.Vertices.Count;
         var classes = new PointClass[count];
         var polyClass = PointClass.Coplanar;
 
         for (var i = 0; i < count; ++i)
         {
-            var t = Vector3.Dot(Normal, polygon.Vertices[i].Position) - Distance;
-            var c = t < -_epsilon ? PointClass.Back : t > _epsilon ? PointClass.Front : PointClass.Coplanar;
+            float t = Vector3.Dot(Normal, polygon.Vertices[i].Position) - Distance;
+            PointClass c = t < -_epsilon ? PointClass.Back : t > _epsilon ? PointClass.Front : PointClass.Coplanar;
             polyClass |= c;
             classes[i] = c;
         }
@@ -59,18 +76,20 @@ public class CSGPlane
 
                 for (var i = 0; i < count; ++i)
                 {
-                    var j = (i + 1) % count;
-                    var ci = classes[i]; var cj = classes[j];
-                    var vi = polygon.Vertices[i]; var vj = polygon.Vertices[j];
+                    int j = (i + 1) % count;
+                    PointClass ci = classes[i];
+                    PointClass cj = classes[j];
+                    CSGVertex vi = polygon.Vertices[i];
+                    CSGVertex vj = polygon.Vertices[j];
 
                     if (ci != PointClass.Back) frontList.Add(vi);
                     if (ci != PointClass.Front) backList.Add(ci != PointClass.Back ? new CSGVertex(vi) : vi);
 
                     if ((ci | cj) == PointClass.Spanning)
                     {
-                        var t = (Distance - Vector3.Dot(Normal, vi.Position)) /
-                                Vector3.Dot(Normal, vj.Position - vi.Position);
-                        var mid = CSGVertex.Lerp(vi, vj, t);
+                        float t = (Distance - Vector3.Dot(Normal, vi.Position)) /
+                                  Vector3.Dot(Normal, vj.Position - vi.Position);
+                        CSGVertex mid = CSGVertex.Lerp(vi, vj, t);
                         frontList.Add(mid);
                         backList.Add(new CSGVertex(mid));
                     }

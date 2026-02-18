@@ -10,15 +10,15 @@ public struct LineSegment2D : IShape2D
 
     public bool Contains(Vector2 p)
     {
-        var d = End - Start;
-        var t = Vector2.Dot(p - Start, d) / d.sqrMagnitude;
+        Vector2 d = End - Start;
+        float t = Vector2.Dot(p - Start, d) / d.sqrMagnitude;
         return t is >= 0 and <= 1 && Mathf.Approximately((Start + t * d - p).sqrMagnitude, 0f);
     }
 
     public Vector2 NearestPoint(Vector2 p)
     {
-        var d = End - Start;
-        var t = Mathf.Clamp01(Vector2.Dot(p - Start, d) / d.sqrMagnitude);
+        Vector2 d = End - Start;
+        float t = Mathf.Clamp01(Vector2.Dot(p - Start, d) / d.sqrMagnitude);
         return Start + t * d;
     }
 
@@ -33,17 +33,17 @@ public struct LineSegment2D : IShape2D
 
     public bool Intersects(LineSegment2D other, out Vector2 inter)
     {
-        var d1 = End - Start;
-        var d2 = other.End - other.Start;
-        var det = d1.x * d2.y - d1.y * d2.x;
+        Vector2 d1 = End - Start;
+        Vector2 d2 = other.End - other.Start;
+        float det = d1.x * d2.y - d1.y * d2.x;
 
         inter = Vector2.zero;
 
         if (Mathf.Abs(det) < Mathf.Epsilon) return false;
 
-        var diff = other.Start - Start;
-        var t = (diff.x * d2.y - diff.y * d2.x) / det;
-        var u = (diff.x * d1.y - diff.y * d1.x) / det;
+        Vector2 diff = other.Start - Start;
+        float t = (diff.x * d2.y - diff.y * d2.x) / det;
+        float u = (diff.x * d1.y - diff.y * d1.x) / det;
 
         if (t is >= 0 and <= 1 && u is >= 0 and <= 1)
         {
@@ -58,8 +58,8 @@ public struct LineSegment2D : IShape2D
 
     public static Vector2 ClosestPointOnLineSegment(Vector2 p, Vector2 a, Vector2 b)
     {
-        var ab = b - a;
-        var t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
+        Vector2 ab = b - a;
+        float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
         return a + ab * Mathf.Clamp01(t);
     }
 

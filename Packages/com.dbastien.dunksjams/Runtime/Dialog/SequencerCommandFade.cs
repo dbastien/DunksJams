@@ -35,7 +35,7 @@ public class SequencerCommandFade : SequencerCommand
             imgGo.transform.SetParent(go.transform);
             _fadeImage = imgGo.AddComponent<Image>();
             _fadeImage.color = Color.black;
-            var rect = _fadeImage.rectTransform;
+            RectTransform rect = _fadeImage.rectTransform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
@@ -52,13 +52,13 @@ public class SequencerCommandFade : SequencerCommand
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(start, end, elapsed / duration);
-            var c = _fadeImage.color;
+            Color c = _fadeImage.color;
             c.a = alpha;
             _fadeImage.color = c;
             yield return null;
         }
 
-        var finalC = _fadeImage.color;
+        Color finalC = _fadeImage.color;
         finalC.a = end;
         _fadeImage.color = finalC;
 

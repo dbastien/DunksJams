@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class PathSmoother2D : IPathProcessor<Vector2Int>
 {
-    readonly float[,] _costGrid;
-    readonly int[,] _intGrid;
+    private readonly float[,] _costGrid;
+    private readonly int[,] _intGrid;
 
     public PathSmoother2D(float[,] costGrid) => _costGrid = costGrid;
     public PathSmoother2D(int[,] intGrid) => _intGrid = intGrid;
@@ -25,27 +25,25 @@ public class PathSmoother2D : IPathProcessor<Vector2Int>
         }
 
         result.Add(rawPath[0]);
-        int current = 0;
+        var current = 0;
 
         while (current < rawPath.Count - 1)
         {
             int farthestVisible = current + 1;
 
             for (int i = rawPath.Count - 1; i > current + 1; i--)
-            {
                 if (HasLineOfSight(rawPath[current], rawPath[i]))
                 {
                     farthestVisible = i;
                     break;
                 }
-            }
 
             result.Add(rawPath[farthestVisible]);
             current = farthestVisible;
         }
     }
 
-    bool HasLineOfSight(Vector2Int from, Vector2Int to)
+    private bool HasLineOfSight(Vector2Int from, Vector2Int to)
     {
         if (_costGrid != null) return GridHelper2D.HasLineOfSight(from, to, _costGrid);
         if (_intGrid != null) return GridHelper2D.HasLineOfSight(from, to, _intGrid);

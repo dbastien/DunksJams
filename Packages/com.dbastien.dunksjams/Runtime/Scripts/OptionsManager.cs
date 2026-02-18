@@ -17,21 +17,21 @@ public class OptionsManager
     [Range(0.1f, 10f)] public float mouseSensitivity = 1f;
     public bool invertYAxis;
 
-    readonly int defaultResolutionIndex = 0;
-    readonly bool defaultFullscreen = true;
-    readonly float defaultMasterVolume = 1f;
-    readonly float defaultMusicVolume = 1f;
-    readonly float defaultSfxVolume = 1f;
-    readonly int defaultGraphicsQuality = 2;
-    readonly bool defaultVsyncEnabled = true;
-    readonly float defaultMouseSensitivity = 1f;
-    readonly bool defaultInvertYAxis = false;
+    private readonly int defaultResolutionIndex = 0;
+    private readonly bool defaultFullscreen = true;
+    private readonly float defaultMasterVolume = 1f;
+    private readonly float defaultMusicVolume = 1f;
+    private readonly float defaultSfxVolume = 1f;
+    private readonly int defaultGraphicsQuality = 2;
+    private readonly bool defaultVsyncEnabled = true;
+    private readonly float defaultMouseSensitivity = 1f;
+    private readonly bool defaultInvertYAxis = false;
 
     public event Action OnSettingsChanged;
 
     public void ApplySettings()
     {
-        var resolution = Screen.resolutions[resolutionIndex];
+        Resolution resolution = Screen.resolutions[resolutionIndex];
         Screen.SetResolution(resolution.width, resolution.height, isFullscreen);
 
         QualitySettings.SetQualityLevel(graphicsQuality);

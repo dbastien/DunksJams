@@ -2,29 +2,28 @@ using UnityEngine;
 
 public class VehicleWheel : MonoBehaviour
 {
-    [Header("Role")]
-    [SerializeField] bool isSteer;
-    [SerializeField] bool isDrive;
-    [SerializeField] bool isBrake = true;
-    [SerializeField] bool isHandbrake;
-    [SerializeField] bool isFrontAxle;
+    [Header("Role")] [SerializeField] private bool isSteer;
+    [SerializeField] private bool isDrive;
+    [SerializeField] private bool isBrake = true;
+    [SerializeField] private bool isHandbrake;
+    [SerializeField] private bool isFrontAxle;
 
-    [Header("Suspension")]
-    [SerializeField] float suspensionRestLength = 0.35f;
-    [SerializeField] float suspensionTravel = 0.15f;
-    [SerializeField] float springRate = 35000f;
-    [SerializeField] float damperRate = 4500f;
+    [Header("Suspension")] [SerializeField]
+    private float suspensionRestLength = 0.35f;
 
-    [Header("Tire")]
-    [SerializeField] TireProfile tireProfile;
+    [SerializeField] private float suspensionTravel = 0.15f;
+    [SerializeField] private float springRate = 35000f;
+    [SerializeField] private float damperRate = 4500f;
 
-    [Header("Visual")]
-    [SerializeField] Transform wheelVisual;
-    [SerializeField] bool isLeftSide;
+    [Header("Tire")] [SerializeField] private TireProfile tireProfile;
 
-    [Header("Ground Detection")]
-    [SerializeField] float castRadius = 0.05f;
-    [SerializeField] LayerMask groundLayers = ~0;
+    [Header("Visual")] [SerializeField] private Transform wheelVisual;
+    [SerializeField] private bool isLeftSide;
+
+    [Header("Ground Detection")] [SerializeField]
+    private float castRadius = 0.05f;
+
+    [SerializeField] private LayerMask groundLayers = ~0;
 
     // Runtime state (read by VehicleController, effects, telemetry)
     public bool IsGrounded { get; private set; }
@@ -48,12 +47,12 @@ public class VehicleWheel : MonoBehaviour
     public TireProfile TireProfile => tireProfile;
     public float Radius => tireProfile != null ? tireProfile.Radius : 0.35f;
 
-    float _steerAngle;
-    float _driveTorque;
-    float _brakeTorque;
-    float _previousLength;
-    Rigidbody _rb;
-    float _wheelSpin;
+    private float _steerAngle;
+    private float _driveTorque;
+    private float _brakeTorque;
+    private float _previousLength;
+    private Rigidbody _rb;
+    private float _wheelSpin;
 
     public void Initialize(Rigidbody rb)
     {
@@ -92,20 +91,20 @@ public class VehicleWheel : MonoBehaviour
         UpdateVisual(dt);
     }
 
-    void UpdateSteering()
+    private void UpdateSteering()
     {
         if (!isSteer) return;
         transform.localRotation = Quaternion.Euler(0f, _steerAngle, 0f);
     }
 
-    void UpdateSuspension(float dt)
+    private void UpdateSuspension(float dt)
     {
         float maxLength = suspensionRestLength + suspensionTravel;
         float castDist = maxLength + Radius;
-        var origin = transform.position;
-        var down = -transform.up;
+        Vector3 origin = transform.position;
+        Vector3 down = -transform.up;
 
-        if (Physics.SphereCast(origin, castRadius, down, out var hit, castDist, groundLayers,
+        if (Physics.SphereCast(origin, castRadius, down, out RaycastHit hit, castDist, groundLayers,
                 QueryTriggerInteraction.Ignore))
         {
             IsGrounded = true;
@@ -140,13 +139,13 @@ public class VehicleWheel : MonoBehaviour
         }
     }
 
-    void UpdateTireForces(float dt)
+    private void UpdateTireForces(float dt)
     {
         if (tireProfile == null || !IsGrounded) return;
 
-        var worldVelocity = _rb.GetPointVelocity(ContactPoint);
-        var localForward = transform.forward;
-        var localRight = transform.right;
+        Vector3 worldVelocity = _rb.GetPointVelocity(ContactPoint);
+        Vector3 localForward = transform.forward;
+        Vector3 localRight = transform.right;
 
         float forwardVel = Vector3.Dot(worldVelocity, localForward);
         float lateralVel = Vector3.Dot(worldVelocity, localRight);
@@ -208,7 +207,7 @@ public class VehicleWheel : MonoBehaviour
         AngularVelocity = forwardVel / Radius + angularAccel * dt;
     }
 
-    void ApplyForces()
+    private void ApplyForces()
     {
         if (_rb == null) return;
 
@@ -220,7 +219,7 @@ public class VehicleWheel : MonoBehaviour
             _rb.AddForceAtPosition(TireForceWorld, ContactPoint);
     }
 
-    void UpdateVisual(float dt)
+    private void UpdateVisual(float dt)
     {
         if (wheelVisual == null) return;
 
@@ -231,10 +230,7 @@ public class VehicleWheel : MonoBehaviour
             float springLength = _previousLength;
             visualDrop = springLength + Radius;
         }
-        else
-        {
-            visualDrop = suspensionRestLength + suspensionTravel + Radius;
-        }
+        else { visualDrop = suspensionRestLength + suspensionTravel + Radius; }
 
         wheelVisual.position = transform.position - transform.up * visualDrop;
 
@@ -244,11 +240,11 @@ public class VehicleWheel : MonoBehaviour
         wheelVisual.localRotation = Quaternion.Euler(spinAxis * _wheelSpin, _steerAngle, 0f);
     }
 
-    void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
         float maxLength = suspensionRestLength + suspensionTravel;
-        var origin = transform.position;
-        var down = -transform.up;
+        Vector3 origin = transform.position;
+        Vector3 down = -transform.up;
 
         // Suspension range
         Gizmos.color = Color.yellow;

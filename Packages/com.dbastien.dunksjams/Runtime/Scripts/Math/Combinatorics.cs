@@ -14,11 +14,9 @@ public static class Combinatorics
         {
             result.Add(CreateList(set, indices, k));
 
-            for (var i = k - 1; i >= 0; --i)
-            {
+            for (int i = k - 1; i >= 0; --i)
                 if (++indices[i] < n) break;
                 else indices[i] = 0;
-            }
         }
 
         return result;
@@ -51,7 +49,7 @@ public static class Combinatorics
                 return;
             }
 
-            foreach (var item in sets[depth])
+            foreach (T item in sets[depth])
             {
                 current.Add(item);
                 CartesianHelper(current, depth + 1);
@@ -67,15 +65,13 @@ public static class Combinatorics
     public static List<List<T>> PowerSet<T>(List<T> set)
     {
         List<List<T>> result = new();
-        var powerSetCount = 2.Pow(set.Count);
+        int powerSetCount = 2.Pow(set.Count);
         for (var i = 0; i < powerSetCount; ++i)
         {
             List<T> subset = new();
             for (var j = 0; j < set.Count; ++j)
-            {
                 if ((i & (1 << j)) != 0)
                     subset.Add(set[j]);
-            }
 
             result.Add(subset);
         }
@@ -84,7 +80,7 @@ public static class Combinatorics
     }
 
     // create a list from indices for permutation/combination building
-    static List<T> CreateList<T>(List<T> set, int[] indices, int k)
+    private static List<T> CreateList<T>(List<T> set, int[] indices, int k)
     {
         List<T> result = new(k);
         for (var i = 0; i < k; ++i) result.Add(set[indices[i]]);
@@ -92,7 +88,7 @@ public static class Combinatorics
     }
 
     // General combinations (with or without repetition)
-    static List<List<T>> GetCombinations<T>(List<T> set, int k, bool allowRepetition)
+    private static List<List<T>> GetCombinations<T>(List<T> set, int k, bool allowRepetition)
     {
         List<List<T>> result = new();
 
@@ -104,7 +100,7 @@ public static class Combinatorics
                 return;
             }
 
-            for (var i = start; i < set.Count; ++i)
+            for (int i = start; i < set.Count; ++i)
             {
                 current.Add(set[i]);
                 Combine(current, allowRepetition ? i : i + 1);
@@ -117,7 +113,7 @@ public static class Combinatorics
     }
 
     // Generic recursion for permutations (allows swapping and backtracking)
-    static void Recurse<T>(List<T> set, int start, List<List<T>> resultSet, Action<List<T>, int> swap)
+    private static void Recurse<T>(List<T> set, int start, List<List<T>> resultSet, Action<List<T>, int> swap)
     {
         if (start >= set.Count)
         {
@@ -125,7 +121,7 @@ public static class Combinatorics
             return;
         }
 
-        for (var i = start; i < set.Count; ++i)
+        for (int i = start; i < set.Count; ++i)
         {
             swap(set, i);
             Recurse(set, start + 1, resultSet, swap);
@@ -175,7 +171,7 @@ public static class Combinatorics
                 return;
             }
 
-            for (var i = start; i < set.Count; ++i)
+            for (int i = start; i < set.Count; ++i)
             {
                 current.Add(set[i]);
                 Combine(current, i + 1);

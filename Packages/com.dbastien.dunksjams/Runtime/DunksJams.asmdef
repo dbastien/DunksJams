@@ -5,6 +5,7 @@
     "Unity.InputSystem",
     "Unity.Mathematics",
     "Unity.TextMeshPro",
+    "Unity.Timeline",
     "Unity.Burst",
     "Unity.Collections"
   ],

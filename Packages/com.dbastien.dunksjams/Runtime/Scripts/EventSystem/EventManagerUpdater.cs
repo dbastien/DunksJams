@@ -4,9 +4,7 @@ public class EventManagerUpdater : SingletonEagerBehaviour<EventManagerUpdater>
 {
     protected override bool PersistAcrossScenes => true;
 
-    protected override void InitInternal()
-    {
-    }
+    protected override void InitInternal() { }
 
-    void Update() => EventManager.Update();
+    private void Update() => EventManager.Update();
 }

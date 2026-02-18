@@ -3,16 +3,15 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "‽/Vehicle/Tire Profile", fileName = "TireProfile")]
 public class TireProfile : ScriptableObject
 {
-    [Header("Dimensions")]
-    [SerializeField] float radius = 0.35f;
+    [Header("Dimensions")] [SerializeField]
+    private float radius = 0.35f;
 
-    [Header("Friction")]
-    [SerializeField] AnimationCurve longitudinalFrictionCurve = DefaultLongitudinalCurve();
-    [SerializeField] AnimationCurve lateralFrictionCurve = DefaultLateralCurve();
-    [SerializeField] float maxGrip = 1.2f;
+    [Header("Friction")] [SerializeField] private AnimationCurve longitudinalFrictionCurve = DefaultLongitudinalCurve();
+    [SerializeField] private AnimationCurve lateralFrictionCurve = DefaultLateralCurve();
+    [SerializeField] private float maxGrip = 1.2f;
 
-    [Header("Resistance")]
-    [SerializeField] float rollingResistance = 0.015f;
+    [Header("Resistance")] [SerializeField]
+    private float rollingResistance = 0.015f;
 
     public float Radius => radius;
     public AnimationCurve LongitudinalFrictionCurve => longitudinalFrictionCurve;
@@ -21,7 +20,7 @@ public class TireProfile : ScriptableObject
     public float RollingResistance => rollingResistance;
 
     /// <summary>Peaks around 0.08 slip, tapers off at higher slip.</summary>
-    static AnimationCurve DefaultLongitudinalCurve()
+    private static AnimationCurve DefaultLongitudinalCurve()
     {
         var curve = new AnimationCurve(
             new Keyframe(0f, 0f),
@@ -34,7 +33,7 @@ public class TireProfile : ScriptableObject
     }
 
     /// <summary>Peaks around 8 degrees slip angle, tapers at higher angles.</summary>
-    static AnimationCurve DefaultLateralCurve()
+    private static AnimationCurve DefaultLateralCurve()
     {
         var curve = new AnimationCurve(
             new Keyframe(0f, 0f),

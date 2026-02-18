@@ -7,24 +7,22 @@ public static class ICollectionExtensions
 
     public static void AddRange<T>(this ICollection<T> c, IEnumerable<T> items)
     {
-        foreach (var item in items) c.Add(item);
+        foreach (T item in items) c.Add(item);
     }
 
     public static void RemoveRange<T>(this ICollection<T> c, IEnumerable<T> items)
     {
-        foreach (var item in items) c.Remove(item);
+        foreach (T item in items) c.Remove(item);
     }
 
     public static void RemoveMatching<T>(this ICollection<T> c, Predicate<T> match)
     {
         var itemsToRemove = new List<T>();
-        foreach (var item in c)
-        {
+        foreach (T item in c)
             if (match(item))
                 itemsToRemove.Add(item);
-        }
 
-        foreach (var item in itemsToRemove) c.Remove(item);
+        foreach (T item in itemsToRemove) c.Remove(item);
     }
 
     public static bool TryAdd<T>(this ICollection<T> c, T item)
@@ -36,13 +34,11 @@ public static class ICollectionExtensions
 
     public static T GetOrAdd<T>(this ICollection<T> c, Func<T, bool> predicate, Func<T> newItem)
     {
-        foreach (var item in c)
-        {
+        foreach (T item in c)
             if (predicate(item))
                 return item;
-        }
 
-        var newItemInstance = newItem();
+        T newItemInstance = newItem();
         c.Add(newItemInstance);
         return newItemInstance;
     }

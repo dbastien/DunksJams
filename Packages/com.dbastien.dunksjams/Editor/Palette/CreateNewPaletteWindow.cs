@@ -6,16 +6,16 @@ public class CreateNewPaletteWindow : EditorWindow
 {
     public static void ShowWindow() => GetWindow<CreateNewPaletteWindow>("Create Palette");
 
-    string _paletteName = "NewPalette";
-    int _creationMode = 0; // 0=blank, 1=from base color, 2=from image
-    Color _baseColor = Color.white;
-    int _schemeIndex = 0; // 0=complementary, 1=triadic, 2=analogous, 3=spectrum
-    int _colorCount = 5;
-    Texture2D _sourceImage;
-    int _extractColorCount = 8;
-    string _savePath = "Assets/Palettes";
+    private string _paletteName = "NewPalette";
+    private int _creationMode = 0; // 0=blank, 1=from base color, 2=from image
+    private Color _baseColor = Color.white;
+    private int _schemeIndex = 0; // 0=complementary, 1=triadic, 2=analogous, 3=spectrum
+    private int _colorCount = 5;
+    private Texture2D _sourceImage;
+    private int _extractColorCount = 8;
+    private string _savePath = "Assets/Palettes";
 
-    void OnGUI()
+    private void OnGUI()
     {
         GUILayout.Label("Create New Palette", EditorStyles.boldLabel);
 
@@ -44,8 +44,10 @@ public class CreateNewPaletteWindow : EditorWindow
                 break;
 
             case 2: // From image
-                EditorGUILayout.HelpBox("Extract dominant colors from an image using k-means clustering.", MessageType.Info);
-                _sourceImage = (Texture2D)EditorGUILayout.ObjectField("Source Image", _sourceImage, typeof(Texture2D), false);
+                EditorGUILayout.HelpBox("Extract dominant colors from an image using k-means clustering.",
+                    MessageType.Info);
+                _sourceImage =
+                    (Texture2D)EditorGUILayout.ObjectField("Source Image", _sourceImage, typeof(Texture2D), false);
                 _extractColorCount = EditorGUILayout.IntSlider("Extract Count", _extractColorCount, 2, 16);
                 break;
         }
@@ -55,13 +57,10 @@ public class CreateNewPaletteWindow : EditorWindow
 
         GUILayout.Space(20);
 
-        if (GUILayout.Button("Create Palette", GUILayout.Height(40)))
-        {
-            CreatePalette();
-        }
+        if (GUILayout.Button("Create Palette", GUILayout.Height(40))) CreatePalette();
     }
 
-    void CreatePalette()
+    private void CreatePalette()
     {
         if (string.IsNullOrEmpty(_paletteName))
         {
@@ -86,15 +85,15 @@ public class CreateNewPaletteWindow : EditorWindow
         SavePalette(colors);
     }
 
-    Color[] CreateBlankPalette()
+    private Color[] CreateBlankPalette()
     {
         var colors = new Color[_colorCount];
-        for (int i = 0; i < _colorCount; i++)
+        for (var i = 0; i < _colorCount; i++)
             colors[i] = new Color(Random.value, Random.value, Random.value);
         return colors;
     }
 
-    Color[] CreateFromBaseColor()
+    private Color[] CreateFromBaseColor()
     {
         return _schemeIndex switch
         {
@@ -106,19 +105,20 @@ public class CreateNewPaletteWindow : EditorWindow
         };
     }
 
-    Color[] GenerateComplementaryPalette(Color c)
+    private Color[] GenerateComplementaryPalette(Color c)
     {
         var colors = new Color[_colorCount];
         colors[0] = c;
-        for (int i = 1; i < _colorCount; i++)
+        for (var i = 1; i < _colorCount; i++)
         {
-            var t = (float)i / (_colorCount - 1);
+            float t = (float)i / (_colorCount - 1);
             colors[i] = Color.Lerp(c, ColorTheory.Complementary(c), t);
         }
+
         return colors;
     }
 
-    Color[] CreateFromImage()
+    private Color[] CreateFromImage()
     {
         if (_sourceImage == null)
         {
@@ -130,12 +130,12 @@ public class CreateNewPaletteWindow : EditorWindow
         return PaletteExtraction.ExtractColors(_sourceImage, _extractColorCount);
     }
 
-    void SavePalette(Color[] colors)
+    private void SavePalette(Color[] colors)
     {
         if (!AssetDatabase.IsValidFolder(_savePath))
             AssetDatabase.CreateFolder("Assets", "Palettes");
 
-        var palette = ScriptableObject.CreateInstance<ColorPalette>();
+        var palette = CreateInstance<ColorPalette>();
         palette.paletteName = _paletteName;
         palette.colors = colors;
         ApplyGenerationMetadata(palette, colors);
@@ -150,11 +150,11 @@ public class CreateNewPaletteWindow : EditorWindow
         Close();
     }
 
-    void ApplyGenerationMetadata(ColorPalette palette, Color[] colors)
+    private void ApplyGenerationMetadata(ColorPalette palette, Color[] colors)
     {
         if (palette == null) return;
 
-        palette.BaseColor = colors != null && colors.Length > 0 ? colors[0] : Color.white;
+        palette.BaseColor = colors is { Length: > 0 } ? colors[0] : Color.white;
         palette.Shades = 1;
         palette.Saturation = 1f;
         palette.Value = 1f;
@@ -182,7 +182,7 @@ public class CreateNewPaletteWindow : EditorWindow
                     3 => PaletteScheme.Spectrum,
                     _ => PaletteScheme.Custom
                 };
-                Color.RGBToHSV(_baseColor, out _, out var s, out var v);
+                Color.RGBToHSV(_baseColor, out _, out float s, out float v);
                 palette.Saturation = s;
                 palette.Value = v;
                 break;

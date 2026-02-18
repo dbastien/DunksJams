@@ -1,12 +1,13 @@
 ﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 [CustomPropertyDrawer(typeof(PaletteColorAttribute))]
 public class PaletteColorDrawer : PropertyDrawer
 {
-    const float SwatchSize = 16f;
-    const float Spacing = 4f;
+    private const float SwatchSize = 16f;
+    private const float Spacing = 4f;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -20,14 +21,14 @@ public class PaletteColorDrawer : PropertyDrawer
         var attr = attribute as PaletteColorAttribute;
 
         // Main color field area
-        var fieldRect = position;
+        Rect fieldRect = position;
         fieldRect.width -= (SwatchSize + Spacing) * 3f; // leave space for swatch bar + gear + advanced picker
 
         EditorGUI.BeginProperty(position, label, property);
         EditorGUI.PropertyField(fieldRect, property, label);
 
         // Resolve palette for this drawer (explicit path on attribute takes precedence)
-        var palettes = PaletteDatabase.Palettes;
+        IReadOnlyList<ColorPalette> palettes = PaletteDatabase.Palettes;
         ColorPalette pal = null;
         if (!string.IsNullOrEmpty(attr.palettePath))
             pal = AssetDatabase.LoadAssetAtPath<ColorPalette>(attr.palettePath);
@@ -40,29 +41,25 @@ public class PaletteColorDrawer : PropertyDrawer
         // Gear button - select and ping the palette asset so designer can inspect/edit it
         var gearRect = new Rect(swatchRect.xMax + Spacing, position.y, SwatchSize, SwatchSize);
         if (GUI.Button(gearRect, EditorGUIUtility.IconContent("d_FilterByLabel"), EditorStyles.iconButton))
-        {
             if (pal != null)
             {
                 Selection.activeObject = pal;
                 EditorGUIUtility.PingObject(pal);
             }
-        }
 
         // Advanced Picker button - opens Palette Studio in Picker mode
         var pickerRect = new Rect(gearRect.xMax + Spacing, position.y, SwatchSize, SwatchSize);
         if (GUI.Button(pickerRect, EditorGUIUtility.IconContent("d_EyeDropper"), EditorStyles.iconButton))
-        {
             PaletteStudioWindow.ShowPicker(c =>
             {
                 property.colorValue = c;
                 property.serializedObject.ApplyModifiedProperties();
             }, property.colorValue);
-        }
 
         EditorGUI.EndProperty();
     }
 
-    void DrawSwatchBar(Rect rect, SerializedProperty property, ColorPalette pal)
+    private void DrawSwatchBar(Rect rect, SerializedProperty property, ColorPalette pal)
     {
         if (pal == null)
         {
@@ -70,7 +67,7 @@ public class PaletteColorDrawer : PropertyDrawer
             return;
         }
 
-        var colors = pal.ToArray();
+        Color[] colors = pal.ToArray();
         if (colors == null || colors.Length == 0)
         {
             EditorGUI.DrawRect(rect, Color.clear);
@@ -78,14 +75,14 @@ public class PaletteColorDrawer : PropertyDrawer
         }
 
         // Expand rect to show N swatches horizontally (clamped by rect width)
-        var count = colors.Length;
-        var sw = rect.width / count;
-        var x = rect.x;
+        int count = colors.Length;
+        float sw = rect.width / count;
+        float x = rect.x;
         for (var i = 0; i < count; ++i)
         {
             var r = new Rect(x + i * sw, rect.y, sw, rect.height);
             EditorGUI.DrawRect(r, colors[i]);
-            var id = GUIUtility.GetControlID(FocusType.Passive);
+            int id = GUIUtility.GetControlID(FocusType.Passive);
             if (Event.current.type == EventType.MouseDown && r.Contains(Event.current.mousePosition))
             {
                 property.colorValue = colors[i];
@@ -95,6 +92,7 @@ public class PaletteColorDrawer : PropertyDrawer
         }
     }
 
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => base.GetPropertyHeight(property, label);
+    public override float GetPropertyHeight
+        (SerializedProperty property, GUIContent label) => base.GetPropertyHeight(property, label);
 }
 #endif

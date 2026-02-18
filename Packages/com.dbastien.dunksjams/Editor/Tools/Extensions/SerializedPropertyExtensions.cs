@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class SerializedPropertyExtensions
 {
-    static readonly Dictionary<SerializedPropertyType, Action<SerializedProperty>> _defaultSetters = new()
+    private static readonly Dictionary<SerializedPropertyType, Action<SerializedProperty>> _defaultSetters = new()
     {
         { SerializedPropertyType.Integer, prop => prop.intValue = 0 },
         { SerializedPropertyType.Boolean, prop => prop.boolValue = false },
@@ -33,7 +33,7 @@ public static class SerializedPropertyExtensions
 
     public static void SetDefaultValue(this SerializedProperty property, bool logUnsupported = false)
     {
-        Debug.Assert(_defaultSetters.TryGetValue(property.propertyType, out var setter));
+        Debug.Assert(_defaultSetters.TryGetValue(property.propertyType, out Action<SerializedProperty> setter));
         setter(property);
     }
 }

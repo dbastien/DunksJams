@@ -16,13 +16,9 @@ public sealed class ArrayHashSetNative<T>
     public int Count => size;
     public bool IsEmpty => size == 0;
 
-    public ArrayHashSetNative() : this(11)
-    {
-    }
+    public ArrayHashSetNative() : this(11) { }
 
-    public ArrayHashSetNative(int capacity) : this(capacity, null)
-    {
-    }
+    public ArrayHashSetNative(int capacity) : this(capacity, null) { }
 
     public ArrayHashSetNative(int capacity, IEqualityComparer<T> comp)
     {
@@ -38,14 +34,12 @@ public sealed class ArrayHashSetNative<T>
 
     public bool Add(T value)
     {
-        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        var index = hash % buckets.Length;
+        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        int index = hash % buckets.Length;
 
-        for (var i = buckets[index] - 1; i >= 0; i = next[i])
-        {
+        for (int i = buckets[index] - 1; i >= 0; i = next[i])
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
                 return false;
-        }
 
         int freeIndex;
         if (freeList >= 0)
@@ -87,12 +81,10 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        for (var i = buckets[hash % buckets.Length] - 1; i >= 0; i = next[i])
-        {
+        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        for (int i = buckets[hash % buckets.Length] - 1; i >= 0; i = next[i])
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
                 return true;
-        }
 
         return false;
     }
@@ -104,16 +96,14 @@ public sealed class ArrayHashSetNative<T>
     {
         var count = 0;
         for (var i = 0; i < lastIndex && count < length; ++i)
-        {
             if (hashes[i] >= 0)
                 array[arrayIndex + count++] = buffer[i];
-        }
     }
 
     public void ExceptWith(IEnumerable<T> other)
     {
         if (size > 0)
-            foreach (var item in other)
+            foreach (T item in other)
                 Remove(item);
     }
 
@@ -136,11 +126,9 @@ public sealed class ArrayHashSetNative<T>
         if (other is ICollection<T> collection && collection.Count == 0)
             return true;
 
-        foreach (var item in other)
-        {
+        foreach (T item in other)
             if (!Contains(item))
                 return false;
-        }
 
         return true;
     }
@@ -149,11 +137,9 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        foreach (var item in other)
-        {
+        foreach (T item in other)
             if (Contains(item))
                 return true;
-        }
 
         return false;
     }
@@ -162,11 +148,11 @@ public sealed class ArrayHashSetNative<T>
     {
         if (size == 0) return false;
 
-        var hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
-        var index = hash % buckets.Length;
-        var removeIndex = -1;
+        int hash = comparer.GetHashCode(value) & 0x7FFFFFFF;
+        int index = hash % buckets.Length;
+        int removeIndex = -1;
 
-        for (var i = buckets[index] - 1; i >= 0; i = next[i])
+        for (int i = buckets[index] - 1; i >= 0; i = next[i])
         {
             if (hashes[i] == hash && comparer.Equals(buffer[i], value))
             {
@@ -193,14 +179,12 @@ public sealed class ArrayHashSetNative<T>
     {
         var removed = 0;
         for (var i = 0; i < lastIndex; ++i)
-        {
             if (hashes[i] >= 0)
             {
-                var value = buffer[i];
+                T value = buffer[i];
                 if (match(value) && Remove(value))
                     ++removed;
             }
-        }
 
         return removed;
     }
@@ -210,11 +194,9 @@ public sealed class ArrayHashSetNative<T>
         if (size == 0)
             UnionWith(other);
         else
-            foreach (var item in other)
-            {
+            foreach (T item in other)
                 if (!Remove(item))
                     Add(item);
-            }
     }
 
     public T[] ToArray()
@@ -232,7 +214,7 @@ public sealed class ArrayHashSetNative<T>
 
     public void UnionWith(IEnumerable<T> other)
     {
-        foreach (var item in other)
+        foreach (T item in other)
             Add(item);
     }
 
@@ -250,9 +232,9 @@ public sealed class ArrayHashSetNative<T>
 
     public struct Enumerator : IEnumerator<T>
     {
-        int index;
-        ArrayHashSetNative<T> hashSet;
-        T current;
+        private int index;
+        private ArrayHashSetNative<T> hashSet;
+        private T current;
 
         public T Current => current;
         object IEnumerator.Current => current;
@@ -295,14 +277,14 @@ public sealed class ArrayHashSetNative<T>
         }
     }
 
-    void Resize(int capacity)
+    private void Resize(int capacity)
     {
         var newBuffer = new T[capacity];
         var newHashes = new int[capacity];
         var newBuckets = new int[capacity];
         var newNext = new int[capacity];
-        var newLastIndex = lastIndex;
-        var newFreeList = freeList;
+        int newLastIndex = lastIndex;
+        int newFreeList = freeList;
 
         if (capacity > buffer.Length)
         {
@@ -311,7 +293,7 @@ public sealed class ArrayHashSetNative<T>
 
             for (var i = 0; i < lastIndex; ++i)
             {
-                var index = newHashes[i] % capacity;
+                int index = newHashes[i] % capacity;
                 newNext[i] = newBuckets[index] - 1;
                 newBuckets[index] = i + 1;
             }
@@ -322,13 +304,13 @@ public sealed class ArrayHashSetNative<T>
             newLastIndex = 0;
             for (var i = 0; i < lastIndex; ++i)
             {
-                var hashCode = hashes[i];
+                int hashCode = hashes[i];
                 if (hashCode >= 0)
                 {
                     newBuffer[newLastIndex] = buffer[i];
                     newHashes[newLastIndex] = hashCode;
 
-                    var index = hashCode % capacity;
+                    int index = hashCode % capacity;
                     newNext[newLastIndex] = newBuckets[index] - 1;
                     newBuckets[index] = newLastIndex + 1;
                     ++newLastIndex;

@@ -28,14 +28,14 @@ public class NearestTarget : TargetingStrategy
         if (potentialTargets == null || potentialTargets.Length == 0) return null;
 
         Transform nearest = null;
-        var closestDistance = Mathf.Infinity;
-        var agentPosition = agent.transform.position;
+        float closestDistance = Mathf.Infinity;
+        Vector3 agentPosition = agent.transform.position;
 
-        foreach (var target in potentialTargets)
+        foreach (Transform target in potentialTargets)
         {
             if (!target) continue;
 
-            var distance = Vector3.Distance(agentPosition, target.position);
+            float distance = Vector3.Distance(agentPosition, target.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class NormalsGizmo
 {
-    static bool on;
+    private static bool on;
 
     public static int MaxNormalsToDraw = 30;
 
@@ -15,15 +15,15 @@ public static class NormalsGizmo
 
         Gizmos.color = Color.yellow;
 
-        var vertexCount = m.sharedMesh.vertices.Length;
+        int vertexCount = m.sharedMesh.vertices.Length;
         var vertexIncrement = (int)((float)vertexCount / MaxNormalsToDraw + 0.5f);
 
         if (vertexIncrement < 1) vertexIncrement = 1;
 
         for (var i = 0; i < m.sharedMesh.vertices.Length; i += vertexIncrement)
         {
-            var v = m.transform.TransformPoint(m.sharedMesh.vertices[i]);
-            var n = m.transform.TransformDirection(m.sharedMesh.normals[i].normalized);
+            Vector3 v = m.transform.TransformPoint(m.sharedMesh.vertices[i]);
+            Vector3 n = m.transform.TransformDirection(m.sharedMesh.normals[i].normalized);
             GizmoUtils.DrawArrow(v, n);
         }
     }

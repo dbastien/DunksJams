@@ -2,19 +2,19 @@
 
 public class Orbit : MonoBehaviour
 {
-    Vector3 center;
+    private Vector3 center;
 
     public Vector3 Distance;
 
     public Vector3 Speed;
 
     // Use this for initialization
-    void Start() => center = transform.position;
+    private void Start() => center = transform.position;
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        var offset = Vector3.zero;
+        Vector3 offset = Vector3.zero;
 
         offset.x = Distance.x * Mathf.Sin(Speed.x * Time.time);
         offset.y = Distance.y * Mathf.Cos(Speed.y * Time.time);

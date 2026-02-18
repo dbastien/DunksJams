@@ -4,15 +4,15 @@ using UnityEngine;
 
 public static class CurvePresetLibraryWrapper
 {
-    static readonly Type type = Type.GetType("UnityEditor.CurvePresetLibrary, UnityEditor");
+    private static readonly Type type = Type.GetType("UnityEditor.CurvePresetLibrary, UnityEditor");
 
-    static readonly MethodInfo AddMethod = type.GetMethod("Add");
-    static readonly MethodInfo CountMethod = type.GetMethod("Count");
-    static readonly MethodInfo DrawMethod = type.GetMethod("Draw", new[] { typeof(Rect), typeof(int) });
-    static readonly MethodInfo GetPresetMethod = type.GetMethod("GetPreset");
-    static readonly MethodInfo GetNameMethod = type.GetMethod("GetName");
-    static readonly MethodInfo RemoveMethod = type.GetMethod("Remove");
-    static readonly MethodInfo ReplaceMethod = type.GetMethod("Replace");
+    private static readonly MethodInfo AddMethod = type.GetMethod("Add");
+    private static readonly MethodInfo CountMethod = type.GetMethod("Count");
+    private static readonly MethodInfo DrawMethod = type.GetMethod("Draw", new[] { typeof(Rect), typeof(int) });
+    private static readonly MethodInfo GetPresetMethod = type.GetMethod("GetPreset");
+    private static readonly MethodInfo GetNameMethod = type.GetMethod("GetName");
+    private static readonly MethodInfo RemoveMethod = type.GetMethod("Remove");
+    private static readonly MethodInfo ReplaceMethod = type.GetMethod("Replace");
 
     public static ScriptableObject CreateLibrary() => ScriptableObject.CreateInstance(type);
 

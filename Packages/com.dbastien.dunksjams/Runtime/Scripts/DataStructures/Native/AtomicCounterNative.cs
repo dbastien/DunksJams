@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
 using System.Diagnostics;
-using Unity.Burst;
 using Unity.Collections;
 
 [StructLayout(LayoutKind.Sequential)]
@@ -17,16 +16,16 @@ public unsafe struct NativeAtomicCounterNative : IDisposable
     [NativeSetClassTypeToNullOnSchedule] internal DisposeSentinel disposeSentinel;
 #endif
 
-    [NativeDisableUnsafePtrRestriction] void* buffer;
-    readonly Allocator allocatorLabel;
+    [NativeDisableUnsafePtrRestriction] private void* buffer;
+    private readonly Allocator allocatorLabel;
 
     public int Value
     {
         get
         {
-        #if ENABLE_UNITY_COLLECTIONS_CHECKS
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckReadAndThrow(safety);
-        #endif
+#endif
             return *(int*)buffer;
         }
     }
@@ -39,36 +38,33 @@ public unsafe struct NativeAtomicCounterNative : IDisposable
         allocatorLabel = allocator;
         *(int*)buffer = 0;
 
-    #if ENABLE_UNITY_COLLECTIONS_CHECKS
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
         DisposeSentinel.Create(out safety, out disposeSentinel, 1, allocatorLabel);
-    #endif
+#endif
     }
 
     public void Dispose()
     {
-    #if ENABLE_UNITY_COLLECTIONS_CHECKS
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
         DisposeSentinel.Dispose(ref safety, ref disposeSentinel);
-    #endif
+#endif
         if (buffer != null)
         {
             UnsafeUtility.Free(buffer, allocatorLabel);
             buffer = null;
         }
-    #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        else
-        {
-            throw new Exception("NativeAtomicCounterNative has yet to be allocated or has been deallocated!");
-        }
-    #endif
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+        else { throw new Exception("NativeAtomicCounterNative has yet to be allocated or has been deallocated!"); }
+#endif
     }
 
     [WriteAccessRequired]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Increment()
     {
-    #if ENABLE_UNITY_COLLECTIONS_CHECKS
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-    #endif
+#endif
         return System.Threading.Interlocked.Increment(ref *(int*)buffer);
     }
 
@@ -76,9 +72,9 @@ public unsafe struct NativeAtomicCounterNative : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Reset()
     {
-    #if ENABLE_UNITY_COLLECTIONS_CHECKS
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
         AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(safety);
-    #endif
+#endif
         System.Threading.Interlocked.Exchange(ref *(int*)buffer, 0);
     }
 }

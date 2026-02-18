@@ -2,7 +2,7 @@
 
 public class ScopedActions : IDisposable
 {
-    Action _onDispose;
+    private Action _onDispose;
 
     public ScopedActions(Action onCreate, Action onDispose)
     {

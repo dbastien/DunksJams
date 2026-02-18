@@ -10,8 +10,8 @@ public static class CSGOperations
 {
     public static Mesh Union(Mesh meshA, Transform transformA, Mesh meshB, Transform transformB)
     {
-        var a = FromMesh(meshA, transformA, 0);
-        var b = FromMesh(meshB, transformB, 1);
+        CSGNode a = FromMesh(meshA, transformA, 0);
+        CSGNode b = FromMesh(meshB, transformB, 1);
 
         a.ClipTo(b);
         b.ClipTo(a);
@@ -24,8 +24,8 @@ public static class CSGOperations
 
     public static Mesh Subtract(Mesh meshA, Transform transformA, Mesh meshB, Transform transformB)
     {
-        var a = FromMesh(meshA, transformA, 0);
-        var b = FromMesh(meshB, transformB, 1);
+        CSGNode a = FromMesh(meshA, transformA, 0);
+        CSGNode b = FromMesh(meshB, transformB, 1);
 
         a.Invert();
         a.ClipTo(b);
@@ -40,8 +40,8 @@ public static class CSGOperations
 
     public static Mesh Intersect(Mesh meshA, Transform transformA, Mesh meshB, Transform transformB)
     {
-        var a = FromMesh(meshA, transformA, 0);
-        var b = FromMesh(meshB, transformB, 1);
+        CSGNode a = FromMesh(meshA, transformA, 0);
+        CSGNode b = FromMesh(meshB, transformB, 1);
 
         a.Invert();
         b.ClipTo(a);
@@ -53,21 +53,24 @@ public static class CSGOperations
         return ToMesh(a);
     }
 
-    static CSGNode FromMesh(Mesh mesh, Transform transform, int id)
+    private static CSGNode FromMesh(Mesh mesh, Transform transform, int id)
     {
-        var meshTris = mesh.triangles;
-        var meshVerts = mesh.vertices;
-        var meshNormals = mesh.normals;
-        var meshUV = mesh.uv;
+        int[] meshTris = mesh.triangles;
+        Vector3[] meshVerts = mesh.vertices;
+        Vector3[] meshNormals = mesh.normals;
+        Vector2[] meshUV = mesh.uv;
 
         var polygons = new List<CSGPolygon>(meshTris.Length / 3);
         for (var i = 0; i < meshTris.Length; i += 3)
         {
             int i0 = meshTris[i], i1 = meshTris[i + 1], i2 = meshTris[i + 2];
             polygons.Add(new CSGPolygon(id,
-                new CSGVertex(transform.TransformPoint(meshVerts[i0]), transform.TransformDirection(meshNormals[i0]), meshUV[i0]),
-                new CSGVertex(transform.TransformPoint(meshVerts[i1]), transform.TransformDirection(meshNormals[i1]), meshUV[i1]),
-                new CSGVertex(transform.TransformPoint(meshVerts[i2]), transform.TransformDirection(meshNormals[i2]), meshUV[i2])
+                new CSGVertex(transform.TransformPoint(meshVerts[i0]), transform.TransformDirection(meshNormals[i0]),
+                    meshUV[i0]),
+                new CSGVertex(transform.TransformPoint(meshVerts[i1]), transform.TransformDirection(meshNormals[i1]),
+                    meshUV[i1]),
+                new CSGVertex(transform.TransformPoint(meshVerts[i2]), transform.TransformDirection(meshNormals[i2]),
+                    meshUV[i2])
             ));
         }
 
@@ -76,9 +79,9 @@ public static class CSGOperations
         return node;
     }
 
-    static Mesh ToMesh(CSGNode node)
+    private static Mesh ToMesh(CSGNode node)
     {
-        var polygons = node.AllPolygons();
+        List<CSGPolygon> polygons = node.AllPolygons();
         var vertices = new List<Vector3>();
         var normals = new List<Vector3>();
         var uvs = new List<Vector2>();
@@ -86,16 +89,14 @@ public static class CSGOperations
         var tris1 = new List<int>();
         var vertCache = new Dictionary<long, int>();
 
-        foreach (var poly in polygons)
-        {
+        foreach (CSGPolygon poly in polygons)
             for (var i = 2; i < poly.Vertices.Count; ++i)
             {
-                var v0 = AddVertex(poly.Vertices[0], vertices, normals, uvs, vertCache);
-                var v1 = AddVertex(poly.Vertices[i - 1], vertices, normals, uvs, vertCache);
-                var v2 = AddVertex(poly.Vertices[i], vertices, normals, uvs, vertCache);
+                int v0 = AddVertex(poly.Vertices[0], vertices, normals, uvs, vertCache);
+                int v1 = AddVertex(poly.Vertices[i - 1], vertices, normals, uvs, vertCache);
+                int v2 = AddVertex(poly.Vertices[i], vertices, normals, uvs, vertCache);
                 (poly.Id == 0 ? tris0 : tris1).AddRange(new[] { v0, v1, v2 });
             }
-        }
 
         var mesh = new Mesh
         {
@@ -112,21 +113,22 @@ public static class CSGOperations
         return mesh;
     }
 
-    static int AddVertex(CSGVertex v, List<Vector3> verts, List<Vector3> normals, List<Vector2> uvs,
-        Dictionary<long, int> cache)
+    private static int AddVertex
+    (
+        CSGVertex v, List<Vector3> verts, List<Vector3> normals, List<Vector2> uvs,
+        Dictionary<long, int> cache
+    )
     {
         // Simple hash based on position
         long hash = ((long)(v.Position.x * 10000) * 73856093L) ^
-                     ((long)(v.Position.y * 10000) * 19349663L) ^
-                     ((long)(v.Position.z * 10000) * 83492791L);
+                    ((long)(v.Position.y * 10000) * 19349663L) ^
+                    ((long)(v.Position.z * 10000) * 83492791L);
 
-        if (cache.TryGetValue(hash, out var idx))
-        {
+        if (cache.TryGetValue(hash, out int idx))
             // Verify it's actually the same vertex (not just hash collision)
             if ((verts[idx] - v.Position).sqrMagnitude < 1e-10f &&
                 (normals[idx] - v.Normal).sqrMagnitude < 1e-10f)
                 return idx;
-        }
 
         verts.Add(v.Position);
         normals.Add(v.Normal);

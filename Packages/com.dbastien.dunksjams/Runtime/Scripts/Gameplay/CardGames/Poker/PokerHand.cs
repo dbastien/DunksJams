@@ -29,13 +29,13 @@ public readonly struct PokerHand : IComparable<PokerHand>
 
     public int CompareTo(PokerHand other)
     {
-        var categoryCompare = Category.CompareTo(other.Category);
+        int categoryCompare = Category.CompareTo(other.Category);
         if (categoryCompare != 0) return categoryCompare;
 
-        var count = Math.Min(Values.Count, other.Values.Count);
+        int count = Math.Min(Values.Count, other.Values.Count);
         for (var i = 0; i < count; ++i)
         {
-            var valueCompare = Values[i].CompareTo(other.Values[i]);
+            int valueCompare = Values[i].CompareTo(other.Values[i]);
             if (valueCompare != 0) return valueCompare;
         }
 

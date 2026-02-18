@@ -3,16 +3,17 @@ using UnityEngine;
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 public static class ToolbarDebugger
 {
     [MenuItem("Window/Debug/Log Toolbar Structure")]
     public static void LogToolbarStructure()
     {
-        var editorAssembly = typeof(Editor).Assembly;
+        Assembly editorAssembly = typeof(Editor).Assembly;
 
         // 1. Find the Toolbar type and dump its hierarchy
-        var toolbarType = editorAssembly.GetType("UnityEditor.Toolbar");
+        Type toolbarType = editorAssembly.GetType("UnityEditor.Toolbar");
         if (toolbarType == null)
         {
             Debug.Log("[ToolbarDebugger] UnityEditor.Toolbar type NOT FOUND.");
@@ -20,7 +21,7 @@ public static class ToolbarDebugger
         }
 
         Debug.Log($"[ToolbarDebugger] Toolbar type: {toolbarType.FullName}");
-        var t = toolbarType;
+        Type t = toolbarType;
         while (t != null)
         {
             Debug.Log($"[ToolbarDebugger]   inherits: {t.FullName} (assembly: {t.Assembly.GetName().Name})");
@@ -28,45 +29,46 @@ public static class ToolbarDebugger
         }
 
         // 2. Check GUIView
-        var guiViewType = editorAssembly.GetType("UnityEditor.GUIView");
+        Type guiViewType = editorAssembly.GetType("UnityEditor.GUIView");
         Debug.Log($"[ToolbarDebugger] GUIView type: {(guiViewType != null ? guiViewType.FullName : "NOT FOUND")}");
 
         // 3. Search for visualTree / rootVisualElement on the entire type hierarchy
-        var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+        BindingFlags flags = BindingFlags.Public |
+                             BindingFlags.NonPublic |
+                             BindingFlags.Instance |
+                             BindingFlags.FlattenHierarchy;
         string[] propNamesToFind = { "visualTree", "rootVisualElement", "windowBackend", "baseRootVisualElement" };
 
         t = toolbarType;
         while (t != null && t != typeof(object))
         {
-            foreach (var name in propNamesToFind)
+            foreach (string name in propNamesToFind)
             {
-                var prop = t.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                PropertyInfo prop = t.GetProperty(name,
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 if (prop != null)
-                    Debug.Log($"[ToolbarDebugger]   FOUND property '{name}' on {t.FullName} -> returns {prop.PropertyType.Name}");
+                    Debug.Log(
+                        $"[ToolbarDebugger]   FOUND property '{name}' on {t.FullName} -> returns {prop.PropertyType.Name}");
             }
+
             t = t.BaseType;
         }
 
         // Also check GUIView directly if it exists
         if (guiViewType != null)
-        {
-            foreach (var prop in guiViewType.GetProperties(flags))
-            {
+            foreach (PropertyInfo prop in guiViewType.GetProperties(flags))
                 if (prop.PropertyType == typeof(VisualElement) ||
                     prop.Name.Contains("visual", StringComparison.OrdinalIgnoreCase) ||
                     prop.Name.Contains("root", StringComparison.OrdinalIgnoreCase))
-                {
-                    Debug.Log($"[ToolbarDebugger]   GUIView has property: '{prop.Name}' -> {prop.PropertyType.Name} (declared on {prop.DeclaringType?.Name})");
-                }
-            }
-        }
+                    Debug.Log(
+                        $"[ToolbarDebugger]   GUIView has property: '{prop.Name}' -> {prop.PropertyType.Name} (declared on {prop.DeclaringType?.Name})");
 
         // 4. Try to get an actual toolbar instance and its visual tree
-        var toolbars = Resources.FindObjectsOfTypeAll(toolbarType);
+        Object[] toolbars = Resources.FindObjectsOfTypeAll(toolbarType);
         Debug.Log($"[ToolbarDebugger] Toolbar instances found: {toolbars.Length}");
         if (toolbars.Length == 0) return;
 
-        var toolbar = toolbars[0];
+        Object toolbar = toolbars[0];
 
         // Try rootVisualElement (EditorWindow path)
         TryGetVisualRoot(toolbar, toolbarType, "rootVisualElement");
@@ -77,9 +79,9 @@ public static class ToolbarDebugger
         TryGetVisualRoot(toolbar, toolbarType, "visualTree");
     }
 
-    static void TryGetVisualRoot(UnityEngine.Object toolbar, Type lookupType, string propertyName)
+    private static void TryGetVisualRoot(Object toolbar, Type lookupType, string propertyName)
     {
-        var prop = lookupType.GetProperty(propertyName,
+        PropertyInfo prop = lookupType.GetProperty(propertyName,
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
         if (prop == null)
@@ -90,15 +92,17 @@ public static class ToolbarDebugger
 
         try
         {
-            var value = prop.GetValue(toolbar, null);
+            object value = prop.GetValue(toolbar, null);
             if (value is VisualElement ve)
             {
-                Debug.Log($"[ToolbarDebugger]   {lookupType.Name}.{propertyName}: SUCCESS (VisualElement, childCount={ve.childCount})");
+                Debug.Log(
+                    $"[ToolbarDebugger]   {lookupType.Name}.{propertyName}: SUCCESS (VisualElement, childCount={ve.childCount})");
                 LogChildren(ve, 2);
             }
             else
             {
-                Debug.Log($"[ToolbarDebugger]   {lookupType.Name}.{propertyName}: returned {value?.GetType().Name ?? "null"}");
+                Debug.Log(
+                    $"[ToolbarDebugger]   {lookupType.Name}.{propertyName}: returned {value?.GetType().Name ?? "null"}");
             }
         }
         catch (Exception ex)
@@ -107,12 +111,12 @@ public static class ToolbarDebugger
         }
     }
 
-    static void LogChildren(VisualElement element, int depth)
+    private static void LogChildren(VisualElement element, int depth)
     {
         string indent = new(' ', depth * 2);
         Debug.Log($"[ToolbarDebugger] {indent}{element.GetType().Name} name:'{element.name}' layout:{element.layout}");
 
-        foreach (var child in element.Children())
+        foreach (VisualElement child in element.Children())
             LogChildren(child, depth + 1);
     }
 }

@@ -10,8 +10,8 @@ using Object = UnityEngine.Object;
 
 public class WaveformParameters
 {
-    const float MinAmplitude = 0f;
-    const float MaxAmplitude = 2f;
+    private const float MinAmplitude = 0f;
+    private const float MaxAmplitude = 2f;
 
     public float Amplitude { get; set; } = 1f;
     public float Frequency { get; set; } = 440f;
@@ -29,9 +29,7 @@ public class WaveformParameters
     }
 }
 
-public class WaveformNodeBase : SerializedGraphNode
-{
-}
+public class WaveformNodeBase : SerializedGraphNode { }
 
 public abstract class WaveformNodeBase<T> : WaveformNodeBase, IDataPort<T>
 {
@@ -45,8 +43,8 @@ public abstract class WaveformNodeBase<T> : WaveformNodeBase, IDataPort<T>
 
 public class AnimationCurveNode : WaveformNodeBase<AnimationCurve>
 {
-    readonly WaveformParameters _params = new();
-    DataPort<AnimationCurve> _outPort;
+    private readonly WaveformParameters _params = new();
+    private DataPort<AnimationCurve> _outPort;
 
     public override void Init(Vector2 pos, Vector2 size = default)
     {
@@ -58,9 +56,9 @@ public class AnimationCurveNode : WaveformNodeBase<AnimationCurve>
         base.Init(pos, size);
     }
 
-    void Draw()
+    private void Draw()
     {
-        var changed = _params.Draw();
+        bool changed = _params.Draw();
         EditorGUI.BeginChangeCheck();
         Data = EditorGUILayout.CurveField(Data, GUILayout.Height(100));
         if (EditorGUI.EndChangeCheck()) changed = true;
@@ -74,13 +72,11 @@ public class AnimationCurveNode : WaveformNodeBase<AnimationCurve>
 
 public class SineWaveNode : WaveformNodeBase<AnimationCurve>
 {
-    WaveformParameters _params = new();
-    int _sampleCount = 100;
-    DataPort<AnimationCurve> _outPort;
+    private WaveformParameters _params = new();
+    private int _sampleCount = 100;
+    private DataPort<AnimationCurve> _outPort;
 
-    public SineWaveNode()
-    {
-    }
+    public SineWaveNode() { }
 
     public override void Init(Vector2 pos, Vector2 size = default)
     {
@@ -93,7 +89,7 @@ public class SineWaveNode : WaveformNodeBase<AnimationCurve>
         _outPort.SetData(Data);
     }
 
-    void Draw()
+    private void Draw()
     {
         if (_params.Draw())
         {
@@ -102,20 +98,17 @@ public class SineWaveNode : WaveformNodeBase<AnimationCurve>
             PropagateData();
         }
 
-        using (new EditorGUI.DisabledScope(true))
-        {
-            EditorGUILayout.CurveField(Data, GUILayout.Height(100));
-        }
+        using (new EditorGUI.DisabledScope(true)) { EditorGUILayout.CurveField(Data, GUILayout.Height(100)); }
     }
 
     public AnimationCurve GenerateSineWave()
     {
         var curve = new AnimationCurve();
-        var step = _params.Duration / _sampleCount;
+        float step = _params.Duration / _sampleCount;
         for (var i = 0; i <= _sampleCount; ++i)
         {
-            var time = i * step;
-            var value = _params.Amplitude * MathF.Sin(MathConsts.Tau * _params.Frequency * time);
+            float time = i * step;
+            float value = _params.Amplitude * MathF.Sin(MathConsts.Tau * _params.Frequency * time);
             curve.AddKey(time, value);
         }
 
@@ -142,24 +135,24 @@ public class SfxMacroStep
 
 public class SfxMacroNode : WaveformNodeBase<AnimationCurve>
 {
-    const float MinTickRate = 1f;
-    const float MaxTickRate = 240f;
-    const float MinFrequency = 20f;
-    const float MaxFrequency = 4000f;
-    const float MinAmplitude = 0f;
-    const float MaxAmplitude = 2f;
-    const float MinDuty = 0.05f;
-    const float MaxDuty = 0.95f;
-    const int SamplesPerTick = 8;
+    private const float MinTickRate = 1f;
+    private const float MaxTickRate = 240f;
+    private const float MinFrequency = 20f;
+    private const float MaxFrequency = 4000f;
+    private const float MinAmplitude = 0f;
+    private const float MaxAmplitude = 2f;
+    private const float MinDuty = 0.05f;
+    private const float MaxDuty = 0.95f;
+    private const int SamplesPerTick = 8;
 
-    readonly List<SfxMacroStep> _steps = new()
+    private readonly List<SfxMacroStep> _steps = new()
     {
         new SfxMacroStep { Ticks = 4, Frequency = 880f, Amplitude = 1f, Waveform = SfxWaveform.Pulse, Duty = 0.5f },
         new SfxMacroStep { Ticks = 4, Frequency = 440f, Amplitude = 0.6f, Waveform = SfxWaveform.Pulse, Duty = 0.5f }
     };
 
-    float _tickRate = 60f;
-    DataPort<AnimationCurve> _outPort;
+    private float _tickRate = 60f;
+    private DataPort<AnimationCurve> _outPort;
 
     public override void Init(Vector2 pos, Vector2 size = default)
     {
@@ -171,20 +164,20 @@ public class SfxMacroNode : WaveformNodeBase<AnimationCurve>
         base.Init(pos, size);
     }
 
-    void Draw()
+    private void Draw()
     {
         var changed = false;
         EditorGUI.BeginChangeCheck();
         _tickRate = EditorGUILayout.Slider("Tick Rate", _tickRate, MinTickRate, MaxTickRate);
         if (EditorGUI.EndChangeCheck()) changed = true;
 
-        var duration = GetTotalDuration();
+        float duration = GetTotalDuration();
         EditorGUILayout.LabelField("Duration", $"{duration:0.00}s");
 
-        var removeIndex = -1;
+        int removeIndex = -1;
         for (var i = 0; i < _steps.Count; ++i)
         {
-            var step = _steps[i];
+            SfxMacroStep step = _steps[i];
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 EditorGUILayout.LabelField($"Step {i + 1}");
@@ -229,41 +222,41 @@ public class SfxMacroNode : WaveformNodeBase<AnimationCurve>
         }
     }
 
-    float GetTotalDuration()
+    private float GetTotalDuration()
     {
         if (_tickRate <= 0f) return 0f;
-        var totalTicks = _steps.Sum(s => Mathf.Max(1, s.Ticks));
+        int totalTicks = _steps.Sum(s => Mathf.Max(1, s.Ticks));
         return totalTicks / _tickRate;
     }
 
-    void RebuildCurve(bool log)
+    private void RebuildCurve(bool log)
     {
         Data = BuildCurve();
         if (log) DLog.Log($"SFX macro rebuilt ({_steps.Count} steps).");
     }
 
-    AnimationCurve BuildCurve()
+    private AnimationCurve BuildCurve()
     {
         var curve = new AnimationCurve();
         if (_steps.Count == 0 || _tickRate <= 0f) return curve;
 
-        var tickDuration = 1f / Mathf.Max(_tickRate, MinTickRate);
+        float tickDuration = 1f / Mathf.Max(_tickRate, MinTickRate);
         var time = 0f;
 
-        foreach (var step in _steps)
+        foreach (SfxMacroStep step in _steps)
         {
-            var ticks = Mathf.Max(1, step.Ticks);
-            var frequency = Mathf.Clamp(step.Frequency, MinFrequency, MaxFrequency);
-            var amplitude = Mathf.Clamp(step.Amplitude, MinAmplitude, MaxAmplitude);
-            var duty = Mathf.Clamp(step.Duty, MinDuty, MaxDuty);
+            int ticks = Mathf.Max(1, step.Ticks);
+            float frequency = Mathf.Clamp(step.Frequency, MinFrequency, MaxFrequency);
+            float amplitude = Mathf.Clamp(step.Amplitude, MinAmplitude, MaxAmplitude);
+            float duty = Mathf.Clamp(step.Duty, MinDuty, MaxDuty);
 
             for (var t = 0; t < ticks; ++t)
             {
-                var sampleStep = tickDuration / SamplesPerTick;
+                float sampleStep = tickDuration / SamplesPerTick;
                 for (var s = 0; s < SamplesPerTick; ++s)
                 {
-                    var sampleTime = time + s * sampleStep;
-                    var value = EvaluateWave(step.Waveform, sampleTime, frequency, duty) * amplitude;
+                    float sampleTime = time + s * sampleStep;
+                    float value = EvaluateWave(step.Waveform, sampleTime, frequency, duty) * amplitude;
                     curve.AddKey(sampleTime, value);
                 }
 
@@ -274,7 +267,7 @@ public class SfxMacroNode : WaveformNodeBase<AnimationCurve>
         return curve;
     }
 
-    static float EvaluateWave(SfxWaveform waveform, float time, float frequency, float duty)
+    private static float EvaluateWave(SfxWaveform waveform, float time, float frequency, float duty)
     {
         return waveform switch
         {
@@ -288,22 +281,20 @@ public class SfxMacroNode : WaveformNodeBase<AnimationCurve>
 
 public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
 {
-    const float MinOutputDb = -24f;
-    const float MaxOutputDb = 0f;
+    private const float MinOutputDb = -24f;
+    private const float MaxOutputDb = 0f;
 
     public float Duration { get; set; } = 2f;
 
-    AudioSource _audioSource;
-    int _sampleRate = 44100;
-    DataPort<AnimationCurve> _inPort;
-    float _outputDb = -12f;
-    bool _cacheClip = true;
-    AudioClip _cachedClip;
-    int _cachedHash;
+    private AudioSource _audioSource;
+    private int _sampleRate = 44100;
+    private DataPort<AnimationCurve> _inPort;
+    private float _outputDb = -12f;
+    private bool _cacheClip = true;
+    private AudioClip _cachedClip;
+    private int _cachedHash;
 
-    public AudioOutputNode()
-    {
-    }
+    public AudioOutputNode() { }
 
     public void Cleanup()
     {
@@ -322,7 +313,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
 
         if (_audioSource == null)
         {
-            var go = GameObjectUtils.FindOrCreate("AudioSource");
+            GameObject go = GameObjectUtils.FindOrCreate("AudioSource");
             _audioSource = go.FindOrAddComponent<AudioSource>();
             go.hideFlags = HideFlags.HideAndDontSave;
         }
@@ -341,7 +332,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
         }
 
         Data = curve;
-        var clip = GetOrCreateClip(curve, !_cacheClip);
+        AudioClip clip = GetOrCreateClip(curve, !_cacheClip);
         if (clip == null)
         {
             DLog.LogW("No clip generated.");
@@ -352,7 +343,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
         _audioSource.Play();
     }
 
-    void Draw()
+    private void Draw()
     {
         Duration = EditorGUILayout.FloatField("Duration", Duration);
         _outputDb = EditorGUILayout.Slider("Output (dB)", _outputDb, MinOutputDb, MaxOutputDb);
@@ -366,65 +357,56 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
             if (GUILayout.Button("Save Clip")) SaveClipAsset();
         }
 
-        using (new EditorGUI.DisabledScope(true))
-        {
-            EditorGUILayout.CurveField(Data, GUILayout.Height(100));
-        }
+        using (new EditorGUI.DisabledScope(true)) { EditorGUILayout.CurveField(Data, GUILayout.Height(100)); }
     }
 
-    void FetchDataFromInputPort()
+    private void FetchDataFromInputPort()
     {
         if (_inPort.connected)
         {
-            var connection = _inPort.connections.FirstOrDefault();
+            Edge connection = _inPort.connections.FirstOrDefault();
             if (connection?.output is IDataPort<AnimationCurve> sourcePort)
             {
                 SetData(sourcePort.GetData());
                 DLog.Log("Fetched data from _inPort");
             }
-            else
-            {
-                DLog.LogW("_inPort is not correctly connected.");
-            }
+            else { DLog.LogW("_inPort is not correctly connected."); }
         }
-        else
-        {
-            DLog.LogW("_inPort is not connected.");
-        }
+        else { DLog.LogW("_inPort is not connected."); }
     }
 
-    float[] GenerateAudioSamples(AnimationCurve curve, int sampleRate, float duration, float gain)
+    private float[] GenerateAudioSamples(AnimationCurve curve, int sampleRate, float duration, float gain)
     {
-        var sampleCount = Mathf.FloorToInt(sampleRate * duration);
+        int sampleCount = Mathf.FloorToInt(sampleRate * duration);
         var samples = new float[sampleCount];
 
         for (var i = 0; i < sampleCount; ++i)
         {
-            var time = (float)i / sampleRate;
+            float time = (float)i / sampleRate;
             samples[i] = curve.Evaluate(time) * gain;
         }
 
         return samples;
     }
 
-    static float DbToLinear(float db) => Mathf.Pow(10f, db / 20f);
+    private static float DbToLinear(float db) => Mathf.Pow(10f, db / 20f);
 
-    AudioClip GetOrCreateClip(AnimationCurve curve, bool forceRebuild)
+    private AudioClip GetOrCreateClip(AnimationCurve curve, bool forceRebuild)
     {
         if (curve == null) return null;
 
-        var hash = ComputeCurveHash(curve, Duration, _sampleRate, _outputDb);
+        int hash = ComputeCurveHash(curve, Duration, _sampleRate, _outputDb);
         if (!forceRebuild && _cachedClip != null && _cachedHash == hash)
             return _cachedClip;
 
-        var gain = DbToLinear(_outputDb);
-        var samples = GenerateAudioSamples(curve, _sampleRate, Duration, gain);
-        var clip = CreateAudioClipFromSamples(samples, _sampleRate);
+        float gain = DbToLinear(_outputDb);
+        float[] samples = GenerateAudioSamples(curve, _sampleRate, Duration, gain);
+        AudioClip clip = CreateAudioClipFromSamples(samples, _sampleRate);
         CacheClip(clip, hash);
         return clip;
     }
 
-    void CacheClip(AudioClip clip, int hash)
+    private void CacheClip(AudioClip clip, int hash)
     {
         if (_cachedClip != null && _cachedClip != clip && !AssetDatabase.Contains(_cachedClip))
             Object.DestroyImmediate(_cachedClip);
@@ -433,7 +415,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
         _cachedHash = hash;
     }
 
-    void ClearCachedClip()
+    private void ClearCachedClip()
     {
         if (_cachedClip != null && !AssetDatabase.Contains(_cachedClip))
             Object.DestroyImmediate(_cachedClip);
@@ -442,7 +424,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
         _cachedHash = 0;
     }
 
-    static int ComputeCurveHash(AnimationCurve curve, float duration, int sampleRate, float outputDb)
+    private static int ComputeCurveHash(AnimationCurve curve, float duration, int sampleRate, float outputDb)
     {
         unchecked
         {
@@ -456,11 +438,11 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
             hash = hash * 31 + (int)curve.preWrapMode;
             hash = hash * 31 + (int)curve.postWrapMode;
 
-            var keys = curve.keys;
+            Keyframe[] keys = curve.keys;
             hash = hash * 31 + keys.Length;
             for (var i = 0; i < keys.Length; ++i)
             {
-                var key = keys[i];
+                Keyframe key = keys[i];
                 hash = hash * 31 + key.time.GetHashCode();
                 hash = hash * 31 + key.value.GetHashCode();
                 hash = hash * 31 + key.inTangent.GetHashCode();
@@ -474,7 +456,7 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
         }
     }
 
-    void SaveClipAsset()
+    private void SaveClipAsset()
     {
         if (Data == null)
         {
@@ -482,14 +464,14 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
             return;
         }
 
-        var clip = GetOrCreateClip(Data, false);
+        AudioClip clip = GetOrCreateClip(Data, false);
         if (clip == null)
         {
             DLog.LogW("Clip generation failed.");
             return;
         }
 
-        var path = EditorUtility.SaveFilePanelInProject(
+        string path = EditorUtility.SaveFilePanelInProject(
             "Save SFX Clip",
             "SfxClip",
             "asset",
@@ -497,14 +479,14 @@ public class AudioOutputNode : WaveformNodeBase<AnimationCurve>, ICleanupNode
 
         if (string.IsNullOrEmpty(path)) return;
 
-        var clipAsset = Object.Instantiate(clip);
+        AudioClip clipAsset = Object.Instantiate(clip);
         clipAsset.name = Path.GetFileNameWithoutExtension(path);
         AssetDatabase.CreateAsset(clipAsset, path);
         AssetDatabase.SaveAssets();
         DLog.Log($"Saved AudioClip asset to {path}");
     }
 
-    AudioClip CreateAudioClipFromSamples(float[] samples, int sampleRate)
+    private AudioClip CreateAudioClipFromSamples(float[] samples, int sampleRate)
     {
         var clip = AudioClip.Create("GeneratedWaveform", samples.Length, 1, sampleRate, false);
         clip.SetData(samples, 0);

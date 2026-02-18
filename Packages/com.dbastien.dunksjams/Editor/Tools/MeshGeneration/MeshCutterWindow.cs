@@ -7,12 +7,12 @@ using UnityEngine;
 /// </summary>
 public class MeshCutterWindow : EditorWindow
 {
-    Vector3 _planePoint = Vector3.zero;
-    Vector3 _planeNormal = Vector3.up;
+    private Vector3 _planePoint = Vector3.zero;
+    private Vector3 _planeNormal = Vector3.up;
 
-    readonly MeshCutter _cutter = new();
+    private readonly MeshCutter _cutter = new();
 
-    void OnGUI()
+    private void OnGUI()
     {
         EditorGUILayout.LabelField("Mesh Cutter", EditorStyles.boldLabel);
         EditorGUILayout.Space(4);
@@ -37,7 +37,7 @@ public class MeshCutterWindow : EditorWindow
 
         EditorGUILayout.Space(8);
 
-        var go = Selection.activeGameObject;
+        GameObject go = Selection.activeGameObject;
         bool valid = go != null && go.GetComponent<MeshFilter>()?.sharedMesh != null;
 
         using (new EditorGUI.DisabledScope(!valid))
@@ -46,30 +46,27 @@ public class MeshCutterWindow : EditorWindow
                 DoCut(go);
         }
 
-        if (!valid)
-        {
-            EditorGUILayout.HelpBox("No valid MeshFilter selected.", MessageType.Warning);
-        }
+        if (!valid) EditorGUILayout.HelpBox("No valid MeshFilter selected.", MessageType.Warning);
     }
 
-    void DoCut(GameObject go)
+    private void DoCut(GameObject go)
     {
         var mf = go.GetComponent<MeshFilter>();
-        var mesh = mf.sharedMesh;
+        Mesh mesh = mf.sharedMesh;
 
         // Build plane in the object's local space
         var plane = new Plane(_planeNormal.normalized, _planePoint);
 
-        if (!_cutter.Cut(mesh, plane, out var frontMesh, out var backMesh))
+        if (!_cutter.Cut(mesh, plane, out Mesh frontMesh, out Mesh backMesh))
         {
             EditorUtility.DisplayDialog("Mesh Cutter", "The cutting plane does not intersect the mesh.", "OK");
             return;
         }
 
-        var material = go.GetComponent<Renderer>()?.sharedMaterial;
+        Material material = go.GetComponent<Renderer>()?.sharedMaterial;
 
-        var front = CreateHalf(go.name + "_front", frontMesh, material, go.transform);
-        var back = CreateHalf(go.name + "_back", backMesh, material, go.transform);
+        GameObject front = CreateHalf(go.name + "_front", frontMesh, material, go.transform);
+        GameObject back = CreateHalf(go.name + "_back", backMesh, material, go.transform);
 
         Undo.RegisterCreatedObjectUndo(front, "Mesh Cut");
         Undo.RegisterCreatedObjectUndo(back, "Mesh Cut");
@@ -80,7 +77,7 @@ public class MeshCutterWindow : EditorWindow
         Selection.objects = new Object[] { front, back };
     }
 
-    static GameObject CreateHalf(string name, Mesh mesh, Material mat, Transform source)
+    private static GameObject CreateHalf(string name, Mesh mesh, Material mat, Transform source)
     {
         var halfGo = new GameObject(name);
         halfGo.AddComponent<MeshFilter>().sharedMesh = mesh;

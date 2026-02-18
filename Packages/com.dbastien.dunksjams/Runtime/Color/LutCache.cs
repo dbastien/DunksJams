@@ -7,17 +7,11 @@ using UnityEngine;
 /// </summary>
 public static class LutCache
 {
-    static readonly Dictionary<Texture2D, Color[]> Cache = new();
+    private static readonly Dictionary<Texture2D, Color[]> Cache = new();
 
     public static bool TryGetPixels(Texture2D lut, out Color[] pixels)
     {
-        if (lut == null)
-        {
-            pixels = null;
-            return false;
-        }
-
-        if (!lut.isReadable)
+        if (lut == null || !lut.isReadable)
         {
             pixels = null;
             return false;

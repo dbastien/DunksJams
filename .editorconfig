@@ -21,6 +21,8 @@ dotnet_style_qualification_for_event = false:suggestion
 dotnet_style_require_accessibility_modifiers = always:suggestion
 dotnet_style_readonly_field = true:suggestion
 dotnet_code_quality_unused_parameters = all:suggestion
+]
+max_blank_lines = 1
 
 # Disable Rider/ReSharper auto-detection and "auto" features
 resharper_autodetect_indent = false

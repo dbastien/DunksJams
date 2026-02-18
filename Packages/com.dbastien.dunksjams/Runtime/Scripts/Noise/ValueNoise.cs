@@ -7,11 +7,11 @@
     public static float Normalized3D(uint x, uint y, uint z, uint seed = 0) =>
         ToUnitFloat(Hash(x + 198491317u * y + 6542989u * z, seed));
 
-    static uint Hash(uint input, uint seed)
+    private static uint Hash(uint input, uint seed)
     {
         unchecked
         {
-            var h = input * 0xB515781D;
+            uint h = input * 0xB515781D;
             h ^= h >> 8;
             h += 0x68DA4024 + seed;
             h ^= h << 8;
@@ -20,7 +20,7 @@
         }
     }
 
-    static float ToUnitFloat(uint value) => value / (float)uint.MaxValue;
+    private static float ToUnitFloat(uint value) => value / (float)uint.MaxValue;
 }
 
 public class ValueNoiseGenerator : INoiseGenerator

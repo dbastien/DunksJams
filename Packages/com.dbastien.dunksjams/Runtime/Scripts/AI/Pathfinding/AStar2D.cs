@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class AStarPathfinder : IPathFinder2D
 {
-    readonly PriorityQueue<AStarNode> _openSet = new();
-    readonly HashSet<Vector2Int> _closedSet = new();
-    readonly Dictionary<Vector2Int, AStarNode> _openSetLookup = new();
-    readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
+    private readonly PriorityQueue<AStarNode> _openSet = new();
+    private readonly HashSet<Vector2Int> _closedSet = new();
+    private readonly Dictionary<Vector2Int, AStarNode> _openSetLookup = new();
+    private readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
 
-    int[,] _lastGrid;
+    private int[,] _lastGrid;
 
     // --- IGraph-based API (primary) ---
 
-    public List<Vector2Int> FindPath<THeuristic>(
+    public List<Vector2Int> FindPath<THeuristic>
+    (
         Vector2Int start, Vector2Int goal,
         IGraph<Vector2Int> graph,
         THeuristic heuristic,
         IEdgeMod<Vector2Int> edgeMod = null,
-        int maxExpand = int.MaxValue) where THeuristic : IHeuristic<Vector2Int>
+        int maxExpand = int.MaxValue
+    ) where THeuristic : IHeuristic<Vector2Int>
     {
         if (graph == null) throw new ArgumentNullException(nameof(graph));
         if (start == goal) return new List<Vector2Int> { start };
@@ -31,10 +33,10 @@ public class AStarPathfinder : IPathFinder2D
         _openSet.Enqueue(startNode);
         _openSetLookup[start] = startNode;
 
-        int expanded = 0;
+        var expanded = 0;
         while (_openSet.Count > 0 && expanded < maxExpand)
         {
-            var current = _openSet.Dequeue();
+            AStarNode current = _openSet.Dequeue();
             _openSetLookup.Remove(current.Position);
 
             if (current.Position == goal)
@@ -44,7 +46,7 @@ public class AStarPathfinder : IPathFinder2D
             expanded++;
 
             graph.GetEdges(current.Position, _edgeBuffer);
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
                 if (_closedSet.Contains(edge.Next)) continue;
 
@@ -55,7 +57,7 @@ public class AStarPathfinder : IPathFinder2D
                 float g = current.G + cost;
                 float h = heuristic.Estimate(edge.Next, goal);
 
-                if (!_openSetLookup.TryGetValue(edge.Next, out var existing) || g < existing.G)
+                if (!_openSetLookup.TryGetValue(edge.Next, out AStarNode existing) || g < existing.G)
                 {
                     var node = new AStarNode(edge.Next, g, h, current);
                     _openSet.Enqueue(node);
@@ -68,12 +70,14 @@ public class AStarPathfinder : IPathFinder2D
     }
 
     /// <summary>Non-generic overload accepting interface references directly.</summary>
-    public List<Vector2Int> FindPath(
+    public List<Vector2Int> FindPath
+    (
         Vector2Int start, Vector2Int goal,
         IGraph<Vector2Int> graph,
         IHeuristic<Vector2Int> heuristic,
         IEdgeMod<Vector2Int> edgeMod = null,
-        int maxExpand = int.MaxValue) =>
+        int maxExpand = int.MaxValue
+    ) =>
         FindPathWithInterface(start, goal, graph, heuristic, edgeMod, maxExpand);
 
     // --- Legacy grid-based API (backward compatible, implements IPathFinder2D) ---
@@ -82,7 +86,8 @@ public class AStarPathfinder : IPathFinder2D
     {
         _lastGrid = grid;
         var graph = new GridGraph2D(grid, allowDiag);
-        var heuristic = allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
+        IHeuristic<Vector2Int> heuristic =
+            allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
         return FindPathWithInterface(start, goal, graph, heuristic);
     }
 
@@ -93,19 +98,26 @@ public class AStarPathfinder : IPathFinder2D
     }
 
     /// <summary>Legacy overload with delegate heuristic for backward compatibility.</summary>
-    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag,
-        Func<Vector2Int, Vector2Int, float> heuristic)
+    public List<Vector2Int> FindPath
+    (
+        Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag,
+        Func<Vector2Int, Vector2Int, float> heuristic
+    )
     {
         _lastGrid = grid;
         var graph = new GridGraph2D(grid, allowDiag);
         if (heuristic != null)
             return FindPathWithInterface(start, goal, graph, new DelegateHeuristic2D(heuristic));
-        var defaultH = allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
+        IHeuristic<Vector2Int> defaultH =
+            allowDiag ? (IHeuristic<Vector2Int>)new OctileHeuristic2D() : new ManhattanHeuristic2D();
         return FindPathWithInterface(start, goal, graph, defaultH);
     }
 
-    List<Vector2Int> FindPathWithInterface(Vector2Int start, Vector2Int goal, IGraph<Vector2Int> graph,
-        IHeuristic<Vector2Int> heuristic, IEdgeMod<Vector2Int> edgeMod = null, int maxExpand = int.MaxValue)
+    private List<Vector2Int> FindPathWithInterface
+    (
+        Vector2Int start, Vector2Int goal, IGraph<Vector2Int> graph,
+        IHeuristic<Vector2Int> heuristic, IEdgeMod<Vector2Int> edgeMod = null, int maxExpand = int.MaxValue
+    )
     {
         if (graph == null) throw new ArgumentNullException(nameof(graph));
         if (start == goal) return new List<Vector2Int> { start };
@@ -118,10 +130,10 @@ public class AStarPathfinder : IPathFinder2D
         _openSet.Enqueue(startNode);
         _openSetLookup[start] = startNode;
 
-        int expanded = 0;
+        var expanded = 0;
         while (_openSet.Count > 0 && expanded < maxExpand)
         {
-            var current = _openSet.Dequeue();
+            AStarNode current = _openSet.Dequeue();
             _openSetLookup.Remove(current.Position);
 
             if (current.Position == goal)
@@ -131,7 +143,7 @@ public class AStarPathfinder : IPathFinder2D
             expanded++;
 
             graph.GetEdges(current.Position, _edgeBuffer);
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
                 if (_closedSet.Contains(edge.Next)) continue;
 
@@ -142,7 +154,7 @@ public class AStarPathfinder : IPathFinder2D
                 float g = current.G + cost;
                 float h = heuristic.Estimate(edge.Next, goal);
 
-                if (!_openSetLookup.TryGetValue(edge.Next, out var existing) || g < existing.G)
+                if (!_openSetLookup.TryGetValue(edge.Next, out AStarNode existing) || g < existing.G)
                 {
                     var node = new AStarNode(edge.Next, g, h, current);
                     _openSet.Enqueue(node);
@@ -156,9 +168,9 @@ public class AStarPathfinder : IPathFinder2D
 
     // --- Path reconstruction ---
 
-    static List<Vector2Int> ReconstructPath(AStarNode node)
+    private static List<Vector2Int> ReconstructPath(AStarNode node)
     {
-        var pathBuffer = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(64);
+        Vector2Int[] pathBuffer = ConcurrentArrayPool<Vector2Int>.Shared.RentCleared(64);
         var pathIndex = 0;
 
         try
@@ -167,7 +179,7 @@ public class AStarPathfinder : IPathFinder2D
             {
                 if (pathIndex >= pathBuffer.Length)
                 {
-                    var newBuffer = ConcurrentArrayPool<Vector2Int>.Shared.Rent(pathBuffer.Length * 2);
+                    Vector2Int[] newBuffer = ConcurrentArrayPool<Vector2Int>.Shared.Rent(pathBuffer.Length * 2);
                     Array.Copy(pathBuffer, newBuffer, pathIndex);
                     ConcurrentArrayPool<Vector2Int>.Shared.Return(pathBuffer);
                     pathBuffer = newBuffer;
@@ -178,15 +190,12 @@ public class AStarPathfinder : IPathFinder2D
             }
 
             var path = new List<Vector2Int>(pathIndex);
-            for (var i = pathIndex - 1; i >= 0; --i)
+            for (int i = pathIndex - 1; i >= 0; --i)
                 path.Add(pathBuffer[i]);
 
             return path;
         }
-        finally
-        {
-            ConcurrentArrayPool<Vector2Int>.Shared.Return(pathBuffer);
-        }
+        finally { ConcurrentArrayPool<Vector2Int>.Shared.Return(pathBuffer); }
     }
 
     // --- Internal types ---
@@ -208,14 +217,14 @@ public class AStarPathfinder : IPathFinder2D
 
         public int CompareTo(AStarNode other)
         {
-            var compare = F.CompareTo(other.F);
+            int compare = F.CompareTo(other.F);
             return compare == 0 ? H.CompareTo(other.H) : compare;
         }
     }
 
-    struct DelegateHeuristic2D : IHeuristic<Vector2Int>
+    private struct DelegateHeuristic2D : IHeuristic<Vector2Int>
     {
-        readonly Func<Vector2Int, Vector2Int, float> _func;
+        private readonly Func<Vector2Int, Vector2Int, float> _func;
         public DelegateHeuristic2D(Func<Vector2Int, Vector2Int, float> func) => _func = func;
         public float Estimate(Vector2Int from, Vector2Int to) => _func(from, to);
     }

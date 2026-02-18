@@ -13,10 +13,10 @@ public static class TriangleGenerator
     /// <summary>Create a triangle from arbitrary vertices (single-sided, facing up / CCW winding).</summary>
     public static Mesh Generate(Vector3 a, Vector3 b, Vector3 c)
     {
-        var normal = Vector3.Cross(b - a, c - a).normalized;
+        Vector3 normal = Vector3.Cross(b - a, c - a).normalized;
 
-        var verts = new[] { a, b, c };
-        var normals = new[] { normal, normal, normal };
+        Vector3[] verts = new[] { a, b, c };
+        Vector3[] normals = new[] { normal, normal, normal };
         var uvs = new[] { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 1f) };
         var tris = new[] { 0, 1, 2 };
 

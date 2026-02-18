@@ -3,30 +3,31 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "‽/Vehicle/Drivetrain Profile", fileName = "DrivetrainProfile")]
 public class DrivetrainProfile : ScriptableObject
 {
-    public enum DriveType { FWD, RWD, AWD }
+    public enum DriveType
+    {
+        FWD,
+        RWD,
+        AWD
+    }
 
-    [Header("Drive")]
-    [SerializeField] DriveType driveType = DriveType.RWD;
-    [SerializeField] [Range(0f, 1f)] float frontRearBias = 0.5f;
+    [Header("Drive")] [SerializeField] private DriveType driveType = DriveType.RWD;
+    [SerializeField] [Range(0f, 1f)] private float frontRearBias = 0.5f;
 
-    [Header("Engine")]
-    [SerializeField] float maxTorque = 400f;
-    [SerializeField] AnimationCurve torqueCurve = AnimationCurve.Linear(0f, 0.8f, 1f, 1f);
-    [SerializeField] float idleRPM = 800f;
-    [SerializeField] float maxRPM = 7000f;
+    [Header("Engine")] [SerializeField] private float maxTorque = 400f;
+    [SerializeField] private AnimationCurve torqueCurve = AnimationCurve.Linear(0f, 0.8f, 1f, 1f);
+    [SerializeField] private float idleRPM = 800f;
+    [SerializeField] private float maxRPM = 7000f;
 
-    [Header("Gears")]
-    [SerializeField] float[] gearRatios = { 3.5f, 2.5f, 1.8f, 1.3f, 1.0f, 0.8f };
-    [SerializeField] float reverseGearRatio = 3.2f;
-    [SerializeField] float finalDriveRatio = 3.7f;
-    [SerializeField] float shiftUpRPM = 6500f;
-    [SerializeField] float shiftDownRPM = 2500f;
-    [SerializeField] float shiftDuration = 0.3f;
+    [Header("Gears")] [SerializeField] private float[] gearRatios = { 3.5f, 2.5f, 1.8f, 1.3f, 1.0f, 0.8f };
+    [SerializeField] private float reverseGearRatio = 3.2f;
+    [SerializeField] private float finalDriveRatio = 3.7f;
+    [SerializeField] private float shiftUpRPM = 6500f;
+    [SerializeField] private float shiftDownRPM = 2500f;
+    [SerializeField] private float shiftDuration = 0.3f;
 
-    [Header("Braking")]
-    [SerializeField] float maxBrakeTorque = 3000f;
-    [SerializeField] [Range(0f, 1f)] float brakeBalance = 0.6f;
-    [SerializeField] float handbrakeTorque = 2000f;
+    [Header("Braking")] [SerializeField] private float maxBrakeTorque = 3000f;
+    [SerializeField] [Range(0f, 1f)] private float brakeBalance = 0.6f;
+    [SerializeField] private float handbrakeTorque = 2000f;
 
     public DriveType Type => driveType;
     public float FrontRearBias => frontRearBias;

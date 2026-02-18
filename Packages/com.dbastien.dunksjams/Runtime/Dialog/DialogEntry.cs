@@ -4,15 +4,15 @@ using UnityEngine;
 
 public enum DialogNodeType
 {
-    Dialogue,    // Standard NPC dialogue with lines
-    Choice,      // Player choice branch point
-    Logic,       // Pure logic/conditions, no dialogue
-    Event,       // Triggers game events
-    Start,       // Conversation start point
-    End,         // Conversation end point
-    Comment,     // Documentation/notes (non-functional)
-    Random,      // Picks random output path
-    Jump         // Jumps to another node or conversation
+    Dialogue, // Standard NPC dialogue with lines
+    Choice, // Player choice branch point
+    Logic, // Pure logic/conditions, no dialogue
+    Event, // Triggers game events
+    Start, // Conversation start point
+    End, // Conversation end point
+    Comment, // Documentation/notes (non-functional)
+    Random, // Picks random output path
+    Jump // Jumps to another node or conversation
 }
 
 [Serializable]
@@ -26,10 +26,7 @@ public class DialogLink
     public string portName;
     public List<Field> fields = new();
 
-    public DialogLink()
-    {
-        guid = Guid.NewGuid().ToString();
-    }
+    public DialogLink() => guid = Guid.NewGuid().ToString();
 }
 
 /// <summary>
@@ -59,9 +56,11 @@ public class DialogEntry : ScriptableObject
     {
         nodeID = guid;
         nodeType = type;
-        name = type + "_" + guid.Substring(0, 8);
+        name = type + "_" + guid[..8];
     }
 
     public string GetFieldValue(string name, string fallback = "") => fields.GetFieldValue(name, fallback);
-    public void SetField(string name, string value, FieldType type = FieldType.Text) => fields.SetField(name, value, type);
+
+    public void SetField
+        (string name, string value, FieldType type = FieldType.Text) => fields.SetField(name, value, type);
 }

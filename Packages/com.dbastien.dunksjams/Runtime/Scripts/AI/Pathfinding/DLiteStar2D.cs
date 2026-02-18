@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class DStarLitePathfinder2D : IPathFinder2D
 {
-    readonly PriorityQueue<DStarNode2D> _openSet = new();
-    readonly Dictionary<Vector2Int, DStarNode2D> _nodes = new();
-    readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
+    private readonly PriorityQueue<DStarNode2D> _openSet = new();
+    private readonly Dictionary<Vector2Int, DStarNode2D> _nodes = new();
+    private readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
 
-    readonly int[,] _grid;
-    readonly IGraph<Vector2Int> _graph;
+    private readonly int[,] _grid;
+    private readonly IGraph<Vector2Int> _graph;
 
-    DStarNode2D _startNode2D;
-    DStarNode2D _goalNode2D;
+    private DStarNode2D _startNode2D;
+    private DStarNode2D _goalNode2D;
 
     public DStarLitePathfinder2D(Vector2Int start, Vector2Int goal, int[,] grid, bool allowDiag = false)
     {
@@ -27,7 +27,7 @@ public class DStarLitePathfinder2D : IPathFinder2D
         Initialize(start, goal);
     }
 
-    void Initialize(Vector2Int start, Vector2Int goal)
+    private void Initialize(Vector2Int start, Vector2Int goal)
     {
         _startNode2D = GetNode(start);
         _goalNode2D = GetNode(goal);
@@ -36,9 +36,9 @@ public class DStarLitePathfinder2D : IPathFinder2D
         ComputeShortestPath();
     }
 
-    DStarNode2D GetNode(Vector2Int position)
+    private DStarNode2D GetNode(Vector2Int position)
     {
-        if (!_nodes.TryGetValue(position, out var node))
+        if (!_nodes.TryGetValue(position, out DStarNode2D node))
         {
             node = new DStarNode2D(position);
             _nodes[position] = node;
@@ -47,11 +47,11 @@ public class DStarLitePathfinder2D : IPathFinder2D
         return node;
     }
 
-    void ComputeShortestPath()
+    private void ComputeShortestPath()
     {
         while (_openSet.Count > 0 && (_startNode2D.G != _startNode2D.RHS || _openSet.Peek().F < _startNode2D.F))
         {
-            var node = _openSet.Dequeue();
+            DStarNode2D node = _openSet.Dequeue();
 
             if (node.G > node.RHS)
             {
@@ -67,16 +67,16 @@ public class DStarLitePathfinder2D : IPathFinder2D
         }
     }
 
-    void UpdateNode(DStarNode2D node2D)
+    private void UpdateNode(DStarNode2D node2D)
     {
         if (node2D.Position != _goalNode2D.Position)
         {
             node2D.RHS = float.PositiveInfinity;
 
             _graph.GetEdges(node2D.Position, _edgeBuffer);
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
-                var neighbor = GetNode(edge.Next);
+                DStarNode2D neighbor = GetNode(edge.Next);
                 float tentativeRHS = neighbor.G + edge.Cost;
                 if (tentativeRHS < node2D.RHS)
                     node2D.RHS = tentativeRHS;
@@ -86,10 +86,10 @@ public class DStarLitePathfinder2D : IPathFinder2D
         if (node2D.G != node2D.RHS) _openSet.Enqueue(node2D);
     }
 
-    void UpdateNeighbors(DStarNode2D node2D)
+    private void UpdateNeighbors(DStarNode2D node2D)
     {
         _graph.GetEdges(node2D.Position, _edgeBuffer);
-        foreach (var edge in _edgeBuffer)
+        foreach (Edge<Vector2Int> edge in _edgeBuffer)
             UpdateNode(GetNode(edge.Next));
     }
 
@@ -100,7 +100,7 @@ public class DStarLitePathfinder2D : IPathFinder2D
 
         // Update affected neighbors
         _graph.GetEdges(obstaclePosition, _edgeBuffer);
-        foreach (var edge in _edgeBuffer)
+        foreach (Edge<Vector2Int> edge in _edgeBuffer)
             UpdateNode(GetNode(edge.Next));
 
         // Also update the obstacle node itself
@@ -111,7 +111,7 @@ public class DStarLitePathfinder2D : IPathFinder2D
     public List<Vector2Int> GetPath()
     {
         var path = new List<Vector2Int>(64);
-        var current = _startNode2D;
+        DStarNode2D current = _startNode2D;
 
         while (current.Position != _goalNode2D.Position)
         {
@@ -120,9 +120,9 @@ public class DStarLitePathfinder2D : IPathFinder2D
             _graph.GetEdges(current.Position, _edgeBuffer);
             DStarNode2D nextNode = null;
 
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
-                var neighbor = GetNode(edge.Next);
+                DStarNode2D neighbor = GetNode(edge.Next);
                 if (neighbor.G < float.PositiveInfinity &&
                     (nextNode == null || neighbor.G + edge.Cost < nextNode.G + 1f))
                     nextNode = neighbor;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using TMPro;
 using System.Text;
 
@@ -29,10 +30,10 @@ public class DialogHistoryView : MonoBehaviour
     {
         if (historyText == null || DialogHistoryManager.Instance == null) return;
 
-        var history = DialogHistoryManager.Instance.GetHistory();
-        StringBuilder sb = new StringBuilder();
+        List<DialogHistoryItem> history = DialogHistoryManager.Instance.GetHistory();
+        var sb = new StringBuilder();
 
-        foreach (var item in history)
+        foreach (DialogHistoryItem item in history)
         {
             if (item.isChoice)
                 sb.AppendLine($"<color=#AAAAAA><i>Choice: {item.text}</i></color>");

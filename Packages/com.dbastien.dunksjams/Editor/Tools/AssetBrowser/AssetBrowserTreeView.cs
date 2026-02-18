@@ -40,7 +40,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         { ColumnType.Large, new Vector2Int(100, 150) }
     };
 
-    static ColumnType InferColumnType(Type propertyType) => propertyType switch
+    private static ColumnType InferColumnType(Type propertyType) => propertyType switch
     {
         _ when propertyType == typeof(bool) => ColumnType.Bool,
         _ when propertyType == typeof(int) => ColumnType.Int,
@@ -66,7 +66,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
 
         public string Header;
 
-        void Setup(string header, int minW, int w, bool resize, Compare funcC, Draw funcD, Text funcT)
+        private void Setup(string header, int minW, int w, bool resize, Compare funcC, Draw funcD, Text funcT)
         {
             Header = header;
             headerContent = new GUIContent(header);
@@ -78,9 +78,9 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
             text = funcT;
         }
 
-        void Setup(string header, ColumnType type, bool resize, Compare funcC, Draw funcD, Text funcT)
+        private void Setup(string header, ColumnType type, bool resize, Compare funcC, Draw funcD, Text funcT)
         {
-            if (!ColumnTypeSizes.TryGetValue(type, out var size)) size = new Vector2Int(60, 80);
+            if (!ColumnTypeSizes.TryGetValue(type, out Vector2Int size)) size = new Vector2Int(60, 80);
             Setup(header, size.x, size.y, resize, funcC, funcD, funcT);
         }
 
@@ -119,7 +119,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
 
     protected abstract MultiColumnHeaderState CreateHeaderState();
 
-    void Init()
+    private void Init()
     {
         GUIStyle ColorStyle(GUIStyle style, Color color) => new(style) { normal = { textColor = color } };
 
@@ -144,7 +144,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
 
     protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
     {
-        var rows = base.BuildRows(root);
+        IList<TreeViewItem<int>> rows = base.BuildRows(root);
         Sort(rows);
         return rows;
     }
@@ -157,14 +157,14 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         return Root;
     }
 
-    void Sort(IList<TreeViewItem<int>> rows)
+    private void Sort(IList<TreeViewItem<int>> rows)
     {
         if (rows == null) return;
         FilteredCount = rows.Count;
         if (FilteredCount <= 1) return;
 
-        var sortIdx = multiColumnHeader.sortedColumnIndex;
-        var list = rows.Cast<T>().ToList();
+        int sortIdx = multiColumnHeader.sortedColumnIndex;
+        List<T> list = rows.Cast<T>().ToList();
 
         if (hasSearch) list.RemoveAll(item => !DoesItemMatchSearch(item, searchString));
 
@@ -177,7 +177,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         }
 
         rows.Clear();
-        foreach (var t in list) rows.Add(t);
+        foreach (T t in list) rows.Add(t);
         Repaint();
     }
 
@@ -188,7 +188,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
             CellGUI(args.GetCellRect(i), args.GetColumn(i), t);
     }
 
-    void CellGUI(Rect rect, int col, T t)
+    private void CellGUI(Rect rect, int col, T t)
     {
         CenterRectUsingSingleLineHeight(ref rect);
         ((Column)multiColumnHeader.GetColumn(col)).draw?.Invoke(rect, t);
@@ -203,14 +203,17 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
 
     // ── Column factories ───────────────────────────────────────────────
 
-    protected Column CreateColumn<TValue>(string colName, ColumnType colType,
-        Func<T, TValue> valueGetter, Func<TValue, string> valueToString = null, Type type = null)
+    protected Column CreateColumn<TValue>
+    (
+        string colName, ColumnType colType,
+        Func<T, TValue> valueGetter, Func<TValue, string> valueToString = null, Type type = null
+    )
     {
         return new Column(colName, colType,
             (l, r) => Comparer<TValue>.Default.Compare(valueGetter(l), valueGetter(r)),
             (rect, item) =>
             {
-                var value = valueGetter(item);
+                TValue value = valueGetter(item);
                 if (type != null)
                     EditorGUI.ObjectField(rect, value as Object, type, false);
                 else
@@ -219,10 +222,13 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
             item => valueToString != null ? valueToString(valueGetter(item)) : valueGetter(item)?.ToString());
     }
 
-    public static Column CreateColumn<TValue>(string header, ColumnType colType,
-        Expression<Func<T, TValue>> propertyExpression)
+    public static Column CreateColumn<TValue>
+    (
+        string header, ColumnType colType,
+        Expression<Func<T, TValue>> propertyExpression
+    )
     {
-        var compiled = propertyExpression.Compile();
+        Func<T, TValue> compiled = propertyExpression.Compile();
 
         return new Column(
             header,
@@ -254,16 +260,16 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
             (l, r) => getCollection(l)?.Count.CompareTo(getCollection(r)?.Count ?? 0) ?? 0,
             (rect, t) =>
             {
-                var collection = getCollection(t);
+                TCollection collection = getCollection(t);
                 if (collection == null) return;
-                var count = collection.Count;
+                int count = collection.Count;
                 if (count <= 0)
                 {
                     EditorGUI.LabelField(rect, "0");
                     return;
                 }
 
-                var press = style != null
+                bool press = style != null
                     ? EditorGUI.DropdownButton(rect, new GUIContent(count.ToString()), FocusType.Passive, style)
                     : EditorGUI.DropdownButton(rect, new GUIContent(count.ToString()), FocusType.Passive);
 
@@ -344,40 +350,40 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         Repaint();
     }
 
-    IEnumerable<T> GetSelectionT() => GetSelection().Select(id => FindItem(id, Root) as T);
+    private IEnumerable<T> GetSelectionT() => GetSelection().Select(id => FindItem(id, Root) as T);
 
-    void CopyRelativeAssetPathsToClipboard() =>
+    private void CopyRelativeAssetPathsToClipboard() =>
         EditorGUIUtility.systemCopyBuffer = GetSelectionT().Select(a => a?.AssetPath).Join('\n');
 
-    void CopyAssetPathsToClipboard()
+    private void CopyAssetPathsToClipboard()
     {
-        var paths = GetSelectionT().Select(a => $"{IOUtils.ProjectRootFolder}/{a?.AssetPath}").Join('\n');
+        string paths = GetSelectionT().Select(a => $"{IOUtils.ProjectRootFolder}/{a?.AssetPath}").Join('\n');
         EditorGUIUtility.systemCopyBuffer = paths;
     }
 
-    void CopyReferencesToClipboard()
+    private void CopyReferencesToClipboard()
     {
         var refs = new List<Object>();
-        foreach (var t in GetSelectionT()) refs.AddRange(t.Refs ?? new List<Object>());
+        foreach (T t in GetSelectionT()) refs.AddRange(t.Refs ?? new List<Object>());
         EditorGUIUtility.systemCopyBuffer = refs.Select(AssetDatabase.GetAssetPath).Join('\n');
     }
 
-    void CopyDependenciesToClipboard()
+    private void CopyDependenciesToClipboard()
     {
         var deps = new List<Object>();
-        foreach (var s in GetSelectionT()) deps.AddRange(s.Deps ?? new List<Object>());
+        foreach (T s in GetSelectionT()) deps.AddRange(s.Deps ?? new List<Object>());
         EditorGUIUtility.systemCopyBuffer = deps.Select(AssetDatabase.GetAssetPath).Join('\n');
     }
 
-    void CheckoutSelection()
+    private void CheckoutSelection()
     {
-        foreach (var t in GetSelectionT()) AssetDatabase.MakeEditable(t.AssetPath);
+        foreach (T t in GetSelectionT()) AssetDatabase.MakeEditable(t.AssetPath);
     }
 
-    void DeleteSelection()
+    private void DeleteSelection()
     {
         var any = false;
-        foreach (var t in GetSelectionT())
+        foreach (T t in GetSelectionT())
         {
             any = true;
             AssetDatabase.DeleteAsset(t?.AssetPath);
@@ -413,7 +419,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         EditorUtility.DisplayProgressBar(TitleAssets, path, 0f);
         AllItems.Clear();
 
-        var guids = GatherGuids(sceneOnly, path);
+        string[] guids = GatherGuids(sceneOnly, path);
         if (guids == null)
         {
             Debug.LogWarning($"[AssetBrowser] GatherGuids returned null for path: {path}");
@@ -427,15 +433,12 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         var id = 1;
         for (var i = 0; i < guids.Length; ++i)
         {
-            var guid = guids[i];
-            var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            string guid = guids[i];
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             if (EditorUtility.DisplayCancelableProgressBar(TitleAssets, assetPath, i / (float)guids.Length))
                 break;
 
-            try
-            {
-                AddAsset(ref id, guid, assetPath);
-            }
+            try { AddAsset(ref id, guid, assetPath); }
             catch (Exception e)
             {
                 Debug.LogError($"[AssetBrowser] Error adding asset {assetPath}: {e.Message}\n{e.StackTrace}");
@@ -457,11 +460,13 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
         where TComponent : Component
     {
         var unique = new HashSet<Object>();
-        foreach (var c in Object.FindObjectsByType<TComponent>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (TComponent c in Object.FindObjectsByType<TComponent>(FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
         {
-            var asset = getAsset(c);
+            Object asset = getAsset(c);
             if (asset) unique.Add(asset);
         }
+
         return AssetGuidsFromObjects(unique);
     }
 
@@ -469,8 +474,8 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
     protected static string[] AssetGuidsFromObjects(IEnumerable<Object> objects)
     {
         var guids = new List<string>();
-        foreach (var obj in objects)
-            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out var guid, out _))
+        foreach (Object obj in objects)
+            if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out string guid, out _))
                 guids.Add(guid);
         return guids.ToArray();
     }
@@ -487,7 +492,7 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
 
         for (var i = 0; i < AllItems.Count; ++i)
         {
-            var row = AllItems[i];
+            T row = AllItems[i];
 
             if (EditorUtility.DisplayCancelableProgressBar(
                     TitleDependencies,
@@ -498,8 +503,8 @@ public abstract class AssetBrowserTreeView<T> : TreeView<int> where T : AssetBro
             if (!DoesItemMatchSearch(row)) continue;
 
             row.Deps.Clear();
-            var deps = AssetDatabase.GetDependencies(row.AssetPath);
-            foreach (var dep in deps)
+            string[] deps = AssetDatabase.GetDependencies(row.AssetPath);
+            foreach (string dep in deps)
             {
                 if (row.AssetPath == dep) continue;
                 row.Deps.Add(AssetDatabase.LoadAssetAtPath<Object>(dep));

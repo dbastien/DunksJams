@@ -16,7 +16,11 @@ public class EditNodePropertyCommand : DialogGraphCommand
 
     public override string Name => $"Edit {_propertyName}";
 
-    public EditNodePropertyCommand(DialogEntry entry, string propertyName, string oldValue, string newValue, Action<string> setter, Func<string> getter)
+    public EditNodePropertyCommand
+    (
+        DialogEntry entry, string propertyName, string oldValue, string newValue, Action<string> setter,
+        Func<string> getter
+    )
     {
         _entry = entry;
         _propertyName = propertyName;
@@ -45,11 +49,9 @@ public class EditNodePropertyCommand : DialogGraphCommand
         if (other is EditNodePropertyCommand editCommand &&
             editCommand._entry == _entry &&
             editCommand._propertyName == _propertyName)
-        {
             // Merge by updating new value
             // Keep the original old value
             return false; // Actually don't merge for now - it causes issues with text fields
-        }
         return false;
     }
 }

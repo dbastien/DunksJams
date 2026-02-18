@@ -101,13 +101,13 @@ public static class EffectRegistry
     {
         EffectBehaviors[StatusEffect.Poison] = (effect, target) =>
         {
-            if (target.TryGetComponent<Health>(out var health))
+            if (target.TryGetComponent<Health>(out Health health))
                 health.TakeDamage(effect.intensity * Time.deltaTime, DamageType.Poison);
         };
 
         EffectBehaviors[StatusEffect.Burn] = (effect, target) =>
         {
-            if (target.TryGetComponent<Health>(out var health))
+            if (target.TryGetComponent<Health>(out Health health))
                 health.TakeDamage(effect.intensity * Time.deltaTime, DamageType.Fire);
         };
 
@@ -123,24 +123,24 @@ public static class EffectRegistry
 
     public static void ApplyEffectLogic(StatusEffectInstance effect, GameObject target)
     {
-        if (EffectBehaviors.TryGetValue(effect.effectType, out var logic))
+        if (EffectBehaviors.TryGetValue(effect.effectType, out Action<StatusEffectInstance, GameObject> logic))
             logic(effect, target);
     }
 
     public static bool IsCounter(StatusEffect effect, StatusEffect counter) =>
-        Counters.TryGetValue((effect, counter), out var exists) && exists;
+        Counters.TryGetValue((effect, counter), out bool exists) && exists;
 
     public static StatusEffect? GetSynergy(StatusEffect a, StatusEffect b) =>
-        Synergies.TryGetValue((a, b), out var synergy) ? synergy : null;
+        Synergies.TryGetValue((a, b), out StatusEffect synergy) ? synergy : null;
 }
 
 public class StatusEffectManager : MonoBehaviour
 {
-    readonly List<StatusEffectInstance> _activeEffects = new();
+    private readonly List<StatusEffectInstance> _activeEffects = new();
 
     public void ApplyEffect(StatusEffectInstance newEffect)
     {
-        var existingEffect = _activeEffects.Find(e => e.effectType == newEffect.effectType);
+        StatusEffectInstance existingEffect = _activeEffects.Find(e => e.effectType == newEffect.effectType);
 
         if (existingEffect != null)
         {
@@ -149,17 +149,14 @@ public class StatusEffectManager : MonoBehaviour
             else
                 existingEffect.RefreshDuration(newEffect.duration);
         }
-        else
-        {
-            _activeEffects.Add(newEffect);
-        }
+        else { _activeEffects.Add(newEffect); }
     }
 
     public void UpdateEffects(float deltaTime)
     {
-        for (var i = _activeEffects.Count - 1; i >= 0; --i)
+        for (int i = _activeEffects.Count - 1; i >= 0; --i)
         {
-            var effect = _activeEffects[i];
+            StatusEffectInstance effect = _activeEffects[i];
             if (!effect.IsPermanent)
                 effect.duration -= deltaTime;
 
@@ -170,13 +167,10 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
-    public void RemoveEffect(StatusEffect effectType)
-    {
-        _activeEffects.RemoveAll(e => e.effectType == effectType);
-    }
+    public void RemoveEffect(StatusEffect effectType) { _activeEffects.RemoveAll(e => e.effectType == effectType); }
 
     public bool HasEffect(StatusEffect effectType) =>
         _activeEffects.Exists(e => e.effectType == effectType);
 
-    void Update() => UpdateEffects(Time.deltaTime);
+    private void Update() => UpdateEffects(Time.deltaTime);
 }

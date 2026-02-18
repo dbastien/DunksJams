@@ -7,8 +7,10 @@ using UnityEngine;
 public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
 {
     public static event Action OnLangChanged;
-    Dictionary<string, string> _texts;
-    CultureInfo _culture;
+    private Dictionary<string, string> _texts;
+    private CultureInfo _culture;
+
+    public string CurrentLanguage => _culture?.TwoLetterISOLanguageName ?? "en";
 
     protected override async void InitInternal() =>
         await LoadLangAsync(PlayerPrefs.GetString("language", AutoDetectLang()));
@@ -25,11 +27,11 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
     }
 
     public string Localize(string key, params object[] args) =>
-        _texts.TryGetValue(key, out var value)
+        _texts.TryGetValue(key, out string value)
             ? string.Format(value, args)
             : $"[{key}]";
 
-    async Task<bool> LoadLangAsync(string langCode)
+    private async Task<bool> LoadLangAsync(string langCode)
     {
         _culture = new CultureInfo(langCode);
         _texts = await GoogleSheets.FetchGoogleSheetAsync("<SHEET_ID>", langCode) ??
@@ -37,12 +39,12 @@ public class LocalizationManager : SingletonEagerBehaviour<LocalizationManager>
         return _texts != null;
     }
 
-    async Task<Dictionary<string, string>> LoadFallbackLang()
+    private async Task<Dictionary<string, string>> LoadFallbackLang()
     {
         DLog.LogW("Loading fallback language.");
         return await GoogleSheets.FetchGoogleSheetAsync("<SHEET_ID>", GoogleSheets.FallbackLanguage);
     }
 
-    string AutoDetectLang() =>
-        Application.systemLanguage.ToString().ToLower().Substring(0, 2);
+    private string AutoDetectLang() =>
+        Application.systemLanguage.ToString().ToLower()[..2];
 }

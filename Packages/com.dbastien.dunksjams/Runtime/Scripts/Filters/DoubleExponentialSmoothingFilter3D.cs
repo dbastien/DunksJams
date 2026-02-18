@@ -2,13 +2,13 @@
 
 public class DoubleExponentialSmoothingFilter3D : IFilter3D
 {
-    float smoothing = 0.33f;
-    float correction = 0.25f;
-    float jitterRadius = 0.07f;
+    private float smoothing = 0.33f;
+    private float correction = 0.25f;
+    private float jitterRadius = 0.07f;
 
-    Vector3 filteredPosition;
-    Vector3 trend;
-    int frameCount;
+    private Vector3 filteredPosition;
+    private Vector3 trend;
+    private int frameCount;
 
     public object Clone() => MemberwiseClone();
 
@@ -30,9 +30,7 @@ public class DoubleExponentialSmoothingFilter3D : IFilter3D
         // Jitter filter
         Vector3 diff = rawPosition - prevFilteredPosition;
         if (diff.magnitude <= jitterRadius)
-        {
             rawPosition = Vector3.Lerp(prevFilteredPosition, rawPosition, diff.magnitude / jitterRadius);
-        }
 
         // Double Exponential Smoothing (Holt-Winters)
         // Level

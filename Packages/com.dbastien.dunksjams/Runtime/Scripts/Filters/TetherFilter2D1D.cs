@@ -10,11 +10,11 @@ public class TetherFilter2D1D : IFilter3D
 
     public Vector3 CurrentValue => tetherPosition;
 
-    float tetherPosition1D;
-    Vector2 tetherPosition2D;
-    Vector3 tetherPosition;
+    private float tetherPosition1D;
+    private Vector2 tetherPosition2D;
+    private Vector3 tetherPosition;
 
-    bool hasValue;
+    private bool hasValue;
 
     public object Clone() => MemberwiseClone();
 
@@ -30,45 +30,39 @@ public class TetherFilter2D1D : IFilter3D
         }
 
         // apply 2D filter
-        var rawPosition2D = s.GetValuesFromExclusionIndex(Tether1DAxis);
+        Vector2 rawPosition2D = s.GetValuesFromExclusionIndex(Tether1DAxis);
         if (TetherLength2D > 0.0f)
         {
-            var tetherDiff2D = rawPosition2D - tetherPosition2D;
+            Vector2 tetherDiff2D = rawPosition2D - tetherPosition2D;
 
-            var distanceBeyondTether = tetherDiff2D.magnitude - TetherLength2D;
+            float distanceBeyondTether = tetherDiff2D.magnitude - TetherLength2D;
             distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame2D);
 
             // is the current position outside the tether circle?
             if (distanceBeyondTether > 0.0f)
             {
                 tetherDiff2D.Normalize();
-                var tetherDelta = tetherDiff2D * distanceBeyondTether;
+                Vector2 tetherDelta = tetherDiff2D * distanceBeyondTether;
                 tetherPosition2D += tetherDelta;
             }
         }
-        else
-        {
-            tetherPosition2D = rawPosition2D;
-        }
+        else { tetherPosition2D = rawPosition2D; }
 
         // apply 1D filter
-        var rawPosition1D = s.GetValueFromIndex(Tether1DAxis);
+        float rawPosition1D = s.GetValueFromIndex(Tether1DAxis);
         if (TetherLength1D > 0.0)
         {
-            var tetherDiff = rawPosition1D - tetherPosition1D;
+            float tetherDiff = rawPosition1D - tetherPosition1D;
 
             if (Mathf.Abs(tetherDiff) > TetherLength1D)
             {
-                var distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength1D) * Mathf.Sign(tetherDiff);
+                float distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength1D) * Mathf.Sign(tetherDiff);
                 distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame1D);
 
                 tetherPosition1D += distanceBeyondTether;
             }
         }
-        else
-        {
-            tetherPosition1D = rawPosition1D;
-        }
+        else { tetherPosition1D = rawPosition1D; }
 
         tetherPosition = tetherPosition2D.MergeValues(Tether1DAxis, tetherPosition1D);
     }

@@ -2,25 +2,24 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.Rendering;
 using ShaderPropertyType = UnityEngine.Rendering.ShaderPropertyType;
 
 [Serializable]
 public class ComponentMemberReference
 {
     [SerializeField] public Component targetComponent;
-    [SerializeField] string targetMemberName;
-    [SerializeField] int materialIndex;
+    [SerializeField] private string targetMemberName;
+    [SerializeField] private int materialIndex;
 
-    FieldInfo _fieldInfo;
-    PropertyInfo _propInfo;
-    bool _infoCached;
-    MaterialPropertyBlock _materialPropBlock;
-    ShaderPropertyType? _shaderPropType;
+    private FieldInfo _fieldInfo;
+    private PropertyInfo _propInfo;
+    private bool _infoCached;
+    private MaterialPropertyBlock _materialPropBlock;
+    private ShaderPropertyType? _shaderPropType;
 
     // Cached delegates for performance (avoids reflection every frame)
-    Action<object> _cachedSetter;
-    Func<object> _cachedGetter;
+    private Action<object> _cachedSetter;
+    private Func<object> _cachedGetter;
 
     public string GetTargetMemberName() => targetMemberName;
 
@@ -32,10 +31,11 @@ public class ComponentMemberReference
 
         if (targetComponent is Renderer renderer)
         {
-            var material = GetMaterial(renderer);
+            Material material = GetMaterial(renderer);
             if (material && _shaderPropType.HasValue)
             {
-                var propertyType = material.shader.GetPropertyType(material.shader.FindPropertyIndex(targetMemberName));
+                ShaderPropertyType propertyType =
+                    material.shader.GetPropertyType(material.shader.FindPropertyIndex(targetMemberName));
 
                 switch (propertyType)
                 {
@@ -91,7 +91,7 @@ public class ComponentMemberReference
         }
     }
 
-    bool CacheInfo()
+    private bool CacheInfo()
     {
         if (_infoCached) return true;
         //if (_infoCached) return _fieldInfo != null || _propertyInfo != null;
@@ -101,12 +101,12 @@ public class ComponentMemberReference
             return false;
         }
 
-        var type = targetComponent.GetType();
-        var cleanMemberName = targetMemberName.Split(' ')[0];
+        Type type = targetComponent.GetType();
+        string cleanMemberName = targetMemberName.Split(' ')[0];
 
         if (targetComponent is Renderer renderer)
         {
-            var mat = GetMaterial(renderer);
+            Material mat = GetMaterial(renderer);
             if (mat && mat.HasProperty(cleanMemberName))
             {
                 _shaderPropType = mat.shader.GetPropertyType(mat.shader.FindPropertyIndex(cleanMemberName));
@@ -136,35 +136,40 @@ public class ComponentMemberReference
 
     public Material GetMaterial(Renderer renderer) => renderer.sharedMaterials[materialIndex];
 
-    void CreateCachedDelegates(Type componentType)
+    private void CreateCachedDelegates(Type componentType)
     {
         // Create compiled getter/setter using expression trees for ~50x faster access than reflection
-        var targetParam = Expression.Constant(targetComponent);
+        ConstantExpression targetParam = Expression.Constant(targetComponent);
 
         if (_fieldInfo != null)
         {
             // Getter: () => ((ComponentType)target).fieldName
-            var fieldAccess = Expression.Field(Expression.Convert(targetParam, componentType), _fieldInfo);
-            var getterLambda = Expression.Lambda<Func<object>>(Expression.Convert(fieldAccess, typeof(object)));
+            MemberExpression fieldAccess = Expression.Field(Expression.Convert(targetParam, componentType), _fieldInfo);
+            Expression<Func<object>> getterLambda =
+                Expression.Lambda<Func<object>>(Expression.Convert(fieldAccess, typeof(object)));
             _cachedGetter = getterLambda.Compile();
 
             // Setter: (val) => ((ComponentType)target).fieldName = (FieldType)val
-            var valueParam = Expression.Parameter(typeof(object), "value");
-            var assignExpr = Expression.Assign(fieldAccess, Expression.Convert(valueParam, _fieldInfo.FieldType));
-            var setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
+            ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
+            BinaryExpression assignExpr =
+                Expression.Assign(fieldAccess, Expression.Convert(valueParam, _fieldInfo.FieldType));
+            Expression<Action<object>> setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
             _cachedSetter = setterLambda.Compile();
         }
         else if (_propInfo != null)
         {
             // Getter: () => ((ComponentType)target).propertyName
-            var propAccess = Expression.Property(Expression.Convert(targetParam, componentType), _propInfo);
-            var getterLambda = Expression.Lambda<Func<object>>(Expression.Convert(propAccess, typeof(object)));
+            MemberExpression propAccess =
+                Expression.Property(Expression.Convert(targetParam, componentType), _propInfo);
+            Expression<Func<object>> getterLambda =
+                Expression.Lambda<Func<object>>(Expression.Convert(propAccess, typeof(object)));
             _cachedGetter = getterLambda.Compile();
 
             // Setter: (val) => ((ComponentType)target).propertyName = (PropertyType)val
-            var valueParam = Expression.Parameter(typeof(object), "value");
-            var assignExpr = Expression.Assign(propAccess, Expression.Convert(valueParam, _propInfo.PropertyType));
-            var setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
+            ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
+            BinaryExpression assignExpr =
+                Expression.Assign(propAccess, Expression.Convert(valueParam, _propInfo.PropertyType));
+            Expression<Action<object>> setterLambda = Expression.Lambda<Action<object>>(assignExpr, valueParam);
             _cachedSetter = setterLambda.Compile();
         }
     }

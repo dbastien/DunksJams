@@ -10,16 +10,19 @@ using UnityEngine;
 /// </summary>
 public class Dijkstra2D
 {
-    readonly PriorityQueue<DijkstraNode> _openSet = new();
-    readonly Dictionary<Vector2Int, float> _costSoFar = new();
-    readonly Dictionary<Vector2Int, Vector2Int> _cameFrom = new();
-    readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
+    private readonly PriorityQueue<DijkstraNode> _openSet = new();
+    private readonly Dictionary<Vector2Int, float> _costSoFar = new();
+    private readonly Dictionary<Vector2Int, Vector2Int> _cameFrom = new();
+    private readonly List<Edge<Vector2Int>> _edgeBuffer = new(8);
 
     /// <summary>
     /// Expands from start up to maxCost. After calling, use GetCost/GetPath to query results.
     /// </summary>
-    public void Expand(Vector2Int start, IGraph<Vector2Int> graph, float maxCost = float.PositiveInfinity,
-        IEdgeMod<Vector2Int> edgeMod = null)
+    public void Expand
+    (
+        Vector2Int start, IGraph<Vector2Int> graph, float maxCost = float.PositiveInfinity,
+        IEdgeMod<Vector2Int> edgeMod = null
+    )
     {
         if (graph == null) throw new ArgumentNullException(nameof(graph));
 
@@ -32,13 +35,14 @@ public class Dijkstra2D
 
         while (_openSet.Count > 0)
         {
-            var current = _openSet.Dequeue();
+            DijkstraNode current = _openSet.Dequeue();
 
-            if (current.Cost > (_costSoFar.TryGetValue(current.Position, out float recorded) ? recorded : float.PositiveInfinity))
+            if (current.Cost >
+                (_costSoFar.TryGetValue(current.Position, out float recorded) ? recorded : float.PositiveInfinity))
                 continue;
 
             graph.GetEdges(current.Position, _edgeBuffer);
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
                 float cost = edge.Cost;
                 if (edgeMod != null && !edgeMod.ModifyCost(current.Position, edge.Next, ref cost))
@@ -61,8 +65,11 @@ public class Dijkstra2D
     /// Finds the cheapest reachable target from a set of candidates.
     /// Stops early once the first target is dequeued (guaranteed cheapest by Dijkstra ordering).
     /// </summary>
-    public Vector2Int? FindNearest(Vector2Int start, IGraph<Vector2Int> graph, HashSet<Vector2Int> targets,
-        float maxCost = float.PositiveInfinity, IEdgeMod<Vector2Int> edgeMod = null)
+    public Vector2Int? FindNearest
+    (
+        Vector2Int start, IGraph<Vector2Int> graph, HashSet<Vector2Int> targets,
+        float maxCost = float.PositiveInfinity, IEdgeMod<Vector2Int> edgeMod = null
+    )
     {
         if (graph == null) throw new ArgumentNullException(nameof(graph));
         if (targets == null || targets.Count == 0) return null;
@@ -77,7 +84,7 @@ public class Dijkstra2D
 
         while (_openSet.Count > 0)
         {
-            var current = _openSet.Dequeue();
+            DijkstraNode current = _openSet.Dequeue();
 
             if (current.Cost > (_costSoFar.TryGetValue(current.Position, out float rec) ? rec : float.PositiveInfinity))
                 continue;
@@ -86,7 +93,7 @@ public class Dijkstra2D
                 return current.Position;
 
             graph.GetEdges(current.Position, _edgeBuffer);
-            foreach (var edge in _edgeBuffer)
+            foreach (Edge<Vector2Int> edge in _edgeBuffer)
             {
                 float cost = edge.Cost;
                 if (edgeMod != null && !edgeMod.ModifyCost(current.Position, edge.Next, ref cost))
@@ -118,7 +125,7 @@ public class Dijkstra2D
             return null;
 
         var path = new List<Vector2Int>();
-        var current = target;
+        Vector2Int current = target;
 
         while (_cameFrom.ContainsKey(current))
         {
@@ -134,7 +141,7 @@ public class Dijkstra2D
     /// <summary>Returns all nodes that were expanded (reachable within budget).</summary>
     public IEnumerable<Vector2Int> ExpandedNodes => _costSoFar.Keys;
 
-    struct DijkstraNode : IComparable<DijkstraNode>
+    private struct DijkstraNode : IComparable<DijkstraNode>
     {
         public Vector2Int Position;
         public float Cost;

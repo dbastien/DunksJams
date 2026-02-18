@@ -2,7 +2,8 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-public class ComputeShaderBrowserWindow : AssetBrowserWindow<ComputeShaderBrowserTreeView, ComputeShaderBrowserTreeView.TreeViewItem>
+public class ComputeShaderBrowserWindow
+    : AssetBrowserWindow<ComputeShaderBrowserTreeView, ComputeShaderBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Compute Shaders";
 

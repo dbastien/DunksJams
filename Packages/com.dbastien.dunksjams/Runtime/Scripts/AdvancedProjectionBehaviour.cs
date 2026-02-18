@@ -31,21 +31,21 @@ public sealed class AdvancedProjectionBehaviour : MonoBehaviour
     [Tooltip("If true, re-applies every frame (for animated params).")]
     public bool dynamicUpdates;
 
-    Camera _cam;
+    private Camera _cam;
 
     // Cache last applied state to avoid redundant work
-    ProjectionType _lastType;
-    float _lastAngle, _lastCabinetRatio;
-    Vector2 _lastShear;
-    float _lastDimX, _lastDimY;
+    private ProjectionType _lastType;
+    private float _lastAngle, _lastCabinetRatio;
+    private Vector2 _lastShear;
+    private float _lastDimX, _lastDimY;
 
-    void OnEnable()
+    private void OnEnable()
     {
         _cam = GetComponent<Camera>();
         ApplyIfChanged(true);
     }
 
-    void OnValidate()
+    private void OnValidate()
     {
         // In editor, apply immediately when values change.
         if (!isActiveAndEnabled) return;
@@ -53,17 +53,17 @@ public sealed class AdvancedProjectionBehaviour : MonoBehaviour
         ApplyIfChanged(true);
     }
 
-    void Update()
+    private void Update()
     {
         if (!dynamicUpdates) return;
         ApplyIfChanged(false);
     }
 
-    void ApplyIfChanged(bool force)
+    private void ApplyIfChanged(bool force)
     {
         if (_cam == null) return;
 
-        var changed =
+        bool changed =
             force ||
             _lastType != projectionType ||
             !Mathf.Approximately(_lastAngle, angle) ||
@@ -84,23 +84,23 @@ public sealed class AdvancedProjectionBehaviour : MonoBehaviour
         ApplyProjection();
     }
 
-    void ApplyProjection()
+    private void ApplyProjection()
     {
         switch (projectionType)
         {
             case ProjectionType.Orthographic: _cam.SetOrthographic(); break;
 
-            case ProjectionType.Cavalier:      _cam.SetOblique(angle); break;
-            case ProjectionType.Cabinet:       _cam.SetOblique(angle, cabinetRatio); break;
+            case ProjectionType.Cavalier: _cam.SetOblique(angle); break;
+            case ProjectionType.Cabinet: _cam.SetOblique(angle, cabinetRatio); break;
             case ProjectionType.CustomOblique: _cam.SetOblique(customObliqueShear.x, customObliqueShear.y); break;
 
-            case ProjectionType.Isometric:   _cam.SetAxonometricProjection(30f, 45f); break;
-            case ProjectionType.Dimetric:    _cam.SetAxonometricProjection(dimetricAngleX, dimetricAngleY); break;
-            case ProjectionType.Trimetric:   _cam.SetAxonometricProjection(23f, 37f, 15f); break;
+            case ProjectionType.Isometric: _cam.SetAxonometricProjection(30f, 45f); break;
+            case ProjectionType.Dimetric: _cam.SetAxonometricProjection(dimetricAngleX, dimetricAngleY); break;
+            case ProjectionType.Trimetric: _cam.SetAxonometricProjection(23f, 37f, 15f); break;
             case ProjectionType.Planometric: _cam.SetAxonometricProjection(45f, 45f); break;
 
-            case ProjectionType.Perspective:           _cam.SetPerspective(); break;
-            case ProjectionType.TwoPointPerspective:   _cam.SetPerspective(0f, 30f); break;
+            case ProjectionType.Perspective: _cam.SetPerspective(); break;
+            case ProjectionType.TwoPointPerspective: _cam.SetPerspective(0f, 30f); break;
             case ProjectionType.ThreePointPerspective: _cam.SetPerspective(15f, 30f, 10f); break;
         }
     }

@@ -25,16 +25,16 @@ public class Projectile : MonoBehaviour
 
     [Header("Lifetime Settings")] public float lifetime = 5f;
 
-    Vector3 _startPosition;
-    int _pierceCount;
+    private Vector3 _startPosition;
+    private int _pierceCount;
 
-    void Start()
+    private void Start()
     {
         _startPosition = transform.position;
         Destroy(gameObject, lifetime); // Destroy after lifetime expires
     }
 
-    void Update()
+    private void Update()
     {
         MoveProjectile();
 
@@ -43,12 +43,12 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
     }
 
-    void MoveProjectile() =>
+    private void MoveProjectile() =>
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<Health>(out var health))
+        if (other.TryGetComponent<Health>(out Health health))
         {
             if (useAOE)
                 DealAreaDamage();
@@ -61,10 +61,7 @@ public class Projectile : MonoBehaviour
                 if (_pierceCount >= maxPierceTargets)
                     Destroy(gameObject);
             }
-            else
-            {
-                Destroy(gameObject);
-            }
+            else { Destroy(gameObject); }
         }
         else if (!usePiercing) // Destroy if not piercing
         {
@@ -72,26 +69,24 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    void DealDirectDamage(Health target)
+    private void DealDirectDamage(Health target)
     {
         target.TakeDamage(damage);
 
         if (useStatusEffects)
         {
-            var duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
+            float duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
             target.ApplyStatusEffect(statusEffect, duration);
         }
     }
 
-    void DealAreaDamage()
+    private void DealAreaDamage()
     {
-        var hitColliders = Physics.OverlapSphere(transform.position, aoeRadius);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, aoeRadius);
 
-        foreach (var collider in hitColliders)
-        {
-            if (collider.TryGetComponent<Health>(out var health))
+        foreach (Collider collider in hitColliders)
+            if (collider.TryGetComponent<Health>(out Health health))
                 DealDirectDamage(health);
-        }
 
         Destroy(gameObject); // AOE projectiles typically destroy after explosion
     }

@@ -25,9 +25,9 @@ public sealed class PongGameDefinition : GameDefinition
     {
         if (flow == null) return "Game Over";
 
-        var player = flow.GetScore("Player");
-        var cpu = flow.GetScore("CPU");
-        var result = player == cpu ? "Tie Game" : player > cpu ? "Player Wins!" : "CPU Wins!";
+        int player = flow.GetScore("Player");
+        int cpu = flow.GetScore("CPU");
+        string result = player == cpu ? "Tie Game" : player > cpu ? "Player Wins!" : "CPU Wins!";
         return $"{result}\nPlayer: {player}\nCPU: {cpu}";
     }
 }

@@ -1,3 +1,1 @@
-public static class TabManager
-{
-}
+public static class TabManager { }

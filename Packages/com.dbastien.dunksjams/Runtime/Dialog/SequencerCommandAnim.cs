@@ -13,16 +13,13 @@ public class SequencerCommandAnim : SequencerCommand
         Transform target = DialogUtility.FindTransform(targetName);
         if (target != null)
         {
-            Animator anim = target.GetComponentInChildren<Animator>();
+            var anim = target.GetComponentInChildren<Animator>();
             if (anim != null)
                 anim.SetTrigger(trigger);
             else
                 DLog.LogW($"[Sequencer] Animator not found on '{targetName}'.");
         }
-        else
-        {
-            DLog.LogW($"[Sequencer] Anim target '{targetName}' not found.");
-        }
+        else { DLog.LogW($"[Sequencer] Anim target '{targetName}' not found."); }
 
         Stop();
     }

@@ -18,13 +18,13 @@ public static class H
 
     public static void AllInRange(IEnumerable<float> vals, float min, float max)
     {
-        foreach (var v in vals)
+        foreach (float v in vals)
             Assert.IsTrue(v >= min && v <= max, $"{v} not in [{min},{max}]");
     }
 
     public static void AllUnique<T>(IEnumerable<T> items)
     {
-        var list = items.ToList();
+        List<T> list = items.ToList();
         Assert.AreEqual(list.Count, list.Distinct().Count(), "Items are not unique");
     }
 }

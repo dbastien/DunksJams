@@ -8,7 +8,7 @@ public static class MeshExportMenu
 {
     public static void ExportSelectedToObj()
     {
-        var go = Selection.activeGameObject;
+        GameObject go = Selection.activeGameObject;
         if (go == null)
         {
             EditorUtility.DisplayDialog("Export Mesh", "No GameObject selected.", "OK");
@@ -22,7 +22,7 @@ public static class MeshExportMenu
             return;
         }
 
-        var path = EditorUtility.SaveFilePanel(
+        string path = EditorUtility.SaveFilePanel(
             "Export Mesh to OBJ",
             Application.dataPath,
             go.name + ".obj",
@@ -30,7 +30,7 @@ public static class MeshExportMenu
 
         if (string.IsNullOrEmpty(path)) return;
 
-        ObjExporter.MeshToFile(mf, path, exportMaterial: true);
+        ObjExporter.MeshToFile(mf, path, true);
         DLog.Log($"Mesh exported to {path}");
     }
 }

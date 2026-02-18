@@ -13,7 +13,11 @@ public class DeleteConnectionCommand : DialogGraphCommand
 
     public override string Name => "Delete Connection";
 
-    public DeleteConnectionCommand(DialogConversation conversation, DialogGraphView graphView, DialogEntry sourceEntry, DialogEntry destEntry, int linkIndex)
+    public DeleteConnectionCommand
+    (
+        DialogConversation conversation, DialogGraphView graphView, DialogEntry sourceEntry, DialogEntry destEntry,
+        int linkIndex
+    )
     {
         _conversation = conversation;
         _graphView = graphView;

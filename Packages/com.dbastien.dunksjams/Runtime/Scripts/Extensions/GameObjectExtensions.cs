@@ -21,7 +21,7 @@ public static class GameObjectExtensions
 
     public static GameObject Clone(this GameObject go, Transform parent = null)
     {
-        var clone = Object.Instantiate(go, parent);
+        GameObject clone = Object.Instantiate(go, parent);
         clone.name = go.name;
         return clone;
     }
@@ -37,13 +37,13 @@ public static class GameObjectExtensions
 
     public static void DisableAllRenderers(this GameObject go)
     {
-        foreach (var renderer in go.GetComponentsInChildren<Renderer>())
+        foreach (Renderer renderer in go.GetComponentsInChildren<Renderer>())
             renderer.enabled = false;
     }
 
     public static void EnableAllRenderers(this GameObject go)
     {
-        foreach (var renderer in go.GetComponentsInChildren<Renderer>())
+        foreach (Renderer renderer in go.GetComponentsInChildren<Renderer>())
             renderer.enabled = true;
     }
 
@@ -60,7 +60,7 @@ public static class GameObjectExtensions
 
     public static string GetFullPath(this GameObject go)
     {
-        var path = "/" + go.name;
+        string path = "/" + go.name;
         while (go.transform.parent != null)
         {
             go = go.transform.parent.gameObject;

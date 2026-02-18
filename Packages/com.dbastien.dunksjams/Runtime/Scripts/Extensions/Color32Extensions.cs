@@ -4,7 +4,7 @@ public static class Color32Extensions
 {
     public static Color32 PremultiplyAlpha(this Color32 c)
     {
-        var alphaFactor = c.a / 255f;
+        float alphaFactor = c.a / 255f;
         return new Color32(
             (byte)(c.r * alphaFactor),
             (byte)(c.g * alphaFactor),
@@ -20,18 +20,18 @@ public static class Color32Extensions
 
     public static float Hue(this Color32 c)
     {
-        Color.RGBToHSV(c, out var h, out _, out _);
+        Color.RGBToHSV(c, out float h, out _, out _);
         return h;
     }
 
     public static float Saturation(this Color32 c)
     {
-        var r = c.r / 255f;
-        var g = c.g / 255f;
-        var b = c.b / 255f;
+        float r = c.r / 255f;
+        float g = c.g / 255f;
+        float b = c.b / 255f;
 
-        var max = Mathf.Max(r, g, b);
-        var min = Mathf.Min(r, g, b);
+        float max = Mathf.Max(r, g, b);
+        float min = Mathf.Min(r, g, b);
 
         if (max == 0) return 0f;
 
@@ -51,7 +51,7 @@ public static class Color32Extensions
 
     public static Color32 AdjustHue(this Color32 c, float hueShift)
     {
-        Color.RGBToHSV(c, out var h, out var s, out var v);
+        Color.RGBToHSV(c, out float h, out float s, out float v);
         h = (h + hueShift) % 1f;
         if (h < 0) h += 1f;
         return Color.HSVToRGB(h, s, v);
@@ -59,7 +59,7 @@ public static class Color32Extensions
 
     public static Color32 AdjustSaturation(this Color32 c, float saturationMultiplier)
     {
-        Color.RGBToHSV(c, out var h, out var s, out var v);
+        Color.RGBToHSV(c, out float h, out float s, out float v);
         s = Mathf.Clamp01(s * saturationMultiplier);
         return Color.HSVToRGB(h, s, v);
         ;

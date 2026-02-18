@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class BuiltInResourceViewerWindow : EditorWindow
 {
@@ -12,29 +13,29 @@ public class BuiltInResourceViewerWindow : EditorWindow
         w.Show();
     }
 
-    struct Drawing
+    private struct Drawing
     {
         public Rect Rect;
         public Action Draw;
     }
 
-    List<Drawing> drawings;
+    private List<Drawing> drawings;
 
-    List<UnityEngine.Object> objects;
-    float scrollPos;
-    float maxY;
-    Rect oldPosition;
+    private List<Object> objects;
+    private float scrollPos;
+    private float maxY;
+    private Rect oldPosition;
 
-    bool showingStyles = true;
+    private bool showingStyles = true;
 
-    GUIContent inactiveText = new("inactive");
-    GUIContent activeText = new("active");
+    private GUIContent inactiveText = new("inactive");
+    private GUIContent activeText = new("active");
 
-    const float toolbarPad = 4.0f;
-    const float scrollbarWidth = 16.0f;
-    const float xPad = 32.0f;
-    const float xMin = 5.0f;
-    const float yMin = 5.0f;
+    private const float toolbarPad = 4.0f;
+    private const float scrollbarWidth = 16.0f;
+    private const float xPad = 32.0f;
+    private const float xMin = 5.0f;
+    private const float yMin = 5.0f;
 
     public void OnGUI()
     {
@@ -60,24 +61,24 @@ public class BuiltInResourceViewerWindow : EditorWindow
 
         GUILayout.EndHorizontal();
 
-        var top = GUILayoutUtility.GetLastRect().yMax + toolbarPad;
+        float top = GUILayoutUtility.GetLastRect().yMax + toolbarPad;
 
         if (drawings == null)
         {
             drawings = new List<Drawing>();
 
-            var contentWidth = position.width - scrollbarWidth;
+            float contentWidth = position.width - scrollbarWidth;
             maxY = showingStyles ? ShowStyles(contentWidth) : ShowIcons(contentWidth);
         }
 
-        var r = position;
+        Rect r = position;
         r.y = top;
         r.height -= r.y;
         r.x = r.width - scrollbarWidth;
         r.width = scrollbarWidth;
 
-        var areaHeight = position.height - top;
-        var scrollMax = Mathf.Max(maxY, areaHeight);
+        float areaHeight = position.height - top;
+        float scrollMax = Mathf.Max(maxY, areaHeight);
         scrollPos = GUI.VerticalScrollbar(r, scrollPos, areaHeight, 0f, scrollMax);
         scrollPos = Mathf.Clamp(scrollPos, 0f, Mathf.Max(0f, maxY - areaHeight));
 
@@ -85,9 +86,9 @@ public class BuiltInResourceViewerWindow : EditorWindow
         GUILayout.BeginArea(area);
 
         var count = 0;
-        foreach (var draw in drawings)
+        foreach (Drawing draw in drawings)
         {
-            var newRect = draw.Rect;
+            Rect newRect = draw.Rect;
             newRect.y -= scrollPos;
 
             if (newRect.y + newRect.height > 0 && newRect.y < areaHeight)
@@ -103,22 +104,22 @@ public class BuiltInResourceViewerWindow : EditorWindow
         GUILayout.EndArea();
     }
 
-    float ShowStyles(float availableWidth)
+    private float ShowStyles(float availableWidth)
     {
-        var x = xMin;
-        var y = yMin;
+        float x = xMin;
+        float y = yMin;
         const float height = 60f;
 
-        foreach (var ss in GUI.skin.customStyles)
+        foreach (GUIStyle ss in GUI.skin.customStyles)
         {
-            var thisStyle = ss;
+            GUIStyle thisStyle = ss;
 
             var draw = new Drawing();
 
-            var width = Mathf.Max(100f,
-                            GUI.skin.button.CalcSize(new GUIContent(ss.name)).x,
-                            ss.CalcSize(inactiveText, activeText).x)
-                        + 16f;
+            float width = Mathf.Max(100f,
+                              GUI.skin.button.CalcSize(new GUIContent(ss.name)).x,
+                              ss.CalcSize(inactiveText, activeText).x) +
+                          16f;
 
             if (x + width > availableWidth - xPad && x > xMin)
             {
@@ -149,20 +150,20 @@ public class BuiltInResourceViewerWindow : EditorWindow
         return y + height + yMin;
     }
 
-    float ShowIcons(float availableWidth)
+    private float ShowIcons(float availableWidth)
     {
-        var x = xMin;
-        var y = yMin;
+        float x = xMin;
+        float y = yMin;
 
         if (objects == null)
         {
-            objects = new List<UnityEngine.Object>(Resources.FindObjectsOfTypeAll(typeof(Texture2D)));
+            objects = new List<Object>(Resources.FindObjectsOfTypeAll(typeof(Texture2D)));
             objects.Sort((pA, pB) => string.Compare(pA.name, pB.name, StringComparison.OrdinalIgnoreCase));
         }
 
         var rowHeight = 0f;
 
-        foreach (var oo in objects)
+        foreach (Object oo in objects)
         {
             var texture = (Texture)oo;
 
@@ -170,26 +171,26 @@ public class BuiltInResourceViewerWindow : EditorWindow
 
             var draw = new Drawing();
 
-            var textureNameSize = GUI.skin.button.CalcSize(new GUIContent(texture.name));
+            Vector2 textureNameSize = GUI.skin.button.CalcSize(new GUIContent(texture.name));
             var textureSize = new Vector2(texture.width, texture.height);
 
             //don't scale if very vertical
-            var aspect = textureSize.x / textureSize.y;
+            float aspect = textureSize.x / textureSize.y;
             if (aspect > 0.25f)
             {
-                var scale = textureNameSize.x / textureSize.x;
+                float scale = textureNameSize.x / textureSize.x;
                 textureSize *= scale;
             }
 
-            var maxIconWidth = availableWidth - xPad - 8f;
+            float maxIconWidth = availableWidth - xPad - 8f;
             if (maxIconWidth > 0f && textureSize.x > maxIconWidth)
             {
-                var scale = maxIconWidth / textureSize.x;
+                float scale = maxIconWidth / textureSize.x;
                 textureSize *= scale;
             }
 
-            var width = Mathf.Max(textureNameSize.x, textureSize.x) + 8f;
-            var height = textureSize.y + textureNameSize.y + 8f;
+            float width = Mathf.Max(textureNameSize.x, textureSize.x) + 8f;
+            float height = textureSize.y + textureNameSize.y + 8f;
 
             if (x + width > availableWidth - xPad && x > xMin)
             {
@@ -209,7 +210,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
                 if (GUILayout.Button(texture.name, GUILayout.Width(width)))
                     CopyText("EditorGUIUtility.FindTexture( \"" + texture.name + "\" )");
 
-                var textureRect = GUILayoutUtility.GetRect(
+                Rect textureRect = GUILayoutUtility.GetRect(
                     textureSize.x, textureSize.x, textureSize.y, textureSize.y, GUILayout.ExpandHeight(false),
                     GUILayout.ExpandWidth(false));
                 EditorGUI.DrawTextureTransparent(textureRect, texture);
@@ -223,7 +224,7 @@ public class BuiltInResourceViewerWindow : EditorWindow
         return y + rowHeight + yMin;
     }
 
-    void CopyText(string text)
+    private void CopyText(string text)
     {
         var editor = new TextEditor
         {

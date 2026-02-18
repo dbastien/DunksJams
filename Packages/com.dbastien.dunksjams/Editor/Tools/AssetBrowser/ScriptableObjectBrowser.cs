@@ -2,7 +2,8 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-public class ScriptableObjectBrowserWindow : AssetBrowserWindow<ScriptableObjectBrowserTreeView, ScriptableObjectBrowserTreeView.TreeViewItem>
+public class ScriptableObjectBrowserWindow
+    : AssetBrowserWindow<ScriptableObjectBrowserTreeView, ScriptableObjectBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Scriptable Objects";
 

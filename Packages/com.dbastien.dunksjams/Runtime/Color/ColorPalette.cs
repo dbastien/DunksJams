@@ -24,79 +24,46 @@ public enum PaletteScheme
 public class ColorPalette : ScriptableObject
 {
     public string paletteName;
+
     [Tooltip("Tags for organization: e.g., 'NES', 'GameBoy', 'Retro', 'UI'.")]
     public string[] tags = new string[0];
+
     public Color[] colors = new Color[0];
 
-    [Header("Generation")]
-    [SerializeField] PaletteGenerationMode _generationMode = PaletteGenerationMode.Manual;
-    [SerializeField] PaletteScheme _scheme = PaletteScheme.Custom;
-    [SerializeField] Color _baseColor = Color.white;
-    [SerializeField, Min(1)] int _hueCount = 5;
-    [SerializeField, Min(1)] int _shades = 3;
-    [SerializeField, Range(0f, 1f)] float _saturation = 1f;
-    [SerializeField, Range(0f, 1f)] float _value = 0.9f;
-    [SerializeField, Range(0f, 1f)] float _minBrightness = 0f;
-    [SerializeField, Range(0f, 1f)] float _maxBrightness = 1f;
-    [SerializeField, Range(1f, 180f)] float _analogousStepDegrees = 30f;
-    [SerializeField, Range(1f, 180f)] float _splitComplementaryDegrees = 30f;
-    [SerializeField] bool _spectrumIncludeBlackWhite = false;
+    [Header("Generation")] [SerializeField]
+    private PaletteGenerationMode _generationMode = PaletteGenerationMode.Manual;
+
+    [SerializeField] private PaletteScheme _scheme = PaletteScheme.Custom;
+    [SerializeField] private Color _baseColor = Color.white;
+    [SerializeField] [Min(1)] private int _hueCount = 5;
+    [SerializeField] [Min(1)] private int _shades = 3;
+    [SerializeField] [Range(0f, 1f)] private float _saturation = 1f;
+    [SerializeField] [Range(0f, 1f)] private float _value = 0.9f;
+    [SerializeField] [Range(0f, 1f)] private float _minBrightness;
+    [SerializeField] [Range(0f, 1f)] private float _maxBrightness = 1f;
+    [SerializeField] [Range(1f, 180f)] private float _analogousStepDegrees = 30f;
+    [SerializeField] [Range(1f, 180f)] private float _splitComplementaryDegrees = 30f;
+    [SerializeField] private bool _spectrumIncludeBlackWhite;
 
     public int Count => colors?.Length ?? 0;
 
-    public PaletteGenerationMode GenerationMode
-    {
-        get => _generationMode;
-        set => _generationMode = value;
-    }
+    public PaletteGenerationMode GenerationMode { get => _generationMode; set => _generationMode = value; }
 
-    public PaletteScheme Scheme
-    {
-        get => _scheme;
-        set => _scheme = value;
-    }
+    public PaletteScheme Scheme { get => _scheme; set => _scheme = value; }
 
-    public Color BaseColor
-    {
-        get => _baseColor;
-        set => _baseColor = value;
-    }
+    public Color BaseColor { get => _baseColor; set => _baseColor = value; }
 
-    public int HueCount
-    {
-        get => _hueCount;
-        set => _hueCount = Mathf.Max(1, value);
-    }
+    public int HueCount { get => _hueCount; set => _hueCount = Mathf.Max(1, value); }
 
-    public int Shades
-    {
-        get => _shades;
-        set => _shades = Mathf.Max(1, value);
-    }
+    public int Shades { get => _shades; set => _shades = Mathf.Max(1, value); }
 
-    public float Saturation
-    {
-        get => _saturation;
-        set => _saturation = Mathf.Clamp01(value);
-    }
+    public float Saturation { get => _saturation; set => _saturation = Mathf.Clamp01(value); }
 
-    public float Value
-    {
-        get => _value;
-        set => _value = Mathf.Clamp01(value);
-    }
+    public float Value { get => _value; set => _value = Mathf.Clamp01(value); }
 
-    public float MinBrightness
-    {
-        get => _minBrightness;
-        set => _minBrightness = Mathf.Clamp01(value);
-    }
+    public float MinBrightness { get => _minBrightness; set => _minBrightness = Mathf.Clamp01(value); }
 
-    public float MaxBrightness
-    {
-        get => _maxBrightness;
-        set => _maxBrightness = Mathf.Clamp01(value);
-    }
+    public float MaxBrightness { get => _maxBrightness; set => _maxBrightness = Mathf.Clamp01(value); }
 
     public float AnalogousStepDegrees
     {
@@ -115,7 +82,6 @@ public class ColorPalette : ScriptableObject
         get => _spectrumIncludeBlackWhite;
         set => _spectrumIncludeBlackWhite = value;
     }
-
 
     public bool HasTag(string tag) => tags != null && System.Array.Exists(tags, t => t == tag);
 

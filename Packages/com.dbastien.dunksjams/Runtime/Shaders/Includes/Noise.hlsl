@@ -61,8 +61,8 @@ void FAST32_hash_3D(float3 gridcell, out float4 lowz_hash, out float4 highz_hash
 }
 
 void FAST32_hash_3D(float3 gridcell,
-    float3 v1_mask, float3 v2_mask,
-    out float4 hash_0, out float4 hash_1, out float4 hash_2)
+                    float3 v1_mask, float3 v2_mask,
+                    out float4 hash_0, out float4 hash_1, out float4 hash_2)
 {
     const float2 OFFSET = float2(50.0, 161.0);
     const float DOMAIN = 69.0;
@@ -103,15 +103,16 @@ float4 FAST32_hash_3D(float3 gridcell, float3 v1_mask, float3 v2_mask)
     float4 V1xy_V2xy = lerp(P.xyxy, P.zwzw, float4(v1_mask.xy, v2_mask.xy));
     P = float4(P.x, V1xy_V2xy.xz, P.z) * float4(P.y, V1xy_V2xy.yw, P.w);
 
-    float2 V1z_V2z = float2(v1_mask.z < 0.5 ? gridcell.z : gridcell_inc1.z, v2_mask.z < 0.5 ? gridcell.z : gridcell_inc1.z);
+    float2 V1z_V2z = float2(v1_mask.z < 0.5 ? gridcell.z : gridcell_inc1.z,
+                            v2_mask.z < 0.5 ? gridcell.z : gridcell_inc1.z);
     float4 mod_vals = float4(1.0 / (SOMELARGEFLOAT + float4(gridcell.z, V1z_V2z, gridcell_inc1.z) * ZINC));
 
     return frac(P * mod_vals);
 }
 
 void FAST32_hash_3D(float3 gridcell,
-    out float4 lowz_hash_0, out float4 lowz_hash_1, out float4 lowz_hash_2,
-    out float4 highz_hash_0, out float4 highz_hash_1, out float4 highz_hash_2)
+                    out float4 lowz_hash_0, out float4 lowz_hash_1, out float4 lowz_hash_2,
+                    out float4 highz_hash_0, out float4 highz_hash_1, out float4 highz_hash_2)
 {
     const float2 OFFSET = float2(50.0, 161.0);
     const float DOMAIN = 69.0;
@@ -135,13 +136,13 @@ void FAST32_hash_3D(float3 gridcell,
 }
 
 // C1 continuous: 3x^2-2x^3 (Hermite curve, same as smoothstep)
-float  Interpolation_C1(float  x) { return x * x * (3.0 - 2.0 * x); }
+float Interpolation_C1(float x) { return x * x * (3.0 - 2.0 * x); }
 float2 Interpolation_C1(float2 x) { return x * x * (3.0 - 2.0 * x); }
 float3 Interpolation_C1(float3 x) { return x * x * (3.0 - 2.0 * x); }
 float4 Interpolation_C1(float4 x) { return x * x * (3.0 - 2.0 * x); }
 
 // C2 continuous: 6x^5-15x^4+10x^3 (Quintic curve, Perlin improved noise)
-float  Interpolation_C2(float  x) { return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
+float Interpolation_C2(float x) { return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
 float2 Interpolation_C2(float2 x) { return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
 float3 Interpolation_C2(float3 x) { return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
 float4 Interpolation_C2(float4 x) { return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
@@ -149,15 +150,30 @@ float4 Interpolation_C2(float4 x) { return x * x * x * (x * (x * 6.0 - 15.0) + 1
 // C2 interpolation + derivative combined for 2D
 float4 Interpolation_C2_InterpAndDeriv(float2 x)
 {
-    return x.xyxy * x.xyxy * (x.xyxy * (x.xyxy * (x.xyxy * float2(6.0, 0.0).xxyy + float2(-15.0, 30.0).xxyy) + float2(10.0, -60.0).xxyy) + float2(0.0, 30.0).xxyy);
+    return x.xyxy * x.xyxy * (x.xyxy * (x.xyxy * (x.xyxy * float2(6.0, 0.0).xxyy + float2(-15.0, 30.0).xxyy) +
+        float2(10.0, -60.0).xxyy) + float2(0.0, 30.0).xxyy);
 }
 
 // C2 derivative only
 float3 Interpolation_C2_Deriv(float3 x) { return x * x * (x * (x * 30.0 - 60.0) + 30.0); }
 
-float  Falloff_Xsq_C1(float  xsq) { xsq = 1.0 - xsq; return xsq * xsq; }
-float  Falloff_Xsq_C2(float  xsq) { xsq = 1.0 - xsq; return xsq * xsq * xsq; }
-float4 Falloff_Xsq_C2(float4 xsq) { xsq = 1.0 - xsq; return xsq * xsq * xsq; }
+float Falloff_Xsq_C1(float xsq)
+{
+    xsq = 1.0 - xsq;
+    return xsq * xsq;
+}
+
+float Falloff_Xsq_C2(float xsq)
+{
+    xsq = 1.0 - xsq;
+    return xsq * xsq * xsq;
+}
+
+float4 Falloff_Xsq_C2(float4 xsq)
+{
+    xsq = 1.0 - xsq;
+    return xsq * xsq * xsq;
+}
 
 float4 Cellular_weight_samples(float4 samples)
 {
@@ -236,8 +252,8 @@ float Perlin3D(float3 P)
 
 // Calculate the 4 vectors from corners of simplex pyramid to the point
 void Simplex3D_GetCornerVectors(float3 P,
-    out float3 Pi, out float3 Pi_1, out float3 Pi_2,
-    out float4 v1234_x, out float4 v1234_y, out float4 v1234_z)
+                                out float3 Pi, out float3 Pi_1, out float3 Pi_2,
+                                out float4 v1234_x, out float4 v1234_y, out float4 v1234_z)
 {
     const float SKEWFACTOR = 1.0 / 3.0;
     const float UNSKEWFACTOR = 1.0 / 6.0;
@@ -283,12 +299,15 @@ float SimplexPerlin2D(float2 P)
     FAST32_hash_2D(Pi, hash_x, hash_y);
 
     float2 v0 = Pi - dot(Pi, (float2)UNSKEWFACTOR) - P;
-    float4 v1pos_v1hash = (v0.x < v0.y) ? float4(SIMPLEX_POINTS.xy, hash_x.y, hash_y.y) : float4(SIMPLEX_POINTS.yx, hash_x.z, hash_y.z);
+    float4 v1pos_v1hash = (v0.x < v0.y)
+                              ? float4(SIMPLEX_POINTS.xy, hash_x.y, hash_y.y)
+                              : float4(SIMPLEX_POINTS.yx, hash_x.z, hash_y.z);
     float4 v12 = float4(v1pos_v1hash.xy, SIMPLEX_POINTS.zz) + v0.xyxy;
 
     float3 grad_x = float3(hash_x.x, v1pos_v1hash.z, hash_x.w) - 0.49999;
     float3 grad_y = float3(hash_y.x, v1pos_v1hash.w, hash_y.w) - 0.49999;
-    float3 grad_results = rsqrt(grad_x * grad_x + grad_y * grad_y) * (grad_x * float3(v0.x, v12.xz) + grad_y * float3(v0.y, v12.yw));
+    float3 grad_results = rsqrt(grad_x * grad_x + grad_y * grad_y) * (grad_x * float3(v0.x, v12.xz) + grad_y *
+        float3(v0.y, v12.yw));
 
     const float FINAL_NORMALIZATION = 99.204334582718712976990005025589;
 
@@ -311,7 +330,8 @@ float SimplexPerlin3D(float3 P)
     hash_1 -= 0.49999;
     hash_2 -= 0.49999;
 
-    float4 grad_results = rsqrt(hash_0 * hash_0 + hash_1 * hash_1 + hash_2 * hash_2) * (hash_0 * v1234_x + hash_1 * v1234_y + hash_2 * v1234_z);
+    float4 grad_results = rsqrt(hash_0 * hash_0 + hash_1 * hash_1 + hash_2 * hash_2) * (hash_0 * v1234_x + hash_1 *
+        v1234_y + hash_2 * v1234_z);
 
     const float FINAL_NORMALIZATION = 37.837227241611314102871574478976;
     return dot(Simplex3D_GetSurfletWeights(v1234_x, v1234_y, v1234_z), grad_results) * FINAL_NORMALIZATION;
@@ -391,7 +411,8 @@ float4 Value3D_Deriv(float3 P)
     float4 res1 = lerp(res0.xyxz, res0.zwyw, blend.yyxx);
     float4 res3 = lerp(float4(hash_lowz.xy, hash_highz.xy), float4(hash_lowz.zw, hash_highz.zw), blend.y);
     float2 res4 = lerp(res3.xz, res3.yw, blend.x);
-    return float4(res1.x, 0.0, 0.0, 0.0) + (float4(res1.yyw, res4.y) - float4(res1.xxz, res4.x)) * float4(blend.x, Interpolation_C2_Deriv(Pf));
+    return float4(res1.x, 0.0, 0.0, 0.0) + (float4(res1.yyw, res4.y) - float4(res1.xxz, res4.x)) * float4(
+        blend.x, Interpolation_C2_Deriv(Pf));
 }
 
 // Perlin2D with derivatives -- returns float3(value, xderiv, yderiv)
@@ -444,11 +465,17 @@ float4 Perlin3D_Deriv(float3 P)
     float4 grad_z1 = hashz1 - 0.49999;
     float4 norm_0 = rsqrt(grad_x0 * grad_x0 + grad_y0 * grad_y0 + grad_z0 * grad_z0);
     float4 norm_1 = rsqrt(grad_x1 * grad_x1 + grad_y1 * grad_y1 + grad_z1 * grad_z1);
-    grad_x0 *= norm_0; grad_y0 *= norm_0; grad_z0 *= norm_0;
-    grad_x1 *= norm_1; grad_y1 *= norm_1; grad_z1 *= norm_1;
+    grad_x0 *= norm_0;
+    grad_y0 *= norm_0;
+    grad_z0 *= norm_0;
+    grad_x1 *= norm_1;
+    grad_y1 *= norm_1;
+    grad_z1 *= norm_1;
 
-    float4 dotval_0 = float2(Pf.x, Pf_min1.x).xyxy * grad_x0 + float2(Pf.y, Pf_min1.y).xxyy * grad_y0 + Pf.zzzz * grad_z0;
-    float4 dotval_1 = float2(Pf.x, Pf_min1.x).xyxy * grad_x1 + float2(Pf.y, Pf_min1.y).xxyy * grad_y1 + Pf_min1.zzzz * grad_z1;
+    float4 dotval_0 = float2(Pf.x, Pf_min1.x).xyxy * grad_x0 + float2(Pf.y, Pf_min1.y).xxyy * grad_y0 + Pf.zzzz *
+        grad_z0;
+    float4 dotval_1 = float2(Pf.x, Pf_min1.x).xyxy * grad_x1 + float2(Pf.y, Pf_min1.y).xxyy * grad_y1 + Pf_min1.zzzz *
+        grad_z1;
 
     float4 dotval0_grad0 = float4(dotval_0.x, grad_x0.x, grad_y0.x, grad_z0.x);
     float4 dotval1_grad1 = float4(dotval_0.y, grad_x0.y, grad_y0.y, grad_z0.y);
@@ -498,7 +525,9 @@ float3 SimplexPerlin2D_Deriv(float2 P)
     FAST32_hash_2D(Pi, hash_x, hash_y);
 
     float2 v0 = Pi - dot(Pi, (float2)UNSKEWFACTOR) - P;
-    float4 v1pos_v1hash = (v0.x < v0.y) ? float4(SIMPLEX_POINTS.xy, hash_x.y, hash_y.y) : float4(SIMPLEX_POINTS.yx, hash_x.z, hash_y.z);
+    float4 v1pos_v1hash = (v0.x < v0.y)
+                              ? float4(SIMPLEX_POINTS.xy, hash_x.y, hash_y.y)
+                              : float4(SIMPLEX_POINTS.yx, hash_x.z, hash_y.z);
     float4 v12 = float4(v1pos_v1hash.xy, SIMPLEX_POINTS.zz) + v0.xyxy;
 
     float3 grad_x = float3(hash_x.x, v1pos_v1hash.z, hash_x.w) - 0.49999;
@@ -535,7 +564,9 @@ float4 SimplexPerlin3D_Deriv(float3 P)
     hash_2 -= 0.49999;
 
     float4 norm = rsqrt(hash_0 * hash_0 + hash_1 * hash_1 + hash_2 * hash_2);
-    hash_0 *= norm; hash_1 *= norm; hash_2 *= norm;
+    hash_0 *= norm;
+    hash_1 *= norm;
+    hash_2 *= norm;
     float4 grad_results = hash_0 * v1234_x + hash_1 * v1234_y + hash_2 * v1234_z;
 
     float4 m = v1234_x * v1234_x + v1234_y * v1234_y + v1234_z * v1234_z;

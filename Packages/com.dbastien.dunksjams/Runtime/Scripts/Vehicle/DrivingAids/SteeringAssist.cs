@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class SteeringAssist
 {
-    const float CountersteerThreshold = 5f;
-    const float MaxCountersteer = 15f;
+    private const float CountersteerThreshold = 5f;
+    private const float MaxCountersteer = 15f;
 
     public float Apply(float steerAngle, VehicleController vehicle)
     {
@@ -13,9 +13,9 @@ public class SteeringAssist
         if (strength <= 0f) return steerAngle;
 
         // Compute average rear lateral slip
-        float avgRearSlip = 0f;
-        int rearCount = 0;
-        foreach (var w in vehicle.Wheels)
+        var avgRearSlip = 0f;
+        var rearCount = 0;
+        foreach (VehicleWheel w in vehicle.Wheels)
         {
             if (w.IsFrontAxle || !w.IsGrounded) continue;
             avgRearSlip += w.LateralSlipAngle;

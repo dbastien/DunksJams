@@ -6,10 +6,10 @@ public static class StandardDeck
 {
     public static Deck<StandardCard> CreateDeck(Func<StandardCard, bool> predicate = null)
     {
-        var suits = EnumCache<StandardCard.Suit>.Values;
-        var ranks = EnumCache<StandardCard.Rank>.Values;
+        StandardCard.Suit[] suits = EnumCache<StandardCard.Suit>.Values;
+        StandardCard.Rank[] ranks = EnumCache<StandardCard.Rank>.Values;
 
-        var cards = from s in suits
+        IEnumerable<StandardCard> cards = from s in suits
             from r in ranks
             select new StandardCard(s, r);
 

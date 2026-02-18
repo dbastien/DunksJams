@@ -21,7 +21,7 @@ public static class SignalAnalysis
         var peak = 0f;
         for (var i = 0; i < samples.Length; i++)
         {
-            var abs = MathF.Abs(samples[i]);
+            float abs = MathF.Abs(samples[i]);
             if (abs > peak) peak = abs;
         }
 
@@ -34,11 +34,11 @@ public static class SignalAnalysis
         if (samples.Length < 2) return 0;
 
         var crossings = 0;
-        var wasPositive = samples[0] >= 0;
+        bool wasPositive = samples[0] >= 0;
 
         for (var i = 1; i < samples.Length; i++)
         {
-            var isPositive = samples[i] >= 0;
+            bool isPositive = samples[i] >= 0;
             if (wasPositive != isPositive)
             {
                 crossings++;
@@ -59,7 +59,7 @@ public static class SignalAnalysis
 
         for (var i = 0; i < samples.Length; i++)
         {
-            var magnitude = MathF.Abs(samples[i]);
+            float magnitude = MathF.Abs(samples[i]);
             numerator += i * magnitude;
             denominator += magnitude;
         }
@@ -77,7 +77,7 @@ public static class SignalAnalysis
 
         for (var i = 0; i < magnitudes.Length; i++)
         {
-            var frequency = i * sampleRate / (2f * magnitudes.Length);
+            float frequency = i * sampleRate / (2f * magnitudes.Length);
             numerator += frequency * magnitudes[i];
             denominator += magnitudes[i];
         }

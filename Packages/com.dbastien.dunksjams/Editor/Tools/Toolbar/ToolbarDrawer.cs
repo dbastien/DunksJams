@@ -16,18 +16,16 @@ public static class ToolbarDrawer
         ToolbarExtension.OnRightToolbarGUI += OnRightToolbarGUI;
     }
 
-    static void OnUpdate(double timeDelta)
+    private static void OnUpdate(double timeDelta)
     {
-        foreach (var toolbarItem in ToolbarGatherer.AllToolbars)
-        {
+        foreach (IToolbarItem toolbarItem in ToolbarGatherer.AllToolbars)
             if (toolbarItem is IUpdatingToolbarItem updatingToolbarItem)
                 updatingToolbarItem.Update(timeDelta);
-        }
     }
 
-    static void DrawItemsList(IReadOnlyList<IToolbarItem> toolbarItems)
+    private static void DrawItemsList(IReadOnlyList<IToolbarItem> toolbarItems)
     {
-        foreach (var toolbarItem in toolbarItems)
+        foreach (IToolbarItem toolbarItem in toolbarItems)
         {
             if (!toolbarItem.Enabled)
                 continue;
@@ -35,47 +33,49 @@ public static class ToolbarDrawer
         }
     }
 
-    static void OnLeftToolbarGUI()
+    private static void OnLeftToolbarGUI()
     {
-        if (!ToolbarGatherer.ToolbarsByPosition.TryGetValue(ToolbarItemPosition.Left, out var positionDictionary))
+        if (!ToolbarGatherer.ToolbarsByPosition.TryGetValue(ToolbarItemPosition.Left,
+                out IReadOnlyDictionary<ToolbarItemAnchor, IReadOnlyList<IToolbarItem>> positionDictionary))
             return;
 
         // Left
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Left, out var leftAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Left, out IReadOnlyList<IToolbarItem> leftAnchorList))
             DrawItemsList(leftAnchorList);
 
         GUILayout.FlexibleSpace();
 
         // Center
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Center, out var centerAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Center, out IReadOnlyList<IToolbarItem> centerAnchorList))
             DrawItemsList(centerAnchorList);
 
         GUILayout.FlexibleSpace();
 
         // Right
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Right, out var rightAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Right, out IReadOnlyList<IToolbarItem> rightAnchorList))
             DrawItemsList(rightAnchorList);
     }
 
-    static void OnRightToolbarGUI()
+    private static void OnRightToolbarGUI()
     {
-        if (!ToolbarGatherer.ToolbarsByPosition.TryGetValue(ToolbarItemPosition.Right, out var positionDictionary))
+        if (!ToolbarGatherer.ToolbarsByPosition.TryGetValue(ToolbarItemPosition.Right,
+                out IReadOnlyDictionary<ToolbarItemAnchor, IReadOnlyList<IToolbarItem>> positionDictionary))
             return;
 
         // Left
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Left, out var leftAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Left, out IReadOnlyList<IToolbarItem> leftAnchorList))
             DrawItemsList(leftAnchorList);
 
         GUILayout.FlexibleSpace();
 
         // Center
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Center, out var centerAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Center, out IReadOnlyList<IToolbarItem> centerAnchorList))
             DrawItemsList(centerAnchorList);
 
         GUILayout.FlexibleSpace();
 
         // Right
-        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Right, out var rightAnchorList))
+        if (positionDictionary.TryGetValue(ToolbarItemAnchor.Right, out IReadOnlyList<IToolbarItem> rightAnchorList))
             DrawItemsList(rightAnchorList);
     }
 }

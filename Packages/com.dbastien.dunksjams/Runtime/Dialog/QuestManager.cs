@@ -31,7 +31,8 @@ public class QuestManager : MonoBehaviour
         OnQuestStateChanged?.Invoke(questName, state);
 
         // Also store as a dialog variable for easy access
-        if (DialogManager.Instance != null) DialogManager.Instance.SetVariable($"Quest[\"{questName}\"].State", state.ToString());
+        if (DialogManager.Instance != null)
+            DialogManager.Instance.SetVariable($"Quest[\"{questName}\"].State", state.ToString());
     }
 
     public QuestState GetQuestState(string questName)

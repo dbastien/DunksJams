@@ -4,7 +4,7 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(SerializableDictionary<,>))]
 public class SerializableDictionaryDrawer : PropertyDrawer
 {
-    bool _foldout;
+    private bool _foldout;
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
@@ -15,12 +15,12 @@ public class SerializableDictionaryDrawer : PropertyDrawer
 
         EditorGUI.indentLevel++;
 
-        var keys = property.FindPropertyRelative("_keys");
-        var values = property.FindPropertyRelative("_values");
+        SerializedProperty keys = property.FindPropertyRelative("_keys");
+        SerializedProperty values = property.FindPropertyRelative("_values");
 
         if (GUILayout.Button("Add Entry"))
         {
-            var newIndex = keys.arraySize;
+            int newIndex = keys.arraySize;
             keys.InsertArrayElementAtIndex(newIndex);
             values.InsertArrayElementAtIndex(newIndex);
 
@@ -60,7 +60,7 @@ public class SerializableDictionaryDrawer : PropertyDrawer
         EditorGUI.EndProperty();
     }
 
-    void RemoveElementAtIndex(SerializedProperty array, int index)
+    private void RemoveElementAtIndex(SerializedProperty array, int index)
     {
         array.DeleteArrayElementAtIndex(index);
         if (array.propertyType == SerializedPropertyType.ObjectReference)

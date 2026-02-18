@@ -7,13 +7,13 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
 {
-    [SerializeField] bool _persistAcrossScenes;
+    [SerializeField] private bool _persistAcrossScenes;
 
     public GameDefinition ActiveDefinition { get; private set; }
     public GameFlowState State { get; private set; }
 
-    readonly Dictionary<string, int> _scores = new(StringComparer.Ordinal);
-    bool _screensRegistered;
+    private readonly Dictionary<string, int> _scores = new(StringComparer.Ordinal);
+    private bool _screensRegistered;
 
     protected override bool PersistAcrossScenes => _persistAcrossScenes;
     protected override void InitInternal() => State = GameFlowState.None;
@@ -37,7 +37,7 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
     public void ShowStartMenu()
     {
         State = GameFlowState.StartMenu;
-        var ui = UIManager.Instance;
+        UIManager ui = UIManager.Instance;
         if (ui == null) return;
         ui.HideAllScreens();
         ui.ShowScreen<StartScreen>();
@@ -54,11 +54,11 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
         InitializeScores();
         State = GameFlowState.Playing;
 
-        var ui = UIManager.Instance;
+        UIManager ui = UIManager.Instance;
         if (ui != null)
         {
             ui.HideAllScreens();
-            var scoreboard = ActiveDefinition.Scoreboard;
+            ScoreboardSpec scoreboard = ActiveDefinition.Scoreboard;
             if (scoreboard != null && scoreboard.Count > 0)
                 ui.ShowScreen<HUDScreen>();
         }
@@ -74,7 +74,7 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
         State = GameFlowState.Ended;
         ActiveDefinition.OnGameEnd(this);
 
-        var ui = UIManager.Instance;
+        UIManager ui = UIManager.Instance;
         if (ui != null)
         {
             ui.HideAllScreens();
@@ -134,7 +134,7 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
         }
     }
 
-    public int GetScore(string id) => _scores.TryGetValue(id, out var value) ? value : 0;
+    public int GetScore(string id) => _scores.TryGetValue(id, out int value) ? value : 0;
     public void AddScore(string id, int delta) => SetScore(id, GetScore(id) + delta);
 
     public void SetScore(string id, int value)
@@ -145,7 +145,7 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
             return;
         }
 
-        var prev = _scores[id];
+        int prev = _scores[id];
         if (prev == value) return;
 
         _scores[id] = value;
@@ -158,19 +158,19 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
     }
 
     public string GetScoreLabel(string id) =>
-        ActiveDefinition != null && ActiveDefinition.Scoreboard.TryGetField(id, out var field)
+        ActiveDefinition != null && ActiveDefinition.Scoreboard.TryGetField(id, out ScoreFieldDef field)
             ? field.Label
             : id;
 
     public string FormatScores()
     {
-        var scoreboard = ActiveDefinition?.Scoreboard;
+        ScoreboardSpec scoreboard = ActiveDefinition?.Scoreboard;
         if (scoreboard == null || scoreboard.Count == 0) return "Game Over";
 
         var sb = new StringBuilder();
         for (var i = 0; i < scoreboard.Fields.Count; ++i)
         {
-            var field = scoreboard.Fields[i];
+            ScoreFieldDef field = scoreboard.Fields[i];
             if (i > 0) sb.Append('\n');
             sb.Append(field.Label).Append(": ").Append(GetScore(field.Id));
         }
@@ -178,24 +178,24 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
         return sb.ToString();
     }
 
-    void InitializeScores()
+    private void InitializeScores()
     {
         _scores.Clear();
-        var scoreboard = ActiveDefinition?.Scoreboard;
+        ScoreboardSpec scoreboard = ActiveDefinition?.Scoreboard;
         if (scoreboard == null) return;
 
         for (var i = 0; i < scoreboard.Fields.Count; ++i)
         {
-            var field = scoreboard.Fields[i];
+            ScoreFieldDef field = scoreboard.Fields[i];
             _scores[field.Id] = field.InitialValue;
         }
     }
 
-    void EnsureScreens()
+    private void EnsureScreens()
     {
         if (_screensRegistered) return;
 
-        var ui = UIManager.Instance;
+        UIManager ui = UIManager.Instance;
         if (ui == null)
         {
             DLog.LogE("GameFlowManager requires a UIManager in the scene.");
@@ -211,13 +211,13 @@ public class GameFlowManager : SingletonEagerBehaviour<GameFlowManager>
         _screensRegistered = true;
     }
 
-    void QuitGame()
+    private void QuitGame()
     {
         DLog.Log("Quitting game...");
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
-    #else
+#else
         Application.Quit();
-    #endif
+#endif
     }
 }

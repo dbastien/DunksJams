@@ -3,13 +3,13 @@ using UnityEngine.Pool;
 
 public interface IPoolable
 {
-    void OnPoolGet();
-    void OnPoolRelease();
+    public void OnPoolGet();
+    public void OnPoolRelease();
 }
 
 public class ObjectPoolEx<T> where T : class, new()
 {
-    readonly ObjectPool<T> _pool;
+    private readonly ObjectPool<T> _pool;
 
     public ObjectPoolEx(int initialCap = 8, int maxCap = 128)
     {

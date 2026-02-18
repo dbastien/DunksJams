@@ -36,17 +36,14 @@ public class WaveManager : MonoBehaviour
     public float timeBetweenWaves = 10f;
     public List<WaveModifier> globalModifiers;
 
-    int _currentWaveIndex;
-    bool _isWaveInProgress;
+    private int _currentWaveIndex;
+    private bool _isWaveInProgress;
 
     public event Action<int> OnWaveStarted;
     public event Action<int> OnWaveCompleted;
     public event Action<int> OnAllWavesCompleted;
 
-    void Start()
-    {
-        StartNextWave();
-    }
+    private void Start() { StartNextWave(); }
 
     public void StartNextWave()
     {
@@ -60,19 +57,17 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(HandleWave(waves[_currentWaveIndex]));
     }
 
-    IEnumerator HandleWave(Wave wave)
+    private IEnumerator HandleWave(Wave wave)
     {
         _isWaveInProgress = true;
         OnWaveStarted?.Invoke(wave.waveNumber);
 
-        foreach (var spawnInfo in wave.enemies)
-        {
+        foreach (EnemySpawnInfo spawnInfo in wave.enemies)
             for (var i = 0; i < spawnInfo.count; i++)
             {
                 SpawnEnemy(spawnInfo.enemyPrefab);
                 yield return new WaitForSeconds(wave.spawnInterval);
             }
-        }
 
         _isWaveInProgress = false;
         OnWaveCompleted?.Invoke(wave.waveNumber);
@@ -83,19 +78,19 @@ public class WaveManager : MonoBehaviour
         StartNextWave();
     }
 
-    void SpawnEnemy(GameObject enemyPrefab)
+    private void SpawnEnemy(GameObject enemyPrefab)
     {
-        var spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        var enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
+        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
 
-        foreach (var modifier in globalModifiers) modifier.applyModifier?.Invoke(enemy);
+        foreach (WaveModifier modifier in globalModifiers) modifier.applyModifier?.Invoke(enemy);
 
         ScaleEnemy(enemy, _currentWaveIndex);
     }
 
-    void ScaleEnemy(GameObject enemy, int waveNumber)
+    private void ScaleEnemy(GameObject enemy, int waveNumber)
     {
-        if (enemy.TryGetComponent<Health>(out var health))
+        if (enemy.TryGetComponent<Health>(out Health health))
             health.SetHP(health.MaxHPEffective + waveNumber * 10);
 
         // if (enemy.TryGetComponent<MovementController>(out var movement))
@@ -118,7 +113,7 @@ public class WaveManager : MonoBehaviour
             waveDelay = 5f
         };
 
-        var enemyCount = Mathf.FloorToInt(10 + waveNumber * 2);
+        int enemyCount = Mathf.FloorToInt(10 + waveNumber * 2);
         wave.enemies.Add(new EnemySpawnInfo
         {
             enemyPrefab = enemyPrefabPool[Random.Range(0, enemyPrefabPool.Length)],
@@ -131,13 +126,7 @@ public class WaveManager : MonoBehaviour
     public bool IsWaveInProgress() => _isWaveInProgress;
     public int GetCurrentWaveIndex() => _currentWaveIndex + 1;
 
-    public void AddModifier(WaveModifier modifier)
-    {
-        globalModifiers.Add(modifier);
-    }
+    public void AddModifier(WaveModifier modifier) { globalModifiers.Add(modifier); }
 
-    public void RemoveModifier(WaveModifier modifier)
-    {
-        globalModifiers.Remove(modifier);
-    }
+    public void RemoveModifier(WaveModifier modifier) { globalModifiers.Remove(modifier); }
 }

@@ -108,7 +108,7 @@ public static class Ease
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float BounceEaseInOut(float t) => DoEaseInOut(t, BounceEaseIn, BounceEaseOut);
 
-    const float BackOvershoot = 1.70158f;
+    private const float BackOvershoot = 1.70158f;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float BackIn(float t) => t * t * ((BackOvershoot + 1f) * t - BackOvershoot);

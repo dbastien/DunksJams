@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent, SingletonAutoCreate]
+[DisallowMultipleComponent]
+[SingletonAutoCreate]
 public class GroundSurfaceManager : SingletonEagerBehaviour<GroundSurfaceManager>
 {
-    [SerializeField] GroundSurface defaultSurface;
-    [SerializeField] List<PhysicsMaterialMapping> mappings = new();
+    [SerializeField] private GroundSurface defaultSurface;
+    [SerializeField] private List<PhysicsMaterialMapping> mappings = new();
 
-    readonly LRUCache<int, GroundSurface> _cache = new(64);
+    private readonly LRUCache<int, GroundSurface> _cache = new(64);
 
     [System.Serializable]
     public class PhysicsMaterialMapping
@@ -18,11 +19,9 @@ public class GroundSurfaceManager : SingletonEagerBehaviour<GroundSurfaceManager
 
     protected override void InitInternal()
     {
-        foreach (var m in mappings)
-        {
+        foreach (PhysicsMaterialMapping m in mappings)
             if (m.physicsMaterial != null && m.groundSurface != null)
                 _cache.Set(m.physicsMaterial.GetInstanceID(), m.groundSurface);
-        }
     }
 
     public GroundSurface GetSurface(PhysicsMaterial mat)
@@ -30,7 +29,7 @@ public class GroundSurfaceManager : SingletonEagerBehaviour<GroundSurfaceManager
         if (mat == null) return defaultSurface;
 
         int id = mat.GetInstanceID();
-        if (_cache.TryGetValue(id, out var surface)) return surface;
+        if (_cache.TryGetValue(id, out GroundSurface surface)) return surface;
 
         return defaultSurface;
     }

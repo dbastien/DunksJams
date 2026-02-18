@@ -2,15 +2,14 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Utilities;
 
 [CustomEditor(typeof(SteeringAgent))]
 public class SteeringAgentEditor : Editor
 {
-    SerializedProperty _behaviors, _targetingStrategy;
-    static List<Type> _cachedBehaviorTypes;
+    private SerializedProperty _behaviors, _targetingStrategy;
+    private static List<Type> _cachedBehaviorTypes;
 
-    void OnEnable()
+    private void OnEnable()
     {
         _behaviors = serializedObject.FindProperty("behaviors");
         _targetingStrategy = serializedObject.FindProperty("targetingStrategy");
@@ -28,7 +27,7 @@ public class SteeringAgentEditor : Editor
         if (GUILayout.Button("Add Behavior"))
         {
             var menu = new GenericMenu();
-            foreach (var behaviorType in _cachedBehaviorTypes)
+            foreach (Type behaviorType in _cachedBehaviorTypes)
                 menu.AddItem(new GUIContent(behaviorType.Name), false, () => AddBehavior(behaviorType));
             menu.ShowAsContext();
         }
@@ -36,7 +35,7 @@ public class SteeringAgentEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    void AddBehavior(Type behaviorType)
+    private void AddBehavior(Type behaviorType)
     {
         var newBehavior = CreateInstance(behaviorType) as SteeringBehavior;
         AssetDatabase.CreateAsset(newBehavior, $"Assets/{behaviorType.Name}Behavior.asset");

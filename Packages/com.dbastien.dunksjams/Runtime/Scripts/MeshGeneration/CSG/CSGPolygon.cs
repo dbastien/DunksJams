@@ -23,7 +23,7 @@ public class CSGPolygon
     public CSGPolygon(CSGPolygon other)
     {
         Vertices = new List<CSGVertex>(other.Vertices.Count);
-        foreach (var v in other.Vertices) Vertices.Add(new CSGVertex(v));
+        foreach (CSGVertex v in other.Vertices) Vertices.Add(new CSGVertex(v));
         Plane = new CSGPlane(other.Plane);
         Id = other.Id;
     }
@@ -31,6 +31,6 @@ public class CSGPolygon
     public void Flip()
     {
         Vertices.Reverse();
-        foreach (var v in Vertices) v.Flip();
+        foreach (CSGVertex v in Vertices) v.Flip();
     }
 }

@@ -12,13 +12,13 @@ using System;
 /// </summary>
 public class XXHash : HashFunction
 {
-    uint _seed;
+    private uint _seed;
 
-    const uint Prime1 = 2654435761U;
-    const uint Prime2 = 2246822519U;
-    const uint Prime3 = 3266489917U;
-    const uint Prime4 = 668265263U;
-    const uint Prime5 = 374761393U;
+    private const uint Prime1 = 2654435761U;
+    private const uint Prime2 = 2246822519U;
+    private const uint Prime3 = 3266489917U;
+    private const uint Prime4 = 668265263U;
+    private const uint Prime5 = 374761393U;
 
     public XXHash(int seed) => _seed = (uint)seed;
 
@@ -37,18 +37,20 @@ public class XXHash : HashFunction
 
             do
             {
-                v1 = SubHash(v1, buf, index); index += 4;
-                v2 = SubHash(v2, buf, index); index += 4;
-                v3 = SubHash(v3, buf, index); index += 4;
-                v4 = SubHash(v4, buf, index); index += 4;
-            } while (index <= limit);
+                v1 = SubHash(v1, buf, index);
+                index += 4;
+                v2 = SubHash(v2, buf, index);
+                index += 4;
+                v3 = SubHash(v3, buf, index);
+                index += 4;
+                v4 = SubHash(v4, buf, index);
+                index += 4;
+            }
+            while (index <= limit);
 
             h32 = RotateLeft(v1, 1) + RotateLeft(v2, 7) + RotateLeft(v3, 12) + RotateLeft(v4, 18);
         }
-        else
-        {
-            h32 = _seed + Prime5;
-        }
+        else { h32 = _seed + Prime5; }
 
         h32 += (uint)len;
 
@@ -66,8 +68,10 @@ public class XXHash : HashFunction
             index++;
         }
 
-        h32 ^= h32 >> 15; h32 *= Prime2;
-        h32 ^= h32 >> 13; h32 *= Prime3;
+        h32 ^= h32 >> 15;
+        h32 *= Prime2;
+        h32 ^= h32 >> 13;
+        h32 *= Prime3;
         h32 ^= h32 >> 16;
         return h32;
     }
@@ -91,14 +95,12 @@ public class XXHash : HashFunction
                 v2 = SubHash(v2, buf[index++]);
                 v3 = SubHash(v3, buf[index++]);
                 v4 = SubHash(v4, buf[index++]);
-            } while (index <= limit);
+            }
+            while (index <= limit);
 
             h32 = RotateLeft(v1, 1) + RotateLeft(v2, 7) + RotateLeft(v3, 12) + RotateLeft(v4, 18);
         }
-        else
-        {
-            h32 = _seed + Prime5;
-        }
+        else { h32 = _seed + Prime5; }
 
         h32 += (uint)len * 4;
 
@@ -108,8 +110,10 @@ public class XXHash : HashFunction
             h32 = RotateLeft(h32, 17) * Prime4;
         }
 
-        h32 ^= h32 >> 15; h32 *= Prime2;
-        h32 ^= h32 >> 13; h32 *= Prime3;
+        h32 ^= h32 >> 15;
+        h32 *= Prime2;
+        h32 ^= h32 >> 13;
+        h32 *= Prime3;
         h32 ^= h32 >> 16;
         return h32;
     }
@@ -133,14 +137,12 @@ public class XXHash : HashFunction
                 v2 = SubHash(v2, (uint)buf[index++]);
                 v3 = SubHash(v3, (uint)buf[index++]);
                 v4 = SubHash(v4, (uint)buf[index++]);
-            } while (index <= limit);
+            }
+            while (index <= limit);
 
             h32 = RotateLeft(v1, 1) + RotateLeft(v2, 7) + RotateLeft(v3, 12) + RotateLeft(v4, 18);
         }
-        else
-        {
-            h32 = _seed + Prime5;
-        }
+        else { h32 = _seed + Prime5; }
 
         h32 += (uint)len * 4;
 
@@ -150,8 +152,10 @@ public class XXHash : HashFunction
             h32 = RotateLeft(h32, 17) * Prime4;
         }
 
-        h32 ^= h32 >> 15; h32 *= Prime2;
-        h32 ^= h32 >> 13; h32 *= Prime3;
+        h32 ^= h32 >> 15;
+        h32 *= Prime2;
+        h32 ^= h32 >> 13;
+        h32 *= Prime3;
         h32 ^= h32 >> 16;
         return h32;
     }
@@ -161,25 +165,27 @@ public class XXHash : HashFunction
         uint h32 = _seed + Prime5 + 4U;
         h32 += (uint)buf * Prime3;
         h32 = RotateLeft(h32, 17) * Prime4;
-        h32 ^= h32 >> 15; h32 *= Prime2;
-        h32 ^= h32 >> 13; h32 *= Prime3;
+        h32 ^= h32 >> 15;
+        h32 *= Prime2;
+        h32 ^= h32 >> 13;
+        h32 *= Prime3;
         h32 ^= h32 >> 16;
         return h32;
     }
 
-    static uint SubHash(uint value, byte[] buf, int index)
+    private static uint SubHash(uint value, byte[] buf, int index)
     {
         value += BitConverter.ToUInt32(buf, index) * Prime2;
         value = RotateLeft(value, 13);
         return value * Prime1;
     }
 
-    static uint SubHash(uint value, uint readValue)
+    private static uint SubHash(uint value, uint readValue)
     {
         value += readValue * Prime2;
         value = RotateLeft(value, 13);
         return value * Prime1;
     }
 
-    static uint RotateLeft(uint value, int count) => (value << count) | (value >> (32 - count));
+    private static uint RotateLeft(uint value, int count) => (value << count) | (value >> (32 - count));
 }

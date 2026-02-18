@@ -11,14 +11,14 @@ public static class CurvePresetGenerator
     [MenuItem("‽/Preset Libraries/Generate curves")]
     public static void GenerateCurvePresets()
     {
-        var lib = CurvePresetLibraryWrapper.CreateLibrary();
+        ScriptableObject lib = CurvePresetLibraryWrapper.CreateLibrary();
 
-        foreach (var easeType in EnumCache<EaseType>.Values)
+        foreach (EaseType easeType in EnumCache<EaseType>.Values)
             CurvePresetLibraryWrapper.Add(lib, CreateCurve(Ease.GetEasingFunction(easeType)), easeType.ToString());
 
         AssetDatabase.CreateAsset(lib, "Assets" + CurveConstants.NormalizedCurvesPath);
 
-        var libUnnormalized = Object.Instantiate(lib);
+        ScriptableObject libUnnormalized = Object.Instantiate(lib);
         AssetDatabase.CreateAsset(libUnnormalized, "Assets" + CurveConstants.CurvesPath);
 
         AssetDatabase.SaveAssets();
@@ -38,8 +38,8 @@ public static class CurvePresetGenerator
         var t = 0f;
         for (var i = 0; i < steps; ++i)
         {
-            var clamped = Mathf.Clamp01(t);
-            var val = Mathf.Clamp01(f(clamped));
+            float clamped = Mathf.Clamp01(t);
+            float val = Mathf.Clamp01(f(clamped));
             var keyframe = new Keyframe(clamped, val);
             //AnimationUtility.SetKeyLeftTangentMode
             curve.AddKey(keyframe);

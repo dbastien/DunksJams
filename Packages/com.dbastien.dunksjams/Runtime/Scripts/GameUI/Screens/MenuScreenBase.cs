@@ -5,11 +5,9 @@ using UnityEngine.UI;
 public abstract class MenuScreenBase : UIScreen
 {
     protected Text TitleText { get; private set; }
-    GameObject _menu;
+    private GameObject _menu;
 
-    protected MenuScreenBase(Transform canvas) : base(canvas)
-    {
-    }
+    protected MenuScreenBase(Transform canvas) : base(canvas) { }
 
     public override void Setup() => TitleText = CreateTitleText();
 
@@ -17,7 +15,7 @@ public abstract class MenuScreenBase : UIScreen
     {
         if (TitleText == null) return;
 
-        var title = spec != null && !string.IsNullOrWhiteSpace(spec.Title) ? spec.Title : fallbackTitle;
+        string title = spec != null && !string.IsNullOrWhiteSpace(spec.Title) ? spec.Title : fallbackTitle;
         TitleText.text = title;
 
         if (_menu != null)
@@ -33,9 +31,9 @@ public abstract class MenuScreenBase : UIScreen
 
         for (var i = 0; i < spec.Buttons.Count; ++i)
         {
-            var buttonDef = spec.Buttons[i];
+            ScreenButtonDef buttonDef = spec.Buttons[i];
             labels[i] = buttonDef.Label;
-            var localDef = buttonDef; // capture per-iteration value for the lambda
+            ScreenButtonDef localDef = buttonDef; // capture per-iteration value for the lambda
             actions[i] = () => localDef.Execute(GameFlowManager.Instance);
         }
 
@@ -43,9 +41,9 @@ public abstract class MenuScreenBase : UIScreen
         TitleText.transform.SetAsLastSibling();
     }
 
-    Text CreateTitleText()
+    private Text CreateTitleText()
     {
-        var titleObj = UIBuilder.CreateUIElement("Title", Panel.transform, typeof(Text));
+        GameObject titleObj = UIBuilder.CreateUIElement("Title", Panel.transform, typeof(Text));
         var rt = titleObj.GetComponent<RectTransform>();
         UIBuilder.SetupRectTransform(rt, new Vector2(600, 80), new Vector2(0, 220));
         return UIBuilder.InitText(titleObj, "Menu", Resources.GetBuiltinResource<Font>("Arial.ttf"), Color.white);

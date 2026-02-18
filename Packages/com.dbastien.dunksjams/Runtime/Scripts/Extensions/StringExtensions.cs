@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -59,11 +60,9 @@ public static class StringExtensions
     public static string RemoveWhiteSpace(this string s)
     {
         var result = new StringBuilder(s.Length);
-        foreach (var c in s)
-        {
+        foreach (char c in s)
             if (!char.IsWhiteSpace(c))
                 result.Append(c);
-        }
 
         return result.ToString();
     }
@@ -72,22 +71,18 @@ public static class StringExtensions
 
     public static bool IsAllDigits(this string s)
     {
-        foreach (var c in s)
-        {
+        foreach (char c in s)
             if (!char.IsDigit(c))
                 return false;
-        }
 
         return true;
     }
 
     public static bool IsAllLetters(this string s)
     {
-        foreach (var c in s)
-        {
+        foreach (char c in s)
             if (!char.IsLetter(c))
                 return false;
-        }
 
         return true;
     }
@@ -95,10 +90,8 @@ public static class StringExtensions
     public static bool IsPalindrome(this string s)
     {
         for (int i = 0, j = s.Length - 1; i < j; ++i, --j)
-        {
             if (char.ToLowerInvariant(s[i]) != char.ToLowerInvariant(s[j]))
                 return false;
-        }
 
         return true;
     }
@@ -108,7 +101,7 @@ public static class StringExtensions
 
     public static string Reverse(this string s)
     {
-        var len = s.Length;
+        int len = s.Length;
         Span<char> buffer = stackalloc char[len];
         for (int i = 0, j = len - 1; i < len; ++i, --j)
             buffer[i] = s[j];
@@ -119,8 +112,8 @@ public static class StringExtensions
     //line, substring
     public static bool StartsWithFast(this string a, string b)
     {
-        var aLen = a.Length;
-        var bLen = b.Length;
+        int aLen = a.Length;
+        int bLen = b.Length;
         var p = 0;
 
         if (aLen < bLen) return false;
@@ -130,8 +123,8 @@ public static class StringExtensions
 
     public static bool EndsWithFast(this string a, string b)
     {
-        var ap = a.Length - 1;
-        var bp = b.Length - 1;
+        int ap = a.Length - 1;
+        int bp = b.Length - 1;
 
         while (ap >= 0 && bp >= 0 && a[ap] == b[bp])
         {
@@ -145,15 +138,13 @@ public static class StringExtensions
 
     public static float[] ToNFloats(this string s, int n)
     {
-        var parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        string[] parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length != n) return null;
 
         var result = new float[n];
         for (var i = 0; i < n; i++)
-        {
             if (!float.TryParse(parts[i], NumberStyles.Any, CultureInfo.InvariantCulture, out result[i]))
                 return null;
-        }
 
         return result;
     }
@@ -188,7 +179,7 @@ public static class StringExtensions
         {
             if (data[i] != '\n') continue;
 
-            var slice = data[start..i];
+            ReadOnlySpan<char> slice = data[start..i];
             if (slice.Length > 0 && slice[^1] == '\r')
                 slice = slice[..^1];
             lines.Add(slice.ToString());
@@ -200,4 +191,20 @@ public static class StringExtensions
 
         return lines;
     }
+
+    public static bool IsEmpty(this string s) => s == "";
+    public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
+
+    public static string Decamelcase
+        (this string s) => Regex.Replace(Regex.Replace(s, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})",
+        "$1 $2");
+
+    public static string FormatVariableName(this string s, bool lowercaseFollowingWords = true) =>
+        string.Join(" ", s.Decamelcase().
+                Split(' ').
+                Select(r => new[] { "", "and", "or", "with", "without", "by", "from" }.Contains(r.ToLower()) ||
+                            (lowercaseFollowingWords && !s.Trim().StartsWith(r))
+                    ? r.ToLower()
+                    : r[..1].ToUpper() + r[1..])).
+            Trim(' ');
 }

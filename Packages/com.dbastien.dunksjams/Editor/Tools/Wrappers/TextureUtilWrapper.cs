@@ -4,16 +4,16 @@ using UnityEngine;
 
 public static class TextureUtilWrapper
 {
-    static readonly Type type = Type.GetType("UnityEditor.TextureUtil, UnityEditor.dll");
+    private static readonly Type type = Type.GetType("UnityEditor.TextureUtil, UnityEditor.dll");
 
-    static MethodInfo GetMethod(string name) =>
+    private static MethodInfo GetMethod(string name) =>
         type?.GetMethod(name, BindingFlags.Static | BindingFlags.Public);
 
-    static readonly MethodInfo GetStorageMemorySizeLongMethod = GetMethod("GetStorageMemorySizeLong");
-    static readonly MethodInfo GetRuntimeMemorySizeLongMethod = GetMethod("GetRuntimeMemorySizeLong");
-    static readonly MethodInfo GetStorageMemorySizeMethod = GetMethod("GetStorageMemorySize");
-    static readonly MethodInfo GetRuntimeMemorySizeMethod = GetMethod("GetRuntimeMemorySize");
-    static readonly MethodInfo GetTextureFormatStringMethod = GetMethod("GetTextureFormatString");
+    private static readonly MethodInfo GetStorageMemorySizeLongMethod = GetMethod("GetStorageMemorySizeLong");
+    private static readonly MethodInfo GetRuntimeMemorySizeLongMethod = GetMethod("GetRuntimeMemorySizeLong");
+    private static readonly MethodInfo GetStorageMemorySizeMethod = GetMethod("GetStorageMemorySize");
+    private static readonly MethodInfo GetRuntimeMemorySizeMethod = GetMethod("GetRuntimeMemorySize");
+    private static readonly MethodInfo GetTextureFormatStringMethod = GetMethod("GetTextureFormatString");
 
     public static long GetStorageMemorySizeLong(Texture t) => GetStorageMemorySizeLongMethod != null
         ? (long)GetStorageMemorySizeLongMethod.Invoke(null, new object[] { t })

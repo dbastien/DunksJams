@@ -4,11 +4,9 @@ using System.Collections.Generic;
 
 public class CardCollection<T> : ICollection<T> where T : CardBase
 {
-    readonly List<T> _cards = new();
+    private readonly List<T> _cards = new();
 
-    public CardCollection()
-    {
-    }
+    public CardCollection() { }
 
     public CardCollection(IEnumerable<T> cards) => _cards.AddRange(cards);
 
@@ -26,7 +24,7 @@ public class CardCollection<T> : ICollection<T> where T : CardBase
     public T DrawFromTop()
     {
         if (_cards.Count == 0) throw new InvalidOperationException("No cards left.");
-        var card = _cards[^1];
+        T card = _cards[^1];
         _cards.RemoveAt(_cards.Count - 1);
         return card;
     }

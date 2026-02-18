@@ -1,19 +1,14 @@
-using System.Linq;
+using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class FindAssetDependenciesWindow : EditorWindow
 {
-    const string ProgressBarTitle = "Searching for Dependencies";
+    private const string ProgressBarTitle = "Searching for Dependencies";
+    private string results;
 
-    [MenuItem("‽/Asset Management/Find Dependencies")]
-    public static void ShowWindow()
-    {
-        GetWindow<FindAssetDependenciesWindow>().Show();
-    }
-
-    Object target;
-    string results;
+    private Object target;
 
     public void OnGUI()
     {
@@ -25,19 +20,22 @@ public class FindAssetDependenciesWindow : EditorWindow
         {
             results = string.Empty;
 
-            var roots = new Object[] { target };
-            var dependencies = EditorUtility.CollectDependencies(roots);
+            Object[] roots = new[] { target };
+            Object[] dependencies = EditorUtility.CollectDependencies(roots);
             Selection.objects = dependencies;
 
             for (var i = 0; i < dependencies.Length; ++i)
             {
-                var o = dependencies[i];
+                Object o = dependencies[i];
                 var go = o as GameObject;
 
-                results += (go ? go.GetFullPath() : o.name) + System.Environment.NewLine;
+                results += (go ? go.GetFullPath() : o.name) + Environment.NewLine;
             }
         }
 
         EditorGUILayout.SelectableLabel(results, GUILayout.ExpandHeight(true));
     }
+
+    [MenuItem("‽/Asset Management/Find Dependencies")]
+    public static void ShowWindow() { GetWindow<FindAssetDependenciesWindow>().Show(); }
 }

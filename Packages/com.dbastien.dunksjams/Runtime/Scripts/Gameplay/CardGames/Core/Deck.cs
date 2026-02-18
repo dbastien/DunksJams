@@ -46,8 +46,8 @@ public sealed class Deck<T> where T : CardBase
 
     public void RecycleDiscardIntoDraw()
     {
-        var keepTop = KeepTopDiscardOnRecycle && DiscardPile.Count > 0;
-        var top = keepTop ? DiscardPile.DrawFromTop() : null;
+        bool keepTop = KeepTopDiscardOnRecycle && DiscardPile.Count > 0;
+        T top = keepTop ? DiscardPile.DrawFromTop() : null;
 
         DrawPile.AddRange(DiscardPile);
         DiscardPile.Clear();

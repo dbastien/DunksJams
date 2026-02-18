@@ -29,8 +29,10 @@ public class SpriteBrowserTreeView : AssetBrowserTreeView<SpriteBrowserTreeView.
         if (!sceneOnly) return FindAssetGuids("Texture2D", path);
 
         var unique = new System.Collections.Generic.HashSet<Object>();
-        foreach (var sr in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            if (sr.sprite && sr.sprite.texture) unique.Add(sr.sprite.texture);
+        foreach (SpriteRenderer sr in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include,
+                     FindObjectsSortMode.None))
+            if (sr.sprite && sr.sprite.texture)
+                unique.Add(sr.sprite.texture);
         return AssetGuidsFromObjects(unique);
     }
 

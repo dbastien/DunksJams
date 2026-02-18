@@ -18,7 +18,7 @@ public struct EuclideanHeuristic2D : IHeuristic<Vector2Int>
 
 public struct OctileHeuristic2D : IHeuristic<Vector2Int>
 {
-    const float Sqrt2 = 1.41421356237f;
+    private const float Sqrt2 = 1.41421356237f;
 
     public float Estimate(Vector2Int from, Vector2Int to)
     {

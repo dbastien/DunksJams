@@ -4,7 +4,7 @@ using UnityEditor;
 
 public static class PaletteDatabase
 {
-    static List<ColorPalette> _palettes;
+    private static List<ColorPalette> _palettes;
 
     public static IReadOnlyList<ColorPalette> Palettes
     {
@@ -18,10 +18,10 @@ public static class PaletteDatabase
     public static void Refresh()
     {
         _palettes = new List<ColorPalette>();
-        var guids = AssetDatabase.FindAssets("t:ColorPalette");
-        foreach (var g in guids)
+        string[] guids = AssetDatabase.FindAssets("t:ColorPalette");
+        foreach (string g in guids)
         {
-            var path = AssetDatabase.GUIDToAssetPath(g);
+            string path = AssetDatabase.GUIDToAssetPath(g);
             var pal = AssetDatabase.LoadAssetAtPath<ColorPalette>(path);
             if (pal != null) _palettes.Add(pal);
         }

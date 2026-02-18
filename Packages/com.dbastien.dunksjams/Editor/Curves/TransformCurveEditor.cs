@@ -6,15 +6,17 @@ using UnityEngine;
 [CustomEditor(typeof(TransformCurve))]
 public class TransformCurveEditor : Editor
 {
-    static List<string> _propNames = new();
-    static string[] _propNamesArray;
+    private static List<string> _propNames = new();
+    private static string[] _propNamesArray;
 
     static TransformCurveEditor()
     {
-        var members = typeof(Transform).GetMembers(BindingFlags.SetProperty | BindingFlags.GetProperty |
-                                                   BindingFlags.Instance | BindingFlags.Public);
+        MemberInfo[] members = typeof(Transform).GetMembers(BindingFlags.SetProperty |
+                                                            BindingFlags.GetProperty |
+                                                            BindingFlags.Instance |
+                                                            BindingFlags.Public);
 
-        foreach (var member in members)
+        foreach (MemberInfo member in members)
         {
             if (member.MemberType != MemberTypes.Property) continue;
             var info = member as PropertyInfo;
@@ -28,11 +30,11 @@ public class TransformCurveEditor : Editor
     {
         var targetCurve = target as TransformCurve;
 
-        var index = _propNames.IndexOf(targetCurve.curveTargetName);
+        int index = _propNames.IndexOf(targetCurve.curveTargetName);
         index = Mathf.Max(0, index);
 
         serializedObject.Update();
-        var curveProperty = serializedObject.FindProperty("Curve");
+        SerializedProperty curveProperty = serializedObject.FindProperty("Curve");
 
         EditorGUILayout.PropertyField(curveProperty);
         serializedObject.ApplyModifiedProperties();

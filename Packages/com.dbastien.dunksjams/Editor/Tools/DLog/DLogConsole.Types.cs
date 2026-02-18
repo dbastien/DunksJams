@@ -6,7 +6,7 @@ using UnityEngine;
 public sealed partial class DLogConsole
 {
     [Serializable]
-    sealed class LogEntry
+    private sealed class LogEntry
     {
         public string message;
         public string stackTrace;
@@ -36,7 +36,7 @@ public sealed partial class DLogConsole
         [NonSerialized] public Vector2 stackScroll;
     }
 
-    struct LinkSpan
+    private struct LinkSpan
     {
         public bool hasLink;
         public string file;
@@ -45,7 +45,7 @@ public sealed partial class DLogConsole
         public int length;
     }
 
-    struct StackLineInfo
+    private struct StackLineInfo
     {
         public string line;
         public string displayLine;

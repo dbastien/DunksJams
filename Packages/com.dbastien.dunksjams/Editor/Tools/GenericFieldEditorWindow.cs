@@ -14,13 +14,13 @@ public class GenericFieldEditorWindow<T> : EditorWindow
         HandleEscapeKey();
 
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-        foreach (var field in fields) field.DrawField();
+        foreach (Field<T> field in fields) field.DrawField();
         EditorGUILayout.EndScrollView();
     }
 
     protected void HandleEscapeKey()
     {
-        var e = Event.current;
+        Event e = Event.current;
         if (hasFocus && e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape) Close();
     }
 }
@@ -41,36 +41,28 @@ public abstract class Field<T>
 
 public class StringField : Field<string>
 {
-    public StringField(string label, string initialValue) : base(label, initialValue)
-    {
-    }
+    public StringField(string label, string initialValue) : base(label, initialValue) { }
 
     public override void DrawField() => Value = EditorGUILayout.TextField(Label, Value);
 }
 
 public class IntField : Field<int>
 {
-    public IntField(string label, int initialValue) : base(label, initialValue)
-    {
-    }
+    public IntField(string label, int initialValue) : base(label, initialValue) { }
 
     public override void DrawField() => Value = EditorGUILayout.IntField(Label, Value);
 }
 
 public class FloatField : Field<float>
 {
-    public FloatField(string label, float initialValue) : base(label, initialValue)
-    {
-    }
+    public FloatField(string label, float initialValue) : base(label, initialValue) { }
 
     public override void DrawField() => Value = EditorGUILayout.FloatField(Label, Value);
 }
 
 public class ObjectField<T> : Field<T> where T : Object
 {
-    public ObjectField(string label, T initialValue) : base(label, initialValue)
-    {
-    }
+    public ObjectField(string label, T initialValue) : base(label, initialValue) { }
 
     public override void DrawField() => Value = (T)EditorGUILayout.ObjectField(Label, Value, typeof(T), true);
 }

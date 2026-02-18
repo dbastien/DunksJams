@@ -3,7 +3,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public abstract class GameFlowBootstrap : MonoBehaviour
 {
-    [SerializeField] bool _showStartScreen = true;
+    [SerializeField] private bool _showStartScreen = true;
 
     protected abstract GameDefinition BuildDefinition();
 
@@ -11,14 +11,14 @@ public abstract class GameFlowBootstrap : MonoBehaviour
 
     public void Initialize()
     {
-        var definition = BuildDefinition();
+        GameDefinition definition = BuildDefinition();
         if (definition == null)
         {
             DLog.LogE($"{GetType().Name} BuildDefinition returned null.");
             return;
         }
 
-        var flow = GameFlowManager.Instance;
+        GameFlowManager flow = GameFlowManager.Instance;
         if (flow == null)
         {
             DLog.LogE("GameFlowManager missing.");

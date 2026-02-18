@@ -56,15 +56,15 @@ public class Weapon : MonoBehaviour
 
     [ShowIf("usePiercing")] public int maxPierceTargets = 3;
 
-    bool _isWarmingUp;
-    bool _isCoolingDown;
-    int _currentAmmo;
+    private bool _isWarmingUp;
+    private bool _isCoolingDown;
+    private int _currentAmmo;
 
     public event Action<int> OnAmmoChanged;
     public event Action OnReloadStarted;
     public event Action OnReloadFinished;
 
-    void Start()
+    private void Start()
     {
         if (useAmmo) Reload();
     }
@@ -105,7 +105,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    IEnumerator FireBurst(Vector3 direction)
+    private IEnumerator FireBurst(Vector3 direction)
     {
         for (var i = 0; i < burstCount; ++i)
         {
@@ -114,9 +114,9 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    void PerformFire(Vector3 direction)
+    private void PerformFire(Vector3 direction)
     {
-        var shotDirection = ApplySpread(direction);
+        Vector3 shotDirection = ApplySpread(direction);
 
         if (useAOE)
             DealAreaDamage(shotDirection);
@@ -126,62 +126,58 @@ public class Weapon : MonoBehaviour
             DealDamage(shotDirection);
     }
 
-    Vector3 ApplySpread(Vector3 direction)
+    private Vector3 ApplySpread(Vector3 direction)
     {
         if (!useSpread) return direction;
 
         return Quaternion.Euler(0, Random.Range(-spreadAngle, spreadAngle), 0) * direction;
     }
 
-    void DealDamage(Vector3 direction)
+    private void DealDamage(Vector3 direction)
     {
-        if (Physics.Raycast(transform.position, direction, out var hit, range))
-            if (hit.collider.TryGetComponent<Health>(out var health))
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, range))
+            if (hit.collider.TryGetComponent<Health>(out Health health))
                 ApplyDamageAndEffects(health);
     }
 
-    void DealPiercingDamage(Vector3 direction)
+    private void DealPiercingDamage(Vector3 direction)
     {
         var ray = new Ray(transform.position, direction);
-        var hits = Physics.RaycastAll(ray, range);
+        RaycastHit[] hits = Physics.RaycastAll(ray, range);
 
         var pierceCount = 0;
-        foreach (var hit in hits)
-        {
-            if (hit.collider.TryGetComponent<Health>(out var health))
+        foreach (RaycastHit hit in hits)
+            if (hit.collider.TryGetComponent<Health>(out Health health))
             {
                 ApplyDamageAndEffects(health);
                 ++pierceCount;
                 if (pierceCount >= maxPierceTargets) break;
             }
-        }
     }
 
-    void DealAreaDamage(Vector3 direction)
+    private void DealAreaDamage(Vector3 direction)
     {
-        var hitColliders = Physics.OverlapSphere(transform.position + direction * range, aoeRadius);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position + direction * range, aoeRadius);
 
-        foreach (var collider in hitColliders)
-        {
-            if (collider.TryGetComponent<Health>(out var health))
+        foreach (Collider collider in hitColliders)
+            if (collider.TryGetComponent<Health>(out Health health))
                 ApplyDamageAndEffects(health);
-        }
     }
 
-    void ApplyDamageAndEffects(Health health)
+    private void ApplyDamageAndEffects(Health health)
     {
         health.TakeDamage(CalculateDamage());
 
         if (useStatusEffects)
         {
-            var duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
+            float duration = statusEffectDuration > 0 ? statusEffectDuration : -1;
             health.ApplyStatusEffect(statusEffect, duration);
         }
     }
 
-    float CalculateDamage()
+    private float CalculateDamage()
     {
-        var damage = baseDamage;
+        float damage = baseDamage;
 
         if (useCriticalHits && Random.value <= critChance)
         {
@@ -192,7 +188,7 @@ public class Weapon : MonoBehaviour
         return damage;
     }
 
-    void Reload()
+    private void Reload()
     {
         if (!useAmmo || infiniteAmmo || _currentAmmo >= maxAmmo) return;
 
@@ -201,14 +197,14 @@ public class Weapon : MonoBehaviour
         Invoke(nameof(FinishReload), reloadTime);
     }
 
-    void FinishReload()
+    private void FinishReload()
     {
         _currentAmmo = maxAmmo;
         OnAmmoChanged?.Invoke(_currentAmmo);
         OnReloadFinished?.Invoke();
     }
 
-    void FinishWarmup() => _isWarmingUp = false;
+    private void FinishWarmup() => _isWarmingUp = false;
 
-    void FinishCooldown() => _isCoolingDown = false;
+    private void FinishCooldown() => _isCoolingDown = false;
 }

@@ -5,8 +5,8 @@ public class ExponentialSmoothingFilter : IFilter1D
     public float Alpha;
     public float CurrentValue => previousSample;
 
-    bool previousSampleSet;
-    float previousSample;
+    private bool previousSampleSet;
+    private float previousSample;
 
     public ExponentialSmoothingFilter(float defaultAlpha)
     {
@@ -18,10 +18,7 @@ public class ExponentialSmoothingFilter : IFilter1D
 
     public void Update(float s)
     {
-        if (previousSampleSet)
-        {
-            previousSample = Alpha * s + (1.0f - Alpha) * previousSample;
-        }
+        if (previousSampleSet) { previousSample = Alpha * s + (1.0f - Alpha) * previousSample; }
         else
         {
             previousSampleSet = true;

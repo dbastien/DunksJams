@@ -15,7 +15,7 @@ public abstract class IncrementalDrawer<T> : PropertyDrawer
 
         EditorGUI.BeginProperty(rect, label, prop);
 
-        var fieldWidth = rect.width - buttonWidth * 2;
+        float fieldWidth = rect.width - buttonWidth * 2;
 
         var propRect = new Rect(rect.x, rect.y, fieldWidth, rect.height);
         var plusRect = new Rect(propRect.x + propRect.width, rect.y, buttonWidth, rect.height);
@@ -23,7 +23,7 @@ public abstract class IncrementalDrawer<T> : PropertyDrawer
 
         EditorGUI.PropertyField(propRect, prop, label);
 
-        var increment = GetIncrement();
+        T increment = GetIncrement();
 
         if (GUI.Button(minusRect, iconToolbarMinus)) DecrementValue(prop, increment);
         if (GUI.Button(plusRect, iconToolbarPlus)) IncrementValue(prop, increment);

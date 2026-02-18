@@ -1,9 +1,9 @@
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
-using UnityEngine;
 using UnityEngine.Video;
 
-public class VideoClipBrowserWindow : AssetBrowserWindow<VideoClipBrowserTreeView, VideoClipBrowserTreeView.TreeViewItem>
+public class VideoClipBrowserWindow
+    : AssetBrowserWindow<VideoClipBrowserTreeView, VideoClipBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Video Clips";
 
@@ -13,15 +13,6 @@ public class VideoClipBrowserWindow : AssetBrowserWindow<VideoClipBrowserTreeVie
 
 public class VideoClipBrowserTreeView : AssetBrowserTreeView<VideoClipBrowserTreeView.TreeViewItem>
 {
-    public class TreeViewItem : AssetBrowserTreeViewItem<VideoClip, VideoClipImporter>
-    {
-        public VideoClip Clip => TypedAsset;
-        public VideoClipImporter Importer => TypedImporter;
-
-        public TreeViewItem(int id, string guid, string path, VideoClip asset, VideoClipImporter importer)
-            : base(id, guid, path, asset, importer) { }
-    }
-
     public VideoClipBrowserTreeView(TreeViewState<int> state) : base(state) { }
 
     protected override string[] GatherGuids(bool sceneOnly, string path) =>
@@ -52,4 +43,13 @@ public class VideoClipBrowserTreeView : AssetBrowserTreeView<VideoClipBrowserTre
         CreateDependenciesColumn(),
         CreateWrittenColumn()
     });
+
+    public class TreeViewItem : AssetBrowserTreeViewItem<VideoClip, VideoClipImporter>
+    {
+        public TreeViewItem(int id, string guid, string path, VideoClip asset, VideoClipImporter importer)
+            : base(id, guid, path, asset, importer) { }
+
+        public VideoClip Clip => TypedAsset;
+        public VideoClipImporter Importer => TypedImporter;
+    }
 }

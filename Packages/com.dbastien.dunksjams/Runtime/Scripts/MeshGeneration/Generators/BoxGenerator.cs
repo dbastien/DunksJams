@@ -2,31 +2,36 @@ using UnityEngine;
 
 public static class BoxGenerator
 {
-    public static Mesh Generate(
+    public static Mesh Generate
+    (
         float width = 1f, float height = 1f, float depth = 1f,
         int widthSegs = 1, int heightSegs = 1, int depthSegs = 1,
-        PivotPosition pivot = PivotPosition.Center)
+        PivotPosition pivot = PivotPosition.Center
+    )
     {
-        var numTris = (widthSegs * depthSegs + widthSegs * heightSegs + depthSegs * heightSegs) * 12;
-        var numVerts = ((widthSegs + 1) * (depthSegs + 1) +
+        int numTris = (widthSegs * depthSegs + widthSegs * heightSegs + depthSegs * heightSegs) * 12;
+        int numVerts = ((widthSegs + 1) * (depthSegs + 1) +
                         (widthSegs + 1) * (heightSegs + 1) +
-                        (depthSegs + 1) * (heightSegs + 1)) * 2;
+                        (depthSegs + 1) * (heightSegs + 1)) *
+                       2;
 
         var verts = new Vector3[numVerts];
         var uvs = new Vector2[numVerts];
         var tris = new int[numTris];
 
-        var pivotOff = MeshBuilder.PivotOffset(pivot, height);
-        var hw = width / 2f; var hh = height / 2f; var hd = depth / 2f;
+        Vector3 pivotOff = MeshBuilder.PivotOffset(pivot, height);
+        float hw = width / 2f;
+        float hh = height / 2f;
+        float hd = depth / 2f;
 
-        var a0 = new Vector3(-hw, -hh, -hd) + pivotOff;
-        var b0 = new Vector3(-hw, -hh,  hd) + pivotOff;
-        var c0 = new Vector3( hw, -hh,  hd) + pivotOff;
-        var d0 = new Vector3( hw, -hh, -hd) + pivotOff;
-        var a1 = new Vector3(-hw,  hh, -hd) + pivotOff;
-        var b1 = new Vector3(-hw,  hh,  hd) + pivotOff;
-        var c1 = new Vector3( hw,  hh,  hd) + pivotOff;
-        var d1 = new Vector3( hw,  hh, -hd) + pivotOff;
+        Vector3 a0 = new Vector3(-hw, -hh, -hd) + pivotOff;
+        Vector3 b0 = new Vector3(-hw, -hh, hd) + pivotOff;
+        Vector3 c0 = new Vector3(hw, -hh, hd) + pivotOff;
+        Vector3 d0 = new Vector3(hw, -hh, -hd) + pivotOff;
+        Vector3 a1 = new Vector3(-hw, hh, -hd) + pivotOff;
+        Vector3 b1 = new Vector3(-hw, hh, hd) + pivotOff;
+        Vector3 c1 = new Vector3(hw, hh, hd) + pivotOff;
+        Vector3 d1 = new Vector3(hw, hh, -hd) + pivotOff;
 
         int vi = 0, ti = 0;
         MeshBuilder.GeneratePlane(a0, b0, c0, d0, widthSegs, depthSegs, verts, uvs, tris, ref vi, ref ti);

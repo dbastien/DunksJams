@@ -1,18 +1,16 @@
-﻿using UnityEngine;
-
-public class HistogramPeakFilter : IFilter1D
+﻿public class HistogramPeakFilter : IFilter1D
 {
     // 5 minutes worth of samples at 30 fps
-    const int MaxSamples = 9000;
+    private const int MaxSamples = 9000;
 
-    int[] bins;
-    int numSamples;
+    private int[] bins;
+    private int numSamples;
 
-    int peakBin;
+    private int peakBin;
 
-    float lowerBound;
-    float upperBound;
-    float binSize;
+    private float lowerBound;
+    private float upperBound;
+    private float binSize;
 
     // Get the value associated with the bin associated with the most samples
     public float CurrentValue =>
@@ -47,17 +45,15 @@ public class HistogramPeakFilter : IFilter1D
             }
         }
 
-        var peakBin = bins.Length / 2;
+        int peakBin = bins.Length / 2;
         var peakValue = 0;
 
         for (var i = 0; i < bins.Length; ++i)
-        {
             if (peakValue < bins[i])
             {
                 peakBin = i;
                 peakValue = bins[i];
             }
-        }
 
         this.peakBin = peakBin;
     }

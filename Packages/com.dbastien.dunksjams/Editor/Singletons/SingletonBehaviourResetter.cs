@@ -1,53 +1,53 @@
 #if UNITY_EDITOR
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
-    using UnityEditor;
-    using UnityEngine;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
-    static class SingletonBehaviourResetter
+internal static class SingletonBehaviourResetter
+{
+    private static readonly HashSet<Type> s_reset = new();
+
+    [InitializeOnEnterPlayMode]
+    private static void OnEnterPlayMode(EnterPlayModeOptions options)
     {
-        static readonly HashSet<Type> s_reset = new();
+        if ((options & EnterPlayModeOptions.DisableDomainReload) == 0)
+            return;
 
-        [InitializeOnEnterPlayMode]
-        static void OnEnterPlayMode(EnterPlayModeOptions options)
+        s_reset.Clear();
+
+        TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom<MonoBehaviour>();
+        for (var i = 0; i < types.Count; i++)
         {
-            if ((options & EnterPlayModeOptions.DisableDomainReload) == 0)
-                return;
+            Type type = types[i];
+            if (type == null) continue;
 
-            s_reset.Clear();
-
-            var types = TypeCache.GetTypesDerivedFrom<MonoBehaviour>();
-            for (var i = 0; i < types.Count; i++)
+            Type baseType = type;
+            while (baseType != null)
             {
-                var type = types[i];
-                if (type == null) continue;
-
-                var baseType = type;
-                while (baseType != null)
+                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(SingletonBehaviour<>))
                 {
-                    if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(SingletonBehaviour<>))
-                    {
-                        if (!baseType.ContainsGenericParameters && s_reset.Add(baseType))
-                            ResetSingletonBase(baseType);
-                        break;
-                    }
-
-                    baseType = baseType.BaseType;
+                    if (!baseType.ContainsGenericParameters && s_reset.Add(baseType))
+                        ResetSingletonBase(baseType);
+                    break;
                 }
+
+                baseType = baseType.BaseType;
             }
         }
-
-        static void ResetSingletonBase(Type closedBase)
-        {
-            const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-            var instanceField = closedBase.GetField("_instance", flags);
-            if (instanceField != null)
-                instanceField.SetValue(null, null);
-
-            var quittingField = closedBase.GetField("_quitting", flags);
-            if (quittingField != null)
-                quittingField.SetValue(null, false);
-        }
     }
+
+    private static void ResetSingletonBase(Type closedBase)
+    {
+        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+        FieldInfo instanceField = closedBase.GetField("_instance", flags);
+        if (instanceField != null)
+            instanceField.SetValue(null, null);
+
+        FieldInfo quittingField = closedBase.GetField("_quitting", flags);
+        if (quittingField != null)
+            quittingField.SetValue(null, false);
+    }
+}
 #endif

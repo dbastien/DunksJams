@@ -8,14 +8,10 @@ public abstract class ConditionalAttribute : PropertyAttribute
 
 public class HideIfAttribute : ConditionalAttribute
 {
-    public HideIfAttribute(string conditionField) : base(conditionField)
-    {
-    }
+    public HideIfAttribute(string conditionField) : base(conditionField) { }
 }
 
 public class ShowIfAttribute : ConditionalAttribute
 {
-    public ShowIfAttribute(string conditionField) : base(conditionField)
-    {
-    }
+    public ShowIfAttribute(string conditionField) : base(conditionField) { }
 }

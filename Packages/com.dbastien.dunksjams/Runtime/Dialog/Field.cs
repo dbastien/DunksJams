@@ -26,7 +26,7 @@ public class Field
         this.type = type;
     }
 
-    public int AsInt() => int.TryParse(value, out var i) ? i : 0;
-    public float AsFloat() => float.TryParse(value, out var f) ? f : 0f;
-    public bool AsBool() => bool.TryParse(value, out var b) && b;
+    public int AsInt() => int.TryParse(value, out int i) ? i : 0;
+    public float AsFloat() => float.TryParse(value, out float f) ? f : 0f;
+    public bool AsBool() => bool.TryParse(value, out bool b) && b;
 }

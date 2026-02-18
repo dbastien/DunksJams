@@ -1,13 +1,16 @@
 ﻿Shader "Hidden/DunksJams/PaletteQuantize"
 {
-    Properties {
+    Properties
+    {
         _MainTex ("Base (RGB)", 2D) = "white" {}
         _LutTex ("LUT", 2D) = "white" {}
         _LutSize ("LUT Size", Float) = 16
     }
-    SubShader {
+    SubShader
+    {
         Cull Off ZWrite Off ZTest Always
-        Pass {
+        Pass
+        {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -17,17 +20,20 @@
             sampler2D _LutTex;
             float _LutSize;
 
-            struct appdata {
+            struct appdata
+            {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
 
-            struct v2f {
+            struct v2f
+            {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
             };
 
-            v2f vert(appdata v) {
+            v2f vert(appdata v)
+            {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;

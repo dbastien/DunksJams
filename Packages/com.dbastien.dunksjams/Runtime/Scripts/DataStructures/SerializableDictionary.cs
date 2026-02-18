@@ -5,16 +5,12 @@ using UnityEngine;
 [Serializable]
 public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver
 {
-    Dictionary<TKey, TValue> _dict = new();
+    private Dictionary<TKey, TValue> _dict = new();
 
-    [SerializeField] TKey[] _keys;
-    [SerializeField] TValue[] _values;
+    [SerializeField] private TKey[] _keys;
+    [SerializeField] private TValue[] _values;
 
-    public TValue this[TKey key]
-    {
-        get => _dict[key];
-        set => _dict[key] = value;
-    }
+    public TValue this[TKey key] { get => _dict[key]; set => _dict[key] = value; }
 
     public int Count => _dict.Count;
     public void Add(TKey key, TValue val) => _dict.Add(key, val);
@@ -31,7 +27,7 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
         _values = new TValue[_dict.Count];
         var i = 0;
 
-        foreach (var kvp in _dict)
+        foreach (KeyValuePair<TKey, TValue> kvp in _dict)
         {
             _keys[i] = kvp.Key;
             _values[i] = kvp.Value;
@@ -62,9 +58,9 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
 
         //keep the lists around so we can manipulate them in the editor from the property drawer
         //or uh yeah maybe just get rid of them
-    #if !UNITY_EDITOR
+#if !UNITY_EDITOR
         _keys = null;
         _values = null;
-    #endif
+#endif
     }
 }

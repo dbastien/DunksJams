@@ -17,7 +17,7 @@ public static class ShaderGUIUtils
         thumbRect.y -= 1f;
         thumbRect.height = 18f;
         thumbRect.width = 32f;
-        var num = thumbRect.x + 30f;
+        float num = thumbRect.x + 30f;
         labelRect = new Rect(num, rect.y, thumbRect.x + EditorGUIUtility.labelWidth - num, rect.height);
     }
 
@@ -43,7 +43,7 @@ public static class ShaderGUIUtils
     public static void BeginHeaderProperty(MaterialEditor editor, string text, MaterialProperty prop)
     {
         editor.ShaderProperty(prop, GUIContent.none);
-        var rect = GUILayoutUtility.GetLastRect();
+        Rect rect = GUILayoutUtility.GetLastRect();
         EditorGUI.indentLevel += IndentAmount;
         EditorGUI.LabelField(rect, text, EditorStyles.boldLabel);
     }

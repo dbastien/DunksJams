@@ -13,7 +13,11 @@ public class CreateConnectionCommand : DialogGraphCommand
 
     public override string Name => "Create Connection";
 
-    public CreateConnectionCommand(DialogConversation conversation, DialogGraphView graphView, DialogEntry sourceEntry, DialogEntry destEntry, int linkIndex)
+    public CreateConnectionCommand
+    (
+        DialogConversation conversation, DialogGraphView graphView, DialogEntry sourceEntry, DialogEntry destEntry,
+        int linkIndex
+    )
     {
         _conversation = conversation;
         _graphView = graphView;

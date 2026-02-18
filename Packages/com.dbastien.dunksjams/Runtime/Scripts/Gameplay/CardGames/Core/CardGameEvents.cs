@@ -20,13 +20,9 @@ public abstract class CardGameTurnEvent : CardGameEvent
     public int PlayerIndex { get; set; }
 }
 
-public sealed class CardGameTurnStartedEvent : CardGameTurnEvent
-{
-}
+public sealed class CardGameTurnStartedEvent : CardGameTurnEvent { }
 
-public sealed class CardGameTurnEndedEvent : CardGameTurnEvent
-{
-}
+public sealed class CardGameTurnEndedEvent : CardGameTurnEvent { }
 
 public abstract class CardGameCardEvent : CardGameEvent
 {
@@ -35,21 +31,13 @@ public abstract class CardGameCardEvent : CardGameEvent
     public bool IsFaceDown { get; set; }
 }
 
-public sealed class CardGameCardDealtEvent : CardGameCardEvent
-{
-}
+public sealed class CardGameCardDealtEvent : CardGameCardEvent { }
 
-public sealed class CardGameCardDrawnEvent : CardGameCardEvent
-{
-}
+public sealed class CardGameCardDrawnEvent : CardGameCardEvent { }
 
-public sealed class CardGameCardPlayedEvent : CardGameCardEvent
-{
-}
+public sealed class CardGameCardPlayedEvent : CardGameCardEvent { }
 
-public sealed class CardGameCardDiscardedEvent : CardGameCardEvent
-{
-}
+public sealed class CardGameCardDiscardedEvent : CardGameCardEvent { }
 
 public sealed class CardGamePhaseChangedEvent : CardGameEvent
 {

@@ -5,23 +5,22 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using Utilities;
 
 public static class AssetBrowserWindowManager
 {
-    static readonly Vector2 WindowMinSize = new(610, 100);
+    private static readonly Vector2 WindowMinSize = new(610, 100);
 
-    static readonly Type[] WinTypes = typeof(AssetBrowserWindow<,>).GetDerived().ToArray();
+    private static readonly Type[] WinTypes = typeof(AssetBrowserWindow<,>).GetDerived().ToArray();
 
     [MenuItem("‽/Asset Browser/Open All", false, 200)]
     public static void BuildAllWindows()
     {
-        foreach (var type in WinTypes)
+        foreach (Type type in WinTypes)
         {
-            var method =
+            MethodInfo method =
                 typeof(AssetBrowserWindowManager).GetMethod(nameof(ShowWindow),
                     BindingFlags.Public | BindingFlags.Static);
-            var genericMethod = method?.MakeGenericMethod(type);
+            MethodInfo genericMethod = method?.MakeGenericMethod(type);
             genericMethod?.Invoke(null, new object[] { });
         }
     }
@@ -31,7 +30,7 @@ public static class AssetBrowserWindowManager
         //dock with other asset browser windows (WinTypes)
         var w = EditorWindow.GetWindow<T>(WinTypes);
         w.minSize = WindowMinSize;
-        var titleProperty = typeof(T).GetProperty("WinTitle", BindingFlags.Instance | BindingFlags.NonPublic);
+        PropertyInfo titleProperty = typeof(T).GetProperty("WinTitle", BindingFlags.Instance | BindingFlags.NonPublic);
         w.titleContent = new GUIContent(titleProperty?.GetValue(w) as string ?? typeof(T).Name);
         typeof(T).GetMethod("Rebuild")?.Invoke(w, null);
         w.Show();
@@ -56,20 +55,18 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     [NonSerialized] protected string outPath;
 
-    [NonSerialized] bool initialized;
-    [NonSerialized] bool initializedStatic;
+    [NonSerialized] private bool initialized;
+    [NonSerialized] private bool initializedStatic;
 
-    static Texture saveIcon;
-    static Texture findIcon;
+    private static Texture saveIcon;
+    private static Texture findIcon;
 
-    Rect saveDropDownRect;
-    Rect gatherDropDownRect;
+    private Rect saveDropDownRect;
+    private Rect gatherDropDownRect;
 
     public delegate void SaveFunction();
 
-    protected virtual void AddCustomSaveFunctions(GenericMenu menu)
-    {
-    }
+    protected virtual void AddCustomSaveFunctions(GenericMenu menu) { }
 
     protected Rect topToolBarRect => new(margin, margin, position.width - margin, 20f);
 
@@ -78,14 +75,14 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     protected const int margin = 5;
 
-    void OnGUI()
+    private void OnGUI()
     {
         InitIfNeeded();
         TopToolBar(topToolBarRect);
         treeView?.OnGUI(treeViewRect);
     }
 
-    void TopToolBar(Rect bar)
+    private void TopToolBar(Rect bar)
     {
         using var _ = new EditorGUILayout.HorizontalScope();
 
@@ -96,7 +93,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         assetPath = EditorGUILayout.TextField(assetPath);
         if (GUILayout.Button(new GUIContent("…", "Select folder to search"), GUILayout.Width(22)))
         {
-            var absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
+            string absPath = EditorUtility.OpenFolderPanel("Folder to search (recursively)", assetPath, "");
             if (absPath.StartsWithFast(IOUtils.ProjectRootFolder))
             {
                 assetPath = absPath[IOUtils.ProjectRootFolder.Length..];
@@ -123,12 +120,12 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
         GUILayout.FlexibleSpace();
 
-        var searchRect = GUILayoutUtility.GetRect(150, EditorGUIUtility.singleLineHeight);
+        Rect searchRect = GUILayoutUtility.GetRect(150, EditorGUIUtility.singleLineHeight);
         treeView.searchString = searchField.OnGUI(searchRect, treeView.searchString);
         GUILayout.Label($"{treeView.FilteredCount}/{treeView.AllItems.Count}");
     }
 
-    void DrawButtonWithMenu(Texture icon, ref Rect dropDownRect, Action showMenu)
+    private void DrawButtonWithMenu(Texture icon, ref Rect dropDownRect, Action showMenu)
     {
         if (EditorGUILayout.DropdownButton(new GUIContent(icon), FocusType.Passive))
             showMenu();
@@ -137,7 +134,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
             dropDownRect = GUILayoutUtility.GetLastRect();
     }
 
-    void ShowGatherMenu()
+    private void ShowGatherMenu()
     {
         var menu = new GenericMenu();
         menu.AddItem(new GUIContent("References"), false, () => treeView?.FindReferences());
@@ -145,7 +142,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         menu.DropDown(gatherDropDownRect);
     }
 
-    void ShowSaveMenu()
+    private void ShowSaveMenu()
     {
         var menu = new GenericMenu();
         menu.AddItem(new GUIContent("Rows"), false, () => SavePanel(Save));
@@ -157,16 +154,18 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
     protected void SavePanel(SaveFunction func)
     {
-        var dir = string.IsNullOrEmpty(outPath) ? IOUtils.ProjectRootFolder : System.IO.Path.GetDirectoryName(outPath);
+        string dir = string.IsNullOrEmpty(outPath)
+            ? IOUtils.ProjectRootFolder
+            : System.IO.Path.GetDirectoryName(outPath);
         outPath = EditorUtility.SaveFilePanel("Save rows to csv file", dir,
             typeof(TTree).Name + func.GetMethodInfo().Name, "csv");
         if (!string.IsNullOrEmpty(outPath)) func();
     }
 
-    void Save()
+    private void Save()
     {
-        var rows = treeView.AllItems;
-        var visibleCols = treeView.multiColumnHeader.state.visibleColumns;
+        List<TItem> rows = treeView.AllItems;
+        int[] visibleCols = treeView.multiColumnHeader.state.visibleColumns;
         using var file = new System.IO.StreamWriter(outPath);
 
         var line = "";
@@ -178,7 +177,7 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
 
         file.WriteLine(line);
 
-        foreach (var r in rows)
+        foreach (TItem r in rows)
         {
             if (!treeView.DoesItemMatchSearch(r)) continue;
             line = "";
@@ -192,40 +191,35 @@ public class AssetBrowserWindow<TTree, TItem> : EditorWindow
         }
     }
 
-    void SaveReferences()
+    private void SaveReferences()
     {
-        var rows = treeView.AllItems;
+        List<TItem> rows = treeView.AllItems;
         using System.IO.StreamWriter file = new(outPath);
-        foreach (var r in rows)
+        foreach (TItem r in rows)
         {
             if (!treeView.DoesItemMatchSearch(r)) continue;
             var line = $"{r.AssetPath}, {r.AssetName}";
-            var paths = r.Refs.Select(AssetDatabase.GetAssetPath).ToList();
-            foreach (var path in paths) line += $", {path}";
+            List<string> paths = r.Refs.Select(AssetDatabase.GetAssetPath).ToList();
+            foreach (string path in paths) line += $", {path}";
             file.WriteLine(line);
         }
     }
 
-
     //todo: do the to
-    void SaveDependencies()
-    {
-    }
+    private void SaveDependencies() { }
 
-    void ChangePlatform(AssetImporterPlatform p)
-    {
-    }
+    private void ChangePlatform(AssetImporterPlatform p) { }
 
     protected virtual void Rebuild()
     {
         treeViewState ??= new TreeViewState<int>();
-        var items = treeView?.AllItems ?? new List<TItem>(32);
+        List<TItem> items = treeView?.AllItems ?? new List<TItem>(32);
         treeView = (TTree)Activator.CreateInstance(typeof(TTree), treeViewState);
         treeView.AllItems = items;
         treeView.Reload();
     }
 
-    void InitIfNeeded()
+    private void InitIfNeeded()
     {
         if (!initializedStatic)
         {

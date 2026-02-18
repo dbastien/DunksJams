@@ -7,8 +7,8 @@ public static class UnityEditorExtensions
 
     public static object GetDockArea(this EditorWindow win) =>
         typeof(EditorWindow).GetField("m_Parent",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.GetValue(win);
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.
+            GetValue(win);
 
     public static T FindOrCreateAsset<T>(this string path) where T : ScriptableObject
     {
@@ -24,20 +24,20 @@ public static class UnityEditorExtensions
 
     public static void LogPropertyHierarchy(this SerializedProperty sp)
     {
-        var rootLen = sp.propertyPath.Length;
-        var propCopy = sp.Copy();
+        int rootLen = sp.propertyPath.Length;
+        SerializedProperty propCopy = sp.Copy();
         var depth = 0;
 
         while (propCopy.Next(true))
         {
-            var newDepth = propCopy.depth;
+            int newDepth = propCopy.depth;
             if (newDepth != depth)
             {
                 DLog.Log($"Level {newDepth}:");
                 depth = newDepth;
             }
 
-            var childPath = propCopy.propertyPath[rootLen..];
+            string childPath = propCopy.propertyPath[rootLen..];
             if (!string.IsNullOrWhiteSpace(childPath))
                 DLog.Log($"  {childPath}");
         }

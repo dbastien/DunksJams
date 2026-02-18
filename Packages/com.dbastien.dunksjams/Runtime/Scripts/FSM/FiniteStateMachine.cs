@@ -4,12 +4,12 @@ using System.Linq;
 
 public class FiniteStateMachine<T>
 {
-    readonly Dictionary<string, FiniteState<T>> _states = new();
-    readonly Dictionary<string, List<StateTransition<T>>> _transitions = new();
-    FiniteState<T> _pendingState;
-    object[] _pendingStateParameters = Array.Empty<object>();
-    bool _isRunning;
-    bool _isPaused;
+    private readonly Dictionary<string, FiniteState<T>> _states = new();
+    private readonly Dictionary<string, List<StateTransition<T>>> _transitions = new();
+    private FiniteState<T> _pendingState;
+    private object[] _pendingStateParameters = Array.Empty<object>();
+    private bool _isRunning;
+    private bool _isPaused;
 
     public FiniteState<T> CurrentState { get; private set; }
     public event EventHandler<StateChangeEventArgs<T>> OnStateChange;
@@ -27,10 +27,13 @@ public class FiniteStateMachine<T>
             DLog.LogW($"State '{state.StateName}' is already registered.");
     }
 
-    public void AddTransition(string from, string to, Func<bool> condition, float? duration = null,
-        Action onTransition = null, int priority = 0)
+    public void AddTransition
+    (
+        string from, string to, Func<bool> condition, float? duration = null,
+        Action onTransition = null, int priority = 0
+    )
     {
-        if (!_transitions.TryGetValue(from, out var transitions))
+        if (!_transitions.TryGetValue(from, out List<StateTransition<T>> transitions))
             _transitions[from] = transitions = new List<StateTransition<T>>();
 
         transitions.Add(new StateTransition<T>(from, to, condition, duration, onTransition, priority));
@@ -49,7 +52,7 @@ public class FiniteStateMachine<T>
 
     public TK GetState<TK>() where TK : FiniteState<T>
     {
-        if (_states.TryGetValue(typeof(TK).Name, out var state))
+        if (_states.TryGetValue(typeof(TK).Name, out FiniteState<T> state))
             return state as TK;
         DLog.LogW($"State '{typeof(TK).Name}' not found.");
         return null;
@@ -62,9 +65,9 @@ public class FiniteStateMachine<T>
         RefreshStateIfPending();
         CurrentState?.Update();
 
-        var currentStateName = CurrentState?.StateName ?? "";
-        if (!_transitions.TryGetValue(currentStateName, out var transitions)) return;
-        foreach (var transition in transitions.OrderByDescending(t => t.Priority))
+        string currentStateName = CurrentState?.StateName ?? "";
+        if (!_transitions.TryGetValue(currentStateName, out List<StateTransition<T>> transitions)) return;
+        foreach (StateTransition<T> transition in transitions.OrderByDescending(t => t.Priority))
         {
             if (!transition.Condition() && !transition.CheckElapsedTime()) continue;
             transition.ExecuteTransition();
@@ -84,7 +87,7 @@ public class FiniteStateMachine<T>
         CurrentState = null;
     }
 
-    void RefreshStateIfPending()
+    private void RefreshStateIfPending()
     {
         if (_pendingState == null) return;
         NotifyStateChange(StateChangeAction.Ending, CurrentState);
@@ -95,7 +98,7 @@ public class FiniteStateMachine<T>
         NotifyStateChange(StateChangeAction.Begun, CurrentState);
     }
 
-    void NotifyStateChange(StateChangeAction action, FiniteState<T> state)
+    private void NotifyStateChange(StateChangeAction action, FiniteState<T> state)
     {
         var eventArgs = new StateChangeEventArgs<T>(action, state);
         state.OnStateChange(eventArgs);

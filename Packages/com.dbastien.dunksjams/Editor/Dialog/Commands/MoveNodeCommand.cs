@@ -15,7 +15,8 @@ public class MoveNodeCommand : DialogGraphCommand
 
     public override string Name => "Move Node";
 
-    public MoveNodeCommand(DialogConversation conversation, DialogGraphView graphView, DialogEntry entry, Rect startRect, Rect endRect)
+    public MoveNodeCommand
+        (DialogConversation conversation, DialogGraphView graphView, DialogEntry entry, Rect startRect, Rect endRect)
     {
         _conversation = conversation;
         _entry = entry;
@@ -47,6 +48,7 @@ public class MoveNodeCommand : DialogGraphCommand
             _endRect = moveCommand._endRect;
             return true;
         }
+
         return false;
     }
 }

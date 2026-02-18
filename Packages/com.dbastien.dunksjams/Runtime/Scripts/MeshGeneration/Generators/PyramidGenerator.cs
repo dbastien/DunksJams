@@ -2,23 +2,26 @@ using UnityEngine;
 
 public static class PyramidGenerator
 {
-    public static Mesh Generate(float baseSize = 1f, float height = 1f,
-                                PivotPosition pivot = PivotPosition.Bottom)
+    public static Mesh Generate
+    (
+        float baseSize = 1f, float height = 1f,
+        PivotPosition pivot = PivotPosition.Bottom
+    )
     {
-        var h = height;
-        var s = baseSize / 2f;
-        var pivotOff = pivot switch
+        float h = height;
+        float s = baseSize / 2f;
+        Vector3 pivotOff = pivot switch
         {
             PivotPosition.Center => new Vector3(0f, -h / 2f, 0f),
-            PivotPosition.Top    => new Vector3(0f, -h, 0f),
-            _                    => Vector3.zero
+            PivotPosition.Top => new Vector3(0f, -h, 0f),
+            _ => Vector3.zero
         };
 
-        var apex = new Vector3(0, h, 0) + pivotOff;
-        var bl = new Vector3(-s, 0, -s) + pivotOff;
-        var br = new Vector3( s, 0, -s) + pivotOff;
-        var fr = new Vector3( s, 0,  s) + pivotOff;
-        var fl = new Vector3(-s, 0,  s) + pivotOff;
+        Vector3 apex = new Vector3(0, h, 0) + pivotOff;
+        Vector3 bl = new Vector3(-s, 0, -s) + pivotOff;
+        Vector3 br = new Vector3(s, 0, -s) + pivotOff;
+        Vector3 fr = new Vector3(s, 0, s) + pivotOff;
+        Vector3 fl = new Vector3(-s, 0, s) + pivotOff;
 
         // 16 verts: 4 faces x 3 + base x 4
         var verts = new Vector3[]
@@ -46,9 +49,9 @@ public static class PyramidGenerator
 
         var tris = new[]
         {
-            0, 2, 1,   // front
-            3, 5, 4,   // right
-            6, 8, 7,   // back
+            0, 2, 1, // front
+            3, 5, 4, // right
+            6, 8, 7, // back
             9, 11, 10, // left
             12, 13, 14, 12, 14, 15 // base
         };

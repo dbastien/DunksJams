@@ -5,9 +5,9 @@ using System.Text;
 public static class EnumCache<T> where T : Enum
 {
     public static readonly T[] Values;
-    static readonly Dictionary<T, string> Cache;
-    static readonly string[] Strings;
-    static readonly string _summary;
+    private static readonly Dictionary<T, string> Cache;
+    private static readonly string[] Strings;
+    private static readonly string _summary;
 
     static EnumCache()
     {
@@ -18,7 +18,7 @@ public static class EnumCache<T> where T : Enum
         StringBuilder sb = new();
         for (var i = 0; i < Values.Length; ++i)
         {
-            var val = Values[i];
+            T val = Values[i];
             var valString = val.ToString();
             Strings[i] = valString;
             Cache[val] = valString;

@@ -4,7 +4,7 @@ using Object = UnityEngine.Object;
 
 public sealed class MultiLogHandler : ILogHandler
 {
-    readonly ILogHandler[] _logHandlers;
+    private readonly ILogHandler[] _logHandlers;
 
     public MultiLogHandler(params ILogHandler[] logHandlers) =>
         _logHandlers = logHandlers ?? Array.Empty<ILogHandler>();

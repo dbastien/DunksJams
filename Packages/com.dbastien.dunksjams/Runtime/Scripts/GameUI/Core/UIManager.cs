@@ -5,11 +5,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class UIManager : SingletonEagerBehaviour<UIManager>
 {
-    [SerializeField] RenderMode canvasRenderMode = RenderMode.ScreenSpaceOverlay;
+    [SerializeField] private RenderMode canvasRenderMode = RenderMode.ScreenSpaceOverlay;
 
-    GameObject canvas;
-    readonly Dictionary<Type, UIScreen> screens = new();
-    readonly Stack<UIScreen> screenStack = new();
+    private GameObject canvas;
+    private readonly Dictionary<Type, UIScreen> screens = new();
+    private readonly Stack<UIScreen> screenStack = new();
 
     protected override void InitInternal()
     {
@@ -19,7 +19,7 @@ public class UIManager : SingletonEagerBehaviour<UIManager>
 
     public T RegisterScreen<T>() where T : UIScreen
     {
-        var screenType = typeof(T);
+        Type screenType = typeof(T);
         if (screens.ContainsKey(screenType))
         {
             DLog.LogW($"Screen {screenType.Name} already registered");
@@ -34,8 +34,8 @@ public class UIManager : SingletonEagerBehaviour<UIManager>
 
     public void ShowScreen<T>(bool addToStack = true) where T : UIScreen
     {
-        var screenType = typeof(T);
-        if (!screens.TryGetValue(screenType, out var screen))
+        Type screenType = typeof(T);
+        if (!screens.TryGetValue(screenType, out UIScreen screen))
         {
             DLog.LogW($"Screen {screenType.Name} not registered");
             return;
@@ -53,7 +53,7 @@ public class UIManager : SingletonEagerBehaviour<UIManager>
     public void HideCurrentScreen()
     {
         if (screenStack.Count == 0) return;
-        var screen = screenStack.Pop();
+        UIScreen screen = screenStack.Pop();
         screen.Hide();
 
         if (screenStack.Count > 0)
@@ -68,14 +68,14 @@ public class UIManager : SingletonEagerBehaviour<UIManager>
 
     public T GetScreen<T>() where T : UIScreen
     {
-        screens.TryGetValue(typeof(T), out var screen);
+        screens.TryGetValue(typeof(T), out UIScreen screen);
         return screen as T;
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        foreach (var screen in screens.Values)
+        foreach (UIScreen screen in screens.Values)
             screen.Destroy();
         screens.Clear();
     }

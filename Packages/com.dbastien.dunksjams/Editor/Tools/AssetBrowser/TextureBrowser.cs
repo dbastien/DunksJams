@@ -27,7 +27,7 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
         protected sealed override void Rebuild()
         {
             PlatformSettings.Clear();
-            foreach (var kvp in AssetImporterPlatformStrings)
+            foreach (KeyValuePair<AssetImporterPlatform, string> kvp in AssetImporterPlatformStrings)
                 PlatformSettings.Add(kvp.Key, TypedImporter.GetPlatformTextureSettings(kvp.Value));
             base.Rebuild();
             RuntimeMemory = TextureUtilWrapper.GetRuntimeMemorySizeLong(TypedAsset);
@@ -37,13 +37,13 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
 
     public TextureBrowserTreeView(TreeViewState<int> state) : base(state) { }
 
-    static void ExtractTexturesFromMaterial(Material mat, HashSet<Texture> uniqueTextures)
+    private static void ExtractTexturesFromMaterial(Material mat, HashSet<Texture> uniqueTextures)
     {
-        var propCount = mat.shader.GetPropertyCount();
+        int propCount = mat.shader.GetPropertyCount();
         for (var i = 0; i < propCount; ++i)
         {
             if (mat.shader.GetPropertyType(i) != ShaderPropertyType.Texture) continue;
-            var tex = mat.GetTexture(mat.shader.GetPropertyName(i));
+            Texture tex = mat.GetTexture(mat.shader.GetPropertyName(i));
             if (tex) uniqueTextures.Add(tex);
         }
     }
@@ -53,10 +53,12 @@ public class TextureBrowserTreeView : AssetBrowserTreeView<TextureBrowserTreeVie
         if (!sceneOnly) return FindAssetGuids("Texture", path);
 
         HashSet<Texture> textures = new();
-        var renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var renderer in renderers)
-            foreach (var mat in renderer.sharedMaterials)
-                if (mat) ExtractTexturesFromMaterial(mat, textures);
+        Renderer[] renderers =
+            Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Renderer renderer in renderers)
+        foreach (Material mat in renderer.sharedMaterials)
+            if (mat)
+                ExtractTexturesFromMaterial(mat, textures);
         return AssetGuidsFromObjects(textures);
     }
 

@@ -73,21 +73,17 @@ public class Histogram
     public int GetFirstBinWithMinCount(int minCount)
     {
         for (var i = 0; i < Bins.Length; ++i)
-        {
             if (Bins[i] > minCount)
                 return i;
-        }
 
         return -1;
     }
 
     public int GetLastBinWithMinCount(int minCount)
     {
-        for (var i = Bins.Length - 1; i >= 0; --i)
-        {
+        for (int i = Bins.Length - 1; i >= 0; --i)
             if (Bins[i] > minCount)
                 return i;
-        }
 
         return -1;
     }
@@ -98,13 +94,11 @@ public class Histogram
         var maxBin = 0;
 
         for (var i = 0; i < Bins.Length; ++i)
-        {
             if (Bins[i] > maxValue)
             {
                 maxValue = Bins[i];
                 maxBin = i;
             }
-        }
 
         return maxBin;
     }

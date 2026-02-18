@@ -7,8 +7,8 @@ public class TetherFilter1D : IFilter1D
 
     public float CurrentValue => tetherPosition;
 
-    float tetherPosition;
-    bool hasValue;
+    private float tetherPosition;
+    private bool hasValue;
 
     public void Update(float s)
     {
@@ -20,21 +20,18 @@ public class TetherFilter1D : IFilter1D
         }
 
         // apply 1D filter
-        var rawPosition1D = s;
+        float rawPosition1D = s;
         if (TetherLength > 0.0f)
         {
-            var tetherDiff = rawPosition1D - tetherPosition;
+            float tetherDiff = rawPosition1D - tetherPosition;
 
             if (!(Mathf.Abs(tetherDiff) > TetherLength)) return;
-            var distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength) * Mathf.Sign(tetherDiff);
+            float distanceBeyondTether = (Mathf.Abs(tetherDiff) - TetherLength) * Mathf.Sign(tetherDiff);
             distanceBeyondTether = Mathf.Min(distanceBeyondTether, TetherMaxChangePerFrame);
 
             tetherPosition += distanceBeyondTether;
         }
-        else
-        {
-            tetherPosition = rawPosition1D;
-        }
+        else { tetherPosition = rawPosition1D; }
     }
 
     public void Reset()

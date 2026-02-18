@@ -1,9 +1,18 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-public enum NormalsType { Vertex, Face }
-public enum PivotPosition { Bottom, Center, Top }
+public enum NormalsType
+{
+    Vertex,
+    Face
+}
+
+public enum PivotPosition
+{
+    Bottom,
+    Center,
+    Top
+}
 
 public static class MeshBuilder
 {
@@ -31,8 +40,8 @@ public static class MeshBuilder
     public static Vector3 PivotOffset(PivotPosition pivot, float height) => pivot switch
     {
         PivotPosition.Bottom => new Vector3(0f, height / 2f, 0f),
-        PivotPosition.Top    => new Vector3(0f, -height / 2f, 0f),
-        _                    => Vector3.zero
+        PivotPosition.Top => new Vector3(0f, -height / 2f, 0f),
+        _ => Vector3.zero
     };
 
     public static void ApplyPivot(Vector3[] verts, Vector3 offset)
@@ -50,38 +59,41 @@ public static class MeshBuilder
             newUvs[i] = uvs[tris[i]];
             tris[i] = i;
         }
+
         verts = newVerts;
         uvs = newUvs;
     }
 
-    public static void GeneratePlane(
+    public static void GeneratePlane
+    (
         Vector3 a, Vector3 b, Vector3 c, Vector3 d,
         int segX, int segY,
         Vector3[] verts, Vector2[] uvs, int[] tris,
-        ref int vertIdx, ref int triIdx)
+        ref int vertIdx, ref int triIdx
+    )
     {
-        var uvFactorX = 1f / segX;
-        var uvFactorY = 1f / segY;
-        var vDown = d - a;
-        var vUp = c - b;
-        var vertOffset = vertIdx;
+        float uvFactorX = 1f / segX;
+        float uvFactorY = 1f / segY;
+        Vector3 vDown = d - a;
+        Vector3 vUp = c - b;
+        int vertOffset = vertIdx;
 
         for (var y = 0; y <= segY; ++y)
         for (var x = 0; x <= segX; ++x)
         {
-            var pDown = a + vDown * y * uvFactorY;
-            var pUp = b + vUp * y * uvFactorY;
+            Vector3 pDown = a + vDown * y * uvFactorY;
+            Vector3 pUp = b + vUp * y * uvFactorY;
             verts[vertIdx] = pDown + (pUp - pDown) * x * uvFactorX;
             uvs[vertIdx] = new Vector2(x * uvFactorX, y * uvFactorY);
             vertIdx++;
         }
 
-        var w = segX + 1;
+        int w = segX + 1;
         for (var y = 0; y < segY; ++y)
         for (var x = 0; x < segX; ++x)
         {
-            var vi = vertOffset + y * w + x;
-            tris[triIdx]     = vi;
+            int vi = vertOffset + y * w + x;
+            tris[triIdx] = vi;
             tris[triIdx + 1] = vi + w;
             tris[triIdx + 2] = vi + 1;
             tris[triIdx + 3] = vi + w;
@@ -93,7 +105,7 @@ public static class MeshBuilder
 
     public static Vector2 SphericalUV(Vector3 p)
     {
-        var n = p.normalized;
+        Vector3 n = p.normalized;
         return new Vector2(
             0.5f + MathF.Atan2(n.z, n.x) / (MathF.PI * 2f),
             1f - (0.5f - MathF.Asin(n.y) / MathF.PI));

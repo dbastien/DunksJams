@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-
 public enum BarkPriority
 {
     Low,
@@ -23,12 +22,15 @@ public class BarkManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void Bark(DialogueActor actor, string[] possibleLines, BarkPriority priority = BarkPriority.Normal, float duration = 3f)
+    public void Bark
+        (DialogueActor actor, string[] possibleLines, BarkPriority priority = BarkPriority.Normal, float duration = 3f)
     {
         if (actor == null || possibleLines == null || possibleLines.Length == 0) return;
 
         // Simple cooldown check per actor
-        if (_actorBarkCooldowns.TryGetValue(actor, out float cooldown) && Time.time < cooldown && priority != BarkPriority.Urgent) return;
+        if (_actorBarkCooldowns.TryGetValue(actor, out float cooldown) &&
+            Time.time < cooldown &&
+            priority != BarkPriority.Urgent) return;
 
         // History randomization: avoid repeating the same line immediately if possible
         string line = PickRandomLine(actor, possibleLines);
@@ -48,10 +50,11 @@ public class BarkManager : MonoBehaviour
         }
 
         // Filter out lines that were recently used
-        List<string> availableLines = new List<string>(lines);
+        var availableLines = new List<string>(lines);
         if (history.Count > 0)
-            foreach (var used in history)
-                if (availableLines.Count > 1) availableLines.Remove(used);
+            foreach (string used in history)
+                if (availableLines.Count > 1)
+                    availableLines.Remove(used);
 
         string picked = availableLines[Random.Range(0, availableLines.Count)];
 

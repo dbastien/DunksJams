@@ -3,26 +3,24 @@ using UnityEngine;
 
 public static class TextureUtils
 {
-    static readonly Dictionary<Color, Texture2D> _colorCache = new();
+    private static readonly Dictionary<Color, Texture2D> _colorCache = new();
 
     public static Texture2D Composite(Vector2Int size, Dictionary<Vector2Int, Texture2D> textures)
     {
         Texture2D outTex = new(size.x, size.y, TextureFormat.RGBA32, false);
         var outPixels = new Color[size.x * size.y];
 
-        foreach (var kvp in textures)
+        foreach (KeyValuePair<Vector2Int, Texture2D> kvp in textures)
         {
-            var pos = kvp.Key;
-            var texture = kvp.Value;
-            var pixels = texture.GetPixels();
+            Vector2Int pos = kvp.Key;
+            Texture2D texture = kvp.Value;
+            Color[] pixels = texture.GetPixels();
 
             for (var y = 0; y < texture.height; ++y)
+            for (var x = 0; x < texture.width; ++x)
             {
-                for (var x = 0; x < texture.width; ++x)
-                {
-                    var outIndex = pos.x + x + (pos.y + y) * size.x;
-                    outPixels[outIndex] = pixels[x + y * texture.width];
-                }
+                int outIndex = pos.x + x + (pos.y + y) * size.x;
+                outPixels[outIndex] = pixels[x + y * texture.width];
             }
         }
 
@@ -33,7 +31,7 @@ public static class TextureUtils
 
     public static Texture2D GetSolidColor(Color color, int width = 2, int height = 2)
     {
-        if (_colorCache.TryGetValue(color, out var cachedTex)) return cachedTex;
+        if (_colorCache.TryGetValue(color, out Texture2D cachedTex)) return cachedTex;
 
         var tex = new Texture2D(width, height) { hideFlags = HideFlags.DontSave };
         var pixels = new Color[width * height];
@@ -56,30 +54,30 @@ public static class TextureUtils
 
         int w = input.width, h = input.height;
         var output = new Texture2D(w, h);
-        var reference = Object.Instantiate(input);
+        Texture2D reference = Object.Instantiate(input);
         var rim = new Color[8];
 
-        for (int i = 0; i < iterations; i++)
+        for (var i = 0; i < iterations; i++)
         {
-            for (int x = 0; x < w; x++)
+            for (var x = 0; x < w; x++)
+            for (var y = 0; y < h; y++)
             {
-                for (int y = 0; y < h; y++)
-                {
-                    var c = reference.GetPixel(x, y);
-                    rim[0] = (x > 0 && y > 0) ? reference.GetPixel(x - 1, y - 1) : c;
-                    rim[1] = (y > 0) ? reference.GetPixel(x, y - 1) : c;
-                    rim[2] = (x < w - 1 && y > 0) ? reference.GetPixel(x + 1, y - 1) : c;
-                    rim[3] = (x > 0) ? reference.GetPixel(x - 1, y) : c;
-                    rim[4] = (x < w - 1) ? reference.GetPixel(x + 1, y) : c;
-                    rim[5] = (x > 0 && y < h - 1) ? reference.GetPixel(x - 1, y + 1) : c;
-                    rim[6] = (y < h - 1) ? reference.GetPixel(x, y + 1) : c;
-                    rim[7] = (x < w - 1 && y < h - 1) ? reference.GetPixel(x + 1, y + 1) : c;
-                    output.SetPixel(x, y, (rim[0] + rim[1] + rim[2] + rim[3] + rim[4] + rim[5] + rim[6] + rim[7]) / 8f);
-                }
+                Color c = reference.GetPixel(x, y);
+                rim[0] = x > 0 && y > 0 ? reference.GetPixel(x - 1, y - 1) : c;
+                rim[1] = y > 0 ? reference.GetPixel(x, y - 1) : c;
+                rim[2] = x < w - 1 && y > 0 ? reference.GetPixel(x + 1, y - 1) : c;
+                rim[3] = x > 0 ? reference.GetPixel(x - 1, y) : c;
+                rim[4] = x < w - 1 ? reference.GetPixel(x + 1, y) : c;
+                rim[5] = x > 0 && y < h - 1 ? reference.GetPixel(x - 1, y + 1) : c;
+                rim[6] = y < h - 1 ? reference.GetPixel(x, y + 1) : c;
+                rim[7] = x < w - 1 && y < h - 1 ? reference.GetPixel(x + 1, y + 1) : c;
+                output.SetPixel(x, y, (rim[0] + rim[1] + rim[2] + rim[3] + rim[4] + rim[5] + rim[6] + rim[7]) / 8f);
             }
+
             Object.Destroy(reference);
             reference = Object.Instantiate(output);
         }
+
         Object.Destroy(reference);
         output.Apply();
         return output;
@@ -93,32 +91,29 @@ public static class TextureUtils
         int w = texture.width, h = texture.height;
         float blurAmount = blurStrength;
 
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
         {
-            for (int y = 0; y < h; y++)
+            var denominator = 0f;
+            Color blurred = Color.clear;
+
+            for (int bx = -blurQuality; bx <= blurQuality; bx++)
+            for (int by = -blurQuality; by <= blurQuality; by++)
             {
-                float denominator = 0f;
-                Color blurred = Color.clear;
-
-                for (int bx = -blurQuality; bx <= blurQuality; bx++)
+                var sx = (int)(x + bx * blurAmount);
+                var sy = (int)(y + by * blurAmount);
+                if (sx >= 0 && sx < w && sy >= 0 && sy < h)
                 {
-                    for (int by = -blurQuality; by <= blurQuality; by++)
-                    {
-                        int sx = (int)(x + bx * blurAmount);
-                        int sy = (int)(y + by * blurAmount);
-                        if (sx >= 0 && sx < w && sy >= 0 && sy < h)
-                        {
-                            float gd = GaussianDistribution(bx, 7f);
-                            blurred += texture.GetPixel(sx, sy) * gd;
-                            denominator += gd;
-                        }
-                    }
+                    float gd = GaussianDistribution(bx, 7f);
+                    blurred += texture.GetPixel(sx, sy) * gd;
+                    denominator += gd;
                 }
-
-                if (denominator >= 0.001f)
-                    texture.SetPixel(x, y, blurred / denominator);
             }
+
+            if (denominator >= 0.001f)
+                texture.SetPixel(x, y, blurred / denominator);
         }
+
         texture.Apply();
     }
 
@@ -136,9 +131,9 @@ public static class TextureUtils
         if (input == null) return null;
         int w = input.width, h = input.height;
         var flipped = new Texture2D(w, h, input.format, input.mipmapCount > 1);
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y < h; y++)
-                flipped.SetPixel(x, y, input.GetPixel(x, h - 1 - y));
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
+            flipped.SetPixel(x, y, input.GetPixel(x, h - 1 - y));
         flipped.Apply();
         return flipped;
     }
@@ -155,20 +150,24 @@ public static class TextureUtils
         float rad = angle * Mathf.Deg2Rad;
         float cos = Mathf.Cos(rad), sin = Mathf.Sin(rad);
 
-        float x0 = (-w / 2f) * cos + (-h / 2f) * (-sin) + w / 2f;
-        float y0 = (-w / 2f) * sin + (-h / 2f) * cos + h / 2f;
+        float x0 = -w / 2f * cos + -h / 2f * -sin + w / 2f;
+        float y0 = -w / 2f * sin + -h / 2f * cos + h / 2f;
 
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
         {
             float x2 = x0, y2 = y0;
-            for (int y = 0; y < h; y++)
+            for (var y = 0; y < h; y++)
             {
-                x2 += cos; y2 += sin;
+                x2 += cos;
+                y2 += sin;
                 int px = Mathf.FloorToInt(x2), py = Mathf.FloorToInt(y2);
-                rotated.SetPixel(x, y, (px >= 0 && px < w && py >= 0 && py < h) ? input.GetPixel(px, py) : Color.clear);
+                rotated.SetPixel(x, y, px >= 0 && px < w && py >= 0 && py < h ? input.GetPixel(px, py) : Color.clear);
             }
-            x0 += -sin; y0 += cos;
+
+            x0 += -sin;
+            y0 += cos;
         }
+
         rotated.Apply();
         return rotated;
     }
@@ -177,16 +176,17 @@ public static class TextureUtils
     public static Texture2D TintTexture(Texture2D input, Color tint, float strength)
     {
         if (input == null) return null;
-        var tinted = Object.Instantiate(input);
+        Texture2D tinted = Object.Instantiate(input);
         tinted.name = input.name;
         int mipCount = Mathf.Max(1, tinted.mipmapCount);
-        for (int mip = 0; mip < mipCount; mip++)
+        for (var mip = 0; mip < mipCount; mip++)
         {
-            var colors = tinted.GetPixels(mip);
-            for (int i = 0; i < colors.Length; i++)
+            Color[] colors = tinted.GetPixels(mip);
+            for (var i = 0; i < colors.Length; i++)
                 colors[i] = Color.Lerp(colors[i], tint, strength);
             tinted.SetPixels(colors, mip);
         }
+
         tinted.Apply();
         return tinted;
     }
@@ -201,9 +201,9 @@ public static class TextureUtils
         if (input == null) return null;
         int w = input.width, h = input.height;
         var output = new Texture2D(w, h);
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y < h; y++)
-                output.SetPixel(x, y, curveModifier.Evaluate(input.GetPixel(x, y).grayscale) * Color.white);
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
+            output.SetPixel(x, y, curveModifier.Evaluate(input.GetPixel(x, y).grayscale) * Color.white);
         output.Apply();
         return output;
     }
@@ -248,8 +248,11 @@ public static class TextureUtils
     // ========================================================================
 
     /// <summary>Create a RenderTexture with standard settings.</summary>
-    public static RenderTexture CreateRenderTexture(int width, int height, int depth = 24,
-        RenderTextureFormat format = RenderTextureFormat.ARGB32)
+    public static RenderTexture CreateRenderTexture
+    (
+        int width, int height, int depth = 24,
+        RenderTextureFormat format = RenderTextureFormat.ARGB32
+    )
     {
         var rt = new RenderTexture(width, height, depth, format);
         rt.Create();
@@ -276,17 +279,13 @@ public static class TextureUtils
         int w = texture.width, h = texture.height;
         int r2 = radius * radius;
         for (int x = -radius; x <= radius; x++)
-        {
-            for (int y = -radius; y <= radius; y++)
+        for (int y = -radius; y <= radius; y++)
+            if (x * x + y * y <= r2)
             {
-                if (x * x + y * y <= r2)
-                {
-                    int px = cx + x, py = cy + y;
-                    if (px >= 0 && px < w && py >= 0 && py < h)
-                        texture.SetPixel(px, py, color);
-                }
+                int px = cx + x, py = cy + y;
+                if (px >= 0 && px < w && py >= 0 && py < h)
+                    texture.SetPixel(px, py, color);
             }
-        }
     }
 
     /// <summary>Draw a circle with gradient falloff on a texture.</summary>
@@ -296,19 +295,17 @@ public static class TextureUtils
         int w = texture.width, h = texture.height;
         int r2 = radius * radius;
         for (int x = -radius; x <= radius; x++)
+        for (int y = -radius; y <= radius; y++)
         {
-            for (int y = -radius; y <= radius; y++)
+            int dist2 = x * x + y * y;
+            if (dist2 <= r2)
             {
-                int dist2 = x * x + y * y;
-                if (dist2 <= r2)
+                int px = cx + x, py = cy + y;
+                if (px >= 0 && px < w && py >= 0 && py < h)
                 {
-                    int px = cx + x, py = cy + y;
-                    if (px >= 0 && px < w && py >= 0 && py < h)
-                    {
-                        float t = 1f - Mathf.Sqrt(dist2) / radius;
-                        var existing = texture.GetPixel(px, py);
-                        texture.SetPixel(px, py, Color.Lerp(existing, color, t));
-                    }
+                    float t = 1f - Mathf.Sqrt(dist2) / radius;
+                    Color existing = texture.GetPixel(px, py);
+                    texture.SetPixel(px, py, Color.Lerp(existing, color, t));
                 }
             }
         }
@@ -321,20 +318,18 @@ public static class TextureUtils
         int w = texture.width, h = texture.height;
         int r2 = radius * radius;
         for (int x = -radius; x <= radius; x++)
+        for (int y = -radius; y <= radius; y++)
         {
-            for (int y = -radius; y <= radius; y++)
+            int dist2 = x * x + y * y;
+            if (dist2 <= r2)
             {
-                int dist2 = x * x + y * y;
-                if (dist2 <= r2)
+                int px = cx + x, py = cy + y;
+                if (px >= 0 && px < w && py >= 0 && py < h)
                 {
-                    int px = cx + x, py = cy + y;
-                    if (px >= 0 && px < w && py >= 0 && py < h)
-                    {
-                        float t = 1f - Mathf.Sqrt(dist2) / radius;
-                        var c = texture.GetPixel(px, py);
-                        c.a = Mathf.Max(0f, c.a - t * strength);
-                        texture.SetPixel(px, py, c);
-                    }
+                    float t = 1f - Mathf.Sqrt(dist2) / radius;
+                    Color c = texture.GetPixel(px, py);
+                    c.a = Mathf.Max(0f, c.a - t * strength);
+                    texture.SetPixel(px, py, c);
                 }
             }
         }
@@ -347,21 +342,19 @@ public static class TextureUtils
         int w = texture.width, h = texture.height;
         int r2 = radius * radius;
         for (int x = -radius; x <= radius; x++)
+        for (int y = -radius; y <= radius; y++)
         {
-            for (int y = -radius; y <= radius; y++)
+            int dist2 = x * x + y * y;
+            if (dist2 <= r2)
             {
-                int dist2 = x * x + y * y;
-                if (dist2 <= r2)
+                int px = cx + x, py = cy + y;
+                if (px >= 0 && px < w && py >= 0 && py < h)
                 {
-                    int px = cx + x, py = cy + y;
-                    if (px >= 0 && px < w && py >= 0 && py < h)
-                    {
-                        float nd = (float)dist2 / r2;
-                        float falloff = 1f - nd;
-                        falloff = falloff * falloff * falloff; // C2 falloff
-                        var existing = texture.GetPixel(px, py);
-                        texture.SetPixel(px, py, Color.Lerp(existing, color, falloff));
-                    }
+                    float nd = (float)dist2 / r2;
+                    float falloff = 1f - nd;
+                    falloff = falloff * falloff * falloff; // C2 falloff
+                    Color existing = texture.GetPixel(px, py);
+                    texture.SetPixel(px, py, Color.Lerp(existing, color, falloff));
                 }
             }
         }
@@ -377,9 +370,9 @@ public static class TextureUtils
         if (a == null || b == null) return a;
         int w = Mathf.Min(a.width, b.width), h = Mathf.Min(a.height, b.height);
         var result = new Texture2D(w, h);
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y < h; y++)
-                result.SetPixel(x, y, a.GetPixel(x, y) + b.GetPixel(x, y));
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
+            result.SetPixel(x, y, a.GetPixel(x, y) + b.GetPixel(x, y));
         result.Apply();
         return result;
     }
@@ -390,9 +383,9 @@ public static class TextureUtils
         if (a == null || b == null) return a;
         int w = Mathf.Min(a.width, b.width), h = Mathf.Min(a.height, b.height);
         var result = new Texture2D(w, h);
-        for (int x = 0; x < w; x++)
-            for (int y = 0; y < h; y++)
-                result.SetPixel(x, y, MaxColor(a.GetPixel(x, y), b.GetPixel(x, y)));
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
+            result.SetPixel(x, y, MaxColor(a.GetPixel(x, y), b.GetPixel(x, y)));
         result.Apply();
         return result;
     }
@@ -403,16 +396,15 @@ public static class TextureUtils
         if (a == null || b == null) return a;
         int w = Mathf.Min(a.width, b.width), h = Mathf.Min(a.height, b.height);
         var result = new Texture2D(w, h);
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
         {
-            for (int y = 0; y < h; y++)
-            {
-                var ca = a.GetPixel(x, y);
-                var cb = b.GetPixel(x, y);
-                result.SetPixel(x, y, new Color(
-                    Mathf.Min(ca.r, cb.r), Mathf.Min(ca.g, cb.g), Mathf.Min(ca.b, cb.b), Mathf.Min(ca.a, cb.a)));
-            }
+            Color ca = a.GetPixel(x, y);
+            Color cb = b.GetPixel(x, y);
+            result.SetPixel(x, y, new Color(
+                Mathf.Min(ca.r, cb.r), Mathf.Min(ca.g, cb.g), Mathf.Min(ca.b, cb.b), Mathf.Min(ca.a, cb.a)));
         }
+
         result.Apply();
         return result;
     }
@@ -428,9 +420,9 @@ public static class TextureUtils
         int nw = input.width / factor, nh = input.height / factor;
         if (nw < 1 || nh < 1) return input;
         var result = new Texture2D(nw, nh);
-        for (int x = 0; x < nw; x++)
-            for (int y = 0; y < nh; y++)
-                result.SetPixel(x, y, input.GetPixel(x * factor, y * factor));
+        for (var x = 0; x < nw; x++)
+        for (var y = 0; y < nh; y++)
+            result.SetPixel(x, y, input.GetPixel(x * factor, y * factor));
         result.Apply();
         return result;
     }
@@ -442,9 +434,9 @@ public static class TextureUtils
         var result = new Texture2D(newWidth, newHeight);
         float xRatio = (float)input.width / newWidth;
         float yRatio = (float)input.height / newHeight;
-        for (int x = 0; x < newWidth; x++)
-            for (int y = 0; y < newHeight; y++)
-                result.SetPixel(x, y, input.GetPixel((int)(x * xRatio), (int)(y * yRatio)));
+        for (var x = 0; x < newWidth; x++)
+        for (var y = 0; y < newHeight; y++)
+            result.SetPixel(x, y, input.GetPixel((int)(x * xRatio), (int)(y * yRatio)));
         result.Apply();
         return result;
     }
@@ -454,9 +446,9 @@ public static class TextureUtils
     {
         if (input == null) return null;
         var result = new Texture2D(cropWidth, cropHeight);
-        for (int x = 0; x < cropWidth; x++)
-            for (int y = 0; y < cropHeight; y++)
-                result.SetPixel(x, y, input.GetPixel(startX + x, startY + y));
+        for (var x = 0; x < cropWidth; x++)
+        for (var y = 0; y < cropHeight; y++)
+            result.SetPixel(x, y, input.GetPixel(startX + x, startY + y));
         result.Apply();
         return result;
     }
@@ -474,10 +466,10 @@ public static class TextureUtils
         int x0 = Mathf.FloorToInt(x), y0 = Mathf.FloorToInt(y);
         int x1 = Mathf.Min(x0 + 1, w - 1), y1 = Mathf.Min(y0 + 1, h - 1);
         float fx = x - x0, fy = y - y0;
-        var c00 = texture.GetPixel(x0, y0);
-        var c10 = texture.GetPixel(x1, y0);
-        var c01 = texture.GetPixel(x0, y1);
-        var c11 = texture.GetPixel(x1, y1);
+        Color c00 = texture.GetPixel(x0, y0);
+        Color c10 = texture.GetPixel(x1, y0);
+        Color c01 = texture.GetPixel(x0, y1);
+        Color c11 = texture.GetPixel(x1, y1);
         return Color.Lerp(Color.Lerp(c00, c10, fx), Color.Lerp(c01, c11, fx), fy);
     }
 
@@ -490,15 +482,14 @@ public static class TextureUtils
     {
         if (target == null || source == null) return;
         int w = Mathf.Min(target.width, source.width), h = Mathf.Min(target.height, source.height);
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
         {
-            for (int y = 0; y < h; y++)
-            {
-                var src = source.GetPixel(x, y);
-                var dst = target.GetPixel(x, y);
-                target.SetPixel(x, y, new Color(src.r, src.g, src.b, dst.a));
-            }
+            Color src = source.GetPixel(x, y);
+            Color dst = target.GetPixel(x, y);
+            target.SetPixel(x, y, new Color(src.r, src.g, src.b, dst.a));
         }
+
         target.Apply();
     }
 
@@ -507,15 +498,14 @@ public static class TextureUtils
     {
         if (target == null || alphaSource == null) return;
         int w = Mathf.Min(target.width, alphaSource.width), h = Mathf.Min(target.height, alphaSource.height);
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
         {
-            for (int y = 0; y < h; y++)
-            {
-                var dst = target.GetPixel(x, y);
-                dst.a = alphaSource.GetPixel(x, y).grayscale;
-                target.SetPixel(x, y, dst);
-            }
+            Color dst = target.GetPixel(x, y);
+            dst.a = alphaSource.GetPixel(x, y).grayscale;
+            target.SetPixel(x, y, dst);
         }
+
         target.Apply();
     }
 
@@ -528,14 +518,13 @@ public static class TextureUtils
     {
         if (texture == null || gradient == null) return;
         int w = texture.width, h = texture.height;
-        for (int x = 0; x < w; x++)
+        for (var x = 0; x < w; x++)
+        for (var y = 0; y < h; y++)
         {
-            for (int y = 0; y < h; y++)
-            {
-                float t = (float)y / (h - 1);
-                texture.SetPixel(x, y, texture.GetPixel(x, y) * gradient.Evaluate(t));
-            }
+            float t = (float)y / (h - 1);
+            texture.SetPixel(x, y, texture.GetPixel(x, y) * gradient.Evaluate(t));
         }
+
         texture.Apply();
     }
 }

@@ -1,34 +1,33 @@
 using System;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Rendering;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 using CurveType = ComponentMemberReferenceCurve.CurveType;
 using ShaderPropertyType = UnityEngine.Rendering.ShaderPropertyType;
 
 [CustomEditor(typeof(ComponentMemberReferenceCurve))]
 public class ComponentMemberReferenceCurveEditor : Editor
 {
-    SerializedProperty _curveProp, _componentProp, _memberProp;
-
-    //todo: SerializedProperty[] _startProps, _endProps;
-    SerializedProperty _startFloat, _endFloat;
-    SerializedProperty _startVector2, _endVector2;
-    SerializedProperty _startVector3, _endVector3;
-    SerializedProperty _startVector4, _endVector4;
-    SerializedProperty _startQuaternion, _endQuaternion;
-    SerializedProperty _startColor, _endColor;
-
-    SerializedProperty _selectedGameObjectProp;
+    private const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     //SerializedProperty _relativeModeProp;
 
-    Component[] _availableComponents;
-    string[] _validMembers = Array.Empty<string>();
+    private Component[] _availableComponents;
+    private SerializedProperty _curveProp, _componentProp, _memberProp;
 
-    const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+    private SerializedProperty _selectedGameObjectProp;
+    private SerializedProperty _startColor, _endColor;
 
-    void OnEnable()
+    //todo: SerializedProperty[] _startProps, _endProps;
+    private SerializedProperty _startFloat, _endFloat;
+    private SerializedProperty _startQuaternion, _endQuaternion;
+    private SerializedProperty _startVector2, _endVector2;
+    private SerializedProperty _startVector3, _endVector3;
+    private SerializedProperty _startVector4, _endVector4;
+    private string[] _validMembers = Array.Empty<string>();
+
+    private void OnEnable()
     {
         _componentProp = serializedObject.FindProperty("memberReference.targetComponent");
         _memberProp = serializedObject.FindProperty("memberReference.targetMemberName");
@@ -69,18 +68,14 @@ public class ComponentMemberReferenceCurveEditor : Editor
         if (selectedGameObject)
         {
             _availableComponents = selectedGameObject.GetComponents<Component>();
-            var componentNames = _availableComponents
-                .Select(c => c.GetType().Name)
-                .ToArray();
+            string[] componentNames = _availableComponents.Select(c => c.GetType().Name).ToArray();
 
             // Display components and select the one referenced in memberReference
-            var currentIndex = _availableComponents
-                .ToList()
-                .IndexOf((Component)_componentProp.objectReferenceValue);
+            int currentIndex = _availableComponents.ToList().IndexOf((Component)_componentProp.objectReferenceValue);
 
             if (currentIndex == -1) currentIndex = 0; // Default to first if not found
 
-            var selectedIndex = EditorGUILayout.Popup("Target Component", currentIndex, componentNames);
+            int selectedIndex = EditorGUILayout.Popup("Target Component", currentIndex, componentNames);
             if (selectedIndex >= 0 && selectedIndex < _availableComponents.Length)
             {
                 _componentProp.objectReferenceValue = _availableComponents[selectedIndex];
@@ -88,7 +83,7 @@ public class ComponentMemberReferenceCurveEditor : Editor
 
                 if (_validMembers.Length > 0)
                 {
-                    var memberIndex = Mathf.Max(Array.IndexOf(_validMembers, _memberProp.stringValue), 0);
+                    int memberIndex = Mathf.Max(Array.IndexOf(_validMembers, _memberProp.stringValue), 0);
                     memberIndex = EditorGUILayout.Popup("Target Member", memberIndex, _validMembers);
                     _memberProp.stringValue = _validMembers[memberIndex];
 
@@ -96,17 +91,14 @@ public class ComponentMemberReferenceCurveEditor : Editor
 
                     DisplayStartEndFields();
                 }
-                else
-                {
-                    EditorGUILayout.HelpBox("No valid members found in target component.", MessageType.Warning);
-                }
+                else { EditorGUILayout.HelpBox("No valid members found in target component.", MessageType.Warning); }
             }
         }
 
         serializedObject.ApplyModifiedProperties();
     }
 
-    void DisplayStartEndFields()
+    private void DisplayStartEndFields()
     {
         var curveTarget = (ComponentMemberReferenceCurve)target;
         SerializedProperty startProp, endProp;
@@ -144,74 +136,80 @@ public class ComponentMemberReferenceCurveEditor : Editor
         EditorGUILayout.PropertyField(endProp, new GUIContent("End"));
     }
 
-    void UpdateValidMembers(Component targetComponent)
+    private void UpdateValidMembers(Component targetComponent)
     {
         _validMembers = targetComponent is Renderer renderer
             ? GetShaderPropertyNames(renderer.sharedMaterial)
             : GetComponentMemberNames(targetComponent);
     }
 
-    string[] GetComponentMemberNames(Component component)
+    private string[] GetComponentMemberNames(Component component)
     {
-        var componentType = component.GetType();
+        Type componentType = component.GetType();
 
-        var fields = componentType.GetFields(bindingFlags)
-            .Where(f => IsValidType(f.FieldType))
-            .Select(f => f.Name)
-            .ToArray();
+        string[] fields = componentType.GetFields(bindingFlags).
+            Where(f => IsValidType(f.FieldType)).
+            Select(f => f.Name).
+            ToArray();
 
-        var properties = componentType.GetProperties(bindingFlags)
-            .Where(p => IsValidType(p.PropertyType) && p.GetIndexParameters().Length == 0)
-            .Select(p => p.Name)
-            .ToArray();
+        string[] properties = componentType.GetProperties(bindingFlags).
+            Where(p => IsValidType(p.PropertyType) && p.GetIndexParameters().Length == 0).
+            Select(p => p.Name).
+            ToArray();
 
         return fields.Concat(properties).ToArray();
     }
 
-    string[] GetShaderPropertyNames(Material material)
+    private string[] GetShaderPropertyNames(Material material)
     {
         if (!material) return Array.Empty<string>();
 
-        var shader = material.shader;
-        var propCount = shader.GetPropertyCount();
-        System.Collections.Generic.List<string> validProperties = new();
+        Shader shader = material.shader;
+        int propCount = shader.GetPropertyCount();
+        List<string> validProperties = new();
 
         for (var i = 0; i < propCount; ++i)
         {
-            var propType = shader.GetPropertyType(i);
+            ShaderPropertyType propType = shader.GetPropertyType(i);
             if (IsShaderPropertyValid(propType)) validProperties.Add(shader.GetPropertyName(i));
         }
 
         return validProperties.ToArray();
     }
 
-    bool IsValidType(Type type) =>
-        type == typeof(float) || type == typeof(Vector2) || type == typeof(Vector3) ||
-        type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color);
+    private bool IsValidType(Type type) =>
+        type == typeof(float) ||
+        type == typeof(Vector2) ||
+        type == typeof(Vector3) ||
+        type == typeof(Vector4) ||
+        type == typeof(Quaternion) ||
+        type == typeof(Color);
 
-    bool IsShaderPropertyValid(ShaderPropertyType propType) =>
+    private bool IsShaderPropertyValid(ShaderPropertyType propType) =>
         propType is
-            ShaderPropertyType.Float or ShaderPropertyType.Range or
-            ShaderPropertyType.Color or ShaderPropertyType.Vector;
+            ShaderPropertyType.Float
+            or ShaderPropertyType.Range
+            or ShaderPropertyType.Color
+            or ShaderPropertyType.Vector;
 
-    void SetCurveTypeBasedOnMember(Component targetComponent, string selectedMember)
+    private void SetCurveTypeBasedOnMember(Component targetComponent, string selectedMember)
     {
         if (targetComponent is Renderer renderer)
         {
             var curveTarget = (ComponentMemberReferenceCurve)target;
-            var mat = curveTarget.memberReference.GetMaterial(renderer);
+            Material mat = curveTarget.memberReference.GetMaterial(renderer);
             if (mat && mat.HasProperty(selectedMember))
             {
                 // Map shader property type to curve type
-                var shader = mat.shader;
-                var propertyIndex = shader.FindPropertyIndex(selectedMember);
+                Shader shader = mat.shader;
+                int propertyIndex = shader.FindPropertyIndex(selectedMember);
                 if (propertyIndex < 0)
                 {
                     DLog.LogE($"Shader property '{selectedMember}' not found.");
                     return;
                 }
 
-                var propertyType = shader.GetPropertyType(propertyIndex);
+                ShaderPropertyType propertyType = shader.GetPropertyType(propertyIndex);
                 switch (propertyType)
                 {
                     case ShaderPropertyType.Color:
@@ -229,19 +227,16 @@ public class ComponentMemberReferenceCurveEditor : Editor
                         break;
                 }
             }
-            else
-            {
-                DLog.LogE($"Material is null or does not have property '{selectedMember}'.");
-            }
+            else { DLog.LogE($"Material is null or does not have property '{selectedMember}'."); }
         }
         else
         {
             // Handle non-renderer components by inspecting the type of the selected field/property
-            var componentType = targetComponent.GetType();
-            var fieldInfo = componentType.GetField(selectedMember, bindingFlags);
-            var propertyInfo = componentType.GetProperty(selectedMember, bindingFlags);
+            Type componentType = targetComponent.GetType();
+            FieldInfo fieldInfo = componentType.GetField(selectedMember, bindingFlags);
+            PropertyInfo propertyInfo = componentType.GetProperty(selectedMember, bindingFlags);
 
-            var memberType = fieldInfo?.FieldType ?? propertyInfo?.PropertyType;
+            Type memberType = fieldInfo?.FieldType ?? propertyInfo?.PropertyType;
 
             if (memberType != null)
             {
@@ -254,10 +249,7 @@ public class ComponentMemberReferenceCurveEditor : Editor
                 else if (memberType == typeof(Quaternion)) curveTarget.curveType = CurveType.Quaternion;
                 else if (memberType == typeof(Color)) curveTarget.curveType = CurveType.Color;
             }
-            else
-            {
-                DLog.LogE($"Member '{selectedMember}' not found on component '{targetComponent.GetType().Name}'.");
-            }
+            else { DLog.LogE($"Member '{selectedMember}' not found on component '{targetComponent.GetType().Name}'."); }
         }
     }
 }

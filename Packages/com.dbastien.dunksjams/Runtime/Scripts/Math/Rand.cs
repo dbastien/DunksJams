@@ -5,9 +5,9 @@ using UnityEngine;
 
 public static class Rand
 {
-    static ulong _state0 = (ulong)Environment.TickCount;
+    private static ulong _state0 = (ulong)Environment.TickCount;
 
-    static ulong _state1 = 0x5DEECE66DL;
+    private static ulong _state1 = 0x5DEECE66DL;
 //    static bool _useSeed;
 
     // [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -22,10 +22,10 @@ public static class Rand
     // public static void ClearSeed() => _useSeed = false;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static ulong NextRaw()
+    private static ulong NextRaw()
     {
-        var s1 = _state0;
-        var s0 = _state1;
+        ulong s1 = _state0;
+        ulong s0 = _state1;
         _state0 = s0;
         s1 ^= s1 << 23;
         _state1 = s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26);
@@ -33,7 +33,7 @@ public static class Rand
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float NextFloat() => (float)((NextRaw() >> 40) * (1.0 / (1 << 24)));
+    private static float NextFloat() => (float)((NextRaw() >> 40) * (1.0 / (1 << 24)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Bool() => NextFloat() > 0.5f;
@@ -90,9 +90,9 @@ public static class Rand
     public static void Shuffle<T>(IList<T> list)
     {
         // fisher-yates
-        for (var i = list.Count - 1; i > 0; --i)
+        for (int i = list.Count - 1; i > 0; --i)
         {
-            var j = IntRanged(0, i + 1);
+            int j = IntRanged(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
     }
@@ -101,9 +101,9 @@ public static class Rand
     public static void Shuffle<T>(Span<T> span)
     {
         // fisher-yates
-        for (var i = span.Length - 1; i > 0; --i)
+        for (int i = span.Length - 1; i > 0; --i)
         {
-            var j = IntRanged(0, i + 1);
+            int j = IntRanged(0, i + 1);
             (span[i], span[j]) = (span[j], span[i]);
         }
     }
@@ -111,8 +111,8 @@ public static class Rand
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Gaussian()
     {
-        var u1 = FloatExclusive();
-        var u2 = Float();
+        float u1 = FloatExclusive();
+        float u2 = Float();
         return MathF.Sqrt(-2f * MathF.Log(u1)) * MathF.Sin(MathConsts.Tau * u2);
     }
 
@@ -126,7 +126,7 @@ public static class Rand
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Cauchy(float x0 = 0f, float gamma = 1f)
     {
-        var u = FloatExclusive() - 0.5f;
+        float u = FloatExclusive() - 0.5f;
         return x0 + gamma * MathF.Tan(MathConsts.Tau / 2f * u);
     }
 
@@ -150,15 +150,15 @@ public static class Rand
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Beta(float alpha, float beta)
     {
-        var x = MathF.Pow(Float(), 1f / alpha);
-        var y = MathF.Pow(Float(), 1f / beta);
+        float x = MathF.Pow(Float(), 1f / alpha);
+        float y = MathF.Pow(Float(), 1f / beta);
         return x / (x + y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Triangular(float min, float max, float mode)
     {
-        var u = Float();
+        float u = Float();
         return u < (mode - min) / (max - min)
             ? min + MathF.Sqrt(u * (max - min) * (mode - min))
             : max - MathF.Sqrt((1f - u) * (max - min) * (max - mode));

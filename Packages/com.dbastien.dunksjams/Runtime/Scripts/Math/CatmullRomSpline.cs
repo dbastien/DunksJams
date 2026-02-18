@@ -14,27 +14,31 @@ public static class CatmullRomSpline
     public static Vector3 Evaluate(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
     {
         float t2 = t * t;
-        return 0.5f * ((2f * p1)
-            + (-p0 + p2) * t
-            + (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2
-            + (-p0 + 3f * p1 - 3f * p2 + p3) * (t2 * t));
+        return 0.5f *
+               (2f * p1 +
+                (-p0 + p2) * t +
+                (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
+                (-p0 + 3f * p1 - 3f * p2 + p3) * (t2 * t));
     }
 
     /// <summary>
     /// Approximate the arc length of a spline segment between minT and maxT
     /// using the given number of sample intervals.
     /// </summary>
-    public static float MeasureSegmentLength(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
-        float minT = 0f, float maxT = 1f, int intervals = 100)
+    public static float MeasureSegmentLength
+    (
+        Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
+        float minT = 0f, float maxT = 1f, int intervals = 100
+    )
     {
-        float length = 0f;
+        var length = 0f;
         float range = maxT - minT;
-        var prev = Evaluate(p0, p1, p2, p3, minT);
+        Vector3 prev = Evaluate(p0, p1, p2, p3, minT);
 
-        for (int i = 1; i <= intervals; i++)
+        for (var i = 1; i <= intervals; i++)
         {
             float t = (float)i / intervals * range + minT;
-            var current = Evaluate(p0, p1, p2, p3, t);
+            Vector3 current = Evaluate(p0, p1, p2, p3, t);
             length += Vector3.Distance(prev, current);
             prev = current;
         }
@@ -46,12 +50,15 @@ public static class CatmullRomSpline
     /// Find the point at a given distance along a spline segment
     /// by iteratively refining the t parameter.
     /// </summary>
-    public static Vector3 FindPointAtDistance(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
-        float distance, float segmentLength, float maxError = 0.001f)
+    public static Vector3 FindPointAtDistance
+    (
+        Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3,
+        float distance, float segmentLength, float maxError = 0.001f
+    )
     {
         float tValue = distance / segmentLength;
 
-        for (int iteration = 0; iteration < 1000; iteration++)
+        for (var iteration = 0; iteration < 1000; iteration++)
         {
             float measured = MeasureSegmentLength(p0, p1, p2, p3, 0f, tValue, 100);
             float nextT = tValue + (distance - measured) / segmentLength;
@@ -83,7 +90,7 @@ public static class CatmullRomSpline
         int count = splineLeft?.Length ?? 0;
         if (count != (splineRight?.Length ?? 0)) return bounds;
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             UpdateBounds(ref bounds, splineLeft[i]);
             UpdateBounds(ref bounds, splineRight[i]);
@@ -92,7 +99,7 @@ public static class CatmullRomSpline
         return bounds;
     }
 
-    static void UpdateBounds(ref Vector4 bounds, Vector3 pt)
+    private static void UpdateBounds(ref Vector4 bounds, Vector3 pt)
     {
         if (pt.x < bounds.x) bounds.x = pt.x;
         if (pt.z < bounds.y) bounds.y = pt.z;

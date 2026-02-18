@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-enum TestEnum
+internal enum TestEnum
 {
     Alpha,
     Beta,
@@ -37,7 +37,7 @@ public class EnumCacheTests : TestBase
     [Test]
     public void GetSummary_NotEmpty()
     {
-        var summary = EnumCache<TestEnum>.GetSummary();
+        string summary = EnumCache<TestEnum>.GetSummary();
         NotNull(summary);
         True(summary.Length > 0);
     }

@@ -6,15 +6,13 @@ using TMPro;
 
 public class DialogUI : MonoBehaviour
 {
-    [Header("UI References")]
-    public GameObject panel;
+    [Header("UI References")] public GameObject panel;
     public TextMeshProUGUI actorText;
     public TextMeshProUGUI dialogText;
     public RectTransform responseContainer;
     public GameObject responseButtonPrefab;
 
-    [Header("Settings")]
-    public float typeSpeed = 0.03f;
+    [Header("Settings")] public float typeSpeed = 0.03f;
     public bool allowSkip = true;
 
     private List<GameObject> _activeButtons = new();
@@ -45,7 +43,10 @@ public class DialogUI : MonoBehaviour
 
     private void Update()
     {
-        if (_isTyping && allowSkip && (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))) FinishTyping();
+        if (_isTyping &&
+            allowSkip &&
+            (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return)))
+            FinishTyping();
     }
 
     private void OnEntryStarted(DialogEntry entry, DialogLine line)
@@ -61,7 +62,8 @@ public class DialogUI : MonoBehaviour
         _fullText = DialogUtility.ParsePauseTags(processedText, out _pauses);
 
         // Add to history
-        if (DialogHistoryManager.Instance != null) DialogHistoryManager.Instance.AddToHistory(processedActor, _fullText);
+        if (DialogHistoryManager.Instance != null)
+            DialogHistoryManager.Instance.AddToHistory(processedActor, _fullText);
 
         if (_typeRoutine != null) StopCoroutine(_typeRoutine);
         _typeRoutine = StartCoroutine(TypeWriterRoutine(_fullText));
@@ -79,7 +81,7 @@ public class DialogUI : MonoBehaviour
         dialogText.ForceMeshUpdate();
 
         int totalVisibleCharacters = dialogText.textInfo.characterCount;
-        int counter = 0;
+        var counter = 0;
 
         while (counter <= totalVisibleCharacters)
         {
@@ -110,16 +112,16 @@ public class DialogUI : MonoBehaviour
     private void UpdateResponses()
     {
         // Clear old buttons
-        foreach (var btn in _activeButtons) Destroy(btn);
+        foreach (GameObject btn in _activeButtons) Destroy(btn);
         _activeButtons.Clear();
 
         // Only show responses if we are at the end of the stack
         if (DialogManager.Instance.currentEntry == null) return;
         if (DialogManager.Instance.currentLineIndex < DialogManager.Instance.currentEntry.lines.Count - 1) return;
 
-        var links = DialogManager.Instance.GetValidLinks();
+        List<DialogLink> links = DialogManager.Instance.GetValidLinks();
 
-        for (int i = 0; i < links.Count; i++)
+        for (var i = 0; i < links.Count; i++)
         {
             int index = i;
             GameObject btnObj = Instantiate(responseButtonPrefab, responseContainer);
@@ -145,9 +147,13 @@ public class DialogUI : MonoBehaviour
             if (btn != null)
             {
                 string finalMenuText = menuText;
-                btn.onClick.AddListener(() => {
+                btn.onClick.AddListener(() =>
+                {
                     // Record choice in history
-                    if (DialogHistoryManager.Instance != null && !string.IsNullOrEmpty(finalMenuText) && finalMenuText != "Next...") DialogHistoryManager.Instance.AddToHistory("Player", finalMenuText, true);
+                    if (DialogHistoryManager.Instance != null &&
+                        !string.IsNullOrEmpty(finalMenuText) &&
+                        finalMenuText != "Next...")
+                        DialogHistoryManager.Instance.AddToHistory("Player", finalMenuText, true);
                     DialogManager.Instance.Next(index);
                 });
             }

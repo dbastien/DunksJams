@@ -4,33 +4,33 @@ public static class Windowing
 {
     public static void Hann(ref float[] samples)
     {
-        var N = samples.Length - 1;
+        int N = samples.Length - 1;
         for (var n = 0; n < samples.Length; ++n)
         {
-            var window = 0.5f * (1f - MathF.Cos(2f * MathF.PI * n / N));
+            float window = 0.5f * (1f - MathF.Cos(2f * MathF.PI * n / N));
             samples[n] *= window;
         }
     }
 
     public static void Hamming(ref float[] samples)
     {
-        var N = samples.Length - 1;
+        int N = samples.Length - 1;
         for (var n = 0; n < samples.Length; ++n)
         {
-            var window = 0.54f - 0.46f * MathF.Cos(2f * MathF.PI * n / N);
+            float window = 0.54f - 0.46f * MathF.Cos(2f * MathF.PI * n / N);
             samples[n] *= window;
         }
     }
 
     public static void Blackman(ref float[] samples)
     {
-        var N = samples.Length - 1;
+        int N = samples.Length - 1;
         for (var n = 0; n < samples.Length; ++n)
         {
             var a0 = 0.42f;
             var a1 = 0.5f;
             var a2 = 0.08f;
-            var window = a0 - a1 * MathF.Cos(2f * MathF.PI * n / N) + a2 * MathF.Cos(4f * MathF.PI * n / N);
+            float window = a0 - a1 * MathF.Cos(2f * MathF.PI * n / N) + a2 * MathF.Cos(4f * MathF.PI * n / N);
             samples[n] *= window;
         }
     }
@@ -38,7 +38,7 @@ public static class Windowing
     public static float[] HannWindow(int length)
     {
         var window = new float[length];
-        var N = length - 1;
+        int N = length - 1;
         for (var n = 0; n < length; ++n) window[n] = 0.5f * (1f - MathF.Cos(2f * MathF.PI * n / N));
         return window;
     }

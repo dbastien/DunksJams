@@ -36,8 +36,8 @@ public struct Matrix3x2
 
     public Rect TransformRect(Rect rect)
     {
-        var min = MultiplyPoint(rect.min);
-        var max = MultiplyPoint(rect.max);
+        Vector2 min = MultiplyPoint(rect.min);
+        Vector2 max = MultiplyPoint(rect.max);
         return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
     }
 
@@ -45,10 +45,10 @@ public struct Matrix3x2
     {
         get
         {
-            var det = determinant;
+            float det = determinant;
             if (Mathf.Abs(det) < Mathf.Epsilon) throw new InvalidOperationException("Matrix is not invertible.");
 
-            var invDet = 1.0f / det;
+            float invDet = 1.0f / det;
             return new Matrix3x2(
                 m11 * invDet, -m01 * invDet,
                 -m10 * invDet, m00 * invDet,
@@ -63,9 +63,9 @@ public struct Matrix3x2
 
     public static Matrix3x2 Rotation(float angle)
     {
-        var rad = angle * Mathf.Deg2Rad;
-        var cos = Mathf.Cos(rad);
-        var sin = Mathf.Sin(rad);
+        float rad = angle * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(rad);
+        float sin = Mathf.Sin(rad);
         return new Matrix3x2(cos, -sin, sin, cos, 0, 0);
     }
 
@@ -77,14 +77,14 @@ public struct Matrix3x2
 
     public void Rotate(float angle)
     {
-        var rad = angle * Mathf.Deg2Rad;
-        var cos = Mathf.Cos(rad);
-        var sin = Mathf.Sin(rad);
+        float rad = angle * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(rad);
+        float sin = Mathf.Sin(rad);
 
-        var newM00 = m00 * cos - m01 * sin;
-        var newM01 = m00 * sin + m01 * cos;
-        var newM10 = m10 * cos - m11 * sin;
-        var newM11 = m10 * sin + m11 * cos;
+        float newM00 = m00 * cos - m01 * sin;
+        float newM01 = m00 * sin + m01 * cos;
+        float newM10 = m10 * cos - m11 * sin;
+        float newM11 = m10 * sin + m11 * cos;
 
         m00 = newM00;
         m01 = newM01;

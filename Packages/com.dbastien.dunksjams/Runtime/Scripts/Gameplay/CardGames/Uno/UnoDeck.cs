@@ -5,10 +5,10 @@ public static class UnoDeck
 {
     public static Deck<UnoCard> CreateDeck()
     {
-        var colors = EnumCache<UnoCard.Color>.Values.Where(c => c != UnoCard.Color.Wild).ToArray();
+        UnoCard.Color[] colors = EnumCache<UnoCard.Color>.Values.Where(c => c != UnoCard.Color.Wild).ToArray();
         var cards = new List<UnoCard>(108);
 
-        foreach (var color in colors)
+        foreach (UnoCard.Color color in colors)
         {
             cards.Add(new UnoCard(color, UnoCard.Rank.Zero));
 
@@ -19,7 +19,7 @@ public static class UnoDeck
             }
 
             var actionRanks = new[] { UnoCard.Rank.Skip, UnoCard.Rank.Reverse, UnoCard.Rank.DrawTwo };
-            foreach (var rank in actionRanks)
+            foreach (UnoCard.Rank rank in actionRanks)
             {
                 cards.Add(new UnoCard(color, rank));
                 cards.Add(new UnoCard(color, rank));

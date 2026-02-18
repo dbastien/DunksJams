@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Utilities;
 
 public static class HierarchyIconSettings
 {
-    const string SettingsPath = "Preferences/Hierarchy Icons";
-    static readonly Dictionary<string, bool> ComponentVisibility = new();
-    static List<Type> ComponentTypes;
+    private const string SettingsPath = "Preferences/Hierarchy Icons";
+    private static readonly Dictionary<string, bool> ComponentVisibility = new();
+    private static List<Type> ComponentTypes;
 
-    static bool AllEnabled
+    private static bool AllEnabled
     {
         get => EditorPrefs.GetBool("AllEnabled", true);
         set => EditorPrefs.SetBool("AllEnabled", value);
@@ -19,29 +18,29 @@ public static class HierarchyIconSettings
 
     static HierarchyIconSettings() => LoadComponentVisibilitySettings();
 
-    static void LoadComponentVisibilitySettings()
+    private static void LoadComponentVisibilitySettings()
     {
         ComponentVisibility.Clear();
 
         ComponentTypes ??= ReflectionUtils.GetNonGenericDerivedTypes<Component>().ToList();
 
-        foreach (var type in ComponentTypes)
+        foreach (Type type in ComponentTypes)
         {
-            var key = type.FullName ?? string.Empty;
+            string key = type.FullName ?? string.Empty;
             ComponentVisibility[key] = EditorPrefs.GetBool(key, false);
         }
     }
 
     public static bool IsComponentVisible(Type type)
     {
-        var key = type.FullName ?? string.Empty;
-        return AllEnabled || (ComponentVisibility.TryGetValue(key, out var visible) && visible);
+        string key = type.FullName ?? string.Empty;
+        return AllEnabled || (ComponentVisibility.TryGetValue(key, out bool visible) && visible);
     }
 
     public static void SetComponentVisibility(Type type, bool visible)
     {
         if (type == null) return;
-        var key = type.FullName ?? string.Empty;
+        string key = type.FullName ?? string.Empty;
         ComponentVisibility[key] = visible;
         EditorPrefs.SetBool(key, visible);
     }
@@ -59,24 +58,25 @@ public static class HierarchyIconSettings
             EditorGUILayout.Space();
 
             // Group by namespace and sort
-            var groupedComponents = ComponentVisibility
-                .GroupBy(kvp => kvp.Key.Contains(".") ? kvp.Key[..kvp.Key.LastIndexOf('.')] : "Global")
-                .OrderBy(group => group.Key);
+            IOrderedEnumerable<IGrouping<string, KeyValuePair<string, bool>>> groupedComponents =
+                ComponentVisibility.
+                    GroupBy(kvp => kvp.Key.Contains(".") ? kvp.Key[..kvp.Key.LastIndexOf('.')] : "Global").
+                    OrderBy(group => group.Key);
 
-            foreach (var group in groupedComponents)
+            foreach (IGrouping<string, KeyValuePair<string, bool>> group in groupedComponents)
             {
-                var isExpanded = EditorPrefs.GetBool(group.Key, true);
+                bool isExpanded = EditorPrefs.GetBool(group.Key, true);
                 isExpanded = EditorGUILayout.Foldout(isExpanded, group.Key, true);
                 EditorPrefs.SetBool(group.Key, isExpanded);
 
                 if (!isExpanded) continue;
                 ++EditorGUI.indentLevel;
 
-                foreach (var kvp in group.OrderBy(kvp => kvp.Key))
+                foreach (KeyValuePair<string, bool> kvp in group.OrderBy(kvp => kvp.Key))
                 {
-                    var newVisible = EditorGUILayout.ToggleLeft(kvp.Key.Split('.').Last(), kvp.Value);
+                    bool newVisible = EditorGUILayout.ToggleLeft(kvp.Key.Split('.').Last(), kvp.Value);
                     if (newVisible == kvp.Value) continue;
-                    var type = ComponentTypes.FirstOrDefault(t => t.FullName == kvp.Key);
+                    Type type = ComponentTypes.FirstOrDefault(t => t.FullName == kvp.Key);
                     SetComponentVisibility(type, newVisible);
                 }
 
@@ -92,21 +92,21 @@ public static class HierarchyAutoIcons
     static HierarchyAutoIcons() =>
         EditorApplication.hierarchyWindowItemOnGUI += OnHierarchyItemGUI;
 
-    static void OnHierarchyItemGUI(int instanceID, Rect selectionRect)
+    private static void OnHierarchyItemGUI(int instanceID, Rect selectionRect)
     {
         var obj = EditorUtility.EntityIdToObject(instanceID) as GameObject;
         if (!obj) return;
 
         HashSet<Texture> displayedIcons = new();
 
-        var visibleComponents = obj.GetComponents<Component>()
-            .Where(c => c != null && HierarchyIconSettings.IsComponentVisible(c.GetType()));
+        IEnumerable<Component> visibleComponents = obj.GetComponents<Component>().
+            Where(c => c != null && HierarchyIconSettings.IsComponentVisible(c.GetType()));
 
         Rect iconRect = new(selectionRect.xMax, selectionRect.y, 16, 16);
 
-        foreach (var component in visibleComponents)
+        foreach (Component component in visibleComponents)
         {
-            var icon = EditorGUIUtility.ObjectContent(null, component.GetType()).image;
+            Texture icon = EditorGUIUtility.ObjectContent(null, component.GetType()).image;
             if (!icon || displayedIcons.Contains(icon)) continue;
             GUI.DrawTexture(iconRect, icon);
             displayedIcons.Add(icon);

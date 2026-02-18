@@ -6,28 +6,28 @@ using System.Collections.Generic;
 /// </summary>
 public class CSGNode
 {
-    List<CSGPolygon> _polygons = new();
-    CSGPlane _plane;
-    CSGNode _front;
-    CSGNode _back;
+    private List<CSGPolygon> _polygons = new();
+    private CSGPlane _plane;
+    private CSGNode _front;
+    private CSGNode _back;
 
     public void Invert()
     {
-        foreach (var p in _polygons) p.Flip();
+        foreach (CSGPolygon p in _polygons) p.Flip();
         _plane?.Flip();
         _front?.Invert();
         _back?.Invert();
         (_front, _back) = (_back, _front);
     }
 
-    List<CSGPolygon> ClipPolygons(List<CSGPolygon> polygons)
+    private List<CSGPolygon> ClipPolygons(List<CSGPolygon> polygons)
     {
         if (_plane == null) return new List<CSGPolygon>(polygons);
 
         var frontList = new List<CSGPolygon>();
         var backList = new List<CSGPolygon>();
 
-        foreach (var p in polygons)
+        foreach (CSGPolygon p in polygons)
             _plane.Split(p, frontList, backList, frontList, backList);
 
         frontList = _front != null ? _front.ClipPolygons(frontList) : frontList;
@@ -60,10 +60,19 @@ public class CSGNode
         var frontList = new List<CSGPolygon>();
         var backList = new List<CSGPolygon>();
 
-        foreach (var p in polygons)
+        foreach (CSGPolygon p in polygons)
             _plane.Split(p, _polygons, _polygons, frontList, backList);
 
-        if (frontList.Count > 0) { _front ??= new CSGNode(); _front.Build(frontList); }
-        if (backList.Count > 0)  { _back ??= new CSGNode();  _back.Build(backList); }
+        if (frontList.Count > 0)
+        {
+            _front ??= new CSGNode();
+            _front.Build(frontList);
+        }
+
+        if (backList.Count > 0)
+        {
+            _back ??= new CSGNode();
+            _back.Build(backList);
+        }
     }
 }

@@ -2,7 +2,8 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-public class AudioClipBrowserWindow : AssetBrowserWindow<AudioClipBrowserTreeView, AudioClipBrowserTreeView.TreeViewItem>
+public class AudioClipBrowserWindow
+    : AssetBrowserWindow<AudioClipBrowserTreeView, AudioClipBrowserTreeView.TreeViewItem>
 {
     protected override string WinTitle => "Audio Clips";
 

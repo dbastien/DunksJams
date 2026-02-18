@@ -3,23 +3,23 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleTelemetry : MonoBehaviour
 {
-    [SerializeField] bool showTelemetry = true;
-    [SerializeField] bool showGizmos = true;
-    [SerializeField] KeyCode toggleKey = KeyCode.F3;
+    [SerializeField] private bool showTelemetry = true;
+    [SerializeField] private bool showGizmos = true;
+    [SerializeField] private KeyCode toggleKey = KeyCode.F3;
 
-    VehicleController _vehicle;
-    GUIStyle _style;
-    GUIStyle _headerStyle;
+    private VehicleController _vehicle;
+    private GUIStyle _style;
+    private GUIStyle _headerStyle;
 
-    void Awake() => _vehicle = GetComponent<VehicleController>();
+    private void Awake() => _vehicle = GetComponent<VehicleController>();
 
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(toggleKey))
             showTelemetry = !showTelemetry;
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         if (!showTelemetry || _vehicle == null) return;
 
@@ -39,15 +39,18 @@ public class VehicleTelemetry : MonoBehaviour
         float lineHeight = 18;
 
         Label(ref y, _headerStyle, $"Vehicle Telemetry [{_vehicle.name}]");
-        Label(ref y, _style, $"Speed: {_vehicle.ForwardSpeed:F1} m/s | {_vehicle.SpeedKmh:F0} km/h | {_vehicle.SpeedMph:F0} mph");
-        Label(ref y, _style, $"Gear: {GearString(_vehicle.CurrentGear)} | RPM: {_vehicle.EngineRPM:F0}{(_vehicle.IsShifting ? " [SHIFTING]" : "")}");
-        Label(ref y, _style, $"Input: T={_vehicle.ThrottleInput:F2} S={_vehicle.SteerInput:F2} B={_vehicle.BrakeInput:F2}{(_vehicle.HandbrakeInput ? " [HB]" : "")}");
+        Label(ref y, _style,
+            $"Speed: {_vehicle.ForwardSpeed:F1} m/s | {_vehicle.SpeedKmh:F0} km/h | {_vehicle.SpeedMph:F0} mph");
+        Label(ref y, _style,
+            $"Gear: {GearString(_vehicle.CurrentGear)} | RPM: {_vehicle.EngineRPM:F0}{(_vehicle.IsShifting ? " [SHIFTING]" : "")}");
+        Label(ref y, _style,
+            $"Input: T={_vehicle.ThrottleInput:F2} S={_vehicle.SteerInput:F2} B={_vehicle.BrakeInput:F2}{(_vehicle.HandbrakeInput ? " [HB]" : "")}");
         Label(ref y, _style, $"Grounded: {_vehicle.IsGrounded}");
 
         y += 4;
         Label(ref y, _headerStyle, "Wheels");
 
-        foreach (var w in _vehicle.Wheels)
+        foreach (VehicleWheel w in _vehicle.Wheels)
         {
             string ground = w.IsGrounded ? "Y" : "N";
             string surface = w.CurrentSurface != null ? w.CurrentSurface.name : "none";
@@ -62,13 +65,13 @@ public class VehicleTelemetry : MonoBehaviour
         }
     }
 
-    static string GearString(int gear) => gear < 0 ? "R" : gear == 0 ? "1" : (gear + 1).ToString();
+    private static string GearString(int gear) => gear < 0 ? "R" : gear == 0 ? "1" : (gear + 1).ToString();
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (!showGizmos || _vehicle == null) return;
 
-        foreach (var w in _vehicle.Wheels)
+        foreach (VehicleWheel w in _vehicle.Wheels)
         {
             if (!w.IsGrounded) continue;
 

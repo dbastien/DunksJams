@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Utilities;
 
 public abstract class SerializedGraphView<TNode, TEdge> : GraphView
     where TNode : SerializedGraphNode, new()
@@ -16,14 +16,14 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
     protected abstract string FilePath { get; }
     public virtual IEnumerable<Type> GetNodeTypes() => ReflectionUtils.GetNonGenericDerivedTypes<TNode>();
 
-    void Setup()
+    private void Setup()
     {
         SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
         Insert(0, new GridBackground());
         AddManipulators();
     }
 
-    void AddManipulators()
+    private void AddManipulators()
     {
         this.AddManipulator(new ContentDragger());
         this.AddManipulator(new SelectionDragger());
@@ -31,10 +31,10 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         this.AddManipulator(new ContextualMenuManipulator(BuildMenu));
     }
 
-    void BuildMenu(ContextualMenuPopulateEvent evt)
+    private void BuildMenu(ContextualMenuPopulateEvent evt)
     {
-        var pos = contentViewContainer.WorldToLocal(evt.mousePosition);
-        foreach (var type in GetNodeTypes())
+        Vector2 pos = contentViewContainer.WorldToLocal(evt.mousePosition);
+        foreach (Type type in GetNodeTypes())
             evt.menu.AppendAction($"Create {type.Name}", _ => AddNode(type, pos));
     }
 
@@ -76,9 +76,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         var gd = new GraphData
         {
             nodes = nodes.Select(SerializeNode).Where(n => n != null).ToList(),
-            edges = edges.Where(e => e.input != null && e.output != null)
-                .Select(SerializeEdge)
-                .ToList()
+            edges = edges.Where(e => e.input != null && e.output != null).Select(SerializeEdge).ToList()
         };
 
         File.WriteAllText(FilePath, JsonUtility.ToJson(gd, true));
@@ -93,8 +91,8 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         var data = JsonUtility.FromJson<GraphData>(File.ReadAllText(FilePath));
         _nodes.Clear();
 
-        foreach (var nd in data.nodes) InstantiateNode(nd);
-        foreach (var ed in data.edges) InstantiateEdge(ed);
+        foreach (NodeData nd in data.nodes) InstantiateNode(nd);
+        foreach (EdgeData ed in data.edges) InstantiateEdge(ed);
     }
 
     protected NodeData SerializeNode(Node n)
@@ -106,7 +104,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
             pos = n.GetPosition().position
         };
 
-        foreach (var fi in n.GetType().GetSerializableFields())
+        foreach (FieldInfo fi in n.GetType().GetSerializableFields())
             nd.fields.Add(new FieldData { name = fi.Name, val = fi.GetValue(n)?.ToString() ?? "" });
 
         return nd;
@@ -122,7 +120,7 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     protected void InstantiateNode(NodeData nd)
     {
-        var n = CreateNodeFromType(nd.nodeType);
+        Node n = CreateNodeFromType(nd.nodeType);
         if (n == null)
         {
             DLog.LogW($"Node type '{nd.nodeType}' not found.");
@@ -133,13 +131,13 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
         n.SetPosition(new Rect(nd.pos, SerializedGraphNode.DefaultSize));
         _nodes[n.viewDataKey] = n;
 
-        foreach (var fd in nd.fields)
+        foreach (FieldData fd in nd.fields)
         {
-            var field = n.GetType().GetField(fd.name, ReflectionUtils.AllInstance);
+            FieldInfo field = n.GetType().GetField(fd.name, ReflectionUtils.AllInstance);
             if (field == null) continue;
             try
             {
-                var val = ReflectionUtils.ConvertToType(fd.val, field.FieldType);
+                object val = ReflectionUtils.ConvertToType(fd.val, field.FieldType);
                 field.SetValue(n, val);
             }
             catch (Exception ex)
@@ -166,15 +164,15 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
 
     protected void InstantiateEdge(EdgeData ed)
     {
-        if (!_nodes.TryGetValue(ed.sourceNodeGUID, out var srcNode) ||
-            !_nodes.TryGetValue(ed.targetNodeGUID, out var tgtNode))
+        if (!_nodes.TryGetValue(ed.sourceNodeGUID, out Node srcNode) ||
+            !_nodes.TryGetValue(ed.targetNodeGUID, out Node tgtNode))
         {
             DLog.LogW($"Could not find nodes for edge: {ed.sourceNodeGUID} -> {ed.targetNodeGUID}");
             return;
         }
 
-        var srcPort = GetPortByName(srcNode.outputContainer, ed.sourcePortName);
-        var tgtPort = GetPortByName(tgtNode.inputContainer, ed.targetPortName);
+        Port srcPort = GetPortByName(srcNode.outputContainer, ed.sourcePortName);
+        Port tgtPort = GetPortByName(tgtNode.inputContainer, ed.targetPortName);
 
         if (srcPort != null && tgtPort != null)
             AddEdge(srcPort, tgtPort);
@@ -182,18 +180,18 @@ public abstract class SerializedGraphView<TNode, TEdge> : GraphView
             DLog.LogW($"Could not find ports for edge: {ed.sourceNodeGUID} -> {ed.targetNodeGUID}");
     }
 
-    Port GetPortByName(VisualElement container, string nme) =>
+    private Port GetPortByName(VisualElement container, string nme) =>
         container.Children().OfType<Port>().FirstOrDefault(p => p.portName == nme);
 
-    void ClearGraph()
+    private void ClearGraph()
     {
-        foreach (var n in nodes)
+        foreach (Node n in nodes)
         {
             (n as ICleanupNode)?.Cleanup();
             RemoveElement(n);
         }
 
-        foreach (var e in edges) RemoveElement(e);
+        foreach (Edge e in edges) RemoveElement(e);
         _nodes.Clear();
     }
 }

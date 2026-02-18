@@ -5,10 +5,7 @@ public abstract class SequencerCommand : MonoBehaviour
     protected string[] Parameters { get; private set; }
     protected bool IsFinished { get; private set; }
 
-    public void Initialize(string[] parameters)
-    {
-        Parameters = parameters;
-    }
+    public void Initialize(string[] parameters) { Parameters = parameters; }
 
     protected virtual void Start()
     {
@@ -32,7 +29,8 @@ public abstract class SequencerCommand : MonoBehaviour
     protected float GetParameterFloat(int index, float fallback = 0f)
     {
         string val = GetParameter(index);
-        if (float.TryParse(val, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out float result))
+        if (float.TryParse(val, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out float result))
             return result;
         return fallback;
     }

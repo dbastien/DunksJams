@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,12 +7,12 @@ using UnityEngine;
 /// </summary>
 public class PathfindingDebug
 {
-    readonly AStarPathfinder _pathfinder = new();
-    readonly List<Vector2Int> _expandedNodes = new();
-    readonly Dictionary<Vector2Int, float> _costMap = new();
+    private readonly AStarPathfinder _pathfinder = new();
+    private readonly List<Vector2Int> _expandedNodes = new();
+    private readonly Dictionary<Vector2Int, float> _costMap = new();
 
-    List<Vector2Int> _lastPath;
-    Vector2Int _lastStart, _lastGoal;
+    private List<Vector2Int> _lastPath;
+    private Vector2Int _lastStart, _lastGoal;
 
     public IReadOnlyList<Vector2Int> ExpandedNodes => _expandedNodes;
     public IReadOnlyDictionary<Vector2Int, float> CostMap => _costMap;
@@ -22,8 +21,11 @@ public class PathfindingDebug
     public Vector2Int LastGoal => _lastGoal;
     public int NodesExpanded => _expandedNodes.Count;
 
-    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal, IGraph<Vector2Int> graph,
-        IHeuristic<Vector2Int> heuristic, IEdgeMod<Vector2Int> edgeMod = null)
+    public List<Vector2Int> FindPath
+    (
+        Vector2Int start, Vector2Int goal, IGraph<Vector2Int> graph,
+        IHeuristic<Vector2Int> heuristic, IEdgeMod<Vector2Int> edgeMod = null
+    )
     {
         _expandedNodes.Clear();
         _costMap.Clear();
@@ -50,16 +52,18 @@ public class PathfindingDebug
         // Expanded nodes - color by cost (blue=cheap, red=expensive)
         if (_expandedNodes.Count > 0)
         {
-            float maxCost = 0f;
-            foreach (var kvp in _costMap)
-                if (kvp.Value > maxCost) maxCost = kvp.Value;
+            var maxCost = 0f;
+            foreach (KeyValuePair<Vector2Int, float> kvp in _costMap)
+                if (kvp.Value > maxCost)
+                    maxCost = kvp.Value;
 
-            foreach (var node in _expandedNodes)
+            foreach (Vector2Int node in _expandedNodes)
             {
                 float t = maxCost > 0 && _costMap.TryGetValue(node, out float c) ? c / maxCost : 0f;
                 Gizmos.color = new Color(t, 0.2f, 1f - t, 0.3f);
-                var worldPos = offset + new Vector3(node.x * cellSize + cellSize * 0.5f, 0.01f,
-                    node.y * cellSize + cellSize * 0.5f);
+                Vector3 worldPos = offset +
+                                   new Vector3(node.x * cellSize + cellSize * 0.5f, 0.01f,
+                                       node.y * cellSize + cellSize * 0.5f);
                 Gizmos.DrawCube(worldPos, new Vector3(cellSize * 0.9f, 0.02f, cellSize * 0.9f));
             }
         }
@@ -68,12 +72,14 @@ public class PathfindingDebug
         if (_lastPath is { Count: > 1 })
         {
             Gizmos.color = Color.yellow;
-            for (int i = 0; i < _lastPath.Count - 1; i++)
+            for (var i = 0; i < _lastPath.Count - 1; i++)
             {
-                var a = offset + new Vector3(_lastPath[i].x * cellSize + cellSize * 0.5f, 0.05f,
-                    _lastPath[i].y * cellSize + cellSize * 0.5f);
-                var b = offset + new Vector3(_lastPath[i + 1].x * cellSize + cellSize * 0.5f, 0.05f,
-                    _lastPath[i + 1].y * cellSize + cellSize * 0.5f);
+                Vector3 a = offset +
+                            new Vector3(_lastPath[i].x * cellSize + cellSize * 0.5f, 0.05f,
+                                _lastPath[i].y * cellSize + cellSize * 0.5f);
+                Vector3 b = offset +
+                            new Vector3(_lastPath[i + 1].x * cellSize + cellSize * 0.5f, 0.05f,
+                                _lastPath[i + 1].y * cellSize + cellSize * 0.5f);
                 Gizmos.DrawLine(a, b);
             }
         }
@@ -81,25 +87,30 @@ public class PathfindingDebug
         // Start and goal
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(
-            offset + new Vector3(_lastStart.x * cellSize + cellSize * 0.5f, 0.1f,
+            offset +
+            new Vector3(_lastStart.x * cellSize + cellSize * 0.5f, 0.1f,
                 _lastStart.y * cellSize + cellSize * 0.5f), cellSize * 0.3f);
 
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(
-            offset + new Vector3(_lastGoal.x * cellSize + cellSize * 0.5f, 0.1f,
+            offset +
+            new Vector3(_lastGoal.x * cellSize + cellSize * 0.5f, 0.1f,
                 _lastGoal.y * cellSize + cellSize * 0.5f), cellSize * 0.3f);
     }
 
     /// <summary>Internal edge mod that wraps an optional user mod and tracks all expanded nodes.</summary>
-    class DebugEdgeMod : IEdgeMod<Vector2Int>
+    private class DebugEdgeMod : IEdgeMod<Vector2Int>
     {
-        readonly IEdgeMod<Vector2Int> _inner;
-        readonly List<Vector2Int> _expanded;
-        readonly Dictionary<Vector2Int, float> _costs;
-        float _runningCost;
+        private readonly IEdgeMod<Vector2Int> _inner;
+        private readonly List<Vector2Int> _expanded;
+        private readonly Dictionary<Vector2Int, float> _costs;
+        private float _runningCost;
 
-        public DebugEdgeMod(IEdgeMod<Vector2Int> inner, List<Vector2Int> expanded,
-            Dictionary<Vector2Int, float> costs)
+        public DebugEdgeMod
+        (
+            IEdgeMod<Vector2Int> inner, List<Vector2Int> expanded,
+            Dictionary<Vector2Int, float> costs
+        )
         {
             _inner = inner;
             _expanded = expanded;

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using Utilities;
+using Object = UnityEngine.Object;
+
+//TODO: some of this should use reflectionutils
 
 /// <summary>
-/// General purpose helper functions for the Dunks Dialog system.
-/// Provides string parsing, tag stripping, and field access utilities.
+///     General purpose helper functions for the Dunks Dialog system.
+///     Provides string parsing, tag stripping, and field access utilities.
 /// </summary>
 public static class DialogUtility
 {
@@ -27,9 +31,9 @@ public static class DialogUtility
         pauses = new Dictionary<int, float>();
         if (string.IsNullOrEmpty(input)) return string.Empty;
 
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        int visibleIndex = 0;
-        for (int i = 0; i < input.Length; i++)
+        var sb = new StringBuilder();
+        var visibleIndex = 0;
+        for (var i = 0; i < input.Length; i++)
         {
             // Check for TMPro tag
             if (input[i] == '<')
@@ -46,11 +50,12 @@ public static class DialogUtility
             // Check for Pause tag [p=0.5]
             if (input[i] == '[')
             {
-                var sub = input.Substring(i);
-                var match = Regex.Match(sub, @"^\[p(?:ause)?=([\d\.]+)\]");
+                string sub = input[i..];
+                Match match = Regex.Match(sub, @"^\[p(?:ause)?=([\d\.]+)\]");
                 if (match.Success)
                 {
-                    if (float.TryParse(match.Groups[1].Value, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out float duration)) pauses[visibleIndex] = duration;
+                    if (float.TryParse(match.Groups[1].Value, NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out float duration)) pauses[visibleIndex] = duration;
                     i += match.Length - 1;
                     continue;
                 }
@@ -77,9 +82,10 @@ public static class DialogUtility
 
         if (condition.Contains("=="))
         {
-            var parts = condition.Split(new[] { "==" }, StringSplitOptions.None);
+            string[] parts = condition.Split(new[] { "==" }, StringSplitOptions.None);
             if (parts.Length == 2) return (getVariable?.Invoke(parts[0].Trim()) ?? string.Empty) == parts[1].Trim();
         }
+
         // Add more operators here later (>=, <=, !=, etc.)
         return true;
     }
@@ -91,73 +97,68 @@ public static class DialogUtility
 
         if (script.Contains("="))
         {
-            var parts = script.Split('=');
+            string[] parts = script.Split('=');
             if (parts.Length == 2)
             {
                 string left = parts[0].Trim();
                 string right = parts[1].Trim();
 
                 // Handle Quest["Name"].State = "Value"
-                var questMatch = Regex.Match(left, @"Quest\[""(.+?)""\]\.State");
+                Match questMatch = Regex.Match(left, @"Quest\[""(.+?)""\]\.State");
                 if (questMatch.Success)
                 {
                     string questName = questMatch.Groups[1].Value;
                     if (QuestManager.Instance != null) QuestManager.Instance.SetQuestState(questName, right);
                 }
-                else
-                {
-                    setVariable?.Invoke(left, right);
-                }
+                else { setVariable?.Invoke(left, right); }
             }
         }
     }
 
     /// <summary>
-    /// Scans all assemblies for types that match a specific name prefix.
-    /// Useful for discovering sequencer commands (e.g. prefix "SequencerCommand").
+    ///     Scans all assemblies for types that match a specific name prefix.
+    ///     Useful for discovering sequencer commands (e.g. prefix "SequencerCommand").
     /// </summary>
     public static Dictionary<string, Type> DiscoverTypesWithPrefix(string prefix)
     {
         var result = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-        var types = ReflectionUtils.GetTypesWithPrefix(prefix);
-        foreach (var type in types)
+        List<Type> types = ReflectionUtils.GetTypesWithPrefix(prefix);
+        foreach (Type type in types)
         {
-            var key = type.Name.Substring(prefix.Length);
+            string key = type.Name[prefix.Length..];
             result[key] = type;
         }
+
         return result;
     }
 
     /// <summary>
-    /// Robust argument parser for sequencer commands that handles quotes and commas within quotes.
-    /// e.g. 'Arg1, "Arg 2, with comma", Arg3' -> ["Arg1", "Arg 2, with comma", "Arg3"]
+    ///     Robust argument parser for sequencer commands that handles quotes and commas within quotes.
+    ///     e.g. 'Arg1, "Arg 2, with comma", Arg3' -> ["Arg1", "Arg 2, with comma", "Arg3"]
     /// </summary>
     public static string[] ParseCommandArguments(string argsString)
     {
         if (string.IsNullOrEmpty(argsString)) return Array.Empty<string>();
 
-        List<string> result = new List<string>();
-        bool inQuotes = false;
-        int start = 0;
+        var result = new List<string>();
+        var inQuotes = false;
+        var start = 0;
 
-        for (int i = 0; i < argsString.Length; i++)
-            if (argsString[i] == '\"')
-            {
-                inQuotes = !inQuotes;
-            }
+        for (var i = 0; i < argsString.Length; i++)
+            if (argsString[i] == '\"') { inQuotes = !inQuotes; }
             else if (argsString[i] == ',' && !inQuotes)
             {
                 result.Add(argsString.Substring(start, i - start).Trim().Trim('\"'));
                 start = i + 1;
             }
 
-        result.Add(argsString.Substring(start).Trim().Trim('\"'));
+        result.Add(argsString[start..].Trim().Trim('\"'));
         return result.ToArray();
     }
 
     /// <summary>
-    /// Finds a Transform in the scene by name or tag.
-    /// Returns speaker/listener fallback if name matches special keywords.
+    ///     Finds a Transform in the scene by name or tag.
+    ///     Returns speaker/listener fallback if name matches special keywords.
     /// </summary>
     public static Transform FindTransform(string name, Transform speaker = null, Transform listener = null)
     {
@@ -171,25 +172,23 @@ public static class DialogUtility
     }
 
     /// Checks if a list of fields contains a specific field by name.
-    public static bool HasField(this List<Field> fields, string name)
-    {
-        return fields != null && fields.Exists(f => f.name == name);
-    }
+    public static bool HasField(this List<Field> fields, string name) =>
+        fields != null && fields.Exists(f => f.name == name);
 
     /// Gets a field value string or fallback.
     public static string GetFieldValue(this List<Field> fields, string name, string fallback = "")
     {
-        var field = fields?.Find(f => f.name == name);
+        Field field = fields?.Find(f => f.name == name);
         return field != null ? field.value : fallback;
     }
 
     /// Gets a field value cast to the desired type, or fallback if not found/invalid.
     public static T GetField<T>(this List<Field> fields, string name, T fallback = default)
     {
-        var field = fields?.Find(f => f.name == name);
+        Field field = fields?.Find(f => f.name == name);
         if (field == null) return fallback;
 
-        if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T))) return field.objValue is T val ? val : fallback;
+        if (typeof(Object).IsAssignableFrom(typeof(T))) return field.objValue is T val ? val : fallback;
 
         // Using ReflectionUtils to convert the string value
         return (T)ReflectionUtils.ConvertToType(field.value, typeof(T));
@@ -199,23 +198,20 @@ public static class DialogUtility
     public static void SetField(this List<Field> fields, string name, string value, FieldType type = FieldType.Text)
     {
         if (fields == null) return;
-        var field = fields.Find(f => f.name == name);
+        Field field = fields.Find(f => f.name == name);
         if (field != null)
         {
             field.value = value;
             field.type = type;
         }
-        else
-        {
-            fields.Add(new Field(name, value, type));
-        }
+        else { fields.Add(new Field(name, value, type)); }
     }
 
     /// Sets or adds an object field in the list.
-    public static void SetField(this List<Field> fields, string name, UnityEngine.Object objValue)
+    public static void SetField(this List<Field> fields, string name, Object objValue)
     {
         if (fields == null) return;
-        var field = fields.Find(f => f.name == name);
+        Field field = fields.Find(f => f.name == name);
         if (field != null)
         {
             field.objValue = objValue;

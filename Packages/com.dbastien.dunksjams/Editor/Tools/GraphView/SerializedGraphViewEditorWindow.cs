@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -11,7 +13,7 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
     where TEdge : Edge, new()
 {
     protected TGraphView _graphView;
-    DropdownField _nodeTypeDropdown;
+    private DropdownField _nodeTypeDropdown;
 
     protected virtual void OnEnable()
     {
@@ -38,13 +40,13 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
     protected virtual void LoadGraph() => _graphView?.LoadGraph();
     protected virtual void SaveGraph() => _graphView?.SaveGraph();
 
-    void SetupToolbar()
+    private void SetupToolbar()
     {
         var toolbar = new Toolbar();
         toolbar.Add(new Button(SaveGraph) { text = "Save" });
         toolbar.Add(new Button(LoadGraph) { text = "Load" });
 
-        var nodeTypes = _graphView.GetNodeTypes().Select(type => type.Name).ToList();
+        List<string> nodeTypes = _graphView.GetNodeTypes().Select(type => type.Name).ToList();
         _nodeTypeDropdown = new DropdownField("Create Node", nodeTypes, 0);
         toolbar.Add(_nodeTypeDropdown);
 
@@ -53,10 +55,10 @@ public abstract class SerializedGraphViewEditorWindow<TGraphView, TNode, TEdge> 
         rootVisualElement.Add(toolbar);
     }
 
-    void CreateSelectedNode()
+    private void CreateSelectedNode()
     {
-        var selectedTypeName = _nodeTypeDropdown.value;
-        var nodeType = _graphView.GetNodeTypes().FirstOrDefault(type => type.Name == selectedTypeName);
+        string selectedTypeName = _nodeTypeDropdown.value;
+        Type nodeType = _graphView.GetNodeTypes().FirstOrDefault(type => type.Name == selectedTypeName);
         if (nodeType != null) _graphView.AddNode(nodeType, SerializedGraphNode.DefaultSize);
     }
 }

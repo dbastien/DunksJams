@@ -3,11 +3,13 @@ using UnityEngine;
 
 public static class TorusGenerator
 {
-    public static Mesh Generate(
+    public static Mesh Generate
+    (
         float torusRadius = 0.5f, float tubeRadius = 0.2f,
         int torusSegments = 24, int tubeSegments = 12,
         NormalsType normalsType = NormalsType.Vertex,
-        PivotPosition pivot = PivotPosition.Center)
+        PivotPosition pivot = PivotPosition.Center
+    )
     {
         torusSegments = Mathf.Max(torusSegments, 3);
         tubeSegments = Mathf.Max(tubeSegments, 3);
@@ -20,18 +22,18 @@ public static class TorusGenerator
         var uvs = new Vector2[numVerts];
         var tris = new int[numTris];
 
-        int vi = 0;
+        var vi = 0;
         for (var i = 0; i <= torusSegments; ++i)
         {
-            var theta = i * 2f * MathF.PI / torusSegments;
+            float theta = i * 2f * MathF.PI / torusSegments;
             var center = new Vector3(MathF.Cos(theta) * torusRadius, 0f, MathF.Sin(theta) * torusRadius);
 
             for (var j = 0; j <= tubeSegments; ++j)
             {
-                var phi = j * 2f * MathF.PI / tubeSegments;
+                float phi = j * 2f * MathF.PI / tubeSegments;
                 var localDir = new Vector3(MathF.Cos(theta) * MathF.Cos(phi),
-                                           MathF.Sin(phi),
-                                           MathF.Sin(theta) * MathF.Cos(phi));
+                    MathF.Sin(phi),
+                    MathF.Sin(theta) * MathF.Cos(phi));
 
                 verts[vi] = center + localDir * tubeRadius;
                 normals[vi] = localDir;
@@ -40,14 +42,14 @@ public static class TorusGenerator
             }
         }
 
-        int ti = 0;
+        var ti = 0;
         for (var i = 0; i < torusSegments; ++i)
         {
-            var cur = i * (tubeSegments + 1);
-            var next = (i + 1) * (tubeSegments + 1);
+            int cur = i * (tubeSegments + 1);
+            int next = (i + 1) * (tubeSegments + 1);
             for (var j = 0; j < tubeSegments; ++j)
             {
-                tris[ti]     = next + j;
+                tris[ti] = next + j;
                 tris[ti + 1] = cur + j + 1;
                 tris[ti + 2] = cur + j;
                 tris[ti + 3] = next + j + 1;
@@ -60,7 +62,7 @@ public static class TorusGenerator
         if (normalsType == NormalsType.Face)
             MeshBuilder.DuplicateForFlatShading(ref verts, ref uvs, tris);
 
-        var pivotOff = MeshBuilder.PivotOffset(pivot, tubeRadius * 2f);
+        Vector3 pivotOff = MeshBuilder.PivotOffset(pivot, tubeRadius * 2f);
         if (pivotOff != Vector3.zero) MeshBuilder.ApplyPivot(verts, pivotOff);
 
         return normalsType == NormalsType.Vertex

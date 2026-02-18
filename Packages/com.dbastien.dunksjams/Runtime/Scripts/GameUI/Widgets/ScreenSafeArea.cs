@@ -4,19 +4,19 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class ScreenSafeArea : MonoBehaviour
 {
-    [SerializeField] bool conformX = true;
-    [SerializeField] bool conformY = true;
+    [SerializeField] private bool conformX = true;
+    [SerializeField] private bool conformY = true;
 
-    RectTransform rectTransform;
-    Rect lastSafeArea;
+    private RectTransform rectTransform;
+    private Rect lastSafeArea;
 
-    void Awake() => rectTransform = GetComponent<RectTransform>();
+    private void Awake() => rectTransform = GetComponent<RectTransform>();
 
-    void OnEnable() => Refresh();
+    private void OnEnable() => Refresh();
 
-    void Update()
+    private void Update()
     {
-        var safeArea = Screen.safeArea;
+        Rect safeArea = Screen.safeArea;
         if (lastSafeArea != safeArea)
         {
             lastSafeArea = safeArea;
@@ -26,7 +26,7 @@ public class ScreenSafeArea : MonoBehaviour
 
     public void Refresh()
     {
-        var safeArea = Screen.safeArea;
+        Rect safeArea = Screen.safeArea;
 
         if (!conformX)
         {
@@ -42,8 +42,8 @@ public class ScreenSafeArea : MonoBehaviour
 
         if (Screen.width > 0 && Screen.height > 0)
         {
-            var anchorMin = safeArea.position;
-            var anchorMax = safeArea.position + safeArea.size;
+            Vector2 anchorMin = safeArea.position;
+            Vector2 anchorMax = safeArea.position + safeArea.size;
             anchorMin.x /= Screen.width;
             anchorMin.y /= Screen.height;
             anchorMax.x /= Screen.width;

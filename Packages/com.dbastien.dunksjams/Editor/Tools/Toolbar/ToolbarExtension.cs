@@ -9,7 +9,7 @@ public static class ToolbarExtension
     public static event Action OnLeftToolbarGUI;
     public static event Action OnRightToolbarGUI;
 
-    static double _lastUpdateTime;
+    private static double _lastUpdateTime;
 
     static ToolbarExtension()
     {
@@ -22,22 +22,22 @@ public static class ToolbarExtension
         EditorApplication.update += Update;
     }
 
-    static void Update()
+    private static void Update()
     {
-        var currentTime = EditorApplication.timeSinceStartup;
-        var deltaTime = currentTime - _lastUpdateTime;
+        double currentTime = EditorApplication.timeSinceStartup;
+        double deltaTime = currentTime - _lastUpdateTime;
         _lastUpdateTime = currentTime;
         OnUpdate?.Invoke(deltaTime);
     }
 
-    static void HandleLeftGUI()
+    private static void HandleLeftGUI()
     {
         GUILayout.BeginHorizontal();
         OnLeftToolbarGUI?.Invoke();
         GUILayout.EndHorizontal();
     }
 
-    static void HandleRightGUI()
+    private static void HandleRightGUI()
     {
         GUILayout.BeginHorizontal();
         OnRightToolbarGUI?.Invoke();

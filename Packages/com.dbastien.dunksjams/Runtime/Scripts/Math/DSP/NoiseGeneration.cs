@@ -3,7 +3,7 @@ using Random = System.Random;
 
 public static class NoiseGeneration
 {
-    static readonly Random random = new();
+    private static readonly Random random = new();
 
     public static float[] WhiteNoise(int length, float amplitude = 1f)
     {
@@ -19,7 +19,7 @@ public static class NoiseGeneration
 
         for (var i = 0; i < length; i++)
         {
-            var white = (float)random.NextDouble() * 2f - 1f;
+            float white = (float)random.NextDouble() * 2f - 1f;
 
             // Pink noise filter
             b[0] = 0.99886f * b[0] + white * 0.0555179f;
@@ -28,7 +28,7 @@ public static class NoiseGeneration
             b[3] = 0.86650f * b[3] + white * 0.3104856f;
             b[4] = 0.55000f * b[4] + white * 0.5329522f;
             b[5] = -0.7616f * b[5] - white * 0.0168980f;
-            var pink = b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362f;
+            float pink = b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362f;
             b[6] = white * 0.115926f;
 
             noise[i] = pink * amplitude;
@@ -44,7 +44,7 @@ public static class NoiseGeneration
 
         for (var i = 0; i < length; i++)
         {
-            var white = (float)random.NextDouble() * 2f - 1f;
+            float white = (float)random.NextDouble() * 2f - 1f;
             lastValue += white * 0.1f; // Low-pass filter
             lastValue = Mathf.Clamp(lastValue, -1f, 1f); // Prevent drift
             noise[i] = lastValue * amplitude;
@@ -59,7 +59,7 @@ public static class NoiseGeneration
 
         for (var i = 0; i < length; i++)
         {
-            var x = i * frequency;
+            float x = i * frequency;
             noise[i] = Mathf.PerlinNoise(x, 0f) * 2f - 1f; // Convert to -1 to 1 range
             noise[i] *= amplitude;
         }

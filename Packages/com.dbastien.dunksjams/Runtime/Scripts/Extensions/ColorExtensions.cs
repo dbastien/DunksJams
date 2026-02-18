@@ -66,7 +66,7 @@ public static class ColorExtensions
     {
         // 1 - (1 - b) / a
         // Clamp + avoid div-by-zero per channel.
-        var denom = a.Max(float.Epsilon);
+        Color denom = a.Max(float.Epsilon);
         return Saturate(Color.white - Div(Color.white - b, denom));
     }
 
@@ -79,7 +79,7 @@ public static class ColorExtensions
     public static Color BlendColorDodge(this Color a, Color b)
     {
         // b / (1 - a)
-        var denom = (Color.white - a).Max(float.Epsilon);
+        Color denom = (Color.white - a).Max(float.Epsilon);
         return Saturate(Div(b, denom));
     }
 
@@ -90,19 +90,19 @@ public static class ColorExtensions
     public static Color BlendDivide(this Color a, Color b)
     {
         // b / a
-        var denom = a.Max(float.Epsilon);
+        Color denom = a.Max(float.Epsilon);
         return Saturate(Div(b, denom));
     }
 
     public static Color[] MonochromaticPalette(this Color col, int count = 5)
     {
-        Color.RGBToHSV(col, out var h, out _, out _);
+        Color.RGBToHSV(col, out float h, out _, out _);
         var palette = new Color[count];
 
         for (var i = 0; i < count; ++i)
         {
-            var s = Mathf.Lerp(0.3f, 1f, (float)i / (count - 1));
-            var v = Mathf.Lerp(0.9f, 0.3f, (float)i / (count - 1));
+            float s = Mathf.Lerp(0.3f, 1f, (float)i / (count - 1));
+            float v = Mathf.Lerp(0.9f, 0.3f, (float)i / (count - 1));
             palette[i] = Color.HSVToRGB(h, s, v);
         }
 
@@ -111,7 +111,7 @@ public static class ColorExtensions
 
     public static Color[] ComplementaryPalette(this Color col)
     {
-        Color.RGBToHSV(col, out var h, out var s, out var v);
+        Color.RGBToHSV(col, out float h, out float s, out float v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -121,14 +121,14 @@ public static class ColorExtensions
 
     public static Color[] AnalogousPalette(this Color col, int count = 5)
     {
-        Color.RGBToHSV(col, out var h, out var s, out var v);
+        Color.RGBToHSV(col, out float h, out float s, out float v);
         var palette = new Color[count];
 
-        var hueStep = 30f / 360f;
+        float hueStep = 30f / 360f;
 
         for (var i = 0; i < count; i++)
         {
-            var hueOffset = (i - count / 2) * hueStep;
+            float hueOffset = (i - count / 2) * hueStep;
             palette[i] = Color.HSVToRGB(Mathf.Repeat(h + hueOffset, 1f), s, v);
         }
 
@@ -137,7 +137,7 @@ public static class ColorExtensions
 
     public static Color[] TriadicPalette(this Color col)
     {
-        Color.RGBToHSV(col, out var h, out var s, out var v);
+        Color.RGBToHSV(col, out float h, out float s, out float v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -148,21 +148,21 @@ public static class ColorExtensions
 
     public static Color HueShift(this Color color, float hueShiftDegrees)
     {
-        Color.RGBToHSV(color, out var h, out var s, out var v);
+        Color.RGBToHSV(color, out float h, out float s, out float v);
         h = Mathf.Repeat(h + hueShiftDegrees / 360f, 1f);
         return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
     }
 
     public static Color SaturationAdjust(this Color color, float saturationMultiplier)
     {
-        Color.RGBToHSV(color, out var h, out var s, out var v);
+        Color.RGBToHSV(color, out float h, out float s, out float v);
         s = Mathf.Clamp01(s * saturationMultiplier);
         return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
     }
 
     public static Color BrightnessAdjust(this Color color, float brightnessMultiplier)
     {
-        Color.RGBToHSV(color, out var h, out var s, out var v);
+        Color.RGBToHSV(color, out float h, out float s, out float v);
         v = Mathf.Clamp01(v * brightnessMultiplier);
         return Color.HSVToRGB(h, s, v).WithAlpha(color.a);
     }
@@ -172,7 +172,7 @@ public static class ColorExtensions
         if (colors.Length == 0) return Color.black;
         if (colors.Length == 1) return colors[0];
 
-        var result = colors[0];
+        Color result = colors[0];
         for (var i = 1; i < colors.Length; i++) result = Color.Lerp(result, colors[i], 1f / (i + 1));
         return result;
     }
@@ -189,4 +189,18 @@ public static class ColorExtensions
     /// <summary>Returns black or white for best contrast on the given background.</summary>
     public static Color SuggestedTextColor(this Color background, float threshold = 0.5f) =>
         background.PerceivedBrightness() >= threshold ? Color.black : Color.white;
+
+    public static Color Greyscale(float brightness, float alpha = 1) => new(brightness, brightness, brightness, alpha);
+
+    public static Color SetAlpha(this Color color, float alpha)
+    {
+        color.a = alpha;
+        return color;
+    }
+
+    public static Color MultiplyAlpha(this Color color, float k)
+    {
+        color.a *= k;
+        return color;
+    }
 }

@@ -2,20 +2,18 @@ using System;
 using UnityEngine;
 
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class SingletonAutoCreateAttribute : Attribute
-{
-}
+public sealed class SingletonAutoCreateAttribute : Attribute { }
 
 [DisallowMultipleComponent]
 public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonBehaviour<T>
 {
-    static T _instance;
-    static bool _quitting;
+    private static T _instance;
+    private static bool _quitting;
 
-    static readonly bool _autoCreate =
+    private static readonly bool _autoCreate =
         Attribute.IsDefined(typeof(T), typeof(SingletonAutoCreateAttribute), true);
 
-    bool _initialized;
+    private bool _initialized;
 
     protected virtual bool PersistAcrossScenes => false;
     protected virtual bool InitOnAwake => true;
@@ -54,10 +52,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
             if (PersistAcrossScenes)
                 DontDestroyOnLoad(gameObject);
         }
-        else if (_instance != this)
-        {
-            DestroyDuplicate();
-        }
+        else if (_instance != this) { DestroyDuplicate(); }
     }
 
     protected virtual void OnApplicationQuit() => _quitting = true;
@@ -87,7 +82,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
         return CreateAndInit();
     }
 
-    static T CreateAndInit()
+    private static T CreateAndInit()
     {
         if (_quitting) return null;
 
@@ -101,21 +96,21 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
         return _instance;
     }
 
-    void EnsureInit()
+    private void EnsureInit()
     {
         if (_initialized) return;
         _initialized = true;
         InitInternal();
     }
 
-    void DestroyDuplicate()
+    private void DestroyDuplicate()
     {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (!Application.isPlaying) DestroyImmediate(gameObject);
         else Destroy(gameObject);
-    #else
+#else
         Destroy(gameObject);
-    #endif
+#endif
     }
 
     protected abstract void InitInternal();

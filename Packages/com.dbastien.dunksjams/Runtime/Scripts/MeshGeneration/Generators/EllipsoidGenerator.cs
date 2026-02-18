@@ -4,11 +4,13 @@ using UnityEngine;
 /// <summary>Generates an ellipsoid mesh with independent width, height, and depth radii.</summary>
 public static class EllipsoidGenerator
 {
-    public static Mesh Generate(
+    public static Mesh Generate
+    (
         float width = 0.5f, float height = 0.5f, float depth = 0.5f,
         int segments = 16,
         NormalsType normalsType = NormalsType.Vertex,
-        PivotPosition pivot = PivotPosition.Center)
+        PivotPosition pivot = PivotPosition.Center
+    )
     {
         segments = Mathf.Max(segments, 4);
         int rings = segments - 1;
@@ -39,7 +41,7 @@ public static class EllipsoidGenerator
 
                 if (r < rings - 1 && s < sectors - 1)
                 {
-                    tris[ti]     = (r + 1) * sectors + s;
+                    tris[ti] = (r + 1) * sectors + s;
                     tris[ti + 1] = r * sectors + s + 1;
                     tris[ti + 2] = r * sectors + s;
                     tris[ti + 3] = (r + 1) * sectors + s + 1;
@@ -47,6 +49,7 @@ public static class EllipsoidGenerator
                     tris[ti + 5] = (r + 1) * sectors + s;
                     ti += 6;
                 }
+
                 vi++;
             }
         }
@@ -54,7 +57,7 @@ public static class EllipsoidGenerator
         if (normalsType == NormalsType.Face)
             MeshBuilder.DuplicateForFlatShading(ref verts, ref uvs, tris);
 
-        var pivotOff = MeshBuilder.PivotOffset(pivot, height * 2f);
+        Vector3 pivotOff = MeshBuilder.PivotOffset(pivot, height * 2f);
         if (pivotOff != Vector3.zero) MeshBuilder.ApplyPivot(verts, pivotOff);
 
         return normalsType == NormalsType.Vertex

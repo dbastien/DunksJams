@@ -4,9 +4,9 @@ using UnityEngine;
 [SingletonAutoCreate]
 public class TweenManager : SingletonEagerBehaviour<TweenManager>
 {
-    readonly List<ITween> _tweens = new();
-    readonly Dictionary<string, ITween> _tweensById = new();
-    readonly Dictionary<string, List<ITween>> _tweensByTag = new();
+    private readonly List<ITween> _tweens = new();
+    private readonly Dictionary<string, ITween> _tweensById = new();
+    private readonly Dictionary<string, List<ITween>> _tweensByTag = new();
 
     protected override void InitInternal()
     {
@@ -14,12 +14,12 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
         // DontDestroyOnLoad(gameObject);
     }
 
-    void Update()
+    private void Update()
     {
-        var deltaTime = Time.deltaTime;
-        for (var i = _tweens.Count - 1; i >= 0; --i)
+        float deltaTime = Time.deltaTime;
+        for (int i = _tweens.Count - 1; i >= 0; --i)
         {
-            var tween = _tweens[i];
+            ITween tween = _tweens[i];
             tween.Update(deltaTime);
             if (tween.IsComplete)
             {
@@ -29,14 +29,14 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
         }
     }
 
-    void RemoveTween(ITween tween)
+    private void RemoveTween(ITween tween)
     {
         // Remove from ID dictionary
         if (!string.IsNullOrEmpty(tween.Id))
             _tweensById.Remove(tween.Id);
 
         // Remove from tag dictionary
-        if (!string.IsNullOrEmpty(tween.Tag) && _tweensByTag.TryGetValue(tween.Tag, out var tagList))
+        if (!string.IsNullOrEmpty(tween.Tag) && _tweensByTag.TryGetValue(tween.Tag, out List<ITween> tagList))
         {
             tagList.Remove(tween);
             if (tagList.Count == 0)
@@ -55,7 +55,7 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
         // Add to tag dictionary if tag is set
         if (!string.IsNullOrEmpty(tween.Tag))
         {
-            if (!_tweensByTag.TryGetValue(tween.Tag, out var tagList))
+            if (!_tweensByTag.TryGetValue(tween.Tag, out List<ITween> tagList))
             {
                 tagList = new List<ITween>();
                 _tweensByTag[tween.Tag] = tagList;
@@ -67,22 +67,22 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
 
     public void PauseAll()
     {
-        foreach (var tween in _tweens) tween.Pause();
+        foreach (ITween tween in _tweens) tween.Pause();
     }
 
     public void ResumeAll()
     {
-        foreach (var tween in _tweens) tween.Resume();
+        foreach (ITween tween in _tweens) tween.Resume();
     }
 
     public void RewindAll()
     {
-        foreach (var tween in _tweens) tween.Rewind();
+        foreach (ITween tween in _tweens) tween.Rewind();
     }
 
     public void KillAll()
     {
-        foreach (var tween in _tweens) tween.Kill();
+        foreach (ITween tween in _tweens) tween.Kill();
         _tweens.Clear();
         _tweensById.Clear();
         _tweensByTag.Clear();
@@ -90,29 +90,27 @@ public class TweenManager : SingletonEagerBehaviour<TweenManager>
 
     public void PauseById(string id)
     {
-        foreach (var tween in _tweens)
-        {
+        foreach (ITween tween in _tweens)
             if (tween.Id == id)
                 tween.Pause();
-        }
     }
 
     public void KillByTag(string tag)
     {
-        if (_tweensByTag.TryGetValue(tag, out var tagList))
+        if (_tweensByTag.TryGetValue(tag, out List<ITween> tagList))
         {
-            foreach (var tween in tagList)
+            foreach (ITween tween in tagList)
                 tween.Kill();
             _tweens.RemoveAll(t => t.Tag == tag);
             _tweensByTag.Remove(tag);
         }
     }
 
-    public ITween GetById(string id) => _tweensById.TryGetValue(id, out var tween) ? tween : null;
+    public ITween GetById(string id) => _tweensById.TryGetValue(id, out ITween tween) ? tween : null;
 
     public List<ITween> GetByTag(string tag, List<ITween> result = null)
     {
-        if (_tweensByTag.TryGetValue(tag, out var tagList))
+        if (_tweensByTag.TryGetValue(tag, out List<ITween> tagList))
         {
             result ??= new List<ITween>();
             result.Clear();

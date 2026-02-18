@@ -6,93 +6,93 @@ using UnityEditor;
 
 public static class DefaultResources
 {
-    static readonly Lazy<Material> _material = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _material = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat") ??
             new Material(Shader.Find("Standard"))
-    #else
+#else
             new Material(Shader.Find("Standard"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _particleMaterial = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _particleMaterial = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-Particle.mat")
-    #else
+#else
             new Material(Shader.Find("Particles/Standard Unlit"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _lineMaterial = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _lineMaterial = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-Line.mat")
-    #else
+#else
             new Material(Shader.Find("Sprites/Default"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _terrainMaterial = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _terrainMaterial = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-Terrain-Standard.mat")
-    #else
+#else
             new Material(Shader.Find("Nature/Terrain/Standard"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _uiMaterial = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _uiMaterial = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-UI.mat")
-    #else
+#else
             new Material(Shader.Find("UI/Default"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Shader> _shader = new(() =>
+    private static readonly Lazy<Shader> _shader = new(() =>
         Shader.Find("Standard") ?? Shader.Find("Hidden/InternalErrorShader")
     );
 
-    static readonly Lazy<Material> _skybox = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _skybox = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Skybox-Default.mat")
-    #else
+#else
             new Material(Shader.Find("Skybox/Procedural"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _spriteMaterial = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _spriteMaterial = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Sprites-Default.mat")
-    #else
+#else
             new Material(Shader.Find("Sprites/Default"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Material> _material2D = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Material> _material2D = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Material>("Default-2D.mat")
-    #else
+#else
             new Material(Shader.Find("Sprites/Default"))
-    #endif
+#endif
     );
 
-    static readonly Lazy<Shader> _particleShader = new(() =>
+    private static readonly Lazy<Shader> _particleShader = new(() =>
         Shader.Find("Particles/Standard Unlit") ?? Shader.Find("Hidden/InternalErrorShader")
     );
 
-    static readonly Lazy<Texture> _cubeTexture = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Texture> _cubeTexture = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Texture>("Default-CubeTexture.png")
-    #else
+#else
             Texture2D.blackTexture
-    #endif
+#endif
     );
 
-    static readonly Lazy<Texture> _texture2D = new(() =>
-        #if UNITY_EDITOR
+    private static readonly Lazy<Texture> _texture2D = new(() =>
+#if UNITY_EDITOR
             AssetDatabase.GetBuiltinExtraResource<Texture>("Default-2DTexture.png")
-    #else
+#else
             Texture2D.whiteTexture
-    #endif
+#endif
     );
 
     public static Material Material => _material.Value;

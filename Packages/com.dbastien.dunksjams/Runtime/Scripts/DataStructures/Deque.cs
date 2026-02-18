@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Deque<T> : ICollection<T>
 {
-    readonly LinkedList<T> _list = new();
+    private readonly LinkedList<T> _list = new();
 
     public int Count => _list.Count;
     public bool IsReadOnly => false;
@@ -36,7 +36,7 @@ public class Deque<T> : ICollection<T>
         return false;
     }
 
-    T Remove(LinkedListNode<T> node)
+    private T Remove(LinkedListNode<T> node)
     {
         Debug.Assert(node != null);
         _list.Remove(node);

@@ -9,12 +9,13 @@ public class DialogDatabase : ScriptableObject
 
     public DialogConversation GetConversation(string name)
     {
-        foreach (var conv in conversations)
-            if (conv.conversationName == name) return conv;
+        foreach (DialogConversation conv in conversations)
+            if (conv.conversationName == name)
+                return conv;
 
-        foreach (var db in includedDatabases)
+        foreach (DialogDatabase db in includedDatabases)
         {
-            var found = db.GetConversation(name);
+            DialogConversation found = db.GetConversation(name);
             if (found != null) return found;
         }
 

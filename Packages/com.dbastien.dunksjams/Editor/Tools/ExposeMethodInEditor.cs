@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using UnityEngine;
-using UnityEditor;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Utilities;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 [CustomEditor(typeof(MonoBehaviour), true)]
 public class ExposeMethodInEditor : Editor
@@ -11,17 +11,15 @@ public class ExposeMethodInEditor : Editor
     {
         DrawDefaultInspector();
 
-        var methods = target.GetType().GetMethodsWithAttribute<ExposeMethodInEditorAttribute>().ToList();
+        List<MethodInfo> methods = target.GetType().GetMethodsWithAttribute<ExposeMethodInEditorAttribute>().ToList();
 
         if (methods.Count == 0) return;
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Exposed Methods", EditorStyles.boldLabel);
 
-        foreach (var method in methods)
-        {
+        foreach (MethodInfo method in methods)
             if (GUILayout.Button(method.Name))
                 method.Invoke(target, null);
-        }
     }
 }

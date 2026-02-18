@@ -26,10 +26,13 @@ public abstract class HashFunction
 
     public float Range(float min, float max, params int[] data) =>
         min + GetHash(data) * (max - min) / uint.MaxValue;
+
     public float Range(float min, float max, int data) =>
         min + GetHash(data) * (max - min) / uint.MaxValue;
+
     public float Range(float min, float max, int x, int y) =>
         min + GetHash(x, y) * (max - min) / uint.MaxValue;
+
     public float Range(float min, float max, int x, int y, int z) =>
         min + GetHash(x, y, z) * (max - min) / uint.MaxValue;
 }

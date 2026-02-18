@@ -6,9 +6,9 @@ public static class GUIStyleExtensions
     public static Vector2 CalcSize(this GUIStyle g, params GUIContent[] items)
     {
         float width = 0f, height = 0f;
-        foreach (var item in items)
+        foreach (GUIContent item in items)
         {
-            var size = g.CalcSize(item);
+            Vector2 size = g.CalcSize(item);
             width = Mathf.Max(width, size.x);
             height += size.y;
         }
@@ -20,9 +20,9 @@ public static class GUIStyleExtensions
     {
         float paddingHeight = g.padding.vertical;
         float maxWidth = 0, totalHeight = paddingHeight * (items.Length - 1);
-        foreach (var item in items)
+        foreach (GUIContent item in items)
         {
-            var size = g.CalcSize(item);
+            Vector2 size = g.CalcSize(item);
             totalHeight += size.y;
             maxWidth = Mathf.Max(maxWidth, size.x + g.padding.horizontal);
         }
@@ -33,11 +33,11 @@ public static class GUIStyleExtensions
     public static Vector2 CalcHorizontalSize(this GUIStyle g, params GUIContent[] items)
     {
         float paddingWidth = g.padding.horizontal;
-        var totalWidth = paddingWidth * (items.Length - 1);
+        float totalWidth = paddingWidth * (items.Length - 1);
         float maxHeight = 0;
-        foreach (var item in items)
+        foreach (GUIContent item in items)
         {
-            var size = g.CalcSize(item);
+            Vector2 size = g.CalcSize(item);
             totalWidth += size.x;
             maxHeight = Mathf.Max(maxHeight, size.y + g.padding.vertical);
         }
@@ -53,7 +53,7 @@ public static class GUIStyleExtensions
 
     public static void WithFontSize(this GUIStyle g, int fontSize, Action drawAction)
     {
-        var originalSize = g.fontSize;
+        int originalSize = g.fontSize;
         g.fontSize = fontSize;
         drawAction?.Invoke();
         g.fontSize = originalSize;
@@ -61,7 +61,7 @@ public static class GUIStyleExtensions
 
     public static void WithFontStyle(this GUIStyle g, FontStyle fontStyle, Action drawAction)
     {
-        var originalStyle = g.fontStyle;
+        FontStyle originalStyle = g.fontStyle;
         g.fontStyle = fontStyle;
         drawAction?.Invoke();
         g.fontStyle = originalStyle;
@@ -73,10 +73,13 @@ public static class GUIStyleExtensions
         return g;
     }
 
-    public static int AdjustFontSizeToFitWidth(this GUIStyle g, GUIContent content, float maxWidth, int minSize = 8,
-        int maxSize = 40)
+    public static int AdjustFontSizeToFitWidth
+    (
+        this GUIStyle g, GUIContent content, float maxWidth, int minSize = 8,
+        int maxSize = 40
+    )
     {
-        for (var fontSize = maxSize; fontSize >= minSize; --fontSize)
+        for (int fontSize = maxSize; fontSize >= minSize; --fontSize)
         {
             g.fontSize = fontSize;
             if (g.CalcSize(content).x <= maxWidth) return fontSize;

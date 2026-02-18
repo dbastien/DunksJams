@@ -6,44 +6,44 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class VehicleController : MonoBehaviour
 {
-    [Header("Configuration")]
-    [SerializeField] VehicleProfile profile;
-    [SerializeField] DrivetrainProfile drivetrain;
+    [Header("Configuration")] [SerializeField]
+    private VehicleProfile profile;
 
-    [Header("Wheels")]
-    [SerializeField] VehicleWheel[] wheels;
+    [SerializeField] private DrivetrainProfile drivetrain;
 
-    [Header("Center of Mass")]
-    [SerializeField] Transform centerOfMassOverride;
+    [Header("Wheels")] [SerializeField] private VehicleWheel[] wheels;
 
-    Rigidbody _rb;
-    VehicleWheel[] _frontWheels;
-    VehicleWheel[] _rearWheels;
-    VehicleWheel[] _driveWheels;
-    VehicleWheel[] _steerWheels;
+    [Header("Center of Mass")] [SerializeField]
+    private Transform centerOfMassOverride;
+
+    private Rigidbody _rb;
+    private VehicleWheel[] _frontWheels;
+    private VehicleWheel[] _rearWheels;
+    private VehicleWheel[] _driveWheels;
+    private VehicleWheel[] _steerWheels;
 
     // Drivetrain state
-    int _currentGear;
-    float _engineRPM;
-    float _shiftTimer;
-    bool _isShifting;
+    private int _currentGear;
+    private float _engineRPM;
+    private float _shiftTimer;
+    private bool _isShifting;
 
     // Input state (set by VehicleInput or AI)
-    float _throttleInput;
-    float _steerInput;
-    float _brakeInput;
-    bool _handbrakeInput;
+    private float _throttleInput;
+    private float _steerInput;
+    private float _brakeInput;
+    private bool _handbrakeInput;
 
     // Driving aids
-    TractionControl _tractionControl;
-    BrakeAssist _brakeAssist;
-    SteeringAssist _steeringAssist;
+    private TractionControl _tractionControl;
+    private BrakeAssist _brakeAssist;
+    private SteeringAssist _steeringAssist;
 
     // Computed values
-    float _forwardSpeed;
-    float _speedNormalized;
-    float _wheelBase;
-    float _rearTrack;
+    private float _forwardSpeed;
+    private float _speedNormalized;
+    private float _wheelBase;
+    private float _rearTrack;
 
     // Public API
     public VehicleProfile Profile => profile;
@@ -65,7 +65,7 @@ public class VehicleController : MonoBehaviour
 
     public event Action<Vector3, Vector3, float> OnImpact;
 
-    void Awake()
+    private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
 
@@ -80,19 +80,19 @@ public class VehicleController : MonoBehaviour
         CalculateGeometry();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         VehicleManager.Instance?.Register(this);
         EventManager.QueueEvent<VehicleSpawnEvent>(e => e.Vehicle = this);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         VehicleManager.Instance?.Unregister(this);
         EventManager.QueueEvent<VehicleDestroyEvent>(e => e.Vehicle = this);
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (profile == null || drivetrain == null) return;
 
@@ -104,7 +104,7 @@ public class VehicleController : MonoBehaviour
         ApplyDriveTorque();
         ApplyBrakes();
 
-        foreach (var w in wheels)
+        foreach (VehicleWheel w in wheels)
             w.UpdateWheel(dt);
 
         ApplyAerodynamics();
@@ -112,12 +112,12 @@ public class VehicleController : MonoBehaviour
         UpdateGroundedState();
     }
 
-    void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
         if (collision.impulse.magnitude < 50f) return;
 
-        var contact = collision.GetContact(0);
-        var surface = GroundSurfaceManager.Instance?.GetSurface(collision.collider);
+        ContactPoint contact = collision.GetContact(0);
+        GroundSurface surface = GroundSurfaceManager.Instance?.GetSurface(collision.collider);
 
         OnImpact?.Invoke(contact.point, contact.normal, collision.impulse.magnitude);
 
@@ -143,14 +143,14 @@ public class VehicleController : MonoBehaviour
 
     // --- Setup ---
 
-    void CategorizeWheels()
+    private void CategorizeWheels()
     {
         var front = new List<VehicleWheel>();
         var rear = new List<VehicleWheel>();
         var drive = new List<VehicleWheel>();
         var steer = new List<VehicleWheel>();
 
-        foreach (var w in wheels)
+        foreach (VehicleWheel w in wheels)
         {
             if (w.IsFrontAxle) front.Add(w);
             else rear.Add(w);
@@ -165,13 +165,13 @@ public class VehicleController : MonoBehaviour
         _steerWheels = steer.ToArray();
     }
 
-    void InitializeWheels()
+    private void InitializeWheels()
     {
-        foreach (var w in wheels)
+        foreach (VehicleWheel w in wheels)
             w.Initialize(_rb);
     }
 
-    void SetupCenterOfMass()
+    private void SetupCenterOfMass()
     {
         if (centerOfMassOverride != null)
         {
@@ -182,23 +182,23 @@ public class VehicleController : MonoBehaviour
         if (profile == null || wheels.Length == 0) return;
 
         // Parametric CoM between front and rear axle centers
-        var frontCenter = Vector3.zero;
-        var rearCenter = Vector3.zero;
+        Vector3 frontCenter = Vector3.zero;
+        Vector3 rearCenter = Vector3.zero;
 
-        foreach (var w in _frontWheels)
+        foreach (VehicleWheel w in _frontWheels)
             frontCenter += w.transform.localPosition;
-        foreach (var w in _rearWheels)
+        foreach (VehicleWheel w in _rearWheels)
             rearCenter += w.transform.localPosition;
 
         if (_frontWheels.Length > 0) frontCenter /= _frontWheels.Length;
         if (_rearWheels.Length > 0) rearCenter /= _rearWheels.Length;
 
-        var com = Vector3.Lerp(rearCenter, frontCenter, profile.CenterOfMassPosition);
+        Vector3 com = Vector3.Lerp(rearCenter, frontCenter, profile.CenterOfMassPosition);
         com.y += profile.CenterOfMassHeightOffset;
         _rb.centerOfMass = com;
     }
 
-    void SetupRigidbody()
+    private void SetupRigidbody()
     {
         if (profile != null)
             _rb.mass = profile.Mass;
@@ -206,21 +206,21 @@ public class VehicleController : MonoBehaviour
         _rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
-    void InitializeDrivingAids()
+    private void InitializeDrivingAids()
     {
         _tractionControl = new TractionControl();
         _brakeAssist = new BrakeAssist();
         _steeringAssist = new SteeringAssist();
     }
 
-    void CalculateGeometry()
+    private void CalculateGeometry()
     {
         if (_frontWheels.Length == 0 || _rearWheels.Length == 0) return;
 
-        var frontCenter = Vector3.zero;
-        var rearCenter = Vector3.zero;
-        foreach (var w in _frontWheels) frontCenter += w.transform.localPosition;
-        foreach (var w in _rearWheels) rearCenter += w.transform.localPosition;
+        Vector3 frontCenter = Vector3.zero;
+        Vector3 rearCenter = Vector3.zero;
+        foreach (VehicleWheel w in _frontWheels) frontCenter += w.transform.localPosition;
+        foreach (VehicleWheel w in _rearWheels) rearCenter += w.transform.localPosition;
         frontCenter /= _frontWheels.Length;
         rearCenter /= _rearWheels.Length;
 
@@ -229,19 +229,20 @@ public class VehicleController : MonoBehaviour
         if (_rearWheels.Length >= 2)
         {
             float minX = float.MaxValue, maxX = float.MinValue;
-            foreach (var w in _rearWheels)
+            foreach (VehicleWheel w in _rearWheels)
             {
                 float x = w.transform.localPosition.x;
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
             }
+
             _rearTrack = maxX - minX;
         }
     }
 
     // --- Physics Update Steps ---
 
-    void ComputeSpeed()
+    private void ComputeSpeed()
     {
         _forwardSpeed = Vector3.Dot(_rb.linearVelocity, transform.forward);
 
@@ -249,7 +250,7 @@ public class VehicleController : MonoBehaviour
         _speedNormalized = Mathf.Clamp01(Mathf.Abs(_forwardSpeed) / maxSpeed);
     }
 
-    void UpdateGearbox(float dt)
+    private void UpdateGearbox(float dt)
     {
         if (_isShifting)
         {
@@ -282,27 +283,19 @@ public class VehicleController : MonoBehaviour
             _shiftTimer = drivetrain.ShiftDuration;
         }
         // Reverse
-        else if (_throttleInput < -0.1f && Mathf.Abs(_forwardSpeed) < 1f && _currentGear >= 0)
-        {
-            _currentGear = -1;
-        }
-        else if (_throttleInput > 0.1f && _currentGear < 0)
-        {
-            _currentGear = 0;
-        }
+        else if (_throttleInput < -0.1f && Mathf.Abs(_forwardSpeed) < 1f && _currentGear >= 0) { _currentGear = -1; }
+        else if (_throttleInput > 0.1f && _currentGear < 0) { _currentGear = 0; }
 
         if (prevGear != _currentGear)
-        {
             EventManager.QueueEvent<VehicleGearChangeEvent>(e =>
             {
                 e.Vehicle = this;
                 e.PreviousGear = prevGear;
                 e.NewGear = _currentGear;
             });
-        }
     }
 
-    void ApplySteering()
+    private void ApplySteering()
     {
         if (profile == null) return;
 
@@ -313,25 +306,23 @@ public class VehicleController : MonoBehaviour
         if (profile.SteeringAssistStrength > 0f)
             baseAngle = _steeringAssist.Apply(baseAngle, this);
 
-        if (profile.UseAckermannSteering && _wheelBase > 0.01f && _rearTrack > 0.01f &&
+        if (profile.UseAckermannSteering &&
+            _wheelBase > 0.01f &&
+            _rearTrack > 0.01f &&
             Mathf.Abs(baseAngle) > 0.1f)
-        {
             ApplyAckermannSteering(baseAngle);
-        }
         else
-        {
-            foreach (var w in _steerWheels)
+            foreach (VehicleWheel w in _steerWheels)
                 w.SetSteerAngle(baseAngle);
-        }
     }
 
-    void ApplyAckermannSteering(float baseAngle)
+    private void ApplyAckermannSteering(float baseAngle)
     {
         float turnRadius = _wheelBase / Mathf.Tan(baseAngle * Mathf.Deg2Rad);
         float innerAngle = Mathf.Atan(_wheelBase / (turnRadius - _rearTrack * 0.5f)) * Mathf.Rad2Deg;
         float outerAngle = Mathf.Atan(_wheelBase / (turnRadius + _rearTrack * 0.5f)) * Mathf.Rad2Deg;
 
-        foreach (var w in _steerWheels)
+        foreach (VehicleWheel w in _steerWheels)
         {
             float localX = w.transform.localPosition.x;
             bool isInner = (baseAngle > 0f && localX > 0f) || (baseAngle < 0f && localX < 0f);
@@ -339,7 +330,7 @@ public class VehicleController : MonoBehaviour
         }
     }
 
-    void ApplyDriveTorque()
+    private void ApplyDriveTorque()
     {
         if (_driveWheels.Length == 0 || _isShifting) return;
 
@@ -366,11 +357,11 @@ public class VehicleController : MonoBehaviour
 
         // Distribute to drive wheels
         float[] distribution = ComputeDriveDistribution();
-        for (int i = 0; i < _driveWheels.Length; i++)
+        for (var i = 0; i < _driveWheels.Length; i++)
             _driveWheels[i].SetDriveTorque(wheelTorque * distribution[i]);
     }
 
-    float[] ComputeDriveDistribution()
+    private float[] ComputeDriveDistribution()
     {
         var dist = new float[_driveWheels.Length];
 
@@ -380,31 +371,27 @@ public class VehicleController : MonoBehaviour
             float rearShare = 1f - frontShare;
             int frontDriveCount = 0, rearDriveCount = 0;
 
-            for (int i = 0; i < _driveWheels.Length; i++)
-            {
+            for (var i = 0; i < _driveWheels.Length; i++)
                 if (_driveWheels[i].IsFrontAxle) frontDriveCount++;
                 else rearDriveCount++;
-            }
 
-            for (int i = 0; i < _driveWheels.Length; i++)
-            {
+            for (var i = 0; i < _driveWheels.Length; i++)
                 if (_driveWheels[i].IsFrontAxle)
                     dist[i] = frontDriveCount > 0 ? frontShare / frontDriveCount : 0f;
                 else
                     dist[i] = rearDriveCount > 0 ? rearShare / rearDriveCount : 0f;
-            }
         }
         else
         {
             float share = 1f / _driveWheels.Length;
-            for (int i = 0; i < dist.Length; i++)
+            for (var i = 0; i < dist.Length; i++)
                 dist[i] = share;
         }
 
         return dist;
     }
 
-    void ApplyBrakes()
+    private void ApplyBrakes()
     {
         float brakeTorque = _brakeInput * drivetrain.MaxBrakeTorque;
 
@@ -412,13 +399,13 @@ public class VehicleController : MonoBehaviour
         if (profile.BrakeAssistStrength > 0f)
             brakeTorque = _brakeAssist.Apply(brakeTorque, wheels, profile.BrakeAssistStrength);
 
-        foreach (var w in wheels)
+        foreach (VehicleWheel w in wheels)
         {
-            float torque = 0f;
+            var torque = 0f;
 
             if (w.IsBrake)
             {
-                float balance = w.IsFrontAxle ? drivetrain.BrakeBalance : (1f - drivetrain.BrakeBalance);
+                float balance = w.IsFrontAxle ? drivetrain.BrakeBalance : 1f - drivetrain.BrakeBalance;
                 torque += brakeTorque * balance;
             }
 
@@ -429,11 +416,11 @@ public class VehicleController : MonoBehaviour
         }
     }
 
-    void ApplyAerodynamics()
+    private void ApplyAerodynamics()
     {
         float speed = _forwardSpeed;
         float speedSqr = speed * speed;
-        var forward = transform.forward;
+        Vector3 forward = transform.forward;
 
         // Drag (opposes motion)
         float dragForce = profile.DragCoefficient * speedSqr * Mathf.Sign(speed);
@@ -448,23 +435,23 @@ public class VehicleController : MonoBehaviour
 
             if (_frontWheels.Length > 0)
             {
-                var frontPos = Vector3.zero;
-                foreach (var w in _frontWheels) frontPos += w.transform.position;
+                Vector3 frontPos = Vector3.zero;
+                foreach (VehicleWheel w in _frontWheels) frontPos += w.transform.position;
                 frontPos /= _frontWheels.Length;
                 _rb.AddForceAtPosition(-transform.up * downforce * frontShare, frontPos);
             }
 
             if (_rearWheels.Length > 0)
             {
-                var rearPos = Vector3.zero;
-                foreach (var w in _rearWheels) rearPos += w.transform.position;
+                Vector3 rearPos = Vector3.zero;
+                foreach (VehicleWheel w in _rearWheels) rearPos += w.transform.position;
                 rearPos /= _rearWheels.Length;
                 _rb.AddForceAtPosition(-transform.up * downforce * rearShare, rearPos);
             }
         }
     }
 
-    void ApplyAntiRoll()
+    private void ApplyAntiRoll()
     {
         if (profile.AntiRollStrength <= 0f) return;
 
@@ -472,13 +459,13 @@ public class VehicleController : MonoBehaviour
         ApplyAntiRollForAxle(_rearWheels);
     }
 
-    void ApplyAntiRollForAxle(VehicleWheel[] axle)
+    private void ApplyAntiRollForAxle(VehicleWheel[] axle)
     {
         if (axle.Length < 2) return;
 
         // Simple pair-based anti-roll
-        var left = axle[0];
-        var right = axle[1];
+        VehicleWheel left = axle[0];
+        VehicleWheel right = axle[1];
 
         float leftComp = left.IsGrounded ? left.Compression : 0f;
         float rightComp = right.IsGrounded ? right.Compression : 0f;
@@ -492,12 +479,14 @@ public class VehicleController : MonoBehaviour
             _rb.AddForceAtPosition(transform.up * antiRollForce, right.transform.position);
     }
 
-    void UpdateGroundedState()
+    private void UpdateGroundedState()
     {
         IsGrounded = false;
-        foreach (var w in wheels)
-        {
-            if (w.IsGrounded) { IsGrounded = true; break; }
-        }
+        foreach (VehicleWheel w in wheels)
+            if (w.IsGrounded)
+            {
+                IsGrounded = true;
+                break;
+            }
     }
 }

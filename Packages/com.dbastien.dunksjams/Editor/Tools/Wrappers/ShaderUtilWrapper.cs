@@ -5,21 +5,21 @@ using UnityEngine.Rendering;
 
 public static class ShaderUtilWrapper
 {
-    static readonly Type type = Type.GetType("UnityEditor.ShaderUtil, UnityEditor.dll");
+    private static readonly Type type = Type.GetType("UnityEditor.ShaderUtil, UnityEditor.dll");
 
-    static MethodInfo GetMethod(string name) =>
+    private static MethodInfo GetMethod(string name) =>
         type?.GetMethod(name, BindingFlags.Static | BindingFlags.Public);
 
-    static readonly MethodInfo HasShadowCasterPassMethod = GetMethod("HasShadowCasterPass");
-    static readonly MethodInfo GetShaderActiveSubshaderIndexMethod = GetMethod("GetShaderActiveSubshaderIndex");
+    private static readonly MethodInfo HasShadowCasterPassMethod = GetMethod("HasShadowCasterPass");
+    private static readonly MethodInfo GetShaderActiveSubshaderIndexMethod = GetMethod("GetShaderActiveSubshaderIndex");
 
-    static readonly MethodInfo GetSRPBatcherCompatibilityCodeMethod =
+    private static readonly MethodInfo GetSRPBatcherCompatibilityCodeMethod =
         GetMethod("GetSRPBatcherCompatibilityCode");
 
-    static readonly MethodInfo GetVariantCountMethod = GetMethod("GetVariantCount");
-    static readonly MethodInfo OpenShaderCombinationsMethod = GetMethod("OpenShaderCombinations");
-    static readonly MethodInfo GetShaderGlobalKeywordsMethod = GetMethod("GetShaderGlobalKeywords");
-    static readonly MethodInfo GetShaderLocalKeywordsMethod = GetMethod("GetShaderLocalKeywords");
+    private static readonly MethodInfo GetVariantCountMethod = GetMethod("GetVariantCount");
+    private static readonly MethodInfo OpenShaderCombinationsMethod = GetMethod("OpenShaderCombinations");
+    private static readonly MethodInfo GetShaderGlobalKeywordsMethod = GetMethod("GetShaderGlobalKeywords");
+    private static readonly MethodInfo GetShaderLocalKeywordsMethod = GetMethod("GetShaderLocalKeywords");
 
     public static bool HasShadowCasterPass(Shader s) => HasShadowCasterPassMethod != null &&
                                                         (bool)HasShadowCasterPassMethod.Invoke(null,

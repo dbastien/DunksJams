@@ -11,10 +11,10 @@ public class SequencerCommandFont : SequencerCommand
         Transform target = DialogUtility.FindTransform(targetName);
         if (target != null)
         {
-            TMP_Text text = target.GetComponentInChildren<TMP_Text>();
+            var text = target.GetComponentInChildren<TMP_Text>();
             if (text != null)
             {
-                TMP_FontAsset font = Resources.Load<TMP_FontAsset>("Fonts/" + fontName);
+                var font = Resources.Load<TMP_FontAsset>("Fonts/" + fontName);
                 if (font != null)
                     text.font = font;
                 else

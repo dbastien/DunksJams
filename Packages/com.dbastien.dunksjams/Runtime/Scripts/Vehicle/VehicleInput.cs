@@ -4,24 +4,24 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleInput : MonoBehaviour
 {
-    [SerializeField] InputActionAsset inputActions;
-    [SerializeField] string actionMapName = "Vehicle";
-    [SerializeField] float steerSmoothing = 8f;
+    [SerializeField] private InputActionAsset inputActions;
+    [SerializeField] private string actionMapName = "Vehicle";
+    [SerializeField] private float steerSmoothing = 8f;
 
-    InputAction _throttleAction;
-    InputAction _brakeAction;
-    InputAction _steerAction;
-    InputAction _handbrakeAction;
+    private InputAction _throttleAction;
+    private InputAction _brakeAction;
+    private InputAction _steerAction;
+    private InputAction _handbrakeAction;
 
-    VehicleController _vehicle;
-    float _smoothedSteer;
+    private VehicleController _vehicle;
+    private float _smoothedSteer;
 
-    void Awake()
+    private void Awake()
     {
         _vehicle = GetComponent<VehicleController>();
 
         if (inputActions == null) return;
-        var map = inputActions.FindActionMap(actionMapName);
+        InputActionMap map = inputActions.FindActionMap(actionMapName);
         if (map == null)
         {
             DLog.LogW($"VehicleInput: Action map '{actionMapName}' not found, trying 'Player'.");
@@ -36,7 +36,7 @@ public class VehicleInput : MonoBehaviour
         _handbrakeAction = map.FindAction("Handbrake") ?? map.FindAction("Jump");
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         _throttleAction?.Enable();
         _brakeAction?.Enable();
@@ -44,7 +44,7 @@ public class VehicleInput : MonoBehaviour
         _handbrakeAction?.Enable();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         _throttleAction?.Disable();
         _brakeAction?.Disable();
@@ -52,7 +52,7 @@ public class VehicleInput : MonoBehaviour
         _handbrakeAction?.Disable();
     }
 
-    void Update()
+    private void Update()
     {
         if (_vehicle == null) return;
 
@@ -60,7 +60,7 @@ public class VehicleInput : MonoBehaviour
         float rawBrake = _brakeAction?.ReadValue<float>() ?? 0f;
 
         // Steer can be float or Vector2 (if reusing Move action)
-        float rawSteer = 0f;
+        var rawSteer = 0f;
         if (_steerAction != null)
         {
             if (_steerAction.expectedControlType == "Vector2")
@@ -81,13 +81,9 @@ public class VehicleInput : MonoBehaviour
 
             // Only brake if moving forward, otherwise reverse
             if (_vehicle.ForwardSpeed > 1f)
-            {
                 throttle = 0f;
-            }
             else
-            {
                 brake = 0f;
-            }
         }
 
         // Smooth steering

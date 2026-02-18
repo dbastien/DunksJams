@@ -4,25 +4,22 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 [InitializeOnLoad]
 public static class ToolbarCallback
 {
-    static readonly Type _toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
-    static readonly Type _guiViewType = typeof(Editor).Assembly.GetType("UnityEditor.GUIView");
+    private const string LeftContainerName = "DunksJams-ToolbarLeft";
+    private const string RightContainerName = "DunksJams-ToolbarRight";
+    private static readonly Type _toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
+    private static readonly Type _guiViewType = typeof(Editor).Assembly.GetType("UnityEditor.GUIView");
 
-    static readonly PropertyInfo _viewVisualTree =
+    private static readonly PropertyInfo _viewVisualTree =
         _guiViewType?.GetProperty("visualTree",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-    const string LeftContainerName = "DunksJams-ToolbarLeft";
-    const string RightContainerName = "DunksJams-ToolbarRight";
-
-    static ScriptableObject _currentToolbar;
-    static bool _hooked;
-
-    public static event Action OnLeftToolbarGUI;
-    public static event Action OnRightToolbarGUI;
+    private static ScriptableObject _currentToolbar;
+    private static bool _hooked;
 
     static ToolbarCallback()
     {
@@ -32,19 +29,22 @@ public static class ToolbarCallback
         EditorApplication.update += OnUpdate;
     }
 
-    static void OnUpdate()
+    public static event Action OnLeftToolbarGUI;
+    public static event Action OnRightToolbarGUI;
+
+    private static void OnUpdate()
     {
         if (_hooked && _currentToolbar != null) return;
         _hooked = false;
         TryHook();
     }
 
-    static void TryHook()
+    private static void TryHook()
     {
         if (_toolbarType == null || _guiViewType == null || _viewVisualTree == null)
             return;
 
-        var toolbars = Resources.FindObjectsOfTypeAll(_toolbarType);
+        Object[] toolbars = Resources.FindObjectsOfTypeAll(_toolbarType);
         if (toolbars.Length == 0) return;
 
         _currentToolbar = toolbars[0] as ScriptableObject;
@@ -58,10 +58,10 @@ public static class ToolbarCallback
         root.Q(RightContainerName)?.RemoveFromHierarchy();
 
         // Unity 6000+: overlay toolbar with DockArea elements
-        var overlayToolbar = root.Q("overlay-toolbar__top");
+        VisualElement overlayToolbar = root.Q("overlay-toolbar__top");
         if (overlayToolbar != null)
         {
-            var dockAreas = overlayToolbar.Query<VisualElement>(name: "DockArea").ToList();
+            List<VisualElement> dockAreas = overlayToolbar.Query<VisualElement>("DockArea").ToList();
             if (dockAreas.Count >= 2)
             {
                 AddIMGUIContainer(dockAreas[0], LeftContainerName, () => OnLeftToolbarGUI?.Invoke());
@@ -72,8 +72,8 @@ public static class ToolbarCallback
         }
 
         // Fallback: older Unity ToolbarZone approach
-        var leftZone = root.Q("ToolbarZoneLeftAlign");
-        var rightZone = root.Q("ToolbarZoneRightAlign");
+        VisualElement leftZone = root.Q("ToolbarZoneLeftAlign");
+        VisualElement rightZone = root.Q("ToolbarZoneRightAlign");
 
         if (leftZone != null)
             AddIMGUIContainer(leftZone, LeftContainerName, () => OnLeftToolbarGUI?.Invoke());
@@ -83,7 +83,7 @@ public static class ToolbarCallback
         _hooked = leftZone != null || rightZone != null;
     }
 
-    static void AddIMGUIContainer(VisualElement parent, string containerName, Action onGUI)
+    private static void AddIMGUIContainer(VisualElement parent, string containerName, Action onGUI)
     {
         var container = new IMGUIContainer(onGUI) { name = containerName };
         container.style.flexGrow = 1;

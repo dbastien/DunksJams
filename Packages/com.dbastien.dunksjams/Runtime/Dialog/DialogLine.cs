@@ -10,15 +10,15 @@ using UnityEngine;
 public class DialogLine
 {
     public string actorName;
-    [TextArea(2, 5)]
-    public string text;
-    [TextArea(2, 5)]
-    public string sequence;
+    [TextArea(2, 5)] public string text;
+    [TextArea(2, 5)] public string sequence;
 
     public List<Field> fields = new();
 
     public DialogLine() { }
 
     public string GetFieldValue(string name, string fallback = "") => fields.GetFieldValue(name, fallback);
-    public void SetField(string name, string value, FieldType type = FieldType.Text) => fields.SetField(name, value, type);
+
+    public void SetField
+        (string name, string value, FieldType type = FieldType.Text) => fields.SetField(name, value, type);
 }

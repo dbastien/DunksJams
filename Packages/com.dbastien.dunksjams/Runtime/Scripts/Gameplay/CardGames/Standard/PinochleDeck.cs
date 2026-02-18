@@ -4,7 +4,7 @@ public static class PinochleDeck
 {
     public static Deck<StandardCard> CreateDeck()
     {
-        var suits = EnumCache<StandardCard.Suit>.Values;
+        StandardCard.Suit[] suits = EnumCache<StandardCard.Suit>.Values;
         StandardCard.Rank[] ranks =
         {
             StandardCard.Rank.Nine,
@@ -16,13 +16,11 @@ public static class PinochleDeck
         };
 
         var cards = new List<StandardCard>(48);
-        foreach (var suit in suits)
+        foreach (StandardCard.Suit suit in suits)
+        foreach (StandardCard.Rank rank in ranks)
         {
-            foreach (var rank in ranks)
-            {
-                cards.Add(new StandardCard(suit, rank));
-                cards.Add(new StandardCard(suit, rank));
-            }
+            cards.Add(new StandardCard(suit, rank));
+            cards.Add(new StandardCard(suit, rank));
         }
 
         return new Deck<StandardCard>(cards);

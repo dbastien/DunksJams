@@ -30,16 +30,17 @@ public class PathRequestCompleteEvent : GameEvent
 /// Processes path requests spread across frames to avoid spikes.
 /// Uses a single AStarPathfinder instance for all requests.
 /// </summary>
-[DisallowMultipleComponent, SingletonAutoCreate]
+[DisallowMultipleComponent]
+[SingletonAutoCreate]
 public class PathRequestManager : SingletonEagerBehaviour<PathRequestManager>
 {
-    [SerializeField] int maxRequestsPerFrame = 3;
-    [SerializeField] int maxNodesPerFrame = 500;
+    [SerializeField] private int maxRequestsPerFrame = 3;
+    [SerializeField] private int maxNodesPerFrame = 500;
 
-    readonly Queue<PendingRequest> _pending = new();
-    readonly AStarPathfinder _pathfinder = new();
+    private readonly Queue<PendingRequest> _pending = new();
+    private readonly AStarPathfinder _pathfinder = new();
 
-    struct PendingRequest
+    private struct PendingRequest
     {
         public PathRequest Request;
         public IGraph<Vector2Int> Graph;
@@ -66,8 +67,11 @@ public class PathRequestManager : SingletonEagerBehaviour<PathRequestManager>
     }
 
     /// <summary>Queues a path request against any IGraph.</summary>
-    public void RequestPath(PathRequest request, IGraph<Vector2Int> graph,
-        IHeuristic<Vector2Int> heuristic = null, IEdgeMod<Vector2Int> edgeMod = null)
+    public void RequestPath
+    (
+        PathRequest request, IGraph<Vector2Int> graph,
+        IHeuristic<Vector2Int> heuristic = null, IEdgeMod<Vector2Int> edgeMod = null
+    )
     {
         heuristic ??= new ManhattanHeuristic2D();
 
@@ -82,13 +86,13 @@ public class PathRequestManager : SingletonEagerBehaviour<PathRequestManager>
 
     public int PendingCount => _pending.Count;
 
-    void Update()
+    private void Update()
     {
-        int processed = 0;
+        var processed = 0;
         while (_pending.Count > 0 && processed < maxRequestsPerFrame)
         {
-            var pending = _pending.Dequeue();
-            var path = _pathfinder.FindPath(
+            PendingRequest pending = _pending.Dequeue();
+            List<Vector2Int> path = _pathfinder.FindPath(
                 pending.Request.Start,
                 pending.Request.Goal,
                 pending.Graph,
@@ -109,10 +113,13 @@ public class PathRequestManager : SingletonEagerBehaviour<PathRequestManager>
     }
 
     /// <summary>Coroutine that waits until a specific path request is complete.</summary>
-    public static IEnumerator WaitForPath(Vector2Int start, Vector2Int goal, int[,] grid,
-        bool allowDiag, Action<List<Vector2Int>> onComplete)
+    public static IEnumerator WaitForPath
+    (
+        Vector2Int start, Vector2Int goal, int[,] grid,
+        bool allowDiag, Action<List<Vector2Int>> onComplete
+    )
     {
-        bool done = false;
+        var done = false;
         List<Vector2Int> result = null;
 
         Instance?.RequestPath(

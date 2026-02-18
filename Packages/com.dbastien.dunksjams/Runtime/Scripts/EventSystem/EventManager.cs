@@ -4,7 +4,7 @@ using UnityEngine.Pool;
 
 public static class EventManager
 {
-    readonly struct PrioritizedListener : IComparable<PrioritizedListener>
+    private readonly struct PrioritizedListener : IComparable<PrioritizedListener>
     {
         public readonly int Priority;
         public readonly Action<GameEvent> Callback;
@@ -21,29 +21,27 @@ public static class EventManager
         public int CompareTo(PrioritizedListener other) => other.Priority.CompareTo(Priority);
     }
 
-    static readonly Dictionary<Type, List<PrioritizedListener>> _listeners = new();
-    static readonly Dictionary<Type, List<Delegate>> _oneShotListeners = new();
-    static readonly Queue<GameEvent> _eventQueue = new();
-    static readonly Queue<GameEvent> _immediateEventQueue = new();
-    static readonly RingBuffer<GameEvent> _eventHistory = new(100);
-    static readonly Dictionary<Type, ObjectPool<GameEvent>> eventPools = new();
+    private static readonly Dictionary<Type, List<PrioritizedListener>> _listeners = new();
+    private static readonly Dictionary<Type, List<Delegate>> _oneShotListeners = new();
+    private static readonly Queue<GameEvent> _eventQueue = new();
+    private static readonly Queue<GameEvent> _immediateEventQueue = new();
+    private static readonly RingBuffer<GameEvent> _eventHistory = new(100);
+    private static readonly Dictionary<Type, ObjectPool<GameEvent>> eventPools = new();
 
     /// <summary>Add a listener with optional priority (higher = called first, default 0).</summary>
     public static void AddListener<T>(Action<T> listener, int priority = 0) where T : GameEvent
     {
-        var type = typeof(T);
-        if (!_listeners.TryGetValue(type, out var list))
+        Type type = typeof(T);
+        if (!_listeners.TryGetValue(type, out List<PrioritizedListener> list))
         {
             list = new List<PrioritizedListener>();
             _listeners[type] = list;
         }
 
         // Check if already registered
-        foreach (var pl in list)
-        {
+        foreach (PrioritizedListener pl in list)
             if (pl.OriginalDelegate.Equals(listener))
                 return;
-        }
 
         list.Add(new PrioritizedListener(priority, e => listener((T)e), listener));
         list.Sort();
@@ -51,18 +49,16 @@ public static class EventManager
 
     public static void AddGenericListener(Action<GameEvent> listener, int priority = 0)
     {
-        var type = typeof(GameEvent);
-        if (!_listeners.TryGetValue(type, out var list))
+        Type type = typeof(GameEvent);
+        if (!_listeners.TryGetValue(type, out List<PrioritizedListener> list))
         {
             list = new List<PrioritizedListener>();
             _listeners[type] = list;
         }
 
-        foreach (var pl in list)
-        {
+        foreach (PrioritizedListener pl in list)
             if (pl.OriginalDelegate.Equals(listener))
                 return;
-        }
 
         list.Add(new PrioritizedListener(priority, listener, listener));
         list.Sort();
@@ -71,8 +67,8 @@ public static class EventManager
     public static void AddListenerOneShot<T>(Action<T> listener, int priority = 0) where T : GameEvent
     {
         AddListener(listener, priority);
-        var type = typeof(T);
-        if (!_oneShotListeners.TryGetValue(type, out var oneShotList))
+        Type type = typeof(T);
+        if (!_oneShotListeners.TryGetValue(type, out List<Delegate> oneShotList))
         {
             oneShotList = new List<Delegate>();
             _oneShotListeners[type] = oneShotList;
@@ -94,15 +90,15 @@ public static class EventManager
         (isImmediate ? _immediateEventQueue : _eventQueue).Enqueue(gameEvent);
     }
 
-    static void ReleasePooledEvent(GameEvent gameEvent)
+    private static void ReleasePooledEvent(GameEvent gameEvent)
     {
-        if (eventPools.TryGetValue(gameEvent.GetType(), out var pool)) pool.Release(gameEvent);
+        if (eventPools.TryGetValue(gameEvent.GetType(), out ObjectPool<GameEvent> pool)) pool.Release(gameEvent);
     }
 
-    static T GetPooledEvent<T>() where T : GameEvent, new()
+    private static T GetPooledEvent<T>() where T : GameEvent, new()
     {
-        var type = typeof(T);
-        if (!eventPools.TryGetValue(type, out var pool))
+        Type type = typeof(T);
+        if (!eventPools.TryGetValue(type, out ObjectPool<GameEvent> pool))
         {
             pool = new ObjectPool<GameEvent>(
                 () => new T(),
@@ -119,24 +115,18 @@ public static class EventManager
 
     public static void TriggerEvent(GameEvent gameEvent)
     {
-        if (_listeners.TryGetValue(gameEvent.GetType(), out var list))
-            foreach (var pl in list)
+        if (_listeners.TryGetValue(gameEvent.GetType(), out List<PrioritizedListener> list))
+            foreach (PrioritizedListener pl in list)
             {
                 if (gameEvent.IsCancelled) break; // Support event cancellation
 
-                try
-                {
-                    pl.Callback(gameEvent);
-                }
-                catch (Exception ex)
-                {
-                    DLog.LogE($"Error in event listener: {ex}");
-                }
+                try { pl.Callback(gameEvent); }
+                catch (Exception ex) { DLog.LogE($"Error in event listener: {ex}"); }
             }
 
-        if (_oneShotListeners.TryGetValue(gameEvent.GetType(), out var oneShotList))
+        if (_oneShotListeners.TryGetValue(gameEvent.GetType(), out List<Delegate> oneShotList))
         {
-            foreach (var listener in oneShotList) RemoveListener(gameEvent.GetType(), listener);
+            foreach (Delegate listener in oneShotList) RemoveListener(gameEvent.GetType(), listener);
             oneShotList.Clear();
         }
 
@@ -146,22 +136,20 @@ public static class EventManager
 
     public static void Update()
     {
-        while (_immediateEventQueue.TryDequeue(out var gameEvent)) TriggerEvent(gameEvent);
-        while (_eventQueue.TryDequeue(out var gameEvent)) TriggerEvent(gameEvent);
+        while (_immediateEventQueue.TryDequeue(out GameEvent gameEvent)) TriggerEvent(gameEvent);
+        while (_eventQueue.TryDequeue(out GameEvent gameEvent)) TriggerEvent(gameEvent);
     }
 
-    static void RemoveListener(Type eventType, Delegate listener)
+    private static void RemoveListener(Type eventType, Delegate listener)
     {
-        if (!_listeners.TryGetValue(eventType, out var list)) return;
+        if (!_listeners.TryGetValue(eventType, out List<PrioritizedListener> list)) return;
 
-        for (var i = list.Count - 1; i >= 0; i--)
-        {
+        for (int i = list.Count - 1; i >= 0; i--)
             if (list[i].OriginalDelegate.Equals(listener))
             {
                 list.RemoveAt(i);
                 break;
             }
-        }
 
         if (list.Count == 0) _listeners.Remove(eventType);
     }

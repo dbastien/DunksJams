@@ -10,9 +10,7 @@ public abstract class TestBase
             a();
             Assert.Fail($"Expected {typeof(T).Name}");
         }
-        catch (T)
-        {
-        }
+        catch (T) { }
     }
 
     protected static void InRange(float v, float min, float max) =>

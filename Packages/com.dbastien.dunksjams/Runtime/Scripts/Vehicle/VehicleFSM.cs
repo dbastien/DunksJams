@@ -3,15 +3,15 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleFSM : MonoBehaviour, IHasFSM<VehicleController>
 {
-    VehicleController _vehicle;
-    FiniteStateMachine<VehicleController> _fsm;
-    Health _health;
+    private VehicleController _vehicle;
+    private FiniteStateMachine<VehicleController> _fsm;
+    private Health _health;
 
     public FiniteStateMachine<VehicleController> FSM => _fsm;
 
     public string CurrentStateName => _fsm?.CurrentState?.StateName ?? "None";
 
-    void Awake()
+    private void Awake()
     {
         _vehicle = GetComponent<VehicleController>();
         TryGetComponent(out _health);
@@ -28,19 +28,19 @@ public class VehicleFSM : MonoBehaviour, IHasFSM<VehicleController>
         _fsm.Start();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         if (_health != null)
             _health.OnDeath += HandleDeath;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         if (_health != null)
             _health.OnDeath -= HandleDeath;
     }
 
-    void Update() => _fsm?.Update();
+    private void Update() => _fsm?.Update();
 
     public void TransitionTo<T>() where T : FiniteState<VehicleController>
     {
@@ -48,5 +48,5 @@ public class VehicleFSM : MonoBehaviour, IHasFSM<VehicleController>
         if (state != null) _fsm.ChangeState(state);
     }
 
-    void HandleDeath() => TransitionTo<VehicleDestroyedState>();
+    private void HandleDeath() => TransitionTo<VehicleDestroyedState>();
 }

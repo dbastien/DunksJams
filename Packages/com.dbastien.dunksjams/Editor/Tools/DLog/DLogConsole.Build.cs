@@ -1,6 +1,5 @@
 // Assets/Editor/DLog/DLogConsole.Build.cs
 
-using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
@@ -13,7 +12,7 @@ public sealed partial class DLogConsole
     }
 }
 
-sealed class DLogBuildPreprocessor : IPreprocessBuildWithReport
+internal sealed class DLogBuildPreprocessor : IPreprocessBuildWithReport
 {
     public int callbackOrder => 0;
 

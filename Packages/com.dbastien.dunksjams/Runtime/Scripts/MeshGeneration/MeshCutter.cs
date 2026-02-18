@@ -7,29 +7,31 @@ using UnityEngine;
 /// </summary>
 public class MeshCutter
 {
-    readonly List<Vector3>[] _verts = { new(), new() };
-    readonly List<Vector3>[] _normals = { new(), new() };
-    readonly List<Vector2>[] _uvs = { new(), new() };
-    readonly List<int>[] _tris = { new(), new() };
-    readonly List<int>[] _capTris = { new(), new() };
-    readonly List<Vector3> _cutEdgePoints = new();
+    private readonly List<Vector3>[] _verts = { new(), new() };
+    private readonly List<Vector3>[] _normals = { new(), new() };
+    private readonly List<Vector2>[] _uvs = { new(), new() };
+    private readonly List<int>[] _tris = { new(), new() };
+    private readonly List<int>[] _capTris = { new(), new() };
+    private readonly List<Vector3> _cutEdgePoints = new();
 
     /// <summary>
     /// Cut a mesh by a world-space plane. Returns true if the cut produced two meshes.
     /// </summary>
-    public bool Cut(Mesh mesh, UnityEngine.Plane plane, out Mesh frontMesh, out Mesh backMesh)
+    public bool Cut(Mesh mesh, Plane plane, out Mesh frontMesh, out Mesh backMesh)
     {
         Clear();
 
-        var meshVerts = mesh.vertices;
-        var meshNormals = mesh.normals;
-        var meshUVs = mesh.uv;
-        var meshTris = mesh.triangles;
+        Vector3[] meshVerts = mesh.vertices;
+        Vector3[] meshNormals = mesh.normals;
+        Vector2[] meshUVs = mesh.uv;
+        int[] meshTris = mesh.triangles;
 
         for (var i = 0; i < meshTris.Length; i += 3)
         {
             int i0 = meshTris[i], i1 = meshTris[i + 1], i2 = meshTris[i + 2];
-            var v0 = meshVerts[i0]; var v1 = meshVerts[i1]; var v2 = meshVerts[i2];
+            Vector3 v0 = meshVerts[i0];
+            Vector3 v1 = meshVerts[i1];
+            Vector3 v2 = meshVerts[i2];
 
             bool s0 = plane.GetSide(v0), s1 = plane.GetSide(v1), s2 = plane.GetSide(v2);
 
@@ -67,31 +69,49 @@ public class MeshCutter
         return true;
     }
 
-    void Clear()
+    private void Clear()
     {
         for (var i = 0; i < 2; ++i)
         {
-            _verts[i].Clear(); _normals[i].Clear(); _uvs[i].Clear();
-            _tris[i].Clear(); _capTris[i].Clear();
+            _verts[i].Clear();
+            _normals[i].Clear();
+            _uvs[i].Clear();
+            _tris[i].Clear();
+            _capTris[i].Clear();
         }
+
         _cutEdgePoints.Clear();
     }
 
-    void AddTriangle(int side, Vector3 v0, Vector3 v1, Vector3 v2,
-        Vector3 n0, Vector3 n1, Vector3 n2, Vector2 u0, Vector2 u1, Vector2 u2)
+    private void AddTriangle
+    (
+        int side, Vector3 v0, Vector3 v1, Vector3 v2,
+        Vector3 n0, Vector3 n1, Vector3 n2, Vector2 u0, Vector2 u1, Vector2 u2
+    )
     {
         int baseIdx = _verts[side].Count;
-        _verts[side].Add(v0); _verts[side].Add(v1); _verts[side].Add(v2);
-        _normals[side].Add(n0); _normals[side].Add(n1); _normals[side].Add(n2);
-        _uvs[side].Add(u0); _uvs[side].Add(u1); _uvs[side].Add(u2);
-        _tris[side].Add(baseIdx); _tris[side].Add(baseIdx + 1); _tris[side].Add(baseIdx + 2);
+        _verts[side].Add(v0);
+        _verts[side].Add(v1);
+        _verts[side].Add(v2);
+        _normals[side].Add(n0);
+        _normals[side].Add(n1);
+        _normals[side].Add(n2);
+        _uvs[side].Add(u0);
+        _uvs[side].Add(u1);
+        _uvs[side].Add(u2);
+        _tris[side].Add(baseIdx);
+        _tris[side].Add(baseIdx + 1);
+        _tris[side].Add(baseIdx + 2);
     }
 
-    void SplitTriangle(UnityEngine.Plane plane,
+    private void SplitTriangle
+    (
+        Plane plane,
         Vector3 v0, Vector3 v1, Vector3 v2,
         Vector3 n0, Vector3 n1, Vector3 n2,
         Vector2 u0, Vector2 u1, Vector2 u2,
-        bool s0, bool s1, bool s2)
+        bool s0, bool s1, bool s2
+    )
     {
         // Identify the lone vertex (the one on a different side)
         // Rotate so that the lone vertex is v0/n0/u0, s0 is its side
@@ -114,8 +134,8 @@ public class MeshCutter
         // else v0 is already alone
 
         // Intersect edges v0-v1 and v0-v2
-        IntersectEdge(plane, v0, v1, n0, n1, u0, u1, out var hitA, out var nA, out var uA);
-        IntersectEdge(plane, v0, v2, n0, n2, u0, u2, out var hitB, out var nB, out var uB);
+        IntersectEdge(plane, v0, v1, n0, n1, u0, u1, out Vector3 hitA, out Vector3 nA, out Vector2 uA);
+        IntersectEdge(plane, v0, v2, n0, n2, u0, u2, out Vector3 hitB, out Vector3 nB, out Vector2 uB);
 
         int loneSide = s0 ? 0 : 1;
         int otherSide = 1 - loneSide;
@@ -132,9 +152,12 @@ public class MeshCutter
         _cutEdgePoints.Add(hitB);
     }
 
-    static void IntersectEdge(UnityEngine.Plane plane, Vector3 a, Vector3 b,
+    private static void IntersectEdge
+    (
+        Plane plane, Vector3 a, Vector3 b,
         Vector3 nA, Vector3 nB, Vector2 uA, Vector2 uB,
-        out Vector3 hit, out Vector3 hitN, out Vector2 hitU)
+        out Vector3 hit, out Vector3 hitN, out Vector2 hitU
+    )
     {
         var ray = new Ray(a, b - a);
         plane.Raycast(ray, out float dist);
@@ -145,52 +168,55 @@ public class MeshCutter
         hitU = Vector2.Lerp(uA, uB, t);
     }
 
-    void FillCutSurface(UnityEngine.Plane plane)
+    private void FillCutSurface(Plane plane)
     {
         if (_cutEdgePoints.Count < 6) return; // need at least 3 unique points
 
         // Project cut points onto the plane's 2D space for triangulation
-        var normal = plane.normal;
-        var tangent = Vector3.Cross(normal, Mathf.Abs(normal.y) < 0.9f ? Vector3.up : Vector3.right).normalized;
-        var bitangent = Vector3.Cross(normal, tangent).normalized;
+        Vector3 normal = plane.normal;
+        Vector3 tangent = Vector3.Cross(normal, Mathf.Abs(normal.y) < 0.9f ? Vector3.up : Vector3.right).normalized;
+        Vector3 bitangent = Vector3.Cross(normal, tangent).normalized;
 
         // Deduplicate and collect unique points
         var unique = new List<Vector3>();
         var epsilon2 = 1e-8f;
         for (var i = 0; i < _cutEdgePoints.Count; ++i)
         {
-            bool found = false;
+            var found = false;
             for (var j = 0; j < unique.Count; ++j)
-            {
-                if ((_cutEdgePoints[i] - unique[j]).sqrMagnitude < epsilon2) { found = true; break; }
-            }
+                if ((_cutEdgePoints[i] - unique[j]).sqrMagnitude < epsilon2)
+                {
+                    found = true;
+                    break;
+                }
+
             if (!found) unique.Add(_cutEdgePoints[i]);
         }
 
         if (unique.Count < 3) return;
 
         // Project to 2D
-        var center = Vector3.zero;
-        foreach (var p in unique) center += p;
+        Vector3 center = Vector3.zero;
+        foreach (Vector3 p in unique) center += p;
         center /= unique.Count;
 
         var pts2D = new Vector2[unique.Count];
         for (var i = 0; i < unique.Count; ++i)
         {
-            var d = unique[i] - center;
+            Vector3 d = unique[i] - center;
             pts2D[i] = new Vector2(Vector3.Dot(d, tangent), Vector3.Dot(d, bitangent));
         }
 
         // Sort points by angle for convex hull ordering
-        var centroid2D = Vector2.zero;
-        foreach (var p in pts2D) centroid2D += p;
+        Vector2 centroid2D = Vector2.zero;
+        foreach (Vector2 p in pts2D) centroid2D += p;
         centroid2D /= pts2D.Length;
 
         var indices = new int[unique.Count];
         for (var i = 0; i < indices.Length; ++i) indices[i] = i;
         System.Array.Sort(indices, (a, b) =>
-            Mathf.Atan2(pts2D[a].y - centroid2D.y, pts2D[a].x - centroid2D.x)
-            .CompareTo(Mathf.Atan2(pts2D[b].y - centroid2D.y, pts2D[b].x - centroid2D.x)));
+            Mathf.Atan2(pts2D[a].y - centroid2D.y, pts2D[a].x - centroid2D.x).
+                CompareTo(Mathf.Atan2(pts2D[b].y - centroid2D.y, pts2D[b].x - centroid2D.x)));
 
         // Ear-clipping triangulation on the sorted polygon
         var polyIndices = new List<int>(indices);
@@ -200,13 +226,15 @@ public class MeshCutter
         // Add cap triangles to both sides (with opposite winding)
         for (var i = 0; i < capTriIndices.Count; i += 3)
         {
-            var p0 = unique[capTriIndices[i]];
-            var p1 = unique[capTriIndices[i + 1]];
-            var p2 = unique[capTriIndices[i + 2]];
+            Vector3 p0 = unique[capTriIndices[i]];
+            Vector3 p1 = unique[capTriIndices[i + 1]];
+            Vector3 p2 = unique[capTriIndices[i + 2]];
 
             var uv0 = new Vector2(pts2D[capTriIndices[i]].x * 0.5f + 0.5f, pts2D[capTriIndices[i]].y * 0.5f + 0.5f);
-            var uv1 = new Vector2(pts2D[capTriIndices[i + 1]].x * 0.5f + 0.5f, pts2D[capTriIndices[i + 1]].y * 0.5f + 0.5f);
-            var uv2 = new Vector2(pts2D[capTriIndices[i + 2]].x * 0.5f + 0.5f, pts2D[capTriIndices[i + 2]].y * 0.5f + 0.5f);
+            var uv1 = new Vector2(pts2D[capTriIndices[i + 1]].x * 0.5f + 0.5f,
+                pts2D[capTriIndices[i + 1]].y * 0.5f + 0.5f);
+            var uv2 = new Vector2(pts2D[capTriIndices[i + 2]].x * 0.5f + 0.5f,
+                pts2D[capTriIndices[i + 2]].y * 0.5f + 0.5f);
 
             // Front side (normal facing plane normal)
             AddTriangle(0, p0, p1, p2, -normal, -normal, -normal, uv0, uv1, uv2);
@@ -215,34 +243,42 @@ public class MeshCutter
         }
     }
 
-    static void EarClipTriangulate(Vector2[] points, List<int> polygon, List<int> outTris)
+    private static void EarClipTriangulate(Vector2[] points, List<int> polygon, List<int> outTris)
     {
         while (polygon.Count > 2)
         {
-            bool earFound = false;
+            var earFound = false;
             for (var i = 0; i < polygon.Count; ++i)
             {
                 int prev = polygon[(i - 1 + polygon.Count) % polygon.Count];
                 int cur = polygon[i];
                 int next = polygon[(i + 1) % polygon.Count];
 
-                var a = points[prev]; var b = points[cur]; var c = points[next];
+                Vector2 a = points[prev];
+                Vector2 b = points[cur];
+                Vector2 c = points[next];
 
                 // Check if this is a convex vertex (left turn)
                 if (Cross2D(b - a, c - a) <= 0) continue;
 
                 // Check no other point is inside this triangle
-                bool isEar = true;
+                var isEar = true;
                 for (var j = 0; j < polygon.Count; ++j)
                 {
                     int idx = polygon[j];
                     if (idx == prev || idx == cur || idx == next) continue;
-                    if (PointInTriangle(points[idx], a, b, c)) { isEar = false; break; }
+                    if (PointInTriangle(points[idx], a, b, c))
+                    {
+                        isEar = false;
+                        break;
+                    }
                 }
 
                 if (isEar)
                 {
-                    outTris.Add(prev); outTris.Add(cur); outTris.Add(next);
+                    outTris.Add(prev);
+                    outTris.Add(cur);
+                    outTris.Add(next);
                     polygon.RemoveAt(i);
                     earFound = true;
                     break;
@@ -253,19 +289,19 @@ public class MeshCutter
         }
     }
 
-    static float Cross2D(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
+    private static float Cross2D(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
 
-    static bool PointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    private static bool PointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
     {
-        var d0 = Cross2D(b - a, p - a);
-        var d1 = Cross2D(c - b, p - b);
-        var d2 = Cross2D(a - c, p - c);
+        float d0 = Cross2D(b - a, p - a);
+        float d1 = Cross2D(c - b, p - b);
+        float d2 = Cross2D(a - c, p - c);
         bool hasNeg = d0 < 0 || d1 < 0 || d2 < 0;
         bool hasPos = d0 > 0 || d1 > 0 || d2 > 0;
         return !(hasNeg && hasPos);
     }
 
-    Mesh BuildMesh(int side)
+    private Mesh BuildMesh(int side)
     {
         var mesh = new Mesh
         {

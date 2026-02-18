@@ -3,7 +3,7 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewConversation", menuName = "Interroband/Dialog/Conversation")]
 public class DialogConversation : ScriptableObject
-    {
+{
     public string conversationName;
     public List<DialogEntry> entries = new();
     public string startNodeGUID;

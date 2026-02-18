@@ -6,21 +6,21 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(NormalizedAnimationCurveAttribute))]
 public class NormalizedAnimationCurveDrawer : PropertyDrawer
 {
-    enum WrapModeUIFriendly
+    private enum WrapModeUIFriendly
     {
         Loop = 2,
         PingPong = 4,
         ClampForever = 8
     }
 
-    static ScriptableObject presets;
+    private static ScriptableObject presets;
 
     public override void OnGUI(Rect position, SerializedProperty prop, GUIContent label)
     {
         EditorGUI.PrefixLabel(position, label);
         EditorGUI.BeginProperty(position, label, prop);
 
-        var oldCurve = prop.animationCurveValue;
+        AnimationCurve oldCurve = prop.animationCurveValue;
 
         var wrapMode = (int)oldCurve.preWrapMode;
 
@@ -33,7 +33,7 @@ public class NormalizedAnimationCurveDrawer : PropertyDrawer
 
         if (EditorGUI.EndChangeCheck())
         {
-            var tempCurve = prop.animationCurveValue;
+            AnimationCurve tempCurve = prop.animationCurveValue;
             tempCurve.preWrapMode = (WrapMode)wrapMode;
             tempCurve.postWrapMode = (WrapMode)wrapMode;
             prop.animationCurveValue = tempCurve;
@@ -43,28 +43,28 @@ public class NormalizedAnimationCurveDrawer : PropertyDrawer
         var curveItemSize = new Vector2(40f, 40f);
         var curveItemPadding = new Vector2(5f, 5f);
 
-        var presetCount = CurvePresetLibraryWrapper.Count(presets);
+        int presetCount = CurvePresetLibraryWrapper.Count(presets);
 
-        var rowItems = Mathf.FloorToInt((EditorGUIUtility.currentViewWidth - curveItemPadding.x) /
+        int rowItems = Mathf.FloorToInt((EditorGUIUtility.currentViewWidth - curveItemPadding.x) /
                                         (curveItemSize.x + curveItemPadding.x));
 
         var p = 0;
         while (p < presetCount)
         {
             EditorGUILayout.BeginHorizontal();
-            var itemsThisRow = Mathf.Min(presetCount - p, rowItems);
+            int itemsThisRow = Mathf.Min(presetCount - p, rowItems);
             for (var i = 0; i < itemsThisRow; ++i)
             {
-                var rect = GUILayoutUtility.GetRect(curveItemSize.x,
+                Rect rect = GUILayoutUtility.GetRect(curveItemSize.x,
                     curveItemSize.y,
                     GUILayout.Height(curveItemSize.x),
                     GUILayout.Width(curveItemSize.y));
 
-                var curveName = CurvePresetLibraryWrapper.GetName(presets, p);
+                string curveName = CurvePresetLibraryWrapper.GetName(presets, p);
 
                 if (GUI.Button(rect, new GUIContent(string.Empty, curveName)))
                 {
-                    var animationCurve = CurvePresetLibraryWrapper.GetPreset(presets, p);
+                    AnimationCurve animationCurve = CurvePresetLibraryWrapper.GetPreset(presets, p);
                     animationCurve.preWrapMode = (WrapMode)wrapMode;
                     animationCurve.postWrapMode = (WrapMode)wrapMode;
                     prop.animationCurveValue = animationCurve;
@@ -86,10 +86,10 @@ public class NormalizedAnimationCurveDrawer : PropertyDrawer
 
     //todo: ideally also triggers when asset database refreshes
     [DidReloadScripts]
-    static void LoadPresets()
+    private static void LoadPresets()
     {
-        var path = Application.dataPath + CurveConstants.NormalizedCurvesPath;
-        var objs = InternalEditorUtility.LoadSerializedFileAndForget(path);
+        string path = Application.dataPath + CurveConstants.NormalizedCurvesPath;
+        Object[] objs = InternalEditorUtility.LoadSerializedFileAndForget(path);
 
         if (objs.Length > 0) presets = objs[0] as ScriptableObject;
     }

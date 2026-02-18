@@ -1,6 +1,6 @@
 ﻿public interface INoiseGenerator
 {
-    float GetValue(float x);
-    float GetValue(float x, float y);
-    float GetValue(float x, float y, float z);
+    public float GetValue(float x);
+    public float GetValue(float x, float y);
+    public float GetValue(float x, float y, float z);
 }

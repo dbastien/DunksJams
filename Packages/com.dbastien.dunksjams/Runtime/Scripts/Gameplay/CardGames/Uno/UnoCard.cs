@@ -32,7 +32,7 @@ public class UnoCard : CardBase
     public Rank CardRank { get; }
     public bool IsWild => CardColor == Color.Wild;
 
-    static string GetCardName(Color c, Rank rank) =>
+    private static string GetCardName(Color c, Rank rank) =>
         c == Color.Wild ? $"{rank} (Wild)" : $"{c} {rank}";
 
     public UnoCard(Color c, Rank r) : base(GetCardName(c, r)) => (CardColor, CardRank) = (c, r);

@@ -17,9 +17,9 @@ public class SelectableLabelEditorWindow : EditorWindow
         size = EditorStyles.textField.CalcSize(content);
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
-        var e = Event.current;
+        Event e = Event.current;
         if (hasFocus && e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
         {
             Close();

@@ -1,22 +1,22 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
-using UnityEngine;
 
-class PaletteAssetPostprocessor : AssetPostprocessor
+internal class PaletteAssetPostprocessor : AssetPostprocessor
 {
-    static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+    private static void OnPostprocessAllAssets
+        (string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
     {
-        bool needsRefresh = false;
+        var needsRefresh = false;
 
-        foreach (var asset in importedAssets)
+        foreach (string asset in importedAssets)
             if (asset.EndsWith(".asset") && asset.Contains("Palette"))
                 needsRefresh = true;
 
-        foreach (var asset in deletedAssets)
+        foreach (string asset in deletedAssets)
             if (asset.Contains("Palette"))
                 needsRefresh = true;
 
-        foreach (var asset in movedAssets)
+        foreach (string asset in movedAssets)
             if (asset.Contains("Palette"))
                 needsRefresh = true;
 

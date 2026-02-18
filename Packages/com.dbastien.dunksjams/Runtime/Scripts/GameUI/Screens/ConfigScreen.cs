@@ -1,15 +1,14 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ConfigScreen : MenuScreenBase
 {
-    GameObject _optionsRoot;
-    GameObject _footerRoot;
-    Text _emptyText;
+    private GameObject _optionsRoot;
+    private GameObject _footerRoot;
+    private Text _emptyText;
 
-    public ConfigScreen(Transform canvas) : base(canvas)
-    {
-    }
+    public ConfigScreen(Transform canvas) : base(canvas) { }
 
     public override void Setup()
     {
@@ -22,18 +21,18 @@ public class ConfigScreen : MenuScreenBase
     protected override void OnShow()
     {
         BuildOptions();
-        var def = GameFlowManager.Instance?.ActiveDefinition;
-        var spec = def?.ConfigScreen ?? ScreenSpec.DefaultConfig();
+        GameDefinition def = GameFlowManager.Instance?.ActiveDefinition;
+        ScreenSpec spec = def?.ConfigScreen ?? ScreenSpec.DefaultConfig();
         if (TitleText != null)
             TitleText.text = string.IsNullOrWhiteSpace(spec.Title) ? "Options" : spec.Title;
         BuildFooterButtons(spec);
     }
 
-    void BuildOptions()
+    private void BuildOptions()
     {
         _optionsRoot.transform.DestroyChildren();
 
-        var options = GameFlowManager.Instance?.ActiveDefinition?.ConfigOptions;
+        IReadOnlyList<ConfigOptionDef> options = GameFlowManager.Instance?.ActiveDefinition?.ConfigOptions;
         if (options == null || options.Count == 0)
         {
             _emptyText.gameObject.SetActive(true);
@@ -45,9 +44,9 @@ public class ConfigScreen : MenuScreenBase
             options[i].BuildUI(_optionsRoot.transform);
     }
 
-    GameObject CreateOptionsRoot()
+    private GameObject CreateOptionsRoot()
     {
-        var root = UIBuilder.CreateUIElement("OptionsRoot", Panel.transform, typeof(RectTransform),
+        GameObject root = UIBuilder.CreateUIElement("OptionsRoot", Panel.transform, typeof(RectTransform),
             typeof(VerticalLayoutGroup));
         var rt = root.GetComponent<RectTransform>();
         UIBuilder.SetupRectTransform(rt, new Vector2(520, 300), new Vector2(0, 20));
@@ -58,9 +57,9 @@ public class ConfigScreen : MenuScreenBase
         return root;
     }
 
-    GameObject CreateFooterRoot()
+    private GameObject CreateFooterRoot()
     {
-        var root = UIBuilder.CreateUIElement("Footer", Panel.transform, typeof(RectTransform),
+        GameObject root = UIBuilder.CreateUIElement("Footer", Panel.transform, typeof(RectTransform),
             typeof(HorizontalLayoutGroup));
         var rt = root.GetComponent<RectTransform>();
         UIBuilder.SetupRectTransform(rt, new Vector2(520, 60), new Vector2(0, -220));
@@ -73,24 +72,24 @@ public class ConfigScreen : MenuScreenBase
         return root;
     }
 
-    Text CreateEmptyText()
+    private Text CreateEmptyText()
     {
-        var emptyObj = UIBuilder.CreateUIElement("EmptyText", Panel.transform, typeof(Text));
+        GameObject emptyObj = UIBuilder.CreateUIElement("EmptyText", Panel.transform, typeof(Text));
         UIBuilder.SetupRectTransform(emptyObj.GetComponent<RectTransform>(), new Vector2(520, 60),
             new Vector2(0, 20));
         return UIBuilder.InitText(emptyObj, "No options available.", Resources.GetBuiltinResource<Font>("Arial.ttf"),
             Color.white);
     }
 
-    void BuildFooterButtons(ScreenSpec spec)
+    private void BuildFooterButtons(ScreenSpec spec)
     {
         _footerRoot.transform.DestroyChildren();
         if (spec?.Buttons == null || spec.Buttons.Count == 0) return;
 
         for (var i = 0; i < spec.Buttons.Count; ++i)
         {
-            var buttonDef = spec.Buttons[i];
-            var localDef = buttonDef;
+            ScreenButtonDef buttonDef = spec.Buttons[i];
+            ScreenButtonDef localDef = buttonDef;
             UIBuilder.CreateButton(_footerRoot.transform, localDef.Label,
                 () => localDef.Execute(GameFlowManager.Instance), size: new Vector2(200, 40));
         }

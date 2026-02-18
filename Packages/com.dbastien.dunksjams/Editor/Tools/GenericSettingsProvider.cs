@@ -1,22 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Utilities;
 
 public static class GeneralSettingsProvider
 {
     [SettingsProvider]
     public static SettingsProvider CreateGeneralSettingsProvider()
     {
-        var sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
-        var providers = sectionTypes.Select(CreateSettingsProviderForSection);
+        List<Type> sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
+        IEnumerable<SettingsProvider> providers = sectionTypes.Select(CreateSettingsProviderForSection);
         return providers.FirstOrDefault();
     }
 
-    static SettingsProvider CreateSettingsProviderForSection(Type sectionType)
+    private static SettingsProvider CreateSettingsProviderForSection(Type sectionType)
     {
         var sectionAttr = sectionType.GetAttribute<SettingsProviderSectionAttribute>();
         if (sectionAttr == null) return null;
@@ -34,20 +34,19 @@ public static class GeneralSettingsProvider
         };
     }
 
-    static void DrawSettingsFields(Type settingsType)
+    private static void DrawSettingsFields(Type settingsType)
     {
-        var membersWithAttributes = settingsType.GetAttributesForMembers<SettingsProviderFieldAttribute>();
-        foreach (var (member, fieldAttr) in membersWithAttributes)
-        {
+        Dictionary<MemberInfo, SettingsProviderFieldAttribute> membersWithAttributes =
+            settingsType.GetAttributesForMembers<SettingsProviderFieldAttribute>();
+        foreach ((MemberInfo member, SettingsProviderFieldAttribute fieldAttr) in membersWithAttributes)
             DrawField(member.GetValue(null).GetType(), fieldAttr.Label,
                 () => member.GetValue(null),
                 value => member.SetValue(null, value));
-        }
     }
 
-    static void DrawField(Type fieldType, string label, Func<object> getter, Action<object> setter)
+    private static void DrawField(Type fieldType, string label, Func<object> getter, Action<object> setter)
     {
-        var value = getter();
+        object value = getter();
         switch (value)
         {
             case Font font:
@@ -55,23 +54,23 @@ public static class GeneralSettingsProvider
                 if (newFont != font) setter(newFont);
                 break;
             case int intValue:
-                var newInt = EditorGUILayout.IntField(label, intValue);
+                int newInt = EditorGUILayout.IntField(label, intValue);
                 if (newInt != intValue) setter(newInt);
                 break;
             case float floatValue:
-                var newFloat = EditorGUILayout.FloatField(label, floatValue);
+                float newFloat = EditorGUILayout.FloatField(label, floatValue);
                 if (!Mathf.Approximately(newFloat, floatValue)) setter(newFloat);
                 break;
             case Color colorValue:
-                var newColor = EditorGUILayout.ColorField(label, colorValue);
+                Color newColor = EditorGUILayout.ColorField(label, colorValue);
                 if (newColor != colorValue) setter(newColor);
                 break;
             case bool boolValue:
-                var newBool = EditorGUILayout.Toggle(label, boolValue);
+                bool newBool = EditorGUILayout.Toggle(label, boolValue);
                 if (newBool != boolValue) setter(newBool);
                 break;
             case Enum enumValue:
-                var newEnum = EditorGUILayout.EnumPopup(label, enumValue);
+                Enum newEnum = EditorGUILayout.EnumPopup(label, enumValue);
                 if (!Equals(newEnum, enumValue)) setter(newEnum);
                 break;
             default:
@@ -82,15 +81,14 @@ public static class GeneralSettingsProvider
 
     public static object GetSettingValue(string settingName)
     {
-        var sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
-        foreach (var type in sectionTypes)
+        List<Type> sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
+        foreach (Type type in sectionTypes)
         {
-            var membersWithAttributes = type.GetAttributesForMembers<SettingsProviderFieldAttribute>();
-            foreach (var (member, attr) in membersWithAttributes)
-            {
+            Dictionary<MemberInfo, SettingsProviderFieldAttribute> membersWithAttributes =
+                type.GetAttributesForMembers<SettingsProviderFieldAttribute>();
+            foreach ((MemberInfo member, SettingsProviderFieldAttribute attr) in membersWithAttributes)
                 if (attr.Label.Equals(settingName, StringComparison.OrdinalIgnoreCase))
                     return member.GetValue(null); // Retrieve static field or property value
-            }
         }
 
         DLog.LogW($"Setting '{settingName}' not found.");
@@ -100,14 +98,15 @@ public static class GeneralSettingsProvider
     public static Dictionary<string, object> GetAllSettings()
     {
         var settings = new Dictionary<string, object>();
-        var sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
+        List<Type> sectionTypes = ReflectionUtils.GetNonGenericDerivedTypes<SettingsProviderSectionAttribute>();
 
-        foreach (var type in sectionTypes)
+        foreach (Type type in sectionTypes)
         {
-            var membersWithAttributes = type.GetAttributesForMembers<SettingsProviderFieldAttribute>();
-            foreach (var (member, attr) in membersWithAttributes)
+            Dictionary<MemberInfo, SettingsProviderFieldAttribute> membersWithAttributes =
+                type.GetAttributesForMembers<SettingsProviderFieldAttribute>();
+            foreach ((MemberInfo member, SettingsProviderFieldAttribute attr) in membersWithAttributes)
             {
-                var value = member.GetValue(null);
+                object value = member.GetValue(null);
                 settings[attr.Label] = value;
             }
         }

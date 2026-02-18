@@ -1,6 +1,4 @@
-﻿using UnityEditor;
-
-/*
+﻿/*
 public class FolderImporterRules : AssetPostprocessor
 {
     void OnPreprocessTexture()
@@ -40,3 +38,4 @@ public class FolderImporterRules : AssetPostprocessor
     }
 }
 */
+

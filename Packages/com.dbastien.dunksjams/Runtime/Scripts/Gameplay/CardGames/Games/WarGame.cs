@@ -11,14 +11,14 @@ public class WarGame : CardGameBase<StandardCard>
     {
         if (IsGameOver()) return;
 
-        var p1Card = RemoveCardFromHand(0, PlayerHands[0].Count - 1);
-        var p2Card = RemoveCardFromHand(1, PlayerHands[1].Count - 1);
+        StandardCard p1Card = RemoveCardFromHand(0, PlayerHands[0].Count - 1);
+        StandardCard p2Card = RemoveCardFromHand(1, PlayerHands[1].Count - 1);
         EmitCardPlayed(0, p1Card);
         EmitCardPlayed(1, p2Card);
 
         WriteLine($"{GetPlayerName(0)} plays {p1Card}; {GetPlayerName(1)} plays {p2Card}");
 
-        var result = p1Card.CardRank.CompareTo(p2Card.CardRank);
+        int result = p1Card.CardRank.CompareTo(p2Card.CardRank);
         if (result > 0)
             PlayerHands[0].AddRange(new[] { p1Card, p2Card });
         else if (result < 0)
@@ -27,7 +27,7 @@ public class WarGame : CardGameBase<StandardCard>
             HandleWar(p1Card, p2Card);
     }
 
-    void HandleWar(StandardCard p1Card, StandardCard p2Card)
+    private void HandleWar(StandardCard p1Card, StandardCard p2Card)
     {
         List<StandardCard> warCards = new() { p1Card, p2Card };
         for (var i = 0; i < 3; ++i)
@@ -36,7 +36,7 @@ public class WarGame : CardGameBase<StandardCard>
             if (PlayerHands[1].Count > 0) warCards.Add(PlayerHands[1].DrawFromTop());
         }
 
-        var result = warCards[^2].CompareTo(warCards[^1]);
+        int result = warCards[^2].CompareTo(warCards[^1]);
         if (result > 0) PlayerHands[0].AddRange(warCards.ToArray());
         else if (result < 0) PlayerHands[1].AddRange(warCards.ToArray());
     }
@@ -47,7 +47,7 @@ public class WarGame : CardGameBase<StandardCard>
     {
         WriteLine(
             $"{GetPlayerName(0)} has {PlayerHands[0].Count} cards; {GetPlayerName(1)} has {PlayerHands[1].Count} cards.");
-        var result = GetResultSummary();
+        string result = GetResultSummary();
         if (!string.IsNullOrEmpty(result)) WriteLine(result);
     }
 

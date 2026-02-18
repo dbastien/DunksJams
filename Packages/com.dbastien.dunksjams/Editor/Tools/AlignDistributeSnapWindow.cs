@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class AlignDistributeSnapWindow : EditorWindow
 {
-    float _spacing = 1f, _snapValue = 1f;
-    Vector3 _alignmentOffset = Vector3.zero;
-    bool _snapToGrid, _uniformDistribution;
+    private float _spacing = 1f, _snapValue = 1f;
+    private Vector3 _alignmentOffset = Vector3.zero;
+    private bool _snapToGrid, _uniformDistribution;
 
     [MenuItem("‽/Align, Distribute, Snap")]
-    static void Init() => GetWindow<AlignDistributeSnapWindow>("Align, Distribute, Snap");
+    private static void Init() => GetWindow<AlignDistributeSnapWindow>("Align, Distribute, Snap");
 
-    void OnGUI()
+    private void OnGUI()
     {
         _snapValue = EditorGUILayout.Slider("Snap Value", _snapValue, 0.1f, 10f);
         if (GUILayout.Button("Snap All Selected")) SnapSelected();
@@ -30,34 +30,34 @@ public class AlignDistributeSnapWindow : EditorWindow
         if (GUILayout.Button("Distribute Z")) Distribute(Vector3.forward);
     }
 
-    void SnapSelected()
+    private void SnapSelected()
     {
         Undo.RecordObjects(Selection.transforms, "Snap Objects");
-        foreach (var t in Selection.transforms) t.position = SnapToGrid(t.position);
+        foreach (Transform t in Selection.transforms) t.position = SnapToGrid(t.position);
     }
 
-    void Align(Vector3 offset)
+    private void Align(Vector3 offset)
     {
         Undo.RecordObjects(Selection.transforms, "Align Objects");
-        var pos = Selection.transforms[0].position;
-        foreach (var t in Selection.transforms) t.position = Snap(pos + offset);
+        Vector3 pos = Selection.transforms[0].position;
+        foreach (Transform t in Selection.transforms) t.position = Snap(pos + offset);
     }
 
-    void Distribute(Vector3 axis)
+    private void Distribute(Vector3 axis)
     {
         Undo.RecordObjects(Selection.transforms, "Distribute Objects");
-        var sorted = Selection.transforms.OrderBy(t => Vector3.Dot(t.position, axis)).ToArray();
+        Transform[] sorted = Selection.transforms.OrderBy(t => Vector3.Dot(t.position, axis)).ToArray();
         for (var i = 1; i < sorted.Length; ++i)
-        {
-            sorted[i].position = Snap(sorted[i - 1].position + axis * (_uniformDistribution
-                ? _spacing
-                : Vector3.Distance(sorted[i - 1].position, sorted[i].position)));
-        }
+            sorted[i].position = Snap(sorted[i - 1].position +
+                                      axis *
+                                      (_uniformDistribution
+                                          ? _spacing
+                                          : Vector3.Distance(sorted[i - 1].position, sorted[i].position)));
     }
 
-    Vector3 Snap(Vector3 pos) => _snapToGrid ? SnapToGrid(pos) : pos;
+    private Vector3 Snap(Vector3 pos) => _snapToGrid ? SnapToGrid(pos) : pos;
 
-    Vector3 SnapToGrid(Vector3 pos) =>
+    private Vector3 SnapToGrid(Vector3 pos) =>
         new(MathF.Round(pos.x / _snapValue) * _snapValue,
             MathF.Round(pos.y / _snapValue) * _snapValue,
             MathF.Round(pos.z / _snapValue) * _snapValue);

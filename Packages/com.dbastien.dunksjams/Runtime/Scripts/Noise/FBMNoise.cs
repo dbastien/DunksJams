@@ -57,7 +57,7 @@ public static class FBMNoise
     {
         float value = 0f, freq = 1f, amp = gain;
 
-        for (int o = 0; o < octaves; o++)
+        for (var o = 0; o < octaves; o++)
         {
             float octaveValue = Mathf.PerlinNoise(x * freq, y * freq);
             freq *= lacunarity;
@@ -76,18 +76,21 @@ public static class FBMNoise
     /// Perlin fractal noise with per-octave AnimationCurve modifiers.
     /// Each curve modifier is evaluated on the octave value before amplitude scaling.
     /// </summary>
-    public static float FBM2D(float x, float y, int octaves, float lacunarity, float gain,
-        List<AnimationCurve> curveModifiers)
+    public static float FBM2D
+    (
+        float x, float y, int octaves, float lacunarity, float gain,
+        List<AnimationCurve> curveModifiers
+    )
     {
         float value = 0f, freq = 1f, amp = gain;
 
-        for (int o = 0; o < octaves; o++)
+        for (var o = 0; o < octaves; o++)
         {
             float octaveValue = Mathf.PerlinNoise(x * freq, y * freq);
             freq *= lacunarity;
 
             if (curveModifiers != null)
-                for (int cm = 0; cm < curveModifiers.Count; cm++)
+                for (var cm = 0; cm < curveModifiers.Count; cm++)
                     octaveValue = curveModifiers[cm].Evaluate(octaveValue);
 
             value += octaveValue * amp;
@@ -102,7 +105,7 @@ public static class FBMNoise
     {
         if (pow == 0) return 1f;
         float ans = num;
-        for (int i = 1; i < pow; i++) ans *= num;
+        for (var i = 1; i < pow; i++) ans *= num;
         return ans;
     }
 
@@ -111,7 +114,7 @@ public static class FBMNoise
     {
         if (pow == 0) return 1;
         int ans = num;
-        for (int i = 1; i < pow; i++) ans *= num;
+        for (var i = 1; i < pow; i++) ans *= num;
         return ans;
     }
 }
@@ -122,9 +125,9 @@ public class FBMNoiseGenerator : INoiseGenerator
     public float Persistence { get; set; } = 0.5f;
     public float Frequency { get; set; } = 1f;
 
-    float _maxAmplitude = -1f;
+    private float _maxAmplitude = -1f;
 
-    float MaxAmplitude
+    private float MaxAmplitude
     {
         get
         {
@@ -134,7 +137,7 @@ public class FBMNoiseGenerator : INoiseGenerator
         }
     }
 
-    float ComputeMaxAmplitude()
+    private float ComputeMaxAmplitude()
     {
         float amplitude = 1f, maxAmplitude = 0f;
         for (var i = 0; i < Octaves; ++i)

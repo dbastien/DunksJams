@@ -6,7 +6,7 @@ public abstract class FiniteState<T>
     public string StateName => _stateName;
 
     protected T Owner;
-    readonly string _stateName;
+    private readonly string _stateName;
 
     protected FiniteState(T owner)
     {
@@ -28,17 +28,11 @@ public abstract class FiniteState<T>
         OnExit(isAborting);
     }
 
-    protected virtual void OnEnter(params object[] parameters)
-    {
-    }
+    protected virtual void OnEnter(params object[] parameters) { }
 
-    protected virtual void OnUpdate()
-    {
-    }
+    protected virtual void OnUpdate() { }
 
-    protected virtual void OnExit(bool isAborting)
-    {
-    }
+    protected virtual void OnExit(bool isAborting) { }
 
     public virtual void OnStateChange(StateChangeEventArgs<T> e) =>
         DLog.Log($"State Change: {e.Action} -> {e.State.StateName}");
@@ -46,26 +40,20 @@ public abstract class FiniteState<T>
 
 public class IdleState<T> : FiniteState<T>
 {
-    public IdleState(T owner) : base(owner)
-    {
-    }
+    public IdleState(T owner) : base(owner) { }
 }
 
 public class MoveState<T> : FiniteState<T>
 {
-    public MoveState(T owner) : base(owner)
-    {
-    }
+    public MoveState(T owner) : base(owner) { }
 }
 
 public class AttackState<T> : FiniteState<T>
 {
-    readonly float _attackDuration = 1.0f;
-    float _startTime;
+    private readonly float _attackDuration = 1.0f;
+    private float _startTime;
 
-    public AttackState(T owner) : base(owner)
-    {
-    }
+    public AttackState(T owner) : base(owner) { }
 
     protected override void OnEnter(params object[] parameters)
     {
@@ -85,9 +73,8 @@ public class AttackState<T> : FiniteState<T>
 
 public interface IHasFSM<T>
 {
-    FiniteStateMachine<T> FSM { get; }
+    public FiniteStateMachine<T> FSM { get; }
 }
-
 
 public class StateTransition<T>
 {
@@ -97,10 +84,13 @@ public class StateTransition<T>
     public float? Duration { get; }
     public Action Transition { get; }
     public int Priority { get; }
-    readonly float _startTime;
+    private readonly float _startTime;
 
-    public StateTransition(string from, string to, Func<bool> condition, float? duration = null,
-        Action onTransition = null, int priority = 0)
+    public StateTransition
+    (
+        string from, string to, Func<bool> condition, float? duration = null,
+        Action onTransition = null, int priority = 0
+    )
     {
         From = from;
         To = to;

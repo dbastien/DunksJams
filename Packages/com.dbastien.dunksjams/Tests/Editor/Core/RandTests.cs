@@ -59,10 +59,8 @@ public class RandTests : TestBase
     {
         bool seenTrue = false, seenFalse = false;
         for (var i = 0; i < 100; i++)
-        {
             if (Rand.Bool()) seenTrue = true;
             else seenFalse = true;
-        }
 
         True(seenTrue && seenFalse);
     }

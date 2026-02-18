@@ -5,7 +5,7 @@ public static class CameraExtensions
 {
     public static void SaveScreenshot(this Camera c, string path, int width, int height)
     {
-        var rt = RenderTexture.GetTemporary(width, height, 24);
+        RenderTexture rt = RenderTexture.GetTemporary(width, height, 24);
         c.targetTexture = rt;
         Texture2D screenShot = new(width, height, TextureFormat.RGB24, false);
 
@@ -17,7 +17,7 @@ public static class CameraExtensions
         RenderTexture.active = null;
         RenderTexture.ReleaseTemporary(rt);
 
-        var bytes = screenShot.EncodeToPNG();
+        byte[] bytes = screenShot.EncodeToPNG();
         File.WriteAllBytes(path, bytes);
         DLog.Log($"Screenshot saved to: {path}");
         Object.Destroy(screenShot);
@@ -38,9 +38,9 @@ public static class CameraExtensions
 
         // Critical: start from a clean orthographic projection matrix
         cam.ResetProjectionMatrix();
-        var mat = cam.projectionMatrix;
+        Matrix4x4 mat = cam.projectionMatrix;
 
-        var rad = angleDeg * Mathf.Deg2Rad;
+        float rad = angleDeg * Mathf.Deg2Rad;
 
         // Shear Z as a function of X/Y (oblique projection)
         mat.m02 = scale * Mathf.Cos(rad);
@@ -49,8 +49,11 @@ public static class CameraExtensions
         cam.projectionMatrix = mat;
     }
 
-    public static void SetAxonometricProjection(this Camera cam, float xAngle, float yAngle, float zAngle = 0f,
-        bool setRotation = true)
+    public static void SetAxonometricProjection
+    (
+        this Camera cam, float xAngle, float yAngle, float zAngle = 0f,
+        bool setRotation = true
+    )
     {
         cam.orthographic = true;
         cam.ResetProjectionMatrix();
@@ -59,8 +62,11 @@ public static class CameraExtensions
             cam.transform.rotation = Quaternion.Euler(xAngle, yAngle, zAngle);
     }
 
-    public static void SetPerspective(this Camera cam, float xAngle = 0f, float yAngle = 0f, float zAngle = 0f,
-        bool setRotation = true, float? fov = null)
+    public static void SetPerspective
+    (
+        this Camera cam, float xAngle = 0f, float yAngle = 0f, float zAngle = 0f,
+        bool setRotation = true, float? fov = null
+    )
     {
         cam.orthographic = false;
 
@@ -74,27 +80,30 @@ public static class CameraExtensions
             cam.transform.rotation = Quaternion.Euler(xAngle, yAngle, zAngle);
     }
 
-    public static void SetupDepth(this Camera cam,
+    public static void SetupDepth
+    (
+        this Camera cam,
         float apexOffsetZ, float maxDist, float radiusStart, float radiusEnd,
-        Vector3 fwd, Vector3 scale, bool scalable, Quaternion localRot, bool scaleNearClip)
+        Vector3 fwd, Vector3 scale, bool scalable, Quaternion localRot, bool scaleNearClip
+    )
     {
         if (!scalable) scale = new Vector3(1f, 1f, scale.z);
-        var isCone = apexOffsetZ >= 0f;
-        var offset = Mathf.Max(0f, apexOffsetZ);
+        bool isCone = apexOffsetZ >= 0f;
+        float offset = Mathf.Max(0f, apexOffsetZ);
 
         cam.orthographic = !isCone;
         cam.transform.localPosition = fwd * -offset;
 
-        var rot = localRot;
+        Quaternion rot = localRot;
         if (scale.z < 0f) rot *= Quaternion.Euler(0f, 180f, 0f);
         cam.transform.localRotation = rot;
 
         if (Mathf.Approximately(scale.y * scale.z, 0f)) return;
 
-        var nearScale = scaleNearClip ? scale.z : 1f;
+        float nearScale = scaleNearClip ? scale.z : 1f;
         cam.nearClipPlane = Mathf.Max(offset * scale.z, (isCone ? 0.1f : 0f) * nearScale);
 
-        var farScale = scalable ? scale.z : 1f;
+        float farScale = scalable ? scale.z : 1f;
         cam.farClipPlane = maxDist + offset * farScale;
 
         cam.aspect = Mathf.Abs(scale.x / scale.y);

@@ -19,11 +19,7 @@ public class DialogCommandHistory
 
     public event Action OnHistoryChanged;
 
-    public int MaxStackSize
-    {
-        get => _maxStackSize;
-        set => _maxStackSize = Mathf.Max(1, value);
-    }
+    public int MaxStackSize { get => _maxStackSize; set => _maxStackSize = Mathf.Max(1, value); }
 
     /// <summary>
     /// Execute a command and add it to the undo stack.
@@ -40,10 +36,8 @@ public class DialogCommandHistory
 
             // Try to merge with the last command
             if (_undoStack.Count > 0 && _undoStack.Peek().TryMerge(command))
-            {
                 // Command was merged, don't add to stack
                 return;
-            }
 
             _undoStack.Push(command);
             _redoStack.Clear(); // Clear redo stack when new command is executed
@@ -54,11 +48,9 @@ public class DialogCommandHistory
                 // Remove oldest command
                 var stack = new Stack<DialogGraphCommand>(_undoStack.Count - 1);
                 var count = 0;
-                foreach (var cmd in _undoStack)
-                {
+                foreach (DialogGraphCommand cmd in _undoStack)
                     if (count++ < _undoStack.Count - 1)
                         stack.Push(cmd);
-                }
                 _undoStack.Clear();
                 while (stack.Count > 0)
                     _undoStack.Push(stack.Pop());
@@ -66,10 +58,7 @@ public class DialogCommandHistory
 
             OnHistoryChanged?.Invoke();
         }
-        finally
-        {
-            _isExecuting = false;
-        }
+        finally { _isExecuting = false; }
     }
 
     /// <summary>
@@ -82,16 +71,13 @@ public class DialogCommandHistory
         _isExecuting = true;
         try
         {
-            var command = _undoStack.Pop();
+            DialogGraphCommand command = _undoStack.Pop();
             command.Undo();
             _redoStack.Push(command);
             OnHistoryChanged?.Invoke();
             Debug.Log($"[Undo] {command.Name}");
         }
-        finally
-        {
-            _isExecuting = false;
-        }
+        finally { _isExecuting = false; }
     }
 
     /// <summary>
@@ -104,16 +90,13 @@ public class DialogCommandHistory
         _isExecuting = true;
         try
         {
-            var command = _redoStack.Pop();
+            DialogGraphCommand command = _redoStack.Pop();
             command.Execute();
             _undoStack.Push(command);
             OnHistoryChanged?.Invoke();
             Debug.Log($"[Redo] {command.Name}");
         }
-        finally
-        {
-            _isExecuting = false;
-        }
+        finally { _isExecuting = false; }
     }
 
     /// <summary>
@@ -129,16 +112,10 @@ public class DialogCommandHistory
     /// <summary>
     /// Get the name of the next command that would be undone.
     /// </summary>
-    public string GetUndoCommandName()
-    {
-        return CanUndo ? _undoStack.Peek().Name : null;
-    }
+    public string GetUndoCommandName() => CanUndo ? _undoStack.Peek().Name : null;
 
     /// <summary>
     /// Get the name of the next command that would be redone.
     /// </summary>
-    public string GetRedoCommandName()
-    {
-        return CanRedo ? _redoStack.Peek().Name : null;
-    }
+    public string GetRedoCommandName() => CanRedo ? _redoStack.Peek().Name : null;
 }

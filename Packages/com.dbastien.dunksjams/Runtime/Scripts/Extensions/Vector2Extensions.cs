@@ -18,12 +18,12 @@ public static class Vector2Extensions
 
     public static Vector2 RotateTowards(this Vector2 v, Vector2 target, float maxRadiansDelta, float maxMagnitudeDelta)
     {
-        var angleDelta = Mathf.Clamp(Vector2.SignedAngle(v, target), -Mathf.Rad2Deg * maxRadiansDelta,
+        float angleDelta = Mathf.Clamp(Vector2.SignedAngle(v, target), -Mathf.Rad2Deg * maxRadiansDelta,
             Mathf.Rad2Deg * maxRadiansDelta);
-        var newAngle = Mathf.Atan2(v.y, v.x) + Mathf.Deg2Rad * angleDelta;
+        float newAngle = Mathf.Atan2(v.y, v.x) + Mathf.Deg2Rad * angleDelta;
 
         var newDir = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
-        var newMagnitude = Mathf.MoveTowards(v.magnitude, target.magnitude, maxMagnitudeDelta);
+        float newMagnitude = Mathf.MoveTowards(v.magnitude, target.magnitude, maxMagnitudeDelta);
 
         return newDir * newMagnitude;
     }
@@ -36,17 +36,17 @@ public static class Vector2Extensions
 
     public static float ClampedDistance(this Vector2 a, Vector2 b, float maxDist)
     {
-        var distSquared = (a - b).sqrMagnitude;
+        float distSquared = (a - b).sqrMagnitude;
         return distSquared > maxDist * maxDist ? maxDist : MathF.Sqrt(distSquared);
     }
 
-    public static Vector2 Rotate(this Vector2 v, float radians)
+    public static Vector2 RotateSinCon(this Vector2 v, float radians)
     {
-        var sin = MathF.Sin(radians);
-        var cos = MathF.Cos(radians);
+        float sin = MathF.Sin(radians);
+        float cos = MathF.Cos(radians);
 
-        var x = v.x;
-        var y = v.y;
+        float x = v.x;
+        float y = v.y;
 
         v.x = x * cos - y * sin;
         v.y = x * sin + y * cos;
@@ -68,4 +68,17 @@ public static class Vector2Extensions
             2 => new Vector3(v.x, v.y, insertValue),
             _ => throw new Exception("index out of range")
         };
+
+    public static float DistanceTo(this Vector2 f1, Vector2 f2) => (f1 - f2).magnitude;
+    public static Vector2 Clamp01(this Vector2 f) => new(Mathf.Clamp01(f.x), Mathf.Clamp01(f.y));
+    public static float ProjectOn(this Vector2 v, Vector2 on) => Vector3.Project(v, on).magnitude;
+    public static float AngleTo(this Vector2 v, Vector2 to) => Vector2.Angle(v, to);
+    public static Vector2 Rotate(this Vector2 v, float deg) => Quaternion.AngleAxis(deg, Vector3.forward) * v;
+
+    public static float InverseLerp(this Vector2 v, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        Vector2 av = v - a;
+        return Vector2.Dot(av, ab) / Vector2.Dot(ab, ab);
+    }
 }

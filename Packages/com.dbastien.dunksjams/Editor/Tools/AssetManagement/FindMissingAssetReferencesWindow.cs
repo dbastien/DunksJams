@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -7,9 +8,9 @@ public class FindMissingAssetReferencesWindow : EditorWindow
     [MenuItem("‽/Asset Management/Find Missing References")]
     public static void ShowWindow() => GetWindow<FindMissingAssetReferencesWindow>().Show();
 
-    bool checkAssetDatabase = false;
-    bool checkScene = true;
-    string results;
+    private bool checkAssetDatabase = false;
+    private bool checkScene = true;
+    private string results;
 
     public void OnGUI()
     {
@@ -29,28 +30,28 @@ public class FindMissingAssetReferencesWindow : EditorWindow
     {
         if (checkAssetDatabase)
         {
-            var gameObjects = AssetDatabaseUtils.FindAndLoadAssets<GameObject>();
+            List<GameObject> gameObjects = AssetDatabaseUtils.FindAndLoadAssets<GameObject>();
             results += string.Format("Searching {0} AssetDatabase GameObjects for missing references\n",
                 gameObjects.Count);
-            var missingCount = gameObjects.Sum(go => FindMissingReferences(go));
+            int missingCount = gameObjects.Sum(go => FindMissingReferences(go));
             results += string.Format("{0} AssetDatabase missing references found\n", missingCount);
         }
 
         if (checkScene)
         {
-            var sceneGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+            GameObject[] sceneGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
             results += string.Format("Searching {0} Scene GameObjects for missing references\n",
                 sceneGameObjects.Length);
-            var missingCountScene = sceneGameObjects.Sum(go => FindMissingReferences(go));
+            int missingCountScene = sceneGameObjects.Sum(go => FindMissingReferences(go));
             results += string.Format("{0} Scene missing references found\n", missingCountScene);
         }
     }
 
-    int FindMissingReferences(GameObject go)
+    private int FindMissingReferences(GameObject go)
     {
         var missingCount = 0;
-        var components = go.GetComponents<Component>();
-        foreach (var component in components)
+        Component[] components = go.GetComponents<Component>();
+        foreach (Component component in components)
         {
             if (!component)
             {
@@ -61,9 +62,8 @@ public class FindMissingAssetReferencesWindow : EditorWindow
 
             var so = new SerializedObject(component);
 
-            var sp = so.GetIterator();
+            SerializedProperty sp = so.GetIterator();
             while (sp.NextVisible(true))
-            {
                 if (sp.propertyType == SerializedPropertyType.ObjectReference &&
                     sp.objectReferenceInstanceIDValue != 0 &&
                     sp.objectReferenceValue == null)
@@ -74,7 +74,6 @@ public class FindMissingAssetReferencesWindow : EditorWindow
                         ObjectNames.NicifyVariableName(sp.name));
                     ++missingCount;
                 }
-            }
         }
 
         return missingCount;

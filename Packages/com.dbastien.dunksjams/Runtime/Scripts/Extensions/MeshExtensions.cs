@@ -3,12 +3,12 @@ using UnityEngine;
 
 public static class MeshExtensions
 {
-    static int[] _triIdentity = Array.Empty<int>();
+    private static int[] _triIdentity = Array.Empty<int>();
 
     public static void RecalculateFlatNormals(this Mesh mesh)
     {
-        var verts = mesh.vertices;
-        var tris = mesh.triangles;
+        Vector3[] verts = mesh.vertices;
+        int[] tris = mesh.triangles;
         if (verts == null || tris == null || tris.Length % 3 != 0) return;
 
         var flatVerts = new Vector3[tris.Length];
@@ -16,10 +16,10 @@ public static class MeshExtensions
 
         for (var i = 0; i < tris.Length; i += 3)
         {
-            var n = GetTriangleNormal(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]);
+            Vector3 n = GetTriangleNormal(verts[tris[i]], verts[tris[i + 1]], verts[tris[i + 2]]);
             for (var j = 0; j < 3; ++j)
             {
-                var idx = i + j;
+                int idx = i + j;
                 flatVerts[idx] = verts[tris[idx]];
                 normals[idx] = n;
             }
@@ -32,17 +32,17 @@ public static class MeshExtensions
 
     public static void Extrude(this Mesh m, float dist)
     {
-        var verts = m.vertices;
-        var normals = m.normals;
+        Vector3[] verts = m.vertices;
+        Vector3[] normals = m.normals;
         if (verts == null || normals == null) return;
 
-        var vertCount = verts.Length;
+        int vertCount = verts.Length;
         var newVerts = new Vector3[vertCount * 2];
         Array.Copy(verts, newVerts, vertCount);
         for (var i = 0; i < vertCount; ++i)
             newVerts[i + vertCount] = verts[i] + normals[i] * dist;
 
-        var tris = m.triangles;
+        int[] tris = m.triangles;
         var newTris = new int[tris.Length * 2];
         Array.Copy(tris, newTris, tris.Length);
         for (var i = 0; i < tris.Length; ++i)
@@ -55,12 +55,12 @@ public static class MeshExtensions
 
     public static void ApplyVerticalGradient(this Mesh m, Color topColor, Color bottomColor)
     {
-        var verts = m.vertices;
+        Vector3[] verts = m.vertices;
         if (verts == null) return;
 
         var colors = new Color[verts.Length];
-        var (minY, maxY) = GetMinMaxY(verts);
-        var range = Mathf.Abs(maxY - minY) > MathConsts.Epsilon_Float ? 1f / (maxY - minY) : 0f;
+        (float minY, float maxY) = GetMinMaxY(verts);
+        float range = Mathf.Abs(maxY - minY) > MathConsts.Epsilon_Float ? 1f / (maxY - minY) : 0f;
 
         for (var i = 0; i < verts.Length; ++i)
             colors[i] = Color.Lerp(bottomColor, topColor, (verts[i].y - minY) * range);
@@ -70,12 +70,12 @@ public static class MeshExtensions
 
     public static void MakeUniqueVertices(this Mesh m)
     {
-        var verts = m.vertices;
-        var tris = m.triangles;
+        Vector3[] verts = m.vertices;
+        int[] tris = m.triangles;
         if (verts == null || tris == null) return;
 
         var uniqueVerts = new Vector3[tris.Length];
-        var newTris = GetIdentityIntArray(tris.Length);
+        int[] newTris = GetIdentityIntArray(tris.Length);
 
         for (var i = 0; i < tris.Length; ++i)
             uniqueVerts[i] = verts[tris[i]];
@@ -85,25 +85,25 @@ public static class MeshExtensions
         m.RecalculateNormals();
     }
 
-    static Vector3 GetTriangleNormal(Vector3 v1, Vector3 v2, Vector3 v3) =>
+    private static Vector3 GetTriangleNormal(Vector3 v1, Vector3 v2, Vector3 v3) =>
         Vector3.Cross(v2 - v1, v3 - v1).normalized;
 
-    static int[] GetIdentityIntArray(int length)
+    private static int[] GetIdentityIntArray(int length)
     {
-        var curLength = _triIdentity.Length;
+        int curLength = _triIdentity.Length;
         if (curLength != length)
         {
             Array.Resize(ref _triIdentity, length);
-            for (var i = curLength; i < length; ++i) _triIdentity[i] = i;
+            for (int i = curLength; i < length; ++i) _triIdentity[i] = i;
         }
 
         return _triIdentity;
     }
 
-    static (float min, float max) GetMinMaxX(Vector3[] verts)
+    private static (float min, float max) GetMinMaxX(Vector3[] verts)
     {
         float minX = float.MaxValue, maxX = float.MinValue;
-        foreach (var v in verts)
+        foreach (Vector3 v in verts)
         {
             if (v.x < minX) minX = v.x;
             if (v.x > maxX) maxX = v.x;
@@ -112,10 +112,10 @@ public static class MeshExtensions
         return (minX, maxX);
     }
 
-    static (float min, float max) GetMinMaxY(Vector3[] verts)
+    private static (float min, float max) GetMinMaxY(Vector3[] verts)
     {
         float minY = float.MaxValue, maxY = float.MinValue;
-        foreach (var v in verts)
+        foreach (Vector3 v in verts)
         {
             if (v.y < minY) minY = v.y;
             if (v.y > maxY) maxY = v.y;

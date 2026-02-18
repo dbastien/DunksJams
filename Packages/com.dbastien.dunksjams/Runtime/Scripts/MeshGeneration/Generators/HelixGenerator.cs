@@ -3,10 +3,12 @@ using UnityEngine;
 
 public static class HelixGenerator
 {
-    public static Mesh Generate(
+    public static Mesh Generate
+    (
         float radius = 0.5f, float height = 2f, float tubeRadius = 0.1f,
         int turns = 3, int segments = 64, int tubeSegments = 8,
-        PivotPosition pivot = PivotPosition.Bottom)
+        PivotPosition pivot = PivotPosition.Bottom
+    )
     {
         segments = Mathf.Max(segments, 4);
         tubeSegments = Mathf.Max(tubeSegments, 3);
@@ -20,14 +22,14 @@ public static class HelixGenerator
         var uvs = new Vector2[numVerts];
         var tris = new int[numTris];
 
-        var pivotOff = pivot switch
+        Vector3 pivotOff = pivot switch
         {
             PivotPosition.Center => new Vector3(0f, -height / 2f, 0f),
-            PivotPosition.Top    => new Vector3(0f, -height, 0f),
-            _                    => Vector3.zero
+            PivotPosition.Top => new Vector3(0f, -height, 0f),
+            _ => Vector3.zero
         };
 
-        int vi = 0;
+        var vi = 0;
         for (var i = 0; i <= segments; ++i)
         {
             float t = (float)i / segments;
@@ -42,15 +44,15 @@ public static class HelixGenerator
             float yNext = tNext * height;
             var next = new Vector3(MathF.Cos(aNext) * radius, yNext, MathF.Sin(aNext) * radius);
 
-            var tangent = (next - center).normalized;
-            var normal = new Vector3(-MathF.Cos(angle), 0f, -MathF.Sin(angle)).normalized;
-            var binormal = Vector3.Cross(tangent, normal).normalized;
+            Vector3 tangent = (next - center).normalized;
+            Vector3 normal = new Vector3(-MathF.Cos(angle), 0f, -MathF.Sin(angle)).normalized;
+            Vector3 binormal = Vector3.Cross(tangent, normal).normalized;
             normal = Vector3.Cross(binormal, tangent).normalized;
 
             for (var j = 0; j <= tubeSegments; ++j)
             {
                 float phi = j * 2f * MathF.PI / tubeSegments;
-                var offset = (normal * MathF.Cos(phi) + binormal * MathF.Sin(phi)) * tubeRadius;
+                Vector3 offset = (normal * MathF.Cos(phi) + binormal * MathF.Sin(phi)) * tubeRadius;
 
                 verts[vi] = center + offset + pivotOff;
                 normals[vi] = offset.normalized;
@@ -59,14 +61,14 @@ public static class HelixGenerator
             }
         }
 
-        int ti = 0;
+        var ti = 0;
         for (var i = 0; i < segments; ++i)
         {
-            var cur = i * (tubeSegments + 1);
-            var nxt = (i + 1) * (tubeSegments + 1);
+            int cur = i * (tubeSegments + 1);
+            int nxt = (i + 1) * (tubeSegments + 1);
             for (var j = 0; j < tubeSegments; ++j)
             {
-                tris[ti]     = cur + j;
+                tris[ti] = cur + j;
                 tris[ti + 1] = nxt + j;
                 tris[ti + 2] = cur + j + 1;
                 tris[ti + 3] = nxt + j;

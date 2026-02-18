@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class BrakeAssist
 {
-    const float LockupThreshold = 0.25f;
+    private const float LockupThreshold = 0.25f;
 
     public float Apply(float brakeTorque, VehicleWheel[] allWheels, float strength)
     {
         if (strength <= 0f || brakeTorque <= 0f || allWheels == null) return brakeTorque;
 
-        float maxBrakeSlip = 0f;
-        foreach (var w in allWheels)
+        var maxBrakeSlip = 0f;
+        foreach (VehicleWheel w in allWheels)
         {
             if (!w.IsGrounded || !w.IsBrake) continue;
             float slip = Mathf.Abs(w.LongitudinalSlip);

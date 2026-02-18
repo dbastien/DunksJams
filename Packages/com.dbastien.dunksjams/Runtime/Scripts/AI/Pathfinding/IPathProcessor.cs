@@ -7,5 +7,5 @@ using System.Collections.Generic;
 public interface IPathProcessor<TNode> where TNode : IEquatable<TNode>
 {
     /// <summary>Processes rawPath and writes the result into result. Both lists are caller-managed.</summary>
-    void Process(List<TNode> rawPath, List<TNode> result);
+    public void Process(List<TNode> rawPath, List<TNode> result);
 }

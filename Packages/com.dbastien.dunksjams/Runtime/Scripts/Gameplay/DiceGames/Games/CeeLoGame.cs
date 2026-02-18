@@ -4,13 +4,16 @@ using System.Text;
 
 public sealed class CeeLoGame : IDisposable
 {
-    readonly int _playerCount;
-    readonly int _rounds;
-    readonly int _maxRollsPerTurn;
-    readonly ICardGameIO _io;
+    private readonly int _playerCount;
+    private readonly int _rounds;
+    private readonly int _maxRollsPerTurn;
+    private readonly ICardGameIO _io;
 
-    public CeeLoGame(int playerCount = 2, int rounds = 1, int maxRollsPerTurn = CeeLoRules.DefaultMaxRolls,
-        ICardGameIO io = null)
+    public CeeLoGame
+    (
+        int playerCount = 2, int rounds = 1, int maxRollsPerTurn = CeeLoRules.DefaultMaxRolls,
+        ICardGameIO io = null
+    )
     {
         if (playerCount < 2)
         {
@@ -37,7 +40,7 @@ public sealed class CeeLoGame : IDisposable
 
         for (var round = 1; round <= _rounds; ++round)
         {
-            var winner = PlayRound(round);
+            int winner = PlayRound(round);
             wins[winner]++;
             WriteLine($"Round {round} winner: {GetPlayerName(winner)}.");
         }
@@ -65,18 +68,15 @@ public sealed class CeeLoGame : IDisposable
 
             for (var i = 0; i < contenders.Count; ++i)
             {
-                var playerIndex = contenders[i];
-                var rank = results[playerIndex].Rank;
+                int playerIndex = contenders[i];
+                int rank = results[playerIndex].Rank;
                 if (rank > bestRank)
                 {
                     bestRank = rank;
                     tied.Clear();
                     tied.Add(playerIndex);
                 }
-                else if (rank == bestRank)
-                {
-                    tied.Add(playerIndex);
-                }
+                else if (rank == bestRank) { tied.Add(playerIndex); }
             }
 
             if (tied.Count == 1)
@@ -88,20 +88,20 @@ public sealed class CeeLoGame : IDisposable
         }
     }
 
-    void RollForPlayers(List<int> players, CeeLoResult[] results)
+    private void RollForPlayers(List<int> players, CeeLoResult[] results)
     {
         for (var i = 0; i < players.Count; ++i)
         {
-            var playerIndex = players[i];
-            var result = CeeLoRules.RollScoring(_maxRollsPerTurn);
+            int playerIndex = players[i];
+            CeeLoResult result = CeeLoRules.RollScoring(_maxRollsPerTurn);
             results[playerIndex] = result;
             WriteLine($"{GetPlayerName(playerIndex)} rolled {result}.");
         }
     }
 
-    string GetPlayerName(int index) => $"Player {index + 1}";
+    private string GetPlayerName(int index) => $"Player {index + 1}";
 
-    string FormatPlayers(IReadOnlyList<int> players)
+    private string FormatPlayers(IReadOnlyList<int> players)
     {
         var sb = new StringBuilder(32);
         for (var i = 0; i < players.Count; ++i)
@@ -113,7 +113,7 @@ public sealed class CeeLoGame : IDisposable
         return sb.ToString();
     }
 
-    void WriteLine(string message) => _io?.WriteLine(message);
+    private void WriteLine(string message) => _io?.WriteLine(message);
 
     public void Dispose() => DLog.Log("Cee-Lo game disposed.");
 }

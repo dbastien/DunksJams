@@ -23,11 +23,9 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
 
     public virtual void PropagateData()
     {
-        foreach (var output in outputContainer.Children().OfType<IDataPort>())
-        {
-            foreach (var edge in ((Port)output).connections)
-                (edge.input as IDataPort)?.SetDataFromObject(output.GetDataAsObject());
-        }
+        foreach (IDataPort output in outputContainer.Children().OfType<IDataPort>())
+        foreach (Edge edge in ((Port)output).connections)
+            (edge.input as IDataPort)?.SetDataFromObject(output.GetDataAsObject());
     }
 
     protected DataPort<T> CreatePort<T>(string portName, Direction dir, Action<Port> onRemove = null)
@@ -48,20 +46,20 @@ public abstract class SerializedGraphNode : Node, IPropagatingNode
 
 public interface IDataPort
 {
-    object GetDataAsObject();
-    void SetDataFromObject(object data);
+    public object GetDataAsObject();
+    public void SetDataFromObject(object data);
 }
 
 public interface IDataPort<T> : IDataPort
 {
-    T GetData();
-    void SetData(T data);
+    public T GetData();
+    public void SetData(T data);
 }
 
 public class DataPort<T> : Port, IDataPort<T>
 {
     public Node Parent { get; }
-    T _data;
+    private T _data;
 
     public DataPort(Node parent, Direction dir, Capacity cap)
         : base(Orientation.Horizontal, dir, cap, typeof(T))
@@ -110,7 +108,7 @@ public class DefaultEdgeConnectorListener : IEdgeConnectorListener
 
         if (gv.graphViewChanged != null)
         {
-            var change = gv.graphViewChanged(new GraphViewChange
+            GraphViewChange change = gv.graphViewChanged(new GraphViewChange
             {
                 edgesToCreate = edgesToCreate,
                 elementsToRemove = elementsToRemove
@@ -123,7 +121,7 @@ public class DefaultEdgeConnectorListener : IEdgeConnectorListener
         if (elementsToRemove.Count > 0)
             gv.DeleteElements(elementsToRemove);
 
-        foreach (var edge in edgesToCreate)
+        foreach (Edge edge in edgesToCreate)
         {
             gv.AddElement(edge);
             edge.input.Connect(edge);
@@ -136,11 +134,11 @@ public class DefaultEdgeConnectorListener : IEdgeConnectorListener
 
 public interface IPropagatingNode
 {
-    void PropagateData();
+    public void PropagateData();
 }
 
 /// <summary>Interface for nodes that need cleanup when removed from the graph. Called by SerializedGraphView.RemoveNode() and ClearGraph().</summary>
 public interface ICleanupNode
 {
-    void Cleanup();
+    public void Cleanup();
 }

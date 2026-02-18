@@ -1,15 +1,15 @@
 public interface ITween
 {
-    void Update(float deltaTime);
-    bool IsComplete { get; }
-    void Pause();
-    void Resume();
-    void Rewind();
-    void Restart();
-    void Kill();
-    string Id { get; }
-    string Tag { get; }
-    bool IgnoreTimeScale { get; }
-    float TimeScale { get; }
-    float Duration { get; }
+    public void Update(float deltaTime);
+    public bool IsComplete { get; }
+    public void Pause();
+    public void Resume();
+    public void Rewind();
+    public void Restart();
+    public void Kill();
+    public string Id { get; }
+    public string Tag { get; }
+    public bool IgnoreTimeScale { get; }
+    public float TimeScale { get; }
+    public float Duration { get; }
 }

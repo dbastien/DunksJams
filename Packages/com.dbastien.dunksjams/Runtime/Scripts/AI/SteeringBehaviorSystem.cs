@@ -10,13 +10,13 @@ public abstract class SteeringBehavior : ScriptableObject
 
     protected static Vector3 SeekVelocity(SteeringAgent agent, Vector3 targetPos)
     {
-        var desiredVelocity = (targetPos - agent.transform.position).normalized * agent.maxSpeed;
+        Vector3 desiredVelocity = (targetPos - agent.transform.position).normalized * agent.maxSpeed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 
     protected static Vector3 FleeVelocity(SteeringAgent agent, Vector3 targetPos)
     {
-        var desiredVelocity = (agent.transform.position - targetPos).normalized * agent.maxSpeed;
+        Vector3 desiredVelocity = (agent.transform.position - targetPos).normalized * agent.maxSpeed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 
@@ -25,8 +25,8 @@ public abstract class SteeringBehavior : ScriptableObject
         var targetRb = target.GetComponent<Rigidbody>();
         if (!targetRb) return target.position;
 
-        var toTarget = target.position - agent.transform.position;
-        var prediction = toTarget.magnitude / (agent.maxSpeed + targetRb.linearVelocity.magnitude);
+        Vector3 toTarget = target.position - agent.transform.position;
+        float prediction = toTarget.magnitude / (agent.maxSpeed + targetRb.linearVelocity.magnitude);
         return target.position + targetRb.linearVelocity * prediction;
     }
 }
@@ -54,16 +54,16 @@ public class Arrive : SteeringBehavior
     {
         if (!target) return Vector3.zero;
 
-        var toTarget = target.position - agent.transform.position;
-        var distance = toTarget.magnitude;
+        Vector3 toTarget = target.position - agent.transform.position;
+        float distance = toTarget.magnitude;
 
         if (distance < 0.01f) return Vector3.zero;
 
         // slow down as we approach target
-        var speed = agent.maxSpeed;
+        float speed = agent.maxSpeed;
         if (distance < slowingRadius) speed = agent.maxSpeed * (distance / slowingRadius);
 
-        var desiredVelocity = toTarget.normalized * speed;
+        Vector3 desiredVelocity = toTarget.normalized * speed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 }
@@ -74,7 +74,7 @@ public class Pursue : SteeringBehavior
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
         if (!target) return Vector3.zero;
-        var futurePosition = PredictFuturePosition(agent, target);
+        Vector3 futurePosition = PredictFuturePosition(agent, target);
         return SeekVelocity(agent, futurePosition);
     }
 }
@@ -85,7 +85,7 @@ public class Evade : SteeringBehavior
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
         if (!target) return Vector3.zero;
-        var futurePosition = PredictFuturePosition(agent, target);
+        Vector3 futurePosition = PredictFuturePosition(agent, target);
         return FleeVelocity(agent, futurePosition);
     }
 }
@@ -97,15 +97,15 @@ public class Wander : SteeringBehavior
     public float circleRadius = 1f;
     public float wanderAngleChange = 0.3f;
 
-    float wanderAngle = 0f;
+    private float wanderAngle;
 
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        var rb = agent.RigidBody;
+        Rigidbody rb = agent.RigidBody;
 
-        var circleCenter = rb.linearVelocity.normalized * circleDistance;
+        Vector3 circleCenter = rb.linearVelocity.normalized * circleDistance;
 
-        var displacement = new Vector3(0, 0, -1) * circleRadius;
+        Vector3 displacement = new Vector3(0, 0, -1) * circleRadius;
         wanderAngle += Random.Range(-wanderAngleChange, wanderAngleChange);
         displacement = Quaternion.Euler(0, wanderAngle * Mathf.Rad2Deg, 0) * displacement;
 
@@ -126,8 +126,8 @@ public class Cohesion : NeighborBasedBehavior
 {
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        var hitCount = GetNeighbors(agent);
-        var centerOfMass = Vector3.zero;
+        int hitCount = GetNeighbors(agent);
+        Vector3 centerOfMass = Vector3.zero;
         var count = 0;
 
         for (var i = 0; i < hitCount; ++i)
@@ -150,13 +150,13 @@ public class Separation : NeighborBasedBehavior
 
     public override Vector3 CalculateForce(SteeringAgent agent, Transform target)
     {
-        var hitCount = GetNeighbors(agent);
-        var separationForce = Vector3.zero;
+        int hitCount = GetNeighbors(agent);
+        Vector3 separationForce = Vector3.zero;
 
         for (var i = 0; i < hitCount; ++i)
         {
             if (results[i] == agent.Collider) continue;
-            var toAgent = agent.transform.position - results[i].transform.position;
+            Vector3 toAgent = agent.transform.position - results[i].transform.position;
             separationForce += toAgent.normalized / toAgent.magnitude;
         }
 

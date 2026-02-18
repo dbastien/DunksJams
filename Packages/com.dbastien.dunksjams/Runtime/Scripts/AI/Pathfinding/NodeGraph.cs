@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
 {
-    readonly Dictionary<TNode, List<Edge<TNode>>> _adjacency = new();
+    private readonly Dictionary<TNode, List<Edge<TNode>>> _adjacency = new();
 
     public int NodeCount => _adjacency.Count;
 
@@ -17,7 +17,7 @@ public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
     public void GetEdges(TNode node, List<Edge<TNode>> edgeBuffer)
     {
         edgeBuffer.Clear();
-        if (_adjacency.TryGetValue(node, out var edges))
+        if (_adjacency.TryGetValue(node, out List<Edge<TNode>> edges))
             edgeBuffer.AddRange(edges);
     }
 
@@ -31,7 +31,7 @@ public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
     {
         if (!_adjacency.Remove(node)) return false;
 
-        foreach (var edges in _adjacency.Values)
+        foreach (List<Edge<TNode>> edges in _adjacency.Values)
             edges.RemoveAll(e => e.Next.Equals(node));
 
         return true;
@@ -53,7 +53,7 @@ public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
 
     public bool RemoveEdge(TNode from, TNode to)
     {
-        if (!_adjacency.TryGetValue(from, out var edges)) return false;
+        if (!_adjacency.TryGetValue(from, out List<Edge<TNode>> edges)) return false;
         return edges.RemoveAll(e => e.Next.Equals(to)) > 0;
     }
 
@@ -67,9 +67,10 @@ public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
 
     public bool HasEdge(TNode from, TNode to)
     {
-        if (!_adjacency.TryGetValue(from, out var edges)) return false;
-        foreach (var e in edges)
-            if (e.Next.Equals(to)) return true;
+        if (!_adjacency.TryGetValue(from, out List<Edge<TNode>> edges)) return false;
+        foreach (Edge<TNode> e in edges)
+            if (e.Next.Equals(to))
+                return true;
         return false;
     }
 
@@ -81,7 +82,7 @@ public class NodeGraph<TNode> : IGraph<TNode> where TNode : IEquatable<TNode>
 /// </summary>
 public class SpatialNodeGraph2D : NodeGraph<Vector2Int>
 {
-    readonly SpatialHash2D<Vector2Int> _spatial;
+    private readonly SpatialHash2D<Vector2Int> _spatial;
 
     public SpatialNodeGraph2D(float cellSize = 1f) =>
         _spatial = new SpatialHash2D<Vector2Int>(cellSize);
@@ -100,8 +101,18 @@ public class SpatialNodeGraph2D : NodeGraph<Vector2Int>
 
     public new void AddEdge(Vector2Int from, Vector2Int to, float cost)
     {
-        if (!HasNode(from)) { base.AddNode(from); _spatial.Insert(from, from); }
-        if (!HasNode(to)) { base.AddNode(to); _spatial.Insert(to, to); }
+        if (!HasNode(from))
+        {
+            base.AddNode(from);
+            _spatial.Insert(from, from);
+        }
+
+        if (!HasNode(to))
+        {
+            base.AddNode(to);
+            _spatial.Insert(to, to);
+        }
+
         base.AddEdge(from, to, cost);
     }
 
@@ -120,16 +131,20 @@ public class SpatialNodeGraph2D : NodeGraph<Vector2Int>
     /// <summary>Finds the nearest node within the given radius of a world position.</summary>
     public Vector2Int? FindNearestNode(Vector2 worldPos, float searchRadius)
     {
-        var candidates = _spatial.QueryInRadius(worldPos, searchRadius);
+        List<Vector2Int> candidates = _spatial.QueryInRadius(worldPos, searchRadius);
         if (candidates.Count == 0) return null;
 
         Vector2Int best = candidates[0];
         float bestDist = (worldPos - (Vector2)best).sqrMagnitude;
 
-        for (int i = 1; i < candidates.Count; i++)
+        for (var i = 1; i < candidates.Count; i++)
         {
             float dist = (worldPos - (Vector2)candidates[i]).sqrMagnitude;
-            if (dist < bestDist) { best = candidates[i]; bestDist = dist; }
+            if (dist < bestDist)
+            {
+                best = candidates[i];
+                bestDist = dist;
+            }
         }
 
         return best;

@@ -3,11 +3,11 @@ using UnityEngine;
 
 public static class LabelGizmo
 {
-    static bool showGameObjectName = true;
-    static bool showVertexCount = true;
-    static bool showMaterialName;
-    static bool showShaderName = true;
-    static bool showShaderKeywords;
+    private static bool showGameObjectName = true;
+    private static bool showVertexCount = true;
+    private static bool showMaterialName;
+    private static bool showShaderName = true;
+    private static bool showShaderKeywords;
 
     [DrawGizmo(GizmoType.Selected | GizmoType.NonSelected | GizmoType.Active | GizmoType.Pickable)]
     public static void GizmoLabels(GameObject go, GizmoType type)
@@ -25,12 +25,12 @@ public static class LabelGizmo
             if (meshFilter != null) label += "\nverts: " + meshFilter.sharedMesh.vertexCount;
         }
 
-        var mat = renderer.sharedMaterial;
+        Material mat = renderer.sharedMaterial;
         if (mat != null)
         {
             if (showMaterialName) label += "\nmat: " + mat.name;
 
-            var shader = mat.shader;
+            Shader shader = mat.shader;
             if (shader != null)
             {
                 if (showShaderName) label += "\nshader: " + shader.name;

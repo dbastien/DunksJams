@@ -34,7 +34,7 @@ public static class Dice
 
         for (var i = 0; i < count; i++)
         {
-            var roll = Rand.IntRanged(1, sides + 1);
+            int roll = Rand.IntRanged(1, sides + 1);
             rolls[i] = roll;
             sum += roll;
         }
@@ -64,22 +64,20 @@ public static class Dice
     public static bool IsStandardSides(int sides)
     {
         for (var i = 0; i < StandardDice.Length; i++)
-        {
             if ((int)StandardDice[i] == sides)
                 return true;
-        }
 
         return false;
     }
 
-    static void ValidateSides(int sides)
+    private static void ValidateSides(int sides)
     {
         if (sides >= 2) return;
         DLog.LogE($"Dice requires at least 2 sides (got {sides}).");
         throw new ArgumentOutOfRangeException(nameof(sides), sides, "Sides must be >= 2.");
     }
 
-    static void ValidateCount(int count)
+    private static void ValidateCount(int count)
     {
         if (count >= 1) return;
         DLog.LogE($"Dice roll count must be >= 1 (got {count}).");

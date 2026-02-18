@@ -15,30 +15,30 @@ public static class ObjExporter
         sb.AppendLine("# Exported from DunksJams");
         sb.Append("o ").AppendLine(objectName);
 
-        foreach (var v in mesh.vertices)
+        foreach (Vector3 v in mesh.vertices)
             sb.Append("v ").Append(v.x).Append(' ').Append(v.y).Append(' ').AppendLine(v.z.ToString());
 
         if (mesh.normals.Length > 0)
-            foreach (var n in mesh.normals)
+            foreach (Vector3 n in mesh.normals)
                 sb.Append("vn ").Append(n.x).Append(' ').Append(n.y).Append(' ').AppendLine(n.z.ToString());
 
         if (mesh.uv.Length > 0)
-            foreach (var u in mesh.uv)
+            foreach (Vector2 u in mesh.uv)
                 sb.Append("vt ").Append(u.x).Append(' ').AppendLine(u.y.ToString());
 
         bool hasNormals = mesh.normals.Length > 0;
         bool hasUVs = mesh.uv.Length > 0;
 
-        for (int sub = 0; sub < mesh.subMeshCount; ++sub)
+        for (var sub = 0; sub < mesh.subMeshCount; ++sub)
         {
             if (mesh.subMeshCount > 1)
                 sb.Append("g submesh_").AppendLine(sub.ToString());
 
-            var tris = mesh.GetTriangles(sub);
-            for (int i = 0; i < tris.Length; i += 3)
+            int[] tris = mesh.GetTriangles(sub);
+            for (var i = 0; i < tris.Length; i += 3)
             {
                 sb.Append("f ");
-                for (int j = 0; j < 3; ++j)
+                for (var j = 0; j < 3; ++j)
                 {
                     int idx = tris[i + j] + 1; // OBJ is 1-indexed
                     sb.Append(idx);
@@ -48,8 +48,10 @@ public static class ObjExporter
                         if (hasUVs) sb.Append(idx);
                         if (hasNormals) sb.Append('/').Append(idx);
                     }
+
                     if (j < 2) sb.Append(' ');
                 }
+
                 sb.AppendLine();
             }
         }
@@ -64,7 +66,7 @@ public static class ObjExporter
     /// <summary>Write a Mesh to an .obj file on disk.</summary>
     public static void MeshToFile(Mesh mesh, string path, string objectName = "Exported")
     {
-        var dir = Path.GetDirectoryName(path);
+        string dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             Directory.CreateDirectory(dir);
 
@@ -81,8 +83,8 @@ public static class ObjExporter
         var renderer = mf.GetComponent<Renderer>();
         if (renderer == null || renderer.sharedMaterial == null) return;
 
-        var mat = renderer.sharedMaterial;
-        var mtlPath = Path.ChangeExtension(path, ".mtl");
+        Material mat = renderer.sharedMaterial;
+        string mtlPath = Path.ChangeExtension(path, ".mtl");
         File.WriteAllText(mtlPath, MaterialToString(mat));
     }
 
@@ -95,8 +97,13 @@ public static class ObjExporter
 
         if (mat.HasColor("_Color"))
         {
-            var c = mat.color;
-            sb.Append("Ka ").Append(c.r * 0.2f).Append(' ').Append(c.g * 0.2f).Append(' ').AppendLine((c.b * 0.2f).ToString());
+            Color c = mat.color;
+            sb.Append("Ka ").
+                Append(c.r * 0.2f).
+                Append(' ').
+                Append(c.g * 0.2f).
+                Append(' ').
+                AppendLine((c.b * 0.2f).ToString());
             sb.Append("Kd ").Append(c.r).Append(' ').Append(c.g).Append(' ').AppendLine(c.b.ToString());
         }
         else

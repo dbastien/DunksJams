@@ -3,17 +3,17 @@ using UnityEngine;
 public class TestCompilationWarnings : MonoBehaviour
 {
     // CS0168: Variable declared but never used
-    int unusedVariable;
+    private int unusedVariable;
 
     // CS0162: Unreachable code detected
-    void Start()
+    private void Start()
     {
         return;
         DLog.Log("This code is unreachable");
     }
 
     // CS0219: Variable assigned but never used
-    void Update()
+    private void Update()
     {
         var assignedButUnused = 42;
     }
@@ -22,7 +22,7 @@ public class TestCompilationWarnings : MonoBehaviour
     public int unassignedField;
 
     // CS0618: Obsolete API usage
-    void TestObsolete()
+    private void TestObsolete()
     {
         // This will generate a warning about using obsolete Unity API
         Application.LoadLevel(0);

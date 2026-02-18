@@ -22,13 +22,13 @@ public class AssetBrowserTreeViewItem : TreeViewItem<int>
     public long RuntimeMemory;
     public long StorageSize;
 
-    const string TimeFormat = "yyyy/MM/dd HH:mm:ss";
+    private const string TimeFormat = "yyyy/MM/dd HH:mm:ss";
 
     protected static readonly Dictionary<AssetImporterPlatform, string> AssetImporterPlatformStrings = new();
 
     static AssetBrowserTreeViewItem()
     {
-        foreach (var p in Enum.GetValues(typeof(AssetImporterPlatform)))
+        foreach (object p in Enum.GetValues(typeof(AssetImporterPlatform)))
             AssetImporterPlatformStrings.Add((AssetImporterPlatform)p, p.ToString());
     }
 
@@ -47,10 +47,7 @@ public class AssetBrowserTreeViewItem : TreeViewItem<int>
         WriteTimeAsString = WriteTime.ToString(TimeFormat);
     }
 
-    public void SaveImportSettings()
-    {
-        AssetDatabase.WriteImportSettingsIfDirty(AssetPath);
-    }
+    public void SaveImportSettings() { AssetDatabase.WriteImportSettingsIfDirty(AssetPath); }
 }
 
 /// <summary>Generic tree view item for assets without a specific importer.</summary>

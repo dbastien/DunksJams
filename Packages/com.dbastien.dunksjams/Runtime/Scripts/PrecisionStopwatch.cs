@@ -11,25 +11,19 @@ public class PrecisionStopwatch : IDisposable
         Nanoseconds
     }
 
-    readonly Stopwatch _sw;
-    readonly Action<string> _onDisposeAction;
-    readonly TimeUnit _timeUnit;
-    bool _disposed;
+    private readonly Stopwatch _sw;
+    private readonly Action<string> _onDisposeAction;
+    private readonly TimeUnit _timeUnit;
+    private bool _disposed;
 
     public static bool IsHighResolution => Stopwatch.IsHighResolution;
     public static long Freq => Stopwatch.Frequency;
 
-    public PrecisionStopwatch() : this(TimeUnit.Milliseconds)
-    {
-    }
+    public PrecisionStopwatch() : this(TimeUnit.Milliseconds) { }
 
-    public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately)
-    {
-    }
+    public PrecisionStopwatch(TimeUnit timeUnit, bool startImmediately) : this(timeUnit, null, startImmediately) { }
 
-    public PrecisionStopwatch(Action<string> onDisposeAction) : this(TimeUnit.Milliseconds, onDisposeAction, true)
-    {
-    }
+    public PrecisionStopwatch(Action<string> onDisposeAction) : this(TimeUnit.Milliseconds, onDisposeAction, true) { }
 
     public PrecisionStopwatch(TimeUnit timeUnit, Action<string> onDisposeAction = null, bool startImmediately = false)
     {
@@ -40,8 +34,11 @@ public class PrecisionStopwatch : IDisposable
         if (startImmediately) Start();
     }
 
-    public static PrecisionStopwatch StartNew(TimeUnit timeUnit = TimeUnit.Milliseconds,
-        Action<string> onDisposeAction = null)
+    public static PrecisionStopwatch StartNew
+    (
+        TimeUnit timeUnit = TimeUnit.Milliseconds,
+        Action<string> onDisposeAction = null
+    )
         => new(timeUnit, onDisposeAction, true);
 
     public void Start() => _sw.Start();
@@ -80,7 +77,7 @@ public class PrecisionStopwatch : IDisposable
     public static double Measure(Action action, TimeUnit unit = TimeUnit.Milliseconds)
     {
         if (action == null) throw new ArgumentNullException(nameof(action));
-        using var stopwatch = StartNew(unit);
+        using PrecisionStopwatch stopwatch = StartNew(unit);
         action();
         return stopwatch.GetElapsedTime(unit);
     }
@@ -88,8 +85,8 @@ public class PrecisionStopwatch : IDisposable
     public static T Measure<T>(Func<T> func, out double elapsed, TimeUnit unit = TimeUnit.Milliseconds)
     {
         if (func == null) throw new ArgumentNullException(nameof(func));
-        using var stopwatch = StartNew(unit);
-        var result = func();
+        using PrecisionStopwatch stopwatch = StartNew(unit);
+        T result = func();
         elapsed = stopwatch.GetElapsedTime(unit);
         return result;
     }

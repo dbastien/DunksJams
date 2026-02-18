@@ -8,35 +8,36 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleAI : MonoBehaviour
 {
-    [Header("Target")]
-    [SerializeField] Transform target;
-    [SerializeField] Transform[] waypoints;
-    [SerializeField] float waypointReachDistance = 5f;
-    [SerializeField] bool loop = true;
+    [Header("Target")] [SerializeField] private Transform target;
+    [SerializeField] private Transform[] waypoints;
+    [SerializeField] private float waypointReachDistance = 5f;
+    [SerializeField] private bool loop = true;
 
-    [Header("Driving")]
-    [SerializeField] float maxSpeedToTarget = 30f;
-    [SerializeField] float brakeAngleThreshold = 40f;
-    [SerializeField] float brakeSpeedThreshold = 15f;
-    [SerializeField] [Range(0f, 1f)] float throttleAmount = 0.8f;
+    [Header("Driving")] [SerializeField] private float maxSpeedToTarget = 30f;
+    [SerializeField] private float brakeAngleThreshold = 40f;
+    [SerializeField] private float brakeSpeedThreshold = 15f;
+    [SerializeField] [Range(0f, 1f)] private float throttleAmount = 0.8f;
 
-    [Header("Avoidance")]
-    [SerializeField] float avoidanceRayLength = 10f;
-    [SerializeField] float avoidanceWidth = 1.5f;
-    [SerializeField] LayerMask obstacleLayers = ~0;
+    [Header("Avoidance")] [SerializeField] private float avoidanceRayLength = 10f;
+    [SerializeField] private float avoidanceWidth = 1.5f;
+    [SerializeField] private LayerMask obstacleLayers = ~0;
 
-    VehicleController _vehicle;
-    int _currentWaypointIndex;
-    Transform _currentTarget;
+    private VehicleController _vehicle;
+    private int _currentWaypointIndex;
+    private Transform _currentTarget;
 
-    void Awake() => _vehicle = GetComponent<VehicleController>();
+    private void Awake() => _vehicle = GetComponent<VehicleController>();
 
-    void Update()
+    private void Update()
     {
         UpdateCurrentTarget();
-        if (_currentTarget == null) { _vehicle.SetInput(0f, 0f, 1f, false); return; }
+        if (_currentTarget == null)
+        {
+            _vehicle.SetInput(0f, 0f, 1f, false);
+            return;
+        }
 
-        var toTarget = _currentTarget.position - transform.position;
+        Vector3 toTarget = _currentTarget.position - transform.position;
         toTarget.y = 0f;
         float distance = toTarget.magnitude;
         float angle = Vector3.SignedAngle(transform.forward, toTarget, Vector3.up);
@@ -58,10 +59,8 @@ public class VehicleAI : MonoBehaviour
 
         // Slow down near target if not using waypoints
         if (waypoints == null || waypoints.Length == 0)
-        {
             if (distance < 10f)
                 throttle *= distance / 10f;
-        }
 
         // Speed limiting
         if (speed > maxSpeedToTarget) throttle = 0f;
@@ -69,7 +68,7 @@ public class VehicleAI : MonoBehaviour
         _vehicle.SetInput(throttle, steer, brake, false);
     }
 
-    void UpdateCurrentTarget()
+    private void UpdateCurrentTarget()
     {
         if (waypoints != null && waypoints.Length > 0)
         {
@@ -85,19 +84,16 @@ public class VehicleAI : MonoBehaviour
                 _currentTarget = waypoints[_currentWaypointIndex];
             }
         }
-        else
-        {
-            _currentTarget = target;
-        }
+        else { _currentTarget = target; }
     }
 
-    float GetAvoidanceSteer()
+    private float GetAvoidanceSteer()
     {
-        var forward = transform.forward;
-        var right = transform.right;
-        var origin = transform.position + Vector3.up * 0.5f;
+        Vector3 forward = transform.forward;
+        Vector3 right = transform.right;
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
 
-        float steerAdjust = 0f;
+        var steerAdjust = 0f;
 
         // Three raycasts: center, left, right
         if (Physics.Raycast(origin, forward, avoidanceRayLength, obstacleLayers))
@@ -112,12 +108,12 @@ public class VehicleAI : MonoBehaviour
         return steerAdjust;
     }
 
-    void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
         if (waypoints == null) return;
 
         Gizmos.color = Color.yellow;
-        for (int i = 0; i < waypoints.Length; i++)
+        for (var i = 0; i < waypoints.Length; i++)
         {
             if (waypoints[i] == null) continue;
             Gizmos.DrawSphere(waypoints[i].position, 0.5f);
@@ -135,7 +131,7 @@ public class VehicleAI : MonoBehaviour
 
         // Avoidance rays
         Gizmos.color = Color.cyan;
-        var origin = transform.position + Vector3.up * 0.5f;
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
         Gizmos.DrawRay(origin, transform.forward * avoidanceRayLength);
         Gizmos.DrawRay(origin, (transform.forward + transform.right * 0.5f).normalized * avoidanceRayLength * 0.8f);
         Gizmos.DrawRay(origin, (transform.forward - transform.right * 0.5f).normalized * avoidanceRayLength * 0.8f);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 public static class ListExtensions
@@ -9,7 +10,7 @@ public static class ListExtensions
     public static T PopFirst<T>(this IList<T> l)
     {
         if (l.Count == 0) throw new InvalidOperationException("Cannot pop from empty list.");
-        var item = l[0];
+        T item = l[0];
         l.RemoveAt(0);
         return item;
     }
@@ -17,7 +18,7 @@ public static class ListExtensions
     public static T PopLast<T>(this IList<T> l)
     {
         if (l.Count == 0) throw new InvalidOperationException("Cannot pop from empty list.");
-        var item = l[^1];
+        T item = l[^1];
         l.RemoveAt(l.Count - 1);
         return item;
     }
@@ -40,20 +41,16 @@ public static class ListExtensions
 
     public static void RemoveAllByPredicate<T>(this IList<T> l, Predicate<T> match)
     {
-        for (var i = l.Count - 1; i >= 0; --i)
-        {
+        for (int i = l.Count - 1; i >= 0; --i)
             if (match(l[i]))
                 l.RemoveAt(i);
-        }
     }
 
     public static void RemoveAllByValue<T>(this IList<T> l, T value)
     {
-        for (var i = l.Count - 1; i >= 0; --i)
-        {
+        for (int i = l.Count - 1; i >= 0; --i)
             if (EqualityComparer<T>.Default.Equals(l[i], value))
                 l.RemoveAt(i);
-        }
     }
 
     public static void AddRange<T>(this IList<T> l, IEnumerable<T> items)
@@ -61,7 +58,40 @@ public static class ListExtensions
         if (l is List<T> concreteList)
             concreteList.AddRange(items);
         else
-            foreach (var item in items)
+            foreach (T item in items)
                 l.Add(item);
+    }
+
+    public static int IndexOfFirst<T>(this List<T> list, Func<T, bool> predicate) =>
+        list.FirstOrDefault(predicate) is { } t ? list.IndexOf(t) : -1;
+
+    public static int IndexOfLast<T>(this List<T> list, Func<T, bool> predicate) =>
+        list.LastOrDefault(predicate) is { } t ? list.IndexOf(t) : -1;
+
+    public static void SortBy<T, TKey>(this List<T> list, Func<T, TKey> keySelector) where TKey : IComparable =>
+        list.Sort((a, b) => keySelector(a).CompareTo(keySelector(b)));
+
+    public static T AddAt<T>(this List<T> list, T item, int index)
+    {
+        if (index < 0) index = 0;
+        if (index >= list.Count)
+            list.Add(item);
+        else
+            list.Insert(index, item);
+        return item;
+    }
+
+    public static T RemoveLast<T>(this List<T> list)
+    {
+        if (list.Count == 0) return default;
+        T item = list[^1];
+        list.RemoveAt(list.Count - 1);
+        return item;
+    }
+
+    public static void Add<T>(this List<T> list, params T[] items)
+    {
+        foreach (T item in items)
+            list.Add(item);
     }
 }

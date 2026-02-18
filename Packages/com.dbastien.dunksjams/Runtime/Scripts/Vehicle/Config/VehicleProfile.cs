@@ -3,32 +3,31 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "‽/Vehicle/Vehicle Profile", fileName = "VehicleProfile")]
 public class VehicleProfile : ScriptableObject
 {
-    [Header("Mass")]
-    [SerializeField] float mass = 1500f;
-    [SerializeField] [Range(0f, 1f)] float centerOfMassPosition = 0.45f;
-    [SerializeField] float centerOfMassHeightOffset = -0.1f;
+    [Header("Mass")] [SerializeField] private float mass = 1500f;
+    [SerializeField] [Range(0f, 1f)] private float centerOfMassPosition = 0.45f;
+    [SerializeField] private float centerOfMassHeightOffset = -0.1f;
 
-    [Header("Aerodynamics")]
-    [SerializeField] float dragCoefficient = 0.3f;
-    [SerializeField] float downforceCoefficient = 0.5f;
-    [SerializeField] [Range(0f, 1f)] float aeroBalance = 0.5f;
+    [Header("Aerodynamics")] [SerializeField]
+    private float dragCoefficient = 0.3f;
 
-    [Header("Speed")]
-    [SerializeField] float maxForwardSpeed = 50f;
-    [SerializeField] float maxReverseSpeed = 15f;
+    [SerializeField] private float downforceCoefficient = 0.5f;
+    [SerializeField] [Range(0f, 1f)] private float aeroBalance = 0.5f;
 
-    [Header("Stability")]
-    [SerializeField] [Range(0f, 1f)] float antiRollStrength = 0.5f;
+    [Header("Speed")] [SerializeField] private float maxForwardSpeed = 50f;
+    [SerializeField] private float maxReverseSpeed = 15f;
 
-    [Header("Steering")]
-    [SerializeField] float maxSteerAngle = 35f;
-    [SerializeField] AnimationCurve steerSpeedCurve = AnimationCurve.Linear(0f, 1f, 1f, 0.2f);
-    [SerializeField] bool useAckermannSteering = true;
+    [Header("Stability")] [SerializeField] [Range(0f, 1f)]
+    private float antiRollStrength = 0.5f;
 
-    [Header("Driving Aids")]
-    [SerializeField] [Range(0f, 1f)] float tractionControlStrength = 0.5f;
-    [SerializeField] [Range(0f, 1f)] float brakeAssistStrength = 0.5f;
-    [SerializeField] [Range(0f, 1f)] float steeringAssistStrength = 0.5f;
+    [Header("Steering")] [SerializeField] private float maxSteerAngle = 35f;
+    [SerializeField] private AnimationCurve steerSpeedCurve = AnimationCurve.Linear(0f, 1f, 1f, 0.2f);
+    [SerializeField] private bool useAckermannSteering = true;
+
+    [Header("Driving Aids")] [SerializeField] [Range(0f, 1f)]
+    private float tractionControlStrength = 0.5f;
+
+    [SerializeField] [Range(0f, 1f)] private float brakeAssistStrength = 0.5f;
+    [SerializeField] [Range(0f, 1f)] private float steeringAssistStrength = 0.5f;
 
     public float Mass => mass;
     public float CenterOfMassPosition => centerOfMassPosition;

@@ -6,8 +6,11 @@ public sealed class ScreenButtonDef
     public ScreenAction Action { get; }
     public Action<GameFlowManager> CustomAction { get; }
 
-    public ScreenButtonDef(string label, ScreenAction action = ScreenAction.None,
-        Action<GameFlowManager> customAction = null)
+    public ScreenButtonDef
+    (
+        string label, ScreenAction action = ScreenAction.None,
+        Action<GameFlowManager> customAction = null
+    )
     {
         Label = label;
         Action = action;

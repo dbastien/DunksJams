@@ -4,15 +4,15 @@ using UnityEngine;
 
 public sealed class ConcurrentArrayPool<T>
 {
-    const int MaxArraysPerBucket = 64;
-    const int MaxBuckets = 16;
-    static readonly T[] _emptyArray = Array.Empty<T>();
+    private const int MaxArraysPerBucket = 64;
+    private const int MaxBuckets = 16;
+    private static readonly T[] _emptyArray = Array.Empty<T>();
     public static readonly ConcurrentArrayPool<T> Shared = new();
 
-    readonly MinimumQueue<T[]>[] _buckets = new MinimumQueue<T[]>[MaxBuckets];
-    readonly SpinLock[] _locks = new SpinLock[MaxBuckets];
+    private readonly MinimumQueue<T[]>[] _buckets = new MinimumQueue<T[]>[MaxBuckets];
+    private readonly SpinLock[] _locks = new SpinLock[MaxBuckets];
 
-    ConcurrentArrayPool()
+    private ConcurrentArrayPool()
     {
         for (var i = 0; i < _buckets.Length; ++i)
         {
@@ -24,7 +24,7 @@ public sealed class ConcurrentArrayPool<T>
     /// <summary> Rent cleared array w/ at least the specified length </summary>
     public T[] RentCleared(int minLen)
     {
-        var rentedArray = Rent(minLen);
+        T[] rentedArray = Rent(minLen);
         Array.Clear(rentedArray, 0, rentedArray.Length);
         return rentedArray;
     }
@@ -36,15 +36,15 @@ public sealed class ConcurrentArrayPool<T>
 
         if (minLen == 0) return _emptyArray;
 
-        var size = minLen.NextPowerOfTwoAtLeast();
-        var index = GetQueueIndex(size);
+        int size = minLen.NextPowerOfTwoAtLeast();
+        int index = GetQueueIndex(size);
 
         if (index < 0 || index >= MaxBuckets) return new T[size];
 
         // Avoid lock if bucket is empty
         if (_buckets[index].Count == 0) return new T[size];
 
-        ref var spinLock = ref _locks[index];
+        ref SpinLock spinLock = ref _locks[index];
         var lockTaken = false;
         try
         {
@@ -63,17 +63,17 @@ public sealed class ConcurrentArrayPool<T>
         if (array == null) throw new ArgumentNullException(nameof(array));
         if (array.Length == 0) throw new ArgumentException("Array must have positive length.", nameof(array));
 
-        var index = GetQueueIndex(array.Length);
+        int index = GetQueueIndex(array.Length);
         Debug.Assert(index >= 0, $"Invalid bucket index: {index}");
 
-        ref var spinLock = ref _locks[index];
+        ref SpinLock spinLock = ref _locks[index];
         var lockTaken = false;
         try
         {
             spinLock.TryEnter(ref lockTaken);
             if (lockTaken)
             {
-                var bucket = _buckets[index];
+                MinimumQueue<T[]> bucket = _buckets[index];
                 if (bucket.Count >= MaxArraysPerBucket) bucket.Dequeue(); // LRU-style eviction
                 bucket.Enqueue(array);
             }
@@ -85,7 +85,7 @@ public sealed class ConcurrentArrayPool<T>
     }
 
     /// <summary> Map array size to bucket index based on power-of-2 increments </summary>
-    static int GetQueueIndex(int size) => size switch
+    private static int GetQueueIndex(int size) => size switch
     {
         8 => 0, 16 => 1, 32 => 2, 64 => 3, 128 => 4, 256 => 5,
         512 => 6, 1024 => 7, 2048 => 8, 4096 => 9, 8192 => 10,

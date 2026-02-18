@@ -61,7 +61,7 @@ public static class TransformExtensions
 
     public static void LookAt2D(this Transform t, Vector3 target)
     {
-        var dir = target - t.position;
+        Vector3 dir = target - t.position;
         t.rotation = Quaternion.LookRotation(Vector3.forward, dir);
     }
 
@@ -73,10 +73,10 @@ public static class TransformExtensions
 
     public static Transform FindOrCreateChild(this Transform t, string name)
     {
-        var child = t.Find(name);
+        Transform child = t.Find(name);
         if (child) return child;
 
-        var newChild = new GameObject(name).transform;
+        Transform newChild = new GameObject(name).transform;
         newChild.SetParent(t);
         newChild.ResetTransform();
         return newChild;
@@ -84,9 +84,9 @@ public static class TransformExtensions
 
     public static void DestroyChildren(this Transform t)
     {
-        for (var i = t.childCount - 1; i >= 0; --i)
+        for (int i = t.childCount - 1; i >= 0; --i)
         {
-            var child = t.GetChild(i).gameObject;
+            GameObject child = t.GetChild(i).gameObject;
             if (Application.isPlaying)
                 Object.Destroy(child);
             else
@@ -98,7 +98,7 @@ public static class TransformExtensions
 
     public static string GetPath(this Transform t)
     {
-        var path = t.name;
+        string path = t.name;
         while (t.parent)
         {
             t = t.parent;

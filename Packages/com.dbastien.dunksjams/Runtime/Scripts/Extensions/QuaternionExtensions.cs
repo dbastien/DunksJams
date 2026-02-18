@@ -4,14 +4,14 @@ public static class QuaternionExtensions
 {
     public static Quaternion LerpUnclamped(this Quaternion l, Quaternion r, float t)
     {
-        var oneMinusT = 1f - t;
+        float oneMinusT = 1f - t;
         Quaternion result = new(l.x * oneMinusT + r.x * t, l.y * oneMinusT + r.y * t, l.z * oneMinusT + r.z * t,
             l.w * oneMinusT + r.w * t);
 
-        var mag = Mathf.Sqrt(result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w);
+        float mag = Mathf.Sqrt(result.x * result.x + result.y * result.y + result.z * result.z + result.w * result.w);
         if (mag > MathConsts.Epsilon_Float)
         {
-            var invMag = 1f / mag;
+            float invMag = 1f / mag;
             result.x *= invMag;
             result.y *= invMag;
             result.z *= invMag;
@@ -26,7 +26,7 @@ public static class QuaternionExtensions
 
     public static Quaternion RotateTowards(this Quaternion from, Quaternion to, float maxDegDelta)
     {
-        var angle = Quaternion.Angle(from, to);
+        float angle = Quaternion.Angle(from, to);
         if (angle < MathConsts.Epsilon_Float || maxDegDelta >= angle) return to;
         return Quaternion.Slerp(from, to, maxDegDelta / angle);
     }

@@ -4,25 +4,25 @@ using UnityEngine.InputSystem;
 /// <summary>Free-flight debug camera. WASD move, mouse look, Space/C for up/down, Shift for speed boost.</summary>
 public class DebugFlyController : MonoBehaviour
 {
-    [SerializeField] InputActionAsset inputActions;
-    [SerializeField] float baseSpeed = 10f;
-    [SerializeField] float sprintMultiplier = 3f;
-    [SerializeField] float lookSensitivity = 0.1f;
-    [SerializeField] float pitchMin = -89f;
-    [SerializeField] float pitchMax = 89f;
+    [SerializeField] private InputActionAsset inputActions;
+    [SerializeField] private float baseSpeed = 10f;
+    [SerializeField] private float sprintMultiplier = 3f;
+    [SerializeField] private float lookSensitivity = 0.1f;
+    [SerializeField] private float pitchMin = -89f;
+    [SerializeField] private float pitchMax = 89f;
 
-    InputAction moveAction;
-    InputAction lookAction;
-    InputAction jumpAction;
-    InputAction crouchAction;
-    InputAction sprintAction;
-    float pitch;
-    float yaw;
+    private InputAction moveAction;
+    private InputAction lookAction;
+    private InputAction jumpAction;
+    private InputAction crouchAction;
+    private InputAction sprintAction;
+    private float pitch;
+    private float yaw;
 
-    void Awake()
+    private void Awake()
     {
         if (inputActions == null) return;
-        var m = inputActions.FindActionMap("Player");
+        InputActionMap m = inputActions.FindActionMap("Player");
         moveAction = m.FindAction("Move");
         lookAction = m.FindAction("Look");
         jumpAction = m.FindAction("Jump");
@@ -30,7 +30,7 @@ public class DebugFlyController : MonoBehaviour
         sprintAction = m.FindAction("Sprint");
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         moveAction?.Enable();
         lookAction?.Enable();
@@ -39,7 +39,7 @@ public class DebugFlyController : MonoBehaviour
         sprintAction?.Enable();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         moveAction?.Disable();
         lookAction?.Disable();
@@ -48,18 +48,18 @@ public class DebugFlyController : MonoBehaviour
         sprintAction?.Disable();
     }
 
-    void Start()
+    private void Start()
     {
-        var e = transform.eulerAngles;
+        Vector3 e = transform.eulerAngles;
         yaw = e.y;
         pitch = e.x > 180f ? e.x - 360f : e.x;
     }
 
-    void Update()
+    private void Update()
     {
         if (inputActions == null) return;
 
-        var look = lookAction?.ReadValue<Vector2>() ?? Vector2.zero;
+        Vector2 look = lookAction?.ReadValue<Vector2>() ?? Vector2.zero;
         if (look.sqrMagnitude > 0f)
         {
             yaw += look.x * lookSensitivity;
@@ -67,13 +67,14 @@ public class DebugFlyController : MonoBehaviour
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
 
-        var move = moveAction?.ReadValue<Vector2>() ?? Vector2.zero;
-        var up = (jumpAction?.IsPressed() == true ? 1f : 0f) - (crouchAction?.IsPressed() == true ? 1f : 0f);
-        var sprint = sprintAction?.IsPressed() == true ? sprintMultiplier : 1f;
-        var speed = baseSpeed * sprint * Time.deltaTime;
+        Vector2 move = moveAction?.ReadValue<Vector2>() ?? Vector2.zero;
+        float up = (jumpAction?.IsPressed() == true ? 1f : 0f) - (crouchAction?.IsPressed() == true ? 1f : 0f);
+        float sprint = sprintAction?.IsPressed() == true ? sprintMultiplier : 1f;
+        float speed = baseSpeed * sprint * Time.deltaTime;
 
-        var delta = transform.forward * (move.y * speed) + transform.right * (move.x * speed) +
-                    Vector3.up * (up * speed);
+        Vector3 delta = transform.forward * (move.y * speed) +
+                        transform.right * (move.x * speed) +
+                        Vector3.up * (up * speed);
         if (delta.sqrMagnitude > 0f) transform.position += delta;
     }
 }

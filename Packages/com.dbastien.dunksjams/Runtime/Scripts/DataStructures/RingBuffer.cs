@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class RingBuffer<T> : IEnumerable<T>
 {
-    readonly T[] _buffer;
-    int _head;
-    int _tail;
-    int _size;
+    private readonly T[] _buffer;
+    private int _head;
+    private int _tail;
+    private int _size;
 
     public RingBuffer(int capacity)
     {
@@ -27,9 +27,9 @@ public class RingBuffer<T> : IEnumerable<T>
             var result = new T[_size];
             if (_size == 0) return result;
 
-            var firstSegment = Math.Min(_size, Capacity - _head);
+            int firstSegment = Math.Min(_size, Capacity - _head);
             Array.Copy(_buffer, _head, result, 0, firstSegment);
-            var remaining = _size - firstSegment;
+            int remaining = _size - firstSegment;
             if (remaining > 0)
                 Array.Copy(_buffer, 0, result, firstSegment, remaining);
 
@@ -64,7 +64,7 @@ public class RingBuffer<T> : IEnumerable<T>
 
     public void AddRange(IEnumerable<T> items)
     {
-        foreach (var item in items) Add(item);
+        foreach (T item in items) Add(item);
     }
 
     public T First()

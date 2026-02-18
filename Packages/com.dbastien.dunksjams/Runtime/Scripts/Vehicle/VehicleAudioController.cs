@@ -3,34 +3,30 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleAudioController : MonoBehaviour
 {
-    [Header("Engine")]
-    [SerializeField] AudioClipReference engineClip;
-    [SerializeField] float engineMinPitch = 0.6f;
-    [SerializeField] float engineMaxPitch = 2.5f;
-    [SerializeField] [Range(0f, 1f)] float engineBaseVolume = 0.5f;
-    [SerializeField] float engineVolumeThrottleBoost = 0.3f;
+    [Header("Engine")] [SerializeField] private AudioClipReference engineClip;
+    [SerializeField] private float engineMinPitch = 0.6f;
+    [SerializeField] private float engineMaxPitch = 2.5f;
+    [SerializeField] [Range(0f, 1f)] private float engineBaseVolume = 0.5f;
+    [SerializeField] private float engineVolumeThrottleBoost = 0.3f;
 
-    [Header("Tire")]
-    [SerializeField] AudioClipReference tireSkidClip;
-    [SerializeField] float skidSlipThreshold = 0.3f;
-    [SerializeField] [Range(0f, 1f)] float skidMaxVolume = 0.4f;
+    [Header("Tire")] [SerializeField] private AudioClipReference tireSkidClip;
+    [SerializeField] private float skidSlipThreshold = 0.3f;
+    [SerializeField] [Range(0f, 1f)] private float skidMaxVolume = 0.4f;
 
-    [Header("Wind")]
-    [SerializeField] AudioClipReference windClip;
-    [SerializeField] float windSpeedThreshold = 15f;
-    [SerializeField] [Range(0f, 1f)] float windMaxVolume = 0.3f;
+    [Header("Wind")] [SerializeField] private AudioClipReference windClip;
+    [SerializeField] private float windSpeedThreshold = 15f;
+    [SerializeField] [Range(0f, 1f)] private float windMaxVolume = 0.3f;
 
-    [Header("Impact")]
-    [SerializeField] AudioClipReference impactSound;
+    [Header("Impact")] [SerializeField] private AudioClipReference impactSound;
 
-    VehicleController _vehicle;
-    AudioSource _engineSource;
-    AudioSource _skidSource;
-    AudioSource _windSource;
+    private VehicleController _vehicle;
+    private AudioSource _engineSource;
+    private AudioSource _skidSource;
+    private AudioSource _windSource;
 
-    void Awake() => _vehicle = GetComponent<VehicleController>();
+    private void Awake() => _vehicle = GetComponent<VehicleController>();
 
-    void OnEnable()
+    private void OnEnable()
     {
         _vehicle.OnImpact += HandleImpact;
 
@@ -42,7 +38,7 @@ public class VehicleAudioController : MonoBehaviour
             _windSource = AudioSystem.Instance?.PlayLooped(windClip.Clip, 0f, true);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         _vehicle.OnImpact -= HandleImpact;
 
@@ -55,14 +51,14 @@ public class VehicleAudioController : MonoBehaviour
         _windSource = null;
     }
 
-    void Update()
+    private void Update()
     {
         UpdateEngine();
         UpdateSkid();
         UpdateWind();
     }
 
-    void UpdateEngine()
+    private void UpdateEngine()
     {
         if (_engineSource == null || _vehicle.Drivetrain == null) return;
 
@@ -78,12 +74,12 @@ public class VehicleAudioController : MonoBehaviour
             _engineSource.transform.position = transform.position;
     }
 
-    void UpdateSkid()
+    private void UpdateSkid()
     {
         if (_skidSource == null) return;
 
-        float maxSlip = 0f;
-        foreach (var w in _vehicle.Wheels)
+        var maxSlip = 0f;
+        foreach (VehicleWheel w in _vehicle.Wheels)
         {
             if (!w.IsGrounded) continue;
             if (w.CombinedSlip > maxSlip) maxSlip = w.CombinedSlip;
@@ -98,7 +94,7 @@ public class VehicleAudioController : MonoBehaviour
             _skidSource.transform.position = transform.position;
     }
 
-    void UpdateWind()
+    private void UpdateWind()
     {
         if (_windSource == null) return;
 
@@ -111,7 +107,7 @@ public class VehicleAudioController : MonoBehaviour
         _windSource.pitch = 0.8f + Mathf.InverseLerp(0f, 60f, speed) * 0.4f;
     }
 
-    void HandleImpact(Vector3 point, Vector3 normal, float impulse)
+    private void HandleImpact(Vector3 point, Vector3 normal, float impulse)
     {
         if (impactSound == null) return;
 

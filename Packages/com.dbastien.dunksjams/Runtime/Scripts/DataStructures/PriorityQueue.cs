@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
 {
-    readonly List<T> _heap = new();
+    private readonly List<T> _heap = new();
 
     public int Count => _heap.Count;
     public void Clear() => _heap.Clear();
@@ -18,7 +18,7 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
     public T Dequeue()
     {
         ThrowIfEmpty();
-        var root = _heap[0];
+        T root = _heap[0];
         _heap[0] = _heap[^1];
         _heap.RemoveAt(_heap.Count - 1);
         HeapifyDown(0);
@@ -45,9 +45,9 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
 
     public bool Contains(T item) => _heap.Contains(item);
 
-    void HeapifyUp(int i)
+    private void HeapifyUp(int i)
     {
-        var item = _heap[i];
+        T item = _heap[i];
         int parent;
         while (i > 0 && item.CompareTo(_heap[parent = (i - 1) / 2]) < 0)
         {
@@ -58,9 +58,9 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
         _heap[i] = item;
     }
 
-    void HeapifyDown(int i)
+    private void HeapifyDown(int i)
     {
-        var item = _heap[i];
+        T item = _heap[i];
         int child;
         while ((child = 2 * i + 1) < _heap.Count)
         {
@@ -73,7 +73,7 @@ public class PriorityQueue<T> : IEnumerable<T> where T : IComparable<T>
         _heap[i] = item;
     }
 
-    void ThrowIfEmpty()
+    private void ThrowIfEmpty()
     {
         if (_heap.Count == 0) throw new InvalidOperationException("Queue is empty.");
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -7,10 +8,10 @@ public class FindReferencesInAssetsWindow : EditorWindow
     [MenuItem("‽/Asset Management/Find References")]
     public static void ShowWindow() => GetWindow<FindReferencesInAssetsWindow>().Show();
 
-    Object target;
-    bool checkAssetDatabase = false;
-    bool checkScene = true;
-    string results;
+    private Object target;
+    private bool checkAssetDatabase = false;
+    private bool checkScene = true;
+    private string results;
 
     public void OnGUI()
     {
@@ -31,7 +32,7 @@ public class FindReferencesInAssetsWindow : EditorWindow
 
     public void FindAllReferences()
     {
-        var path = AssetDatabase.GetAssetOrScenePath(target);
+        string path = AssetDatabase.GetAssetOrScenePath(target);
 
         var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
         if (asset == null)
@@ -42,22 +43,22 @@ public class FindReferencesInAssetsWindow : EditorWindow
 
         if (checkAssetDatabase)
         {
-            var gameObjects = AssetDatabaseUtils.FindAndLoadAssets<GameObject>();
+            List<GameObject> gameObjects = AssetDatabaseUtils.FindAndLoadAssets<GameObject>();
             results += $"Searching {gameObjects.Count} AssetDatabase GameObjects\n";
-            var countFound = gameObjects.Sum(go => FindReferences(asset, go));
+            int countFound = gameObjects.Sum(go => FindReferences(asset, go));
             results += $"{countFound} AssetDatabase references found\n";
         }
 
         if (checkScene)
         {
-            var sceneGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+            GameObject[] sceneGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
             results += $"Searching {sceneGameObjects.Length} Scene GameObjects\n";
-            var sceneCountFound = sceneGameObjects.Sum(go => FindReferences(asset, go));
+            int sceneCountFound = sceneGameObjects.Sum(go => FindReferences(asset, go));
             results += $"{sceneCountFound} Scene references found\n";
         }
     }
 
-    int FindReferences(Object asset, GameObject go)
+    private int FindReferences(Object asset, GameObject go)
     {
         var countFound = 0;
         if (PrefabUtility.GetCorrespondingObjectFromOriginalSource(go) == asset)
@@ -66,23 +67,21 @@ public class FindReferencesInAssetsWindow : EditorWindow
             ++countFound;
         }
 
-        var components = go.GetComponents<Component>();
-        foreach (var component in components)
+        Component[] components = go.GetComponents<Component>();
+        foreach (Component component in components)
         {
             if (!component) continue;
 
             var so = new SerializedObject(component);
 
-            var sp = so.GetIterator();
+            SerializedProperty sp = so.GetIterator();
             while (sp.NextVisible(true))
-            {
                 if (sp.propertyType == SerializedPropertyType.ObjectReference && sp.objectReferenceValue == asset)
                 {
                     results +=
                         $"{go.GetFullPath()}, Component {ObjectNames.GetClassName(component)}, Property {ObjectNames.NicifyVariableName(sp.name)}\n";
                     ++countFound;
                 }
-            }
         }
 
         return countFound;

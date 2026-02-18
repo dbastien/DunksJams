@@ -5,14 +5,14 @@ using UnityEngine;
 /// <summary>Generates efficient gaussian blur kernels suitable for pixel shaders, takes advantage of bilinear filtering to do more with less. I think I got the idea from here: https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/</summary>
 public class GaussianBlurKernelGeneratorWindow : EditorWindow
 {
-    float _sigma = 1f;
-    int _radius = 2;
-    string _result = string.Empty;
+    private float _sigma = 1f;
+    private int _radius = 2;
+    private string _result = string.Empty;
 
     [MenuItem("‽/Gaussian Blur Kernel Generator")]
     public static void Init() => GetWindow<GaussianBlurKernelGeneratorWindow>().Show();
 
-    void OnGUI()
+    private void OnGUI()
     {
         GUILayout.Label("Gaussian Blur Kernel Generator");
         _sigma = EditorGUILayout.FloatField(new GUIContent("Sigma", "Controls the blur intensity."), _sigma);
@@ -21,11 +21,11 @@ public class GaussianBlurKernelGeneratorWindow : EditorWindow
         if (GUILayout.Button("Generate"))
         {
             _result = string.Empty;
-            var mtx = GaussianMatrix1DHalf(_sigma, _radius);
+            float[] mtx = GaussianMatrix1DHalf(_sigma, _radius);
 
             _result += FormatArray(mtx) + "\n";
 
-            GaussianMatrix1DHalfToLinearOptimized(mtx, out var optWeights, out var optOffsets);
+            GaussianMatrix1DHalfToLinearOptimized(mtx, out float[] optWeights, out float[] optOffsets);
             optWeights.NormalizeHalfMatrix();
 
             _result += $"weights: {{{FormatArray(optWeights)}}}\n";
@@ -41,11 +41,11 @@ public class GaussianBlurKernelGeneratorWindow : EditorWindow
         EditorGUILayout.TextArea(_result);
     }
 
-    string FormatArray(float[] arr) => string.Join(" , ", arr);
+    private string FormatArray(float[] arr) => string.Join(" , ", arr);
 
-    void GaussianMatrix1DHalfToLinearOptimized(float[] wIn, out float[] wOut, out float[] offsets)
+    private void GaussianMatrix1DHalfToLinearOptimized(float[] wIn, out float[] wOut, out float[] offsets)
     {
-        var lOut = (wIn.Length + 1) / 2;
+        int lOut = (wIn.Length + 1) / 2;
         wOut = new float[lOut];
         offsets = new float[lOut];
         wOut[0] = wIn[0];
@@ -58,13 +58,13 @@ public class GaussianBlurKernelGeneratorWindow : EditorWindow
         }
     }
 
-    float[] GaussianMatrix1DHalf(float sigma, int radius)
+    private float[] GaussianMatrix1DHalf(float sigma, int radius)
     {
         var res = new float[radius + 1];
         for (var x = 0; x <= radius; ++x) res[x] = Gaussian(sigma, x);
         return res;
     }
 
-    float Gaussian(float sigma, float x) =>
+    private float Gaussian(float sigma, float x) =>
         MathF.Exp(-x * x / (2 * sigma * sigma)) / (sigma * MathConsts.Tau_Sqrt);
 }

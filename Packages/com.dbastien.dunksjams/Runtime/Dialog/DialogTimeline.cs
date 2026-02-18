@@ -4,23 +4,20 @@ using UnityEngine.Timeline;
 
 [TrackColor(0.1f, 0.8f, 0.4f)]
 [TrackClipType(typeof(DialogClip))]
-public class DialogTrack : TrackAsset
-{
-}
+public class DialogTrack : TrackAsset { }
 
 public class DialogClip : PlayableAsset, ITimelineClipAsset
 {
     public string actorName;
-    [TextArea(3, 10)]
-    public string text;
+    [TextArea(3, 10)] public string text;
     public string sequence;
 
     public ClipCaps clipCaps => ClipCaps.None;
 
     public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
     {
-        var playable = ScriptPlayable<DialogBehaviour>.Create(graph);
-        var behaviour = playable.GetBehaviour();
+        ScriptPlayable<DialogBehaviour> playable = ScriptPlayable<DialogBehaviour>.Create(graph);
+        DialogBehaviour behaviour = playable.GetBehaviour();
         behaviour.actorName = actorName;
         behaviour.text = text;
         behaviour.sequence = sequence;

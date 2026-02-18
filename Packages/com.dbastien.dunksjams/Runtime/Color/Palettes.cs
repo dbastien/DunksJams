@@ -25,7 +25,7 @@ public static class Palettes
 
     public static Color[] SplitComplementary(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
+        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -36,7 +36,7 @@ public static class Palettes
 
     public static Color[] Tetradic(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
+        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -48,7 +48,7 @@ public static class Palettes
 
     public static Color[] SquareScheme(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
+        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -60,8 +60,8 @@ public static class Palettes
 
     public static Color[] TetradicSplit(Color baseColor)
     {
-        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
-        var half = TetradicOffset * 0.5f;
+        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
+        float half = TetradicOffset * 0.5f;
         return new[]
         {
             Color.HSVToRGB(h, s, v),
@@ -83,12 +83,12 @@ public static class Palettes
     /// <summary>Complementary palette with optional tints/shades (varying saturation/value).</summary>
     public static Color[] ComplementaryWithVariants(Color baseColor, int variantsPerHue = 2)
     {
-        Color.RGBToHSV(baseColor, out var h, out var s, out var v);
+        Color.RGBToHSV(baseColor, out float h, out float s, out float v);
         var palette = new Color[variantsPerHue * 2];
         for (var i = 0; i < variantsPerHue; i++)
         {
-            var vS = Mathf.Lerp(0.4f, 1f, (float)(i + 1) / (variantsPerHue + 1));
-            var sS = Mathf.Lerp(0.5f, s, (float)(i + 1) / (variantsPerHue + 1));
+            float vS = Mathf.Lerp(0.4f, 1f, (float)(i + 1) / (variantsPerHue + 1));
+            float sS = Mathf.Lerp(0.5f, s, (float)(i + 1) / (variantsPerHue + 1));
             palette[i] = Color.HSVToRGB(h, sS, vS);
             palette[variantsPerHue + i] = Color.HSVToRGB(Mathf.Repeat(h + ComplementaryHueOffset, 1f), sS, vS);
         }
@@ -99,7 +99,7 @@ public static class Palettes
     /// <summary>Single complementary color (180° on hue wheel).</summary>
     public static Color Complement(Color color)
     {
-        Color.RGBToHSV(color, out var h, out var s, out var v);
+        Color.RGBToHSV(color, out float h, out float s, out float v);
         return Color.HSVToRGB(Mathf.Repeat(h + ComplementaryHueOffset, 1f), s, v).WithAlpha(color.a);
     }
 
@@ -110,7 +110,7 @@ public static class Palettes
         var palette = new Color[grayCount + 1];
         for (var i = 0; i < grayCount; ++i)
         {
-            var g = Mathf.Lerp(0.15f, 0.9f, (float)i / (grayCount - 1));
+            float g = Mathf.Lerp(0.15f, 0.9f, (float)i / (grayCount - 1));
             palette[i] = new Color(g, g, g);
         }
 
@@ -124,24 +124,24 @@ public static class Palettes
     public static Color ApplyLut(Color color, Texture2D lut)
     {
         if (!lut || !lut.isReadable) return color;
-        var h = lut.height;
+        int h = lut.height;
         if (h != 16 && h != 32) return color;
-        var size = h;
+        int size = h;
 
-        if (!LutCache.TryGetPixels(lut, out var pixels)) return color;
+        if (!LutCache.TryGetPixels(lut, out Color[] pixels)) return color;
 
-        var r = Mathf.Clamp01(color.r);
-        var g = Mathf.Clamp01(color.g);
-        var b = Mathf.Clamp01(color.b);
-        var ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
-        var gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
-        var bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
-        var x = ri + gi * size;
-        var y = bi;
+        float r = Mathf.Clamp01(color.r);
+        float g = Mathf.Clamp01(color.g);
+        float b = Mathf.Clamp01(color.b);
+        int ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
+        int gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
+        int bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
+        int x = ri + gi * size;
+        int y = bi;
 
-        var idx = y * size + x;
+        int idx = y * size + x;
         if (idx < 0 || idx >= pixels.Length) return color;
-        var outColor = pixels[idx];
+        Color outColor = pixels[idx];
         return new Color(outColor.r, outColor.g, outColor.b, color.a);
     }
 
@@ -153,28 +153,27 @@ public static class Palettes
         if (!lut || !lut.isReadable) return inputColors;
         if (lut.height != 16 && lut.height != 32) return inputColors;
 
-        if (!LutCache.TryGetPixels(lut, out var pixels)) return inputColors;
+        if (!LutCache.TryGetPixels(lut, out Color[] pixels)) return inputColors;
 
-        var size = lut.height;
+        int size = lut.height;
         var result = new Color[inputColors.Length];
 
         for (var i = 0; i < inputColors.Length; ++i)
         {
-            var color = inputColors[i];
-            var r = Mathf.Clamp01(color.r);
-            var g = Mathf.Clamp01(color.g);
-            var b = Mathf.Clamp01(color.b);
-            var ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
-            var gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
-            var bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
-            var x = ri + gi * size;
-            var y = bi;
-            var idx = y * size + x;
-            if (idx < 0 || idx >= pixels.Length)
-                result[i] = color;
+            Color color = inputColors[i];
+            float r = Mathf.Clamp01(color.r);
+            float g = Mathf.Clamp01(color.g);
+            float b = Mathf.Clamp01(color.b);
+            int ri = Mathf.Clamp(Mathf.FloorToInt(r * size), 0, size - 1);
+            int gi = Mathf.Clamp(Mathf.FloorToInt(g * size), 0, size - 1);
+            int bi = Mathf.Clamp(Mathf.FloorToInt(b * size), 0, size - 1);
+            int x = ri + gi * size;
+            int y = bi;
+            int idx = y * size + x;
+            if (idx < 0 || idx >= pixels.Length) { result[i] = color; }
             else
             {
-                var outColor = pixels[idx];
+                Color outColor = pixels[idx];
                 result[i] = new Color(outColor.r, outColor.g, outColor.b, color.a);
             }
         }
@@ -186,11 +185,12 @@ public static class Palettes
     public static LutRegistry DiscoveredLuts =>
         _discoveredLuts ??= Resources.Load<LutRegistry>("LutRegistry");
 
-    static LutRegistry _discoveredLuts;
+    private static LutRegistry _discoveredLuts;
 
     // Pregenerated palettes
 
-    public static readonly Color[] WarmSunset = {
+    public static readonly Color[] WarmSunset =
+    {
         new(1f, 0.45f, 0.35f),
         new(1f, 0.6f, 0.4f),
         new(1f, 0.78f, 0.5f),
@@ -198,7 +198,8 @@ public static class Palettes
         new(0.85f, 0.4f, 0.35f)
     };
 
-    public static readonly Color[] Ocean = {
+    public static readonly Color[] Ocean =
+    {
         new(0.1f, 0.2f, 0.4f),
         new(0.15f, 0.35f, 0.55f),
         new(0.25f, 0.5f, 0.7f),
@@ -206,7 +207,8 @@ public static class Palettes
         new(0.6f, 0.8f, 0.95f)
     };
 
-    public static readonly Color[] Forest = {
+    public static readonly Color[] Forest =
+    {
         new(0.15f, 0.35f, 0.2f),
         new(0.2f, 0.45f, 0.25f),
         new(0.35f, 0.55f, 0.3f),
@@ -214,7 +216,8 @@ public static class Palettes
         new(0.65f, 0.75f, 0.55f)
     };
 
-    public static readonly Color[] Neon = {
+    public static readonly Color[] Neon =
+    {
         new(1f, 0.2f, 0.6f),
         new(0.2f, 1f, 0.6f),
         new(0.2f, 0.6f, 1f),
@@ -222,7 +225,8 @@ public static class Palettes
         new(0.8f, 0.2f, 1f)
     };
 
-    public static readonly Color[] Pastel = {
+    public static readonly Color[] Pastel =
+    {
         new(1f, 0.85f, 0.9f),
         new(0.85f, 0.95f, 1f),
         new(0.9f, 1f, 0.85f),
@@ -230,7 +234,8 @@ public static class Palettes
         new(0.9f, 0.85f, 1f)
     };
 
-    public static readonly Color[] Earth = {
+    public static readonly Color[] Earth =
+    {
         new(0.4f, 0.28f, 0.2f),
         new(0.55f, 0.4f, 0.28f),
         new(0.7f, 0.55f, 0.4f),
@@ -238,7 +243,8 @@ public static class Palettes
         new(0.65f, 0.5f, 0.35f)
     };
 
-    public static readonly Color[] Cyberpunk = {
+    public static readonly Color[] Cyberpunk =
+    {
         new(0.08f, 0.05f, 0.15f),
         new(0.25f, 0.1f, 0.4f),
         new(0f, 0.9f, 1f),
@@ -248,7 +254,8 @@ public static class Palettes
         new(1f, 0.5f, 0.85f)
     };
 
-    public static readonly Color[] Retro = {
+    public static readonly Color[] Retro =
+    {
         new(0.2f, 0.15f, 0.12f),
         new(0.9f, 0.45f, 0.2f),
         new(0.98f, 0.75f, 0.35f),
@@ -258,7 +265,8 @@ public static class Palettes
         new(0.7f, 0.3f, 0.2f)
     };
 
-    public static readonly Color[] Arctic = {
+    public static readonly Color[] Arctic =
+    {
         new(0.92f, 0.95f, 1f),
         new(0.85f, 0.92f, 0.98f),
         new(0.7f, 0.88f, 0.95f),
@@ -267,7 +275,8 @@ public static class Palettes
         new(0.2f, 0.45f, 0.6f)
     };
 
-    public static readonly Color[] Grayscale = {
+    public static readonly Color[] Grayscale =
+    {
         new(0.1f, 0.1f, 0.1f),
         new(0.3f, 0.3f, 0.3f),
         new(0.5f, 0.5f, 0.5f),
@@ -275,7 +284,8 @@ public static class Palettes
         new(0.9f, 0.9f, 0.9f)
     };
 
-    public static readonly Color[] Monokai = {
+    public static readonly Color[] Monokai =
+    {
         new(0.98f, 0.97f, 0.84f),
         new(0.76f, 0.18f, 0.29f),
         new(0.47f, 0.92f, 0.47f),
@@ -285,7 +295,8 @@ public static class Palettes
         new(0.4f, 0.81f, 0.87f)
     };
 
-    public static readonly Color[] Dracula = {
+    public static readonly Color[] Dracula =
+    {
         new(0.25f, 0.25f, 0.35f),
         new(0.98f, 0.97f, 0.94f),
         new(0.98f, 0.29f, 0.35f),
@@ -296,7 +307,8 @@ public static class Palettes
         new(0.42f, 0.93f, 1f)
     };
 
-    public static readonly Color[] Nord = {
+    public static readonly Color[] Nord =
+    {
         new(0.18f, 0.2f, 0.25f),
         new(0.24f, 0.27f, 0.32f),
         new(0.3f, 0.34f, 0.4f),
@@ -312,14 +324,16 @@ public static class Palettes
     };
 
     // Console / retro palettes (baked, not from LUTs)
-    public static readonly Color[] GameBoy = {
+    public static readonly Color[] GameBoy =
+    {
         new(0.06f, 0.22f, 0.06f),
         new(0.19f, 0.38f, 0.19f),
         new(0.55f, 0.67f, 0.06f),
         new(0.61f, 0.74f, 0.06f)
     };
 
-    public static readonly Color[] NES = {
+    public static readonly Color[] NES =
+    {
         new(0.43f, 0.43f, 0.43f),
         new(0f, 0.14f, 0.57f),
         new(0f, 0f, 0.86f),
@@ -342,7 +356,8 @@ public static class Palettes
         new(1f, 0f, 0f)
     };
 
-    public static readonly Color[] C64 = {
+    public static readonly Color[] C64 =
+    {
         new(0f, 0f, 0f),
         new(1f, 1f, 1f),
         new(0.53f, 0f, 0f),
@@ -361,7 +376,8 @@ public static class Palettes
         new(0.73f, 0.73f, 0.73f)
     };
 
-    public static readonly Color[] Arne16 = {
+    public static readonly Color[] Arne16 =
+    {
         new(0f, 0f, 0f),
         new(0.29f, 0.24f, 0.17f),
         new(0.75f, 0.15f, 0.2f),

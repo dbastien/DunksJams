@@ -3,72 +3,87 @@ using UnityEngine;
 
 public class MeshGeneratorWindow : EditorWindow
 {
-    enum ShapeType
+    private enum ShapeType
     {
-        Box, Sphere, GeoSphere, Cylinder, Cone, Capsule,
-        Prism, Pyramid, Grid, Ring,
-        Torus, TorusKnot, Helix, Tube, Arc,
-        SuperEllipsoid, Ellipsoid, Disc, Triangle
+        Box,
+        Sphere,
+        GeoSphere,
+        Cylinder,
+        Cone,
+        Capsule,
+        Prism,
+        Pyramid,
+        Grid,
+        Ring,
+        Torus,
+        TorusKnot,
+        Helix,
+        Tube,
+        Arc,
+        SuperEllipsoid,
+        Ellipsoid,
+        Disc,
+        Triangle
     }
 
-    ShapeType _shape = ShapeType.Box;
-    NormalsType _normals = NormalsType.Vertex;
-    PivotPosition _pivot = PivotPosition.Center;
-    Vector2 _scroll;
+    private ShapeType _shape = ShapeType.Box;
+    private NormalsType _normals = NormalsType.Vertex;
+    private PivotPosition _pivot = PivotPosition.Center;
+    private Vector2 _scroll;
 
     // Shared
-    float _width = 1f, _height = 1f, _depth = 1f;
-    float _radius = 0.5f, _radius2 = 0f;
-    int _segments = 16, _segments2 = 8;
-    int _widthSegs = 1, _heightSegs = 1, _depthSegs = 1;
-    int _resX = 10, _resZ = 10;
+    private float _width = 1f, _height = 1f, _depth = 1f;
+    private float _radius = 0.5f, _radius2 = 0f;
+    private int _segments = 16, _segments2 = 8;
+    private int _widthSegs = 1, _heightSegs = 1, _depthSegs = 1;
+    private int _resX = 10, _resZ = 10;
 
     // Torus
-    float _torusRadius = 0.5f, _tubeRadius = 0.2f;
-    int _torusSegs = 24, _tubeSegs = 12;
+    private float _torusRadius = 0.5f, _tubeRadius = 0.2f;
+    private int _torusSegs = 24, _tubeSegs = 12;
 
     // Torus Knot
-    int _knotP = 2, _knotQ = 3;
+    private int _knotP = 2, _knotQ = 3;
 
     // Helix
-    float _helixRadius = 0.5f, _helixHeight = 2f, _helixTubeRadius = 0.1f;
-    int _helixTurns = 3, _helixSegs = 64, _helixTubeSegs = 8;
+    private float _helixRadius = 0.5f, _helixHeight = 2f, _helixTubeRadius = 0.1f;
+    private int _helixTurns = 3, _helixSegs = 64, _helixTubeSegs = 8;
 
     // Prism
-    int _prismSides = 6;
+    private int _prismSides = 6;
 
     // Ring
-    float _innerRadius = 0.3f, _outerRadius = 0.5f;
+    private float _innerRadius = 0.3f, _outerRadius = 0.5f;
 
     // Tube
-    float _tubeInner = 0.3f, _tubeOuter = 0.5f, _tubeHeight = 1f;
-    int _tubeSides = 16, _tubeHeightSegs = 1;
+    private float _tubeInner = 0.3f, _tubeOuter = 0.5f, _tubeHeight = 1f;
+    private int _tubeSides = 16, _tubeHeightSegs = 1;
 
     // SuperEllipsoid
-    float _seN1 = 1f, _seN2 = 1f;
-    float _seWidth = 0.5f, _seHeight = 0.5f, _seLength = 0.5f;
-    int _seSegments = 16;
+    private float _seN1 = 1f, _seN2 = 1f;
+    private float _seWidth = 0.5f, _seHeight = 0.5f, _seLength = 0.5f;
+    private int _seSegments = 16;
 
     // Arc
-    float _arcWidth = 1f, _arcHeight = 1f, _arcDepth = 1f;
-    int _arcSegs = 8;
+    private float _arcWidth = 1f, _arcHeight = 1f, _arcDepth = 1f;
+    private int _arcSegs = 8;
 
     // GeoSphere
-    int _geoSubdiv = 2;
-    GeoSphereGenerator.BaseType _geoBase = GeoSphereGenerator.BaseType.Icosahedron;
+    private int _geoSubdiv = 2;
+    private GeoSphereGenerator.BaseType _geoBase = GeoSphereGenerator.BaseType.Icosahedron;
 
     // Ellipsoid
-    float _ellWidth = 0.5f, _ellHeight = 0.5f, _ellDepth = 0.5f;
-    int _ellSegments = 16;
+    private float _ellWidth = 0.5f, _ellHeight = 0.5f, _ellDepth = 0.5f;
+    private int _ellSegments = 16;
 
     // Disc
-    float _discRadiusX = 0.5f, _discRadiusZ = 0.5f;
-    int _discSegments = 32;
+    private float _discRadiusX = 0.5f, _discRadiusZ = 0.5f;
+    private int _discSegments = 32;
 
     // Triangle
-    float _triSize = 1f;
+    private float _triSize = 1f;
 
-    void OnGUI()
+    private void OnGUI()
     {
         _scroll = EditorGUILayout.BeginScrollView(_scroll);
 
@@ -85,7 +100,7 @@ public class MeshGeneratorWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    void DrawShapeParams()
+    private void DrawShapeParams()
     {
         switch (_shape)
         {
@@ -249,27 +264,36 @@ public class MeshGeneratorWindow : EditorWindow
         }
     }
 
-    void CreateShape()
+    private void CreateShape()
     {
-        var mesh = _shape switch
+        Mesh mesh = _shape switch
         {
-            ShapeType.Box => BoxGenerator.Generate(_width, _height, _depth, _widthSegs, _heightSegs, _depthSegs, _pivot),
+            ShapeType.Box => BoxGenerator.Generate(_width, _height, _depth, _widthSegs, _heightSegs, _depthSegs,
+                _pivot),
             ShapeType.Sphere => SphereGenerator.Generate(_radius, _segments, _normals, _pivot),
             ShapeType.GeoSphere => GeoSphereGenerator.Generate(_radius, _geoSubdiv, _geoBase, _normals, _pivot),
-            ShapeType.Cylinder => CylinderGenerator.Generate(_radius, _height, _segments, _heightSegs, _normals, _pivot),
-            ShapeType.Cone => ConeGenerator.Generate(_radius, _radius2, _height, _segments, _heightSegs, _normals, _pivot),
+            ShapeType.Cylinder =>
+                CylinderGenerator.Generate(_radius, _height, _segments, _heightSegs, _normals, _pivot),
+            ShapeType.Cone => ConeGenerator.Generate(_radius, _radius2, _height, _segments, _heightSegs, _normals,
+                _pivot),
             ShapeType.Capsule => CapsuleGenerator.Generate(_radius, _height, _segments, _heightSegs, _normals, _pivot),
             ShapeType.Prism => PrismGenerator.Generate(_prismSides, _radius, _height, _pivot),
             ShapeType.Pyramid => PyramidGenerator.Generate(_width, _height, _pivot),
             ShapeType.Grid => GridGenerator.Generate(_width, _depth, _resX, _resZ, _pivot),
             ShapeType.Ring => RingGenerator.Generate(_innerRadius, _outerRadius, _segments),
-            ShapeType.Torus => TorusGenerator.Generate(_torusRadius, _tubeRadius, _torusSegs, _tubeSegs, _normals, _pivot),
-            ShapeType.TorusKnot => TorusKnotGenerator.Generate(_torusRadius, _tubeRadius, _torusSegs, _tubeSegs, _knotP, _knotQ, _normals, _pivot),
-            ShapeType.Helix => HelixGenerator.Generate(_helixRadius, _helixHeight, _helixTubeRadius, _helixTurns, _helixSegs, _helixTubeSegs, _pivot),
-            ShapeType.Tube => TubeGenerator.Generate(_tubeInner, _tubeOuter, _tubeHeight, _tubeSides, _tubeHeightSegs, _normals, _pivot),
+            ShapeType.Torus => TorusGenerator.Generate(_torusRadius, _tubeRadius, _torusSegs, _tubeSegs, _normals,
+                _pivot),
+            ShapeType.TorusKnot => TorusKnotGenerator.Generate(_torusRadius, _tubeRadius, _torusSegs, _tubeSegs, _knotP,
+                _knotQ, _normals, _pivot),
+            ShapeType.Helix => HelixGenerator.Generate(_helixRadius, _helixHeight, _helixTubeRadius, _helixTurns,
+                _helixSegs, _helixTubeSegs, _pivot),
+            ShapeType.Tube => TubeGenerator.Generate(_tubeInner, _tubeOuter, _tubeHeight, _tubeSides, _tubeHeightSegs,
+                _normals, _pivot),
             ShapeType.Arc => ArcGenerator.Generate(_arcWidth, _arcHeight, _arcDepth, _arcSegs, null, _pivot),
-            ShapeType.SuperEllipsoid => SuperEllipsoidGenerator.Generate(_seWidth, _seHeight, _seLength, _seSegments, _seN1, _seN2, _normals, _pivot),
-            ShapeType.Ellipsoid => EllipsoidGenerator.Generate(_ellWidth, _ellHeight, _ellDepth, _ellSegments, _normals, _pivot),
+            ShapeType.SuperEllipsoid => SuperEllipsoidGenerator.Generate(_seWidth, _seHeight, _seLength, _seSegments,
+                _seN1, _seN2, _normals, _pivot),
+            ShapeType.Ellipsoid => EllipsoidGenerator.Generate(_ellWidth, _ellHeight, _ellDepth, _ellSegments, _normals,
+                _pivot),
             ShapeType.Disc => DiscGenerator.Generate(_discRadiusX, _discRadiusZ, _discSegments),
             ShapeType.Triangle => TriangleGenerator.Generate(_triSize),
             _ => null

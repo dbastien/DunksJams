@@ -25,16 +25,16 @@ public static class Vector3Extensions
 
     public static Vector3 GetFacingVectorAroundAxis(this Vector3 v, Vector3 toPos, Vector3 axis)
     {
-        var facing = v.GetFacingVector(toPos);
-        var right = Vector3.Cross(axis, facing);
-        var forward = Vector3.Cross(right, axis);
+        Vector3 facing = v.GetFacingVector(toPos);
+        Vector3 right = Vector3.Cross(axis, facing);
+        Vector3 forward = Vector3.Cross(right, axis);
         return forward.normalized;
     }
 
     public static Vector3 GetFacingVectorAroundAxis2(this Vector3 v, Vector3 toPos, Vector3 axis)
     {
-        var facing = v.GetFacingVector(toPos);
-        var projectedFacing = Vector3.ProjectOnPlane(facing, axis);
+        Vector3 facing = v.GetFacingVector(toPos);
+        Vector3 projectedFacing = Vector3.ProjectOnPlane(facing, axis);
         return projectedFacing != Vector3.zero ? projectedFacing.normalized : Vector3.zero;
     }
 
@@ -67,4 +67,8 @@ public static class Vector3Extensions
 
     public static bool Approximately(this Vector3 a, Vector3 b) =>
         Vector3.SqrMagnitude(a - b) < 0.0001f ? true : false;
+
+    public static float DistanceTo(this Vector3 f1, Vector3 f2) => (f1 - f2).magnitude;
+    public static Vector3 Clamp01(this Vector3 f) => new(Mathf.Clamp01(f.x), Mathf.Clamp01(f.y), Mathf.Clamp01(f.z));
+    public static float ProjectOn(this Vector3 v, Vector3 on) => Vector3.Project(v, on).magnitude;
 }

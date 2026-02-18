@@ -12,7 +12,7 @@ public class ComponentMemberReferenceCurve : MonoBehaviour
         Color
     }
 
-    [SerializeField] GameObject selectedGameObject;
+    [SerializeField] private GameObject selectedGameObject;
     [SerializeField] public ComponentMemberReference memberReference;
 
     [SerializeField] [NormalizedAnimationCurve]
@@ -31,11 +31,11 @@ public class ComponentMemberReferenceCurve : MonoBehaviour
     [SerializeField] public Quaternion startQuaternion, endQuaternion;
     [SerializeField] public Color startColor, endColor;
 
-    System.Action<float> _applyValue;
+    private System.Action<float> _applyValue;
 
-    void Start() => CacheApplyMethod();
+    private void Start() => CacheApplyMethod();
 
-    void CacheApplyMethod()
+    private void CacheApplyMethod()
     {
         if (!memberReference.IsValid())
         {
@@ -57,7 +57,7 @@ public class ComponentMemberReferenceCurve : MonoBehaviour
         };
     }
 
-    void Awake()
+    private void Awake()
     {
         // if (relativeMode) {
         //     curveStart = currentPos;
@@ -65,7 +65,7 @@ public class ComponentMemberReferenceCurve : MonoBehaviour
         // }
     }
 
-    void Update()
+    private void Update()
     {
         if (_applyValue == null)
         {
@@ -73,15 +73,15 @@ public class ComponentMemberReferenceCurve : MonoBehaviour
             return;
         }
 
-        var t = Mathf.Repeat(Time.time / lengthScale, 1f);
-        var curveValue = curve.Evaluate(t);
+        float t = Mathf.Repeat(Time.time / lengthScale, 1f);
+        float curveValue = curve.Evaluate(t);
 
         _applyValue(curveValue);
     }
 
-    void Reset() => ResetStartEnd();
+    private void Reset() => ResetStartEnd();
 
-    void ResetStartEnd()
+    private void ResetStartEnd()
     {
         // if (!relativeMode) {} else {}
     }

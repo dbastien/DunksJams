@@ -7,10 +7,10 @@ using UnityEngine.InputSystem.Haptics;
 //todo: add editor, and visualizer with real-time waveform and pad state info
 public static class HapticsManager
 {
-    static readonly Dictionary<int, Gamepad> _pads = new();
-    static readonly WaitForSecondsRealtime _curveTick = new(0.01f);
-    static float GlobalIntensity { get; set; } = 1f;
-    static bool _isInitialized;
+    private static readonly Dictionary<int, Gamepad> _pads = new();
+    private static readonly WaitForSecondsRealtime _curveTick = new(0.01f);
+    private static float GlobalIntensity { get; set; } = 1f;
+    private static bool _isInitialized;
 
     public static void Initialize()
     {
@@ -20,7 +20,7 @@ public static class HapticsManager
         InputSystem.onDeviceChange += OnDeviceChange;
     }
 
-    static void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    private static void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (device is not Gamepad gamepad) return;
 
@@ -35,13 +35,13 @@ public static class HapticsManager
         }
     }
 
-    static void UpdateConnectedGamepads()
+    private static void UpdateConnectedGamepads()
     {
         _pads.Clear();
-        foreach (var gp in Gamepad.all) _pads[gp.deviceId] = gp;
+        foreach (Gamepad gp in Gamepad.all) _pads[gp.deviceId] = gp;
     }
 
-    static bool IsGhostDevice(Gamepad pad) => pad == null || !pad.added;
+    private static bool IsGhostDevice(Gamepad pad) => pad == null || !pad.added;
 
     public static void SetGlobalIntensity(float intensity) =>
         GlobalIntensity = Mathf.Clamp01(intensity);
@@ -57,17 +57,17 @@ public static class HapticsManager
     }
 
     // feedback based on animation curves (coroutine loop).
-    static IEnumerator PlayCurveHaptic(Gamepad pad, IDualMotorRumble rumble, HapticPreset preset)
+    private static IEnumerator PlayCurveHaptic(Gamepad pad, IDualMotorRumble rumble, HapticPreset preset)
     {
-        var startTime = Time.unscaledTime;
+        float startTime = Time.unscaledTime;
 
         while (Time.unscaledTime - startTime < preset.Seconds)
         {
             if (IsGhostDevice(pad)) break;
 
-            var t = (Time.unscaledTime - startTime) / preset.Seconds;
-            var low = preset.LowFreqCurve.Evaluate(t) * GlobalIntensity;
-            var high = preset.HighFreqCurve.Evaluate(t) * GlobalIntensity;
+            float t = (Time.unscaledTime - startTime) / preset.Seconds;
+            float low = preset.LowFreqCurve.Evaluate(t) * GlobalIntensity;
+            float high = preset.HighFreqCurve.Evaluate(t) * GlobalIntensity;
 
             rumble.SetMotorSpeeds(low, high);
             yield return _curveTick;
@@ -84,7 +84,7 @@ public static class HapticsManager
         StartHapticCoroutine(StopRumbleAfterDuration(rumble, seconds));
     }
 
-    static IEnumerator StopRumbleAfterDuration(IDualMotorRumble rumble, float seconds)
+    private static IEnumerator StopRumbleAfterDuration(IDualMotorRumble rumble, float seconds)
     {
         if (seconds > 0f)
             yield return new WaitForSecondsRealtime(seconds);
@@ -103,18 +103,16 @@ public static class HapticsManager
 
         InputSystem.onDeviceChange -= OnDeviceChange;
 
-        foreach (var pad in _pads.Values)
-        {
+        foreach (Gamepad pad in _pads.Values)
             if (!IsGhostDevice(pad))
                 ResetHaptics(pad);
-        }
 
         _pads.Clear();
     }
 
-    static void StartHapticCoroutine(IEnumerator routine)
+    private static void StartHapticCoroutine(IEnumerator routine)
     {
-        var runner = AsyncRunner.Instance;
+        AsyncRunner runner = AsyncRunner.Instance;
         if (runner == null) return;
         runner.StartCoroutine(routine);
     }

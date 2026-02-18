@@ -10,5 +10,5 @@ public interface IEdgeMod<TNode> where TNode : IEquatable<TNode>
     /// Modifies the cost of traversing from <paramref name="from"/> to <paramref name="to"/>.
     /// Return false to discard the edge entirely (e.g. locked door).
     /// </summary>
-    bool ModifyCost(TNode from, TNode to, ref float cost);
+    public bool ModifyCost(TNode from, TNode to, ref float cost);
 }

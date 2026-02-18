@@ -8,10 +8,10 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "‽/Steering/Flow Field Follow")]
 public class FlowFieldFollowBehavior : SteeringBehavior
 {
-    [SerializeField] float cellSize = 1f;
-    [SerializeField] Vector3 gridOrigin;
+    [SerializeField] private float cellSize = 1f;
+    [SerializeField] private Vector3 gridOrigin;
 
-    FlowFieldPathfinder2D _flowField;
+    private FlowFieldPathfinder2D _flowField;
 
     /// <summary>Set the flow field this behavior should follow. Call after computing the field.</summary>
     public void SetFlowField(FlowFieldPathfinder2D flowField) => _flowField = flowField;
@@ -27,17 +27,17 @@ public class FlowFieldFollowBehavior : SteeringBehavior
     {
         if (_flowField == null) return Vector3.zero;
 
-        var worldPos = agent.transform.position;
-        var gridPos = WorldToGrid(worldPos);
-        var flowDir = _flowField.GetFlowDir(gridPos);
+        Vector3 worldPos = agent.transform.position;
+        Vector2Int gridPos = WorldToGrid(worldPos);
+        Vector2 flowDir = _flowField.GetFlowDir(gridPos);
 
         if (flowDir == Vector2.zero) return Vector3.zero;
 
-        var desiredVelocity = new Vector3(flowDir.x, 0f, flowDir.y).normalized * agent.maxSpeed;
+        Vector3 desiredVelocity = new Vector3(flowDir.x, 0f, flowDir.y).normalized * agent.maxSpeed;
         return LimitVelocity(desiredVelocity - agent.RigidBody.linearVelocity, agent.maxSpeed);
     }
 
-    Vector2Int WorldToGrid(Vector3 worldPos) => new(
+    private Vector2Int WorldToGrid(Vector3 worldPos) => new(
         Mathf.FloorToInt((worldPos.x - gridOrigin.x) / cellSize),
         Mathf.FloorToInt((worldPos.z - gridOrigin.z) / cellSize)
     );

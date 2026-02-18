@@ -19,14 +19,14 @@ public class ScoreManager : MonoBehaviour
     [ShowIf("useCombos")] public bool hasMultiplierSystem;
     [ShowIf("useCombos")] public int maxMultiplier = 5;
 
-    int _score;
-    int _highScore;
-    int _lives;
-    float _timeRemaining;
-    int _multiplier = 1;
-    int _comboStreak;
-    float _comboTimer;
-    bool _gameOver;
+    private int _score;
+    private int _highScore;
+    private int _lives;
+    private float _timeRemaining;
+    private int _multiplier = 1;
+    private int _comboStreak;
+    private float _comboTimer;
+    private bool _gameOver;
 
     public event Action<int> OnScoreChanged;
     public event Action<int> OnLivesChanged;
@@ -39,9 +39,9 @@ public class ScoreManager : MonoBehaviour
     public int HighScore => _highScore;
     public bool IsGameOver => _gameOver;
 
-    void Start() => ResetGame();
+    private void Start() => ResetGame();
 
-    void Update()
+    private void Update()
     {
         if (_gameOver) return;
 
@@ -88,10 +88,7 @@ public class ScoreManager : MonoBehaviour
                 _comboTimer = comboResetTime;
             }
         }
-        else
-        {
-            ResetCombo();
-        }
+        else { ResetCombo(); }
 
         _score += points * _multiplier;
         OnScoreChanged?.Invoke(_score);

@@ -12,8 +12,7 @@ public class DialogManager : MonoBehaviour
 
     private static bool _isQuitting;
 
-    [Header("Runtime State")]
-    public DialogConversation currentConversation;
+    [Header("Runtime State")] public DialogConversation currentConversation;
     public DialogEntry currentEntry;
     public int currentLineIndex;
 
@@ -40,10 +39,7 @@ public class DialogManager : MonoBehaviour
             // Initialize language from LocalizationManager if available
             UpdateLanguage();
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        else { Destroy(gameObject); }
     }
 
     private void OnEnable() => LocalizationManager.OnLangChanged += OnLangChanged;
@@ -71,7 +67,7 @@ public class DialogManager : MonoBehaviour
             return;
         }
 
-        var conv = masterDatabase.GetConversation(conversationName);
+        DialogConversation conv = masterDatabase.GetConversation(conversationName);
         if (conv != null)
             StartConversation(conv);
         else
@@ -106,7 +102,7 @@ public class DialogManager : MonoBehaviour
         if (currentLineIndex < 0 || currentLineIndex >= currentEntry.lines.Count)
         {
             // No lines in this node? Move to links or end
-            var links = GetValidLinks();
+            List<DialogLink> links = GetValidLinks();
             if (links.Count == 1 && string.IsNullOrEmpty(links[0].text))
             {
                 // Auto-follow single empty link
@@ -114,15 +110,13 @@ public class DialogManager : MonoBehaviour
                 currentLineIndex = 0;
                 ProcessCurrentLine();
             }
-            else if (links.Count == 0)
-            {
-                EndConversation();
-            }
+            else if (links.Count == 0) { EndConversation(); }
+
             // If links.Count > 1 or has text, we wait for UI to show choices
             return;
         }
 
-        var line = currentEntry.lines[currentLineIndex];
+        DialogLine line = currentEntry.lines[currentLineIndex];
 
         // Execute Sequence
         if (!string.IsNullOrEmpty(line.sequence)) _sequencer.PlaySequence(line.sequence);
@@ -130,7 +124,8 @@ public class DialogManager : MonoBehaviour
         // Node scripts usually run once per node?
         // Or per line? Pixel Crushers has them per entry.
         // Let's run node script on first line.
-        if (currentLineIndex == 0 && !string.IsNullOrEmpty(currentEntry.onExecuteScript)) ExecuteSimpleScript(currentEntry.onExecuteScript);
+        if (currentLineIndex == 0 && !string.IsNullOrEmpty(currentEntry.onExecuteScript))
+            ExecuteSimpleScript(currentEntry.onExecuteScript);
 
         OnEntryStarted?.Invoke(currentEntry, line);
     }
@@ -148,12 +143,12 @@ public class DialogManager : MonoBehaviour
         }
 
         // 2. Otherwise, follow a link
-        var validLinks = GetValidLinks();
+        List<DialogLink> validLinks = GetValidLinks();
 
         // Handle Random node type: pick a random output
         if (currentEntry.nodeType == DialogNodeType.Random && validLinks.Count > 0)
         {
-            var randomLink = validLinks[UnityEngine.Random.Range(0, validLinks.Count)];
+            DialogLink randomLink = validLinks[UnityEngine.Random.Range(0, validLinks.Count)];
             currentEntry = randomLink.destination;
             currentLineIndex = 0;
             ProcessCurrentLine();
@@ -163,15 +158,15 @@ public class DialogManager : MonoBehaviour
         // Handle Jump node type: jump to target
         if (currentEntry.nodeType == DialogNodeType.Jump && !string.IsNullOrEmpty(currentEntry.condition))
         {
-            var jumpTarget = currentEntry.condition.Trim();
+            string jumpTarget = currentEntry.condition.Trim();
 
             // Try to find node by ID in current conversation
-            var targetEntry = currentConversation?.entries.Find(e => e.nodeID == jumpTarget);
+            DialogEntry targetEntry = currentConversation?.entries.Find(e => e.nodeID == jumpTarget);
 
             // If not found, try conversation name
             if (targetEntry == null && masterDatabase != null)
             {
-                var targetConv = masterDatabase.GetConversation(jumpTarget);
+                DialogConversation targetConv = masterDatabase.GetConversation(jumpTarget);
                 if (targetConv != null)
                 {
                     StartConversation(targetConv);
@@ -202,10 +197,7 @@ public class DialogManager : MonoBehaviour
                 currentLineIndex = 0;
                 ProcessCurrentLine();
             }
-            else if (validLinks.Count == 0)
-            {
-                EndConversation();
-            }
+            else if (validLinks.Count == 0) { EndConversation(); }
             else
             {
                 // Multiple choices, must pick one (UI should have handled this)
@@ -224,8 +216,8 @@ public class DialogManager : MonoBehaviour
     {
         if (currentEntry == null) return new List<DialogLink>();
 
-        List<DialogLink> validLinks = new List<DialogLink>();
-        foreach (var link in currentEntry.outgoingLinks)
+        var validLinks = new List<DialogLink>();
+        foreach (DialogLink link in currentEntry.outgoingLinks)
             if (CheckCondition(link.condition))
                 validLinks.Add(link);
 
@@ -256,7 +248,7 @@ public class DialogManager : MonoBehaviour
 
     public string GetVariable(string name, string fallback = "")
     {
-        if (_variables.TryGetValue(name, out var v)) return v;
+        if (_variables.TryGetValue(name, out string v)) return v;
         return PlayerPrefs.GetString("DunksDialog.Var." + name, fallback);
     }
 
@@ -290,6 +282,7 @@ public class DialogManager : MonoBehaviour
             string localized = line.GetFieldValue($"Text_{currentLanguage}");
             if (!string.IsNullOrEmpty(localized)) return localized;
         }
+
         return line.text;
     }
 
@@ -301,10 +294,13 @@ public class DialogManager : MonoBehaviour
             string localized = line.GetFieldValue($"Actor_{currentLanguage}");
             if (!string.IsNullOrEmpty(localized)) return localized;
         }
+
         return line.actorName;
     }
 
-    private bool CheckCondition(string condition) => DialogUtility.EvaluateCondition(condition, name => GetVariable(name));
+    private bool CheckCondition
+        (string condition) => DialogUtility.EvaluateCondition(condition, name => GetVariable(name));
 
-    private void ExecuteSimpleScript(string script) => DialogUtility.ExecuteScript(script, (name, val) => SetVariable(name, val));
+    private void ExecuteSimpleScript
+        (string script) => DialogUtility.ExecuteScript(script, (name, val) => SetVariable(name, val));
 }

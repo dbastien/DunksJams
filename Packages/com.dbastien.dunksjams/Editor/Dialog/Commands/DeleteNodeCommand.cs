@@ -62,26 +62,22 @@ public class DeleteNodeCommand : DialogGraphCommand
         _fields = new List<Field>(entry.fields);
 
         // Find all incoming connections
-        foreach (var otherEntry in conversation.entries)
+        foreach (DialogEntry otherEntry in conversation.entries)
         {
             if (otherEntry == entry) continue;
 
-            for (int i = 0; i < otherEntry.outgoingLinks.Count; i++)
-            {
+            for (var i = 0; i < otherEntry.outgoingLinks.Count; i++)
                 if (otherEntry.outgoingLinks[i].destination == entry)
-                {
                     _incomingConnections.Add((otherEntry.nodeID, i));
-                }
-            }
         }
     }
 
     public override void Execute()
     {
         // Remove all incoming connections
-        foreach (var (sourceNodeID, linkIndex) in _incomingConnections)
+        foreach ((string sourceNodeID, int linkIndex) in _incomingConnections)
         {
-            var sourceEntry = _conversation.GetEntry(sourceNodeID);
+            DialogEntry sourceEntry = _conversation.GetEntry(sourceNodeID);
             if (sourceEntry != null && linkIndex < sourceEntry.outgoingLinks.Count)
             {
                 sourceEntry.outgoingLinks[linkIndex].destination = null;
@@ -111,8 +107,7 @@ public class DeleteNodeCommand : DialogGraphCommand
 
         // Restore lines
         entry.lines.Clear();
-        foreach (var line in _lines)
-        {
+        foreach (DialogLine line in _lines)
             entry.lines.Add(new DialogLine
             {
                 actorName = line.actorName,
@@ -120,12 +115,10 @@ public class DeleteNodeCommand : DialogGraphCommand
                 sequence = line.sequence,
                 fields = new List<Field>(line.fields)
             });
-        }
 
         // Restore outgoing links
         entry.outgoingLinks.Clear();
-        foreach (var link in _outgoingLinks)
-        {
+        foreach (DialogLink link in _outgoingLinks)
             entry.outgoingLinks.Add(new DialogLink
             {
                 guid = link.guid,
@@ -136,7 +129,6 @@ public class DeleteNodeCommand : DialogGraphCommand
                 destination = link.destination,
                 fields = new List<Field>(link.fields)
             });
-        }
 
         // Restore fields
         entry.fields.Clear();
@@ -147,9 +139,9 @@ public class DeleteNodeCommand : DialogGraphCommand
         _conversation.entries.Add(entry);
 
         // Restore incoming connections
-        foreach (var (sourceNodeID, linkIndex) in _incomingConnections)
+        foreach ((string sourceNodeID, int linkIndex) in _incomingConnections)
         {
-            var sourceEntry = _conversation.GetEntry(sourceNodeID);
+            DialogEntry sourceEntry = _conversation.GetEntry(sourceNodeID);
             if (sourceEntry != null && linkIndex < sourceEntry.outgoingLinks.Count)
             {
                 sourceEntry.outgoingLinks[linkIndex].destination = entry;

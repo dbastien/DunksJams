@@ -2,9 +2,9 @@
 
 public interface IFilter3D
 {
-    Vector3 CurrentValue { get; }
+    public Vector3 CurrentValue { get; }
 
-    void Update(Vector3 s);
+    public void Update(Vector3 s);
 
-    void Reset();
+    public void Reset();
 }

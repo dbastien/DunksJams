@@ -23,9 +23,7 @@ public sealed class ArrayStackNative<T>
     public T Bottom => size > 0 ? buffer[0] : default;
     public T this[int index] => buffer[index];
 
-    public ArrayStackNative() : this(16)
-    {
-    }
+    public ArrayStackNative() : this(16) { }
 
     public ArrayStackNative(int capacity)
     {
@@ -56,7 +54,7 @@ public sealed class ArrayStackNative<T>
         if (size > 0)
         {
             --size;
-            var value = buffer[size];
+            T value = buffer[size];
             buffer[size] = default;
             return value;
         }
@@ -87,10 +85,8 @@ public sealed class ArrayStackNative<T>
         comparer ??= EqualityComparer<T>.Default;
 
         for (var i = 0; i < size; ++i)
-        {
             if (comparer.Equals(value, buffer[i]))
                 return i;
-        }
 
         return -1;
     }
@@ -101,11 +97,9 @@ public sealed class ArrayStackNative<T>
 
         comparer ??= EqualityComparer<T>.Default;
 
-        for (var i = size - 1; i >= 0; --i)
-        {
+        for (int i = size - 1; i >= 0; --i)
             if (comparer.Equals(value, buffer[i]))
                 return i;
-        }
 
         return -1;
     }
@@ -114,11 +108,9 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return -1;
 
-        for (var i = size - 1; i >= 0; --i)
-        {
+        for (int i = size - 1; i >= 0; --i)
             if (find(buffer[i]))
                 return i;
-        }
 
         return -1;
     }
@@ -128,10 +120,8 @@ public sealed class ArrayStackNative<T>
         if (size == 0) return -1;
 
         for (var i = 0; i < size; ++i)
-        {
             if (find(buffer[i]))
                 return i;
-        }
 
         return -1;
     }
@@ -140,7 +130,7 @@ public sealed class ArrayStackNative<T>
     {
         if (size == 0) return;
 
-        for (var i = size - 1; i >= 0; --i)
+        for (int i = size - 1; i >= 0; --i)
             func(buffer[i]);
     }
 
@@ -162,9 +152,9 @@ public sealed class ArrayStackNative<T>
 
     public struct Enumerator : IEnumerator<T>
     {
-        int index;
-        ArrayStackNative<T> stack;
-        T current;
+        private int index;
+        private ArrayStackNative<T> stack;
+        private T current;
 
         public T Current => current;
         object IEnumerator.Current => current;
@@ -185,7 +175,7 @@ public sealed class ArrayStackNative<T>
 
         public bool MoveNext()
         {
-            var ok = --index >= 0;
+            bool ok = --index >= 0;
             if (ok)
                 current = stack.buffer[index];
             else
@@ -200,7 +190,7 @@ public sealed class ArrayStackNative<T>
         }
     }
 
-    void Expand(int capacity)
+    private void Expand(int capacity)
     {
         var newBuffer = new T[capacity];
         Array.Copy(buffer, 0, newBuffer, 0, size);

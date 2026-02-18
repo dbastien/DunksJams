@@ -1,8 +1,8 @@
 ﻿public interface IFilter1D
 {
-    float CurrentValue { get; }
+    public float CurrentValue { get; }
 
-    void Update(float s);
+    public void Update(float s);
 
-    void Reset();
+    public void Reset();
 }

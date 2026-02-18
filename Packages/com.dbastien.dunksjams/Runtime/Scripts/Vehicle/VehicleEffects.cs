@@ -4,26 +4,29 @@ using UnityEngine;
 [RequireComponent(typeof(VehicleController))]
 public class VehicleEffects : MonoBehaviour
 {
-    [Header("Skid Marks")]
-    [SerializeField] float skidMarkWidth = 0.2f;
-    [SerializeField] float skidMarkSlipThreshold = 0.3f;
-    [SerializeField] int maxSkidMarksPerWheel = 256;
+    [Header("Skid Marks")] [SerializeField]
+    private float skidMarkWidth = 0.2f;
 
-    [Header("Tire Particles")]
-    [SerializeField] float particleSlipThreshold = 0.4f;
-    [SerializeField] [Range(0f, 100f)] float maxEmissionRate = 50f;
+    [SerializeField] private float skidMarkSlipThreshold = 0.3f;
+    [SerializeField] private int maxSkidMarksPerWheel = 256;
 
-    [Header("Brake Lights")]
-    [SerializeField] Renderer[] brakeLightRenderers;
-    [SerializeField] int brakeLightMaterialIndex;
-    [SerializeField] Material brakeLightOnMaterial;
-    [SerializeField] Material brakeLightOffMaterial;
+    [Header("Tire Particles")] [SerializeField]
+    private float particleSlipThreshold = 0.4f;
 
-    VehicleController _vehicle;
-    readonly Dictionary<VehicleWheel, SkidMarkState> _skidStates = new();
-    readonly Dictionary<VehicleWheel, ParticleSystem> _particleSystems = new();
+    [SerializeField] [Range(0f, 100f)] private float maxEmissionRate = 50f;
 
-    struct SkidMarkState
+    [Header("Brake Lights")] [SerializeField]
+    private Renderer[] brakeLightRenderers;
+
+    [SerializeField] private int brakeLightMaterialIndex;
+    [SerializeField] private Material brakeLightOnMaterial;
+    [SerializeField] private Material brakeLightOffMaterial;
+
+    private VehicleController _vehicle;
+    private readonly Dictionary<VehicleWheel, SkidMarkState> _skidStates = new();
+    private readonly Dictionary<VehicleWheel, ParticleSystem> _particleSystems = new();
+
+    private struct SkidMarkState
     {
         public Vector3 LastPosition;
         public bool WasSkidding;
@@ -35,15 +38,11 @@ public class VehicleEffects : MonoBehaviour
         public GameObject Object;
     }
 
-    void Awake()
-    {
-        _vehicle = GetComponent<VehicleController>();
-    }
+    private void Awake() { _vehicle = GetComponent<VehicleController>(); }
 
-    void Start()
+    private void Start()
     {
-        foreach (var w in _vehicle.Wheels)
-        {
+        foreach (VehicleWheel w in _vehicle.Wheels)
             _skidStates[w] = new SkidMarkState
             {
                 Vertices = new List<Vector3>(maxSkidMarksPerWheel * 2),
@@ -52,35 +51,38 @@ public class VehicleEffects : MonoBehaviour
                 Colors = new List<Color>(maxSkidMarksPerWheel * 2),
                 WasSkidding = false
             };
-        }
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
         UpdateSkidMarks();
         UpdateTireParticles();
         UpdateBrakeLights();
     }
 
-    void UpdateSkidMarks()
+    private void UpdateSkidMarks()
     {
-        foreach (var w in _vehicle.Wheels)
+        foreach (VehicleWheel w in _vehicle.Wheels)
         {
-            if (!_skidStates.TryGetValue(w, out var state)) continue;
+            if (!_skidStates.TryGetValue(w, out SkidMarkState state)) continue;
 
             bool isSkidding = w.IsGrounded && w.CombinedSlip > skidMarkSlipThreshold;
 
             if (isSkidding)
             {
-                var surface = w.CurrentSurface;
-                var mat = surface?.SkidMarkMaterial;
-                if (mat == null) { state.WasSkidding = false; _skidStates[w] = state; continue; }
+                GroundSurface surface = w.CurrentSurface;
+                Material mat = surface?.SkidMarkMaterial;
+                if (mat == null)
+                {
+                    state.WasSkidding = false;
+                    _skidStates[w] = state;
+                    continue;
+                }
 
                 float intensity = Mathf.InverseLerp(skidMarkSlipThreshold, 1f, w.CombinedSlip);
                 var color = new Color(1f, 1f, 1f, intensity * 0.8f);
 
                 if (!state.WasSkidding)
-                {
                     // Start new mark segment
                     if (state.Object == null)
                     {
@@ -94,28 +96,24 @@ public class VehicleEffects : MonoBehaviour
                         state.Mesh = new Mesh { name = "SkidMark" };
                         mf.mesh = state.Mesh;
                     }
-                }
 
                 AddSkidSegment(ref state, w.ContactPoint, w.ContactNormal,
                     w.transform.right, color);
                 state.WasSkidding = true;
             }
-            else
-            {
-                state.WasSkidding = false;
-            }
+            else { state.WasSkidding = false; }
 
             _skidStates[w] = state;
         }
     }
 
-    void AddSkidSegment(ref SkidMarkState state, Vector3 pos, Vector3 normal, Vector3 right, Color color)
+    private void AddSkidSegment(ref SkidMarkState state, Vector3 pos, Vector3 normal, Vector3 right, Color color)
     {
         if (state.Vertices.Count >= maxSkidMarksPerWheel * 2) return;
 
         float halfWidth = skidMarkWidth * 0.5f;
-        var offset = right * halfWidth;
-        var liftedPos = pos + normal * 0.01f;
+        Vector3 offset = right * halfWidth;
+        Vector3 liftedPos = pos + normal * 0.01f;
 
         int baseIdx = state.Vertices.Count;
         state.Vertices.Add(liftedPos - offset);
@@ -148,9 +146,9 @@ public class VehicleEffects : MonoBehaviour
         state.LastPosition = pos;
     }
 
-    void UpdateTireParticles()
+    private void UpdateTireParticles()
     {
-        foreach (var w in _vehicle.Wheels)
+        foreach (VehicleWheel w in _vehicle.Wheels)
         {
             if (!w.IsGrounded || w.CombinedSlip < particleSlipThreshold)
             {
@@ -158,12 +156,16 @@ public class VehicleEffects : MonoBehaviour
                 continue;
             }
 
-            var surface = w.CurrentSurface;
-            if (surface?.ParticlePrefab == null) { StopParticle(w); continue; }
-
-            if (!_particleSystems.TryGetValue(w, out var ps) || ps == null)
+            GroundSurface surface = w.CurrentSurface;
+            if (surface?.ParticlePrefab == null)
             {
-                var go = Instantiate(surface.ParticlePrefab, w.ContactPoint, Quaternion.identity, transform);
+                StopParticle(w);
+                continue;
+            }
+
+            if (!_particleSystems.TryGetValue(w, out ParticleSystem ps) || ps == null)
+            {
+                GameObject go = Instantiate(surface.ParticlePrefab, w.ContactPoint, Quaternion.identity, transform);
                 ps = go.GetComponent<ParticleSystem>();
                 _particleSystems[w] = ps;
             }
@@ -172,29 +174,29 @@ public class VehicleEffects : MonoBehaviour
             {
                 ps.transform.position = w.ContactPoint;
                 float intensity = Mathf.InverseLerp(particleSlipThreshold, 1.5f, w.CombinedSlip);
-                var emission = ps.emission;
+                ParticleSystem.EmissionModule emission = ps.emission;
                 emission.rateOverTime = intensity * maxEmissionRate;
                 if (!ps.isPlaying) ps.Play();
             }
         }
     }
 
-    void StopParticle(VehicleWheel w)
+    private void StopParticle(VehicleWheel w)
     {
-        if (_particleSystems.TryGetValue(w, out var ps) && ps != null && ps.isPlaying)
+        if (_particleSystems.TryGetValue(w, out ParticleSystem ps) && ps != null && ps.isPlaying)
             ps.Stop();
     }
 
-    void UpdateBrakeLights()
+    private void UpdateBrakeLights()
     {
         bool braking = _vehicle.BrakeInput > 0.1f || _vehicle.HandbrakeInput;
         if (brakeLightRenderers == null || brakeLightOnMaterial == null || brakeLightOffMaterial == null) return;
 
-        var mat = braking ? brakeLightOnMaterial : brakeLightOffMaterial;
-        foreach (var r in brakeLightRenderers)
+        Material mat = braking ? brakeLightOnMaterial : brakeLightOffMaterial;
+        foreach (Renderer r in brakeLightRenderers)
         {
             if (r == null) continue;
-            var mats = r.materials;
+            Material[] mats = r.materials;
             if (brakeLightMaterialIndex >= 0 && brakeLightMaterialIndex < mats.Length)
             {
                 mats[brakeLightMaterialIndex] = mat;
@@ -203,18 +205,14 @@ public class VehicleEffects : MonoBehaviour
         }
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        foreach (var kvp in _skidStates)
-        {
+        foreach (KeyValuePair<VehicleWheel, SkidMarkState> kvp in _skidStates)
             if (kvp.Value.Object != null)
                 Destroy(kvp.Value.Object);
-        }
 
-        foreach (var kvp in _particleSystems)
-        {
+        foreach (KeyValuePair<VehicleWheel, ParticleSystem> kvp in _particleSystems)
             if (kvp.Value != null)
                 Destroy(kvp.Value.gameObject);
-        }
     }
 }

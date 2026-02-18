@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public static class IntExtensions
@@ -81,19 +82,17 @@ public static class IntExtensions
         return result;
     }
 
-
     public static int Wrap(this int v, int min, int max)
     {
-        var range = max - min + 1;
+        int range = max - min + 1;
         return (v - min) % range + min;
     }
 
-
     public static int[] ToDigits(this int v)
     {
-        var count = v == 0 ? 1 : 1 + (int)Mathf.Log10(v);
+        int count = v == 0 ? 1 : 1 + (int)Mathf.Log10(v);
         var digits = new int[count];
-        for (var i = count - 1; i >= 0; --i)
+        for (int i = count - 1; i >= 0; --i)
         {
             digits[i] = v % 10;
             v /= 10;
@@ -143,7 +142,7 @@ public static class IntExtensions
         int a = 0, b = 1;
         while (--n > 0)
         {
-            var temp = a + b;
+            int temp = a + b;
             a = b;
             b = temp;
         }
@@ -156,4 +155,13 @@ public static class IntExtensions
         t = Mathf.Clamp01(t);
         return Mathf.RoundToInt(Mathf.Lerp(a, b, t));
     }
+
+    public static int Abs(this int f) => Mathf.Abs(f);
+    public static int Clamp(this int f, int f0, int f1) => Mathf.Clamp(f, f0, f1);
+    public static int Max(this int f, int ff) => Mathf.Max(f, ff);
+    public static int Min(this int f, int ff) => Mathf.Min(f, ff);
+    public static float ToFloat(this int f) => f;
+    public static bool IsInRange(this int i, int a, int b) => i >= a && i <= b;
+    public static bool IsInRangeOf(this int i, IList list) => i.IsInRange(0, list.Count - 1);
+    public static bool IsInRangeOf<T>(this int i, T[] array) => i.IsInRange(0, array.Length - 1);
 }

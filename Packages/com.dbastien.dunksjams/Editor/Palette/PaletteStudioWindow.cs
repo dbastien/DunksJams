@@ -8,51 +8,51 @@ using UnityEngine;
 
 public class PaletteStudioWindow : EditorWindow
 {
-    enum Tab
+    private enum Tab
     {
         Picker,
         Library
     }
 
-    [SerializeField] Tab _tab = Tab.Picker;
-    [SerializeField] ColorPalette _selectedPalette;
-    [SerializeField] Vector2 _paletteListScroll;
-    [SerializeField] Vector2 _rightScroll;
-    [SerializeField] Vector2 _colorTheoryScroll;
-    [SerializeField] bool _showTagFilter;
-    [SerializeField] string _tagFilter = "";
-    [SerializeField] int _colorTheoryMode;
-    [SerializeField] bool _showPaletteOverview = false;
-    [SerializeField] bool _showColorBlindPreview;
-    [SerializeField] int _colorBlindMode;
-    [SerializeField] int _selectedPaletteColorIndex = -1;
+    [SerializeField] private Tab _tab = Tab.Picker;
+    [SerializeField] private ColorPalette _selectedPalette;
+    [SerializeField] private Vector2 _paletteListScroll;
+    [SerializeField] private Vector2 _rightScroll;
+    [SerializeField] private Vector2 _colorTheoryScroll;
+    [SerializeField] private bool _showTagFilter;
+    [SerializeField] private string _tagFilter = "";
+    [SerializeField] private int _colorTheoryMode;
+    [SerializeField] private bool _showPaletteOverview = false;
+    [SerializeField] private bool _showColorBlindPreview;
+    [SerializeField] private int _colorBlindMode;
+    [SerializeField] private int _selectedPaletteColorIndex = -1;
 
-    [SerializeField] Color _selectedColor = Color.white;
-    [SerializeField] float _h, _s, _v, _a = 1f;
-    [SerializeField] PaletteScheme _schemePreview = PaletteScheme.Custom;
-    [SerializeField] Texture2D _lutSourceTexture;
-    [SerializeField, Range(2, 128)] int _texturePaletteCount = 16;
-    [SerializeField] int _palettePickerId = -1;
+    [SerializeField] private Color _selectedColor = Color.white;
+    [SerializeField] private float _h, _s, _v, _a = 1f;
+    [SerializeField] private PaletteScheme _schemePreview = PaletteScheme.Custom;
+    [SerializeField] private Texture2D _lutSourceTexture;
+    [SerializeField] [Range(2, 128)] private int _texturePaletteCount = 16;
+    [SerializeField] private int _palettePickerId = -1;
 
-    System.Action<Color> _onColorChanged;
+    private Action<Color> _onColorChanged;
 
-    Texture2D _hueWheel;
-    Texture2D _centerPie;
-    Texture2D _lightnessBar;
+    private Texture2D _hueWheel;
+    private Texture2D _centerPie;
+    private Texture2D _lightnessBar;
 
-    const int WheelSize = 200;
-    const float SwatchMinSize = 14f;
-    const float WheelCenterRadiusRatio = 0.32f;
-    const float HarmonyLineWidth = 3f;
-    const float PalettePreviewHeight = 34f;
-    const int UnityPaletteSlotCount = 16;
-    const int CenterPieSize = 128;
+    private const int WheelSize = 200;
+    private const float SwatchMinSize = 14f;
+    private const float WheelCenterRadiusRatio = 0.32f;
+    private const float HarmonyLineWidth = 3f;
+    private const float PalettePreviewHeight = 34f;
+    private const int UnityPaletteSlotCount = 16;
+    private const int CenterPieSize = 128;
 
-    readonly HashSet<string> _discoveredTags = new();
+    private readonly HashSet<string> _discoveredTags = new();
 
-    static readonly string[] TabLabels = { "Picker", "Library" };
-    static readonly string[] ColorTheoryTabs = { "Complementary", "Triadic", "Analogous", "Contrast Matrix" };
-    static readonly string[] ColorBlindTabs = { "Normal", "Deuteranopia", "Protanopia", "Tritanopia" };
+    private static readonly string[] TabLabels = { "Picker", "Library" };
+    private static readonly string[] ColorTheoryTabs = { "Complementary", "Triadic", "Analogous", "Contrast Matrix" };
+    private static readonly string[] ColorBlindTabs = { "Normal", "Deuteranopia", "Protanopia", "Tritanopia" };
 
     public static PaletteStudioWindow ShowWindow()
     {
@@ -61,7 +61,7 @@ public class PaletteStudioWindow : EditorWindow
         return window;
     }
 
-    public static PaletteStudioWindow ShowPicker(System.Action<Color> onColorChanged, Color initialColor)
+    public static PaletteStudioWindow ShowPicker(Action<Color> onColorChanged, Color initialColor)
     {
         var window = GetWindow<PaletteStudioWindow>("Palette Studio");
         window._tab = Tab.Picker;
@@ -72,7 +72,7 @@ public class PaletteStudioWindow : EditorWindow
         return window;
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         PaletteDatabase.Refresh();
         RefreshDiscoveredTags();
@@ -81,36 +81,29 @@ public class PaletteStudioWindow : EditorWindow
         GenerateTextures();
     }
 
-    void OnDisable()
-    {
-        DestroyTextures();
-    }
+    private void OnDisable() { DestroyTextures(); }
 
-    void OnGUI()
+    private void OnGUI()
     {
         HandleObjectPicker();
         DrawToolbar();
         if (_tab == Tab.Library)
-        {
             DrawLibraryLayout();
-        }
         else
-        {
             DrawFullWidthContent();
-        }
     }
 
-    void DrawToolbar()
+    private void DrawToolbar()
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-        var tabIndex = _tab == Tab.Library ? 1 : 0;
+        int tabIndex = _tab == Tab.Library ? 1 : 0;
         tabIndex = GUILayout.Toolbar(tabIndex, TabLabels, EditorStyles.toolbarButton, GUILayout.Height(22));
         _tab = tabIndex == 0 ? Tab.Picker : Tab.Library;
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawPaletteSidebar()
+    private void DrawPaletteSidebar()
     {
         EditorGUILayout.BeginVertical(GUILayout.Width(220));
         GUILayout.Label("Palettes", EditorStyles.boldLabel);
@@ -125,11 +118,13 @@ public class PaletteStudioWindow : EditorWindow
             RefreshDiscoveredTags();
             EnsureSelectedPalette();
         }
+
         if (_selectedPalette != null && GUILayout.Button("Ping", GUILayout.Width(60)))
         {
             Selection.activeObject = _selectedPalette;
             EditorGUIUtility.PingObject(_selectedPalette);
         }
+
         EditorGUILayout.EndHorizontal();
 
         _showTagFilter = EditorGUILayout.Foldout(_showTagFilter, "Filter by Tag");
@@ -138,11 +133,9 @@ public class PaletteStudioWindow : EditorWindow
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("All", GUILayout.Width(50)))
                 _tagFilter = "";
-            foreach (var tag in _discoveredTags)
-            {
+            foreach (string tag in _discoveredTags)
                 if (GUILayout.Button(tag, GUILayout.Width(80)))
-                    _tagFilter = (_tagFilter == tag) ? "" : tag;
-            }
+                    _tagFilter = _tagFilter == tag ? "" : tag;
             EditorGUILayout.EndHorizontal();
             if (!string.IsNullOrEmpty(_tagFilter))
                 EditorGUILayout.LabelField($"Filtered by: {_tagFilter}", EditorStyles.miniLabel);
@@ -150,41 +143,36 @@ public class PaletteStudioWindow : EditorWindow
 
         _paletteListScroll = EditorGUILayout.BeginScrollView(_paletteListScroll, GUILayout.ExpandHeight(true));
 
-        var palettes = PaletteDatabase.Palettes;
-        var filtered = FilterPalettesByTag(palettes, _tagFilter);
+        IReadOnlyList<ColorPalette> palettes = PaletteDatabase.Palettes;
+        List<ColorPalette> filtered = FilterPalettesByTag(palettes, _tagFilter);
 
         if (palettes.Count == 0)
-        {
             EditorGUILayout.HelpBox("No palettes found. Create one to get started.", MessageType.Info);
-        }
         else if (filtered.Count == 0)
-        {
             EditorGUILayout.HelpBox($"No palettes with tag '{_tagFilter}'.", MessageType.Info);
-        }
         else
-        {
-            foreach (var pal in filtered)
+            foreach (ColorPalette pal in filtered)
             {
-                var isSelected = _selectedPalette == pal;
-                var style = isSelected ? EditorStyles.whiteBoldLabel : EditorStyles.label;
-                var name = GetPaletteDisplayName(pal);
-                var tagStr = pal.tags != null && pal.tags.Length > 0 ? $" [{string.Join(", ", pal.tags)}]" : "";
+                bool isSelected = _selectedPalette == pal;
+                GUIStyle style = isSelected ? EditorStyles.whiteBoldLabel : EditorStyles.label;
+                string name = GetPaletteDisplayName(pal);
+                string tagStr = pal.tags is { Length: > 0 } ? $" [{string.Join(", ", pal.tags)}]" : "";
                 if (GUILayout.Button(name + $" ({pal.Count}){tagStr}", style, GUILayout.Height(22)))
                     SelectPalette(pal);
             }
-        }
 
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
     }
-    void DrawFullWidthContent()
+
+    private void DrawFullWidthContent()
     {
         _rightScroll = EditorGUILayout.BeginScrollView(_rightScroll);
         DrawPickerTab();
         EditorGUILayout.EndScrollView();
     }
 
-    void DrawLibraryLayout()
+    private void DrawLibraryLayout()
     {
         EditorGUILayout.BeginHorizontal();
         DrawPaletteSidebar();
@@ -195,7 +183,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawPickerTab()
+    private void DrawPickerTab()
     {
         DrawCompactPaletteSelector();
 
@@ -228,11 +216,12 @@ public class PaletteStudioWindow : EditorWindow
         DrawPickerPaletteSection();
     }
 
-    void DrawColorControls(ref bool colorChanged)
+    private void DrawColorControls(ref bool colorChanged)
     {
         EditorGUILayout.LabelField("Selected Color", EditorStyles.boldLabel);
         EditorGUI.BeginChangeCheck();
-        _selectedColor = EditorGUILayout.ColorField(GUIContent.none, _selectedColor, true, true, false, GUILayout.Height(40));
+        _selectedColor =
+            EditorGUILayout.ColorField(GUIContent.none, _selectedColor, true, true, false, GUILayout.Height(40));
         if (EditorGUI.EndChangeCheck())
         {
             UpdateHSV();
@@ -240,8 +229,8 @@ public class PaletteStudioWindow : EditorWindow
         }
 
         GUILayout.Space(6);
-        var prevLabelWidth = EditorGUIUtility.labelWidth;
-        var prevFieldWidth = EditorGUIUtility.fieldWidth;
+        float prevLabelWidth = EditorGUIUtility.labelWidth;
+        float prevFieldWidth = EditorGUIUtility.fieldWidth;
         EditorGUIUtility.labelWidth = 18f;
         EditorGUIUtility.fieldWidth = 42f;
 
@@ -249,10 +238,10 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.BeginVertical(GUILayout.MinWidth(150));
         EditorGUILayout.LabelField("HSVA", EditorStyles.miniBoldLabel);
         EditorGUI.BeginChangeCheck();
-        var h = EditorGUILayout.Slider("H", _h * 360f, 0, 360f) / 360f;
-        var s = EditorGUILayout.Slider("S", _s * 100f, 0, 100f) / 100f;
-        var v = EditorGUILayout.Slider("V", _v * 100f, 0, 100f) / 100f;
-        var a = EditorGUILayout.Slider("A", _a * 100f, 0, 100f) / 100f;
+        float h = EditorGUILayout.Slider("H", _h * 360f, 0, 360f) / 360f;
+        float s = EditorGUILayout.Slider("S", _s * 100f, 0, 100f) / 100f;
+        float v = EditorGUILayout.Slider("V", _v * 100f, 0, 100f) / 100f;
+        float a = EditorGUILayout.Slider("A", _a * 100f, 0, 100f) / 100f;
         if (EditorGUI.EndChangeCheck())
         {
             _h = h;
@@ -262,6 +251,7 @@ public class PaletteStudioWindow : EditorWindow
             UpdateSelectedColorFromHSV();
             colorChanged = true;
         }
+
         EditorGUILayout.EndVertical();
 
         GUILayout.Space(10);
@@ -269,15 +259,16 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.BeginVertical(GUILayout.MinWidth(150));
         EditorGUILayout.LabelField("RGBA", EditorStyles.miniBoldLabel);
         EditorGUI.BeginChangeCheck();
-        var r = EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0, 255f) / 255f;
-        var g = EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0, 255f) / 255f;
-        var b = EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0, 255f) / 255f;
+        float r = EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0, 255f) / 255f;
+        float g = EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0, 255f) / 255f;
+        float b = EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0, 255f) / 255f;
         if (EditorGUI.EndChangeCheck())
         {
             _selectedColor = new Color(r, g, b, _a);
             UpdateHSV();
             colorChanged = true;
         }
+
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndHorizontal();
 
@@ -287,33 +278,34 @@ public class PaletteStudioWindow : EditorWindow
         GUILayout.Space(4);
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Hex", GUILayout.Width(30));
-        var hex = ColorUtility.ToHtmlStringRGBA(_selectedColor);
-        var hexInput = EditorGUILayout.TextField(hex);
+        string hex = ColorUtility.ToHtmlStringRGBA(_selectedColor);
+        string hexInput = EditorGUILayout.TextField(hex);
         if (!string.Equals(hexInput, hex, StringComparison.OrdinalIgnoreCase) &&
-            ColorUtility.TryParseHtmlString("#" + hexInput, out var parsed))
+            ColorUtility.TryParseHtmlString("#" + hexInput, out Color parsed))
         {
             _selectedColor = parsed;
             UpdateHSV();
             colorChanged = true;
         }
+
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawLightnessSlider(ref bool colorChanged)
+    private void DrawLightnessSlider(ref bool colorChanged)
     {
         EditorGUILayout.LabelField("Lightness", EditorStyles.miniLabel);
-        var rect = EditorGUILayout.GetControlRect(GUILayout.Height(18));
-        
+        Rect rect = EditorGUILayout.GetControlRect(GUILayout.Height(18));
+
         if (_lightnessBar == null) GenerateTextures();
         GUI.DrawTexture(rect, _lightnessBar);
 
         // Marker for current V
-        var markerX = rect.x + _v * rect.width;
+        float markerX = rect.x + _v * rect.width;
         var markerRect = new Rect(markerX - 2, rect.y - 2, 4, rect.height + 4);
         EditorGUI.DrawRect(markerRect, Color.white);
         DrawRectOutline(markerRect, Color.black, 1);
 
-        var e = Event.current;
+        Event e = Event.current;
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && rect.Contains(e.mousePosition))
         {
             _v = Mathf.Clamp01((e.mousePosition.x - rect.x) / rect.width);
@@ -325,36 +317,38 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void DrawVisualPickers(ref bool colorChanged)
+    private void DrawVisualPickers(ref bool colorChanged)
     {
         if (_hueWheel == null)
             GenerateTextures();
 
-        var wheelRect = GUILayoutUtility.GetRect(WheelSize, WheelSize, GUILayout.Width(WheelSize), GUILayout.Height(WheelSize));
+        Rect wheelRect = GUILayoutUtility.GetRect(WheelSize, WheelSize, GUILayout.Width(WheelSize),
+            GUILayout.Height(WheelSize));
         GUI.DrawTexture(wheelRect, _hueWheel);
 
-        var angle = _h * Mathf.PI * 2f;
-        var center = wheelRect.center;
-        var centerRadius = WheelSize * WheelCenterRadiusRatio;
-        var centerRect = new Rect(center.x - centerRadius, center.y - centerRadius, centerRadius * 2f, centerRadius * 2f);
+        float angle = _h * Mathf.PI * 2f;
+        Vector2 center = wheelRect.center;
+        float centerRadius = WheelSize * WheelCenterRadiusRatio;
+        var centerRect = new Rect(center.x - centerRadius, center.y - centerRadius, centerRadius * 2f,
+            centerRadius * 2f);
 
         DrawWheelCenterPreview(centerRect);
 
-        var markerPos = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (WheelSize * 0.45f);
+        Vector2 markerPos = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (WheelSize * 0.45f);
         Handles.color = Color.white;
         Handles.DrawWireDisc(markerPos, Vector3.forward, 5f);
         Handles.color = Color.black;
         Handles.DrawWireDisc(markerPos, Vector3.forward, 6f);
 
-        var e = Event.current;
+        Event e = Event.current;
 
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && wheelRect.Contains(e.mousePosition))
         {
-            var dir = e.mousePosition - center;
-            var dist = dir.magnitude / (WheelSize / 2f);
+            Vector2 dir = e.mousePosition - center;
+            float dist = dir.magnitude / (WheelSize / 2f);
             if (dist >= 0.7f)
             {
-                var a = Mathf.Atan2(dir.y, dir.x);
+                float a = Mathf.Atan2(dir.y, dir.x);
                 if (a < 0) a += Mathf.PI * 2f;
                 _h = a / (Mathf.PI * 2f);
                 UpdateSelectedColorFromHSV();
@@ -366,16 +360,16 @@ public class PaletteStudioWindow : EditorWindow
         DrawHarmonyMarkers(center);
     }
 
-    void DrawSchemeControls()
+    private void DrawSchemeControls()
     {
-        var scheme = GetActiveScheme();
+        PaletteScheme scheme = GetActiveScheme();
         EditorGUI.BeginChangeCheck();
         scheme = (PaletteScheme)EditorGUILayout.EnumPopup("Scheme", scheme);
         if (EditorGUI.EndChangeCheck())
             SetActiveScheme(scheme);
     }
 
-    void DrawPickerPaletteSection()
+    private void DrawPickerPaletteSection()
     {
         if (_selectedPalette == null)
         {
@@ -392,19 +386,17 @@ public class PaletteStudioWindow : EditorWindow
         DrawPaletteBottomButtons(_selectedPalette);
     }
 
-    void ShowImportMenu(ColorPalette palette)
+    private void ShowImportMenu(ColorPalette palette)
     {
         var menu = new GenericMenu();
-        menu.AddItem(new GUIContent("Image..."), false, () => {
-            var path = EditorUtility.OpenFilePanel("Import Palette from Image", "Assets", "png,jpg,jpeg");
+        menu.AddItem(new GUIContent("Image..."), false, () =>
+        {
+            string path = EditorUtility.OpenFilePanel("Import Palette from Image", "Assets", "png,jpg,jpeg");
             if (!string.IsNullOrEmpty(path))
             {
-                var bytes = File.ReadAllBytes(path);
+                byte[] bytes = File.ReadAllBytes(path);
                 var tex = new Texture2D(2, 2);
-                if (tex.LoadImage(bytes))
-                {
-                    CreatePaletteFromTexture(tex, _texturePaletteCount);
-                }
+                if (tex.LoadImage(bytes)) CreatePaletteFromTexture(tex, _texturePaletteCount);
                 DestroyImmediate(tex);
             }
         });
@@ -418,7 +410,7 @@ public class PaletteStudioWindow : EditorWindow
         menu.ShowAsContext();
     }
 
-    void ShowExportMenu(ColorPalette palette)
+    private void ShowExportMenu(ColorPalette palette)
     {
         var menu = new GenericMenu();
         menu.AddItem(new GUIContent("Texture (PNG)..."), false, () => ExportPaletteTexture(palette));
@@ -438,17 +430,17 @@ public class PaletteStudioWindow : EditorWindow
         menu.ShowAsContext();
     }
 
-    void ImportJson(ColorPalette palette)
+    private void ImportJson(ColorPalette palette)
     {
-        var path = EditorUtility.OpenFilePanel("Import JSON Palette", "Assets", "json");
+        string path = EditorUtility.OpenFilePanel("Import JSON Palette", "Assets", "json");
         if (string.IsNullOrEmpty(path)) return;
-        var json = File.ReadAllText(path);
+        string json = File.ReadAllText(path);
 
         if (palette == null)
         {
-            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", "NewPalette", "asset", "");
+            string assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", "NewPalette", "asset", "");
             if (string.IsNullOrEmpty(assetPath)) return;
-            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            palette = CreateInstance<ColorPalette>();
             JsonUtility.FromJsonOverwrite(json, palette);
             AssetDatabase.CreateAsset(palette, assetPath);
         }
@@ -464,30 +456,31 @@ public class PaletteStudioWindow : EditorWindow
         SelectPalette(palette);
     }
 
-    void ImportUnityPalette(ColorPalette palette)
+    private void ImportUnityPalette(ColorPalette palette)
     {
-        var path = EditorUtility.OpenFilePanel("Import Unity Palette", "Assets", "colors");
+        string path = EditorUtility.OpenFilePanel("Import Unity Palette", "Assets", "colors");
         if (string.IsNullOrEmpty(path)) return;
 
-        var relativePath = path;
+        string relativePath = path;
         if (path.StartsWith(Application.dataPath))
-            relativePath = "Assets" + path.Substring(Application.dataPath.Length - 6);
+            relativePath = "Assets" + path[(Application.dataPath.Length - 6)..];
 
         var lib = AssetDatabase.LoadAssetAtPath<ScriptableObject>(relativePath);
         if (lib == null) return;
 
-        var count = ColorPresetLibraryWrapper.Count(lib);
+        int count = ColorPresetLibraryWrapper.Count(lib);
         var colors = new List<Color>();
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
             colors.Add(ColorPresetLibraryWrapper.GetPreset(lib, i));
 
         if (colors.Count == 0) return;
 
         if (palette == null)
         {
-            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", Path.GetFileNameWithoutExtension(path), "asset", "");
+            string assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette",
+                Path.GetFileNameWithoutExtension(path), "asset", "");
             if (string.IsNullOrEmpty(assetPath)) return;
-            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            palette = CreateInstance<ColorPalette>();
             palette.paletteName = Path.GetFileNameWithoutExtension(assetPath);
             palette.colors = colors.ToArray();
             palette.GenerationMode = PaletteGenerationMode.Manual;
@@ -506,26 +499,25 @@ public class PaletteStudioWindow : EditorWindow
         SelectPalette(palette);
     }
 
-    void ImportHex(ColorPalette palette)
+    private void ImportHex(ColorPalette palette)
     {
-        var path = EditorUtility.OpenFilePanel("Import HEX List", "Assets", "txt");
+        string path = EditorUtility.OpenFilePanel("Import HEX List", "Assets", "txt");
         if (string.IsNullOrEmpty(path)) return;
 
-        var lines = File.ReadAllLines(path);
+        string[] lines = File.ReadAllLines(path);
         var colors = new List<Color>();
-        foreach (var line in lines)
-        {
-            if (ColorUtility.TryParseHtmlString(line.Trim(), out var c))
+        foreach (string line in lines)
+            if (ColorUtility.TryParseHtmlString(line.Trim(), out Color c))
                 colors.Add(c);
-        }
 
         if (colors.Count == 0) return;
 
         if (palette == null)
         {
-            var assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette", Path.GetFileNameWithoutExtension(path), "asset", "");
+            string assetPath = EditorUtility.SaveFilePanelInProject("Save Imported Palette",
+                Path.GetFileNameWithoutExtension(path), "asset", "");
             if (string.IsNullOrEmpty(assetPath)) return;
-            palette = ScriptableObject.CreateInstance<ColorPalette>();
+            palette = CreateInstance<ColorPalette>();
             palette.paletteName = Path.GetFileNameWithoutExtension(assetPath);
             palette.colors = colors.ToArray();
             palette.GenerationMode = PaletteGenerationMode.Manual;
@@ -544,76 +536,77 @@ public class PaletteStudioWindow : EditorWindow
         SelectPalette(palette);
     }
 
-    void ImportGpl(ColorPalette palette) => Debug.Log("GPL Import not yet implemented.");
-    void ImportAse(ColorPalette palette) => Debug.Log("ASE Import not yet implemented.");
-    void ImportAco(ColorPalette palette) => Debug.Log("ACO Import not yet implemented.");
+    private void ImportGpl(ColorPalette palette) => Debug.Log("GPL Import not yet implemented.");
+    private void ImportAse(ColorPalette palette) => Debug.Log("ASE Import not yet implemented.");
+    private void ImportAco(ColorPalette palette) => Debug.Log("ACO Import not yet implemented.");
 
-    void ExportJson(ColorPalette palette)
+    private void ExportJson(ColorPalette palette)
     {
         if (palette == null) return;
-        var path = EditorUtility.SaveFilePanel("Export JSON", "Assets", GetPaletteDisplayName(palette), "json");
+        string path = EditorUtility.SaveFilePanel("Export JSON", "Assets", GetPaletteDisplayName(palette), "json");
         if (string.IsNullOrEmpty(path)) return;
         File.WriteAllText(path, JsonUtility.ToJson(palette, true));
         AssetDatabase.Refresh();
     }
 
-    void ExportHex(ColorPalette palette)
+    private void ExportHex(ColorPalette palette)
     {
         if (palette == null) return;
-        var path = EditorUtility.SaveFilePanel("Export HEX List", "Assets", GetPaletteDisplayName(palette), "txt");
+        string path = EditorUtility.SaveFilePanel("Export HEX List", "Assets", GetPaletteDisplayName(palette), "txt");
         if (string.IsNullOrEmpty(path)) return;
-        var lines = palette.colors.Select(c => "#" + ColorUtility.ToHtmlStringRGBA(c)).ToArray();
+        string[] lines = palette.colors.Select(c => "#" + ColorUtility.ToHtmlStringRGBA(c)).ToArray();
         File.WriteAllLines(path, lines);
         AssetDatabase.Refresh();
     }
 
-    void ExportCSharp(ColorPalette palette)
+    private void ExportCSharp(ColorPalette palette)
     {
         if (palette == null) return;
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"public static readonly Color[] {GetPaletteDisplayName(palette).Replace(" ", "_")} = new Color[] {{");
-        foreach (var c in palette.colors)
+        sb.AppendLine(
+            $"public static readonly Color[] {GetPaletteDisplayName(palette).Replace(" ", "_")} = new Color[] {{");
+        foreach (Color c in palette.colors)
             sb.AppendLine($"    new Color({c.r}f, {c.g}f, {c.b}f, {c.a}f),");
         sb.AppendLine("};");
         EditorGUIUtility.systemCopyBuffer = sb.ToString();
         EditorUtility.DisplayDialog("Export C#", "C# array code copied to clipboard.", "OK");
     }
 
-    void ExportCss(ColorPalette palette)
+    private void ExportCss(ColorPalette palette)
     {
         if (palette == null) return;
         var sb = new System.Text.StringBuilder();
         sb.AppendLine(":root {");
-        var name = GetPaletteDisplayName(palette).ToLower().Replace(" ", "-");
-        for (int i = 0; i < palette.colors.Length; i++)
+        string name = GetPaletteDisplayName(palette).ToLower().Replace(" ", "-");
+        for (var i = 0; i < palette.colors.Length; i++)
             sb.AppendLine($"    --{name}-{i}: #{ColorUtility.ToHtmlStringRGBA(palette.colors[i])};");
         sb.AppendLine("}");
         EditorGUIUtility.systemCopyBuffer = sb.ToString();
         EditorUtility.DisplayDialog("Export CSS", "CSS variables copied to clipboard.", "OK");
     }
 
-    void ExportGpl(ColorPalette palette) => Debug.Log("GPL Export not yet implemented.");
-    void ExportAse(ColorPalette palette) => Debug.Log("ASE Export not yet implemented.");
-    void ExportSvg(ColorPalette palette) => Debug.Log("SVG Export not yet implemented.");
-    void ExportAco(ColorPalette palette) => Debug.Log("ACO Export not yet implemented.");
+    private void ExportGpl(ColorPalette palette) => Debug.Log("GPL Export not yet implemented.");
+    private void ExportAse(ColorPalette palette) => Debug.Log("ASE Export not yet implemented.");
+    private void ExportSvg(ColorPalette palette) => Debug.Log("SVG Export not yet implemented.");
+    private void ExportAco(ColorPalette palette) => Debug.Log("ACO Export not yet implemented.");
 
-    void DrawPalettePreview(ColorPalette palette)
+    private void DrawPalettePreview(ColorPalette palette)
     {
-        var colors = palette.ToArray();
+        Color[] colors = palette.ToArray();
         if (colors == null || colors.Length == 0)
         {
             EditorGUILayout.HelpBox("Palette is empty.", MessageType.Info);
             return;
         }
 
-        var rect = EditorGUILayout.GetControlRect(GUILayout.Height(PalettePreviewHeight));
-        var count = colors.Length;
-        var swatchWidth = rect.width / Mathf.Max(1, count);
+        Rect rect = EditorGUILayout.GetControlRect(GUILayout.Height(PalettePreviewHeight));
+        int count = colors.Length;
+        float swatchWidth = rect.width / Mathf.Max(1, count);
 
         for (var i = 0; i < count; i++)
         {
             var r = new Rect(rect.x + i * swatchWidth, rect.y, swatchWidth, rect.height);
-            var c = colors[i];
+            Color c = colors[i];
             if (c.a < 1f) c = c.WithAlpha(1f);
             EditorGUI.DrawRect(r, c);
 
@@ -621,10 +614,10 @@ public class PaletteStudioWindow : EditorWindow
                 DrawRectOutline(r, Color.white, 2f);
         }
 
-        var e = Event.current;
+        Event e = Event.current;
         if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
         {
-            var idx = Mathf.Clamp(Mathf.FloorToInt((e.mousePosition.x - rect.x) / swatchWidth), 0, count - 1);
+            int idx = Mathf.Clamp(Mathf.FloorToInt((e.mousePosition.x - rect.x) / swatchWidth), 0, count - 1);
             _selectedPaletteColorIndex = idx;
             _selectedColor = colors[idx];
             UpdateHSV();
@@ -633,7 +626,7 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void DrawPaletteGenerationControls(ColorPalette palette)
+    private void DrawPaletteGenerationControls(ColorPalette palette)
     {
         EditorGUI.BeginChangeCheck();
         var generationMode = (PaletteGenerationMode)EditorGUILayout.EnumPopup("Mode", palette.GenerationMode);
@@ -642,37 +635,37 @@ public class PaletteStudioWindow : EditorWindow
             Undo.RecordObject(palette, "Change Palette Mode");
             palette.GenerationMode = generationMode;
             if (palette.GenerationMode == PaletteGenerationMode.Generated)
-                RegeneratePalette(palette, recordUndo: false);
+                RegeneratePalette(palette, false);
             EditorUtility.SetDirty(palette);
         }
 
         if (palette.GenerationMode != PaletteGenerationMode.Generated) return;
 
         EditorGUI.BeginChangeCheck();
-        var scheme = palette.Scheme;
-        var baseColor = EditorGUILayout.ColorField("Base Color", palette.BaseColor);
-        var shades = EditorGUILayout.IntSlider("Shades", palette.Shades, 1, 16);
+        PaletteScheme scheme = palette.Scheme;
+        Color baseColor = EditorGUILayout.ColorField("Base Color", palette.BaseColor);
+        int shades = EditorGUILayout.IntSlider("Shades", palette.Shades, 1, 16);
 
-        var hueCount = palette.HueCount;
+        int hueCount = palette.HueCount;
         if (scheme == PaletteScheme.Custom || scheme == PaletteScheme.Monochromatic)
         {
             EditorGUILayout.LabelField($"Hues: {PaletteGenerator.GetEffectiveHueCount(palette)}");
         }
         else
         {
-            var minHues = PaletteGenerator.GetMinHueCount(scheme);
+            int minHues = PaletteGenerator.GetMinHueCount(scheme);
             hueCount = EditorGUILayout.IntSlider("Hues", palette.HueCount, minHues, 128);
         }
 
-        var saturation = EditorGUILayout.Slider("Saturation", palette.Saturation, 0f, 1f);
-        var value = EditorGUILayout.Slider("Value", palette.Value, 0f, 1f);
-        var minB = palette.MinBrightness;
-        var maxB = palette.MaxBrightness;
+        float saturation = EditorGUILayout.Slider("Saturation", palette.Saturation, 0f, 1f);
+        float value = EditorGUILayout.Slider("Value", palette.Value, 0f, 1f);
+        float minB = palette.MinBrightness;
+        float maxB = palette.MaxBrightness;
         EditorGUILayout.MinMaxSlider("Brightness", ref minB, ref maxB, 0f, 1f);
 
-        var analogousStep = palette.AnalogousStepDegrees;
-        var splitComplementary = palette.SplitComplementaryDegrees;
-        var spectrumEndpoints = palette.SpectrumIncludeBlackWhite;
+        float analogousStep = palette.AnalogousStepDegrees;
+        float splitComplementary = palette.SplitComplementaryDegrees;
+        bool spectrumEndpoints = palette.SpectrumIncludeBlackWhite;
 
         if (scheme == PaletteScheme.Analogous)
             analogousStep = EditorGUILayout.Slider("Analogous Step", palette.AnalogousStepDegrees, 5f, 90f);
@@ -695,12 +688,12 @@ public class PaletteStudioWindow : EditorWindow
             palette.SplitComplementaryDegrees = splitComplementary;
             palette.SpectrumIncludeBlackWhite = spectrumEndpoints;
 
-            RegeneratePalette(palette, recordUndo: false);
+            RegeneratePalette(palette, false);
             EditorUtility.SetDirty(palette);
         }
     }
 
-    void DrawPaletteActions(ColorPalette palette)
+    private void DrawPaletteActions(ColorPalette palette)
     {
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Add Current"))
@@ -714,7 +707,7 @@ public class PaletteStudioWindow : EditorWindow
         if (palette.GenerationMode == PaletteGenerationMode.Manual)
         {
             EditorGUILayout.BeginHorizontal();
-            var scheme = GetActiveScheme();
+            PaletteScheme scheme = GetActiveScheme();
             GUI.enabled = scheme != PaletteScheme.Custom && scheme != PaletteScheme.Monochromatic;
             if (GUILayout.Button("Add Scheme Colors"))
                 AddSchemeColorsToPalette();
@@ -742,7 +735,8 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.LabelField("Texture", GUILayout.Width(52));
         _lutSourceTexture = (Texture2D)EditorGUILayout.ObjectField(_lutSourceTexture, typeof(Texture2D), false);
         GUI.enabled = _lutSourceTexture != null;
-        if (GUILayout.Button(new GUIContent("Make Palette", "Create a new palette from a texture"), GUILayout.Width(120)))
+        if (GUILayout.Button(new GUIContent("Make Palette", "Create a new palette from a texture"),
+                GUILayout.Width(120)))
             CreatePaletteFromTexture(_lutSourceTexture, _texturePaletteCount);
         GUI.enabled = true;
         EditorGUILayout.EndHorizontal();
@@ -753,31 +747,31 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawPaletteBottomButtons(ColorPalette palette)
+    private void DrawPaletteBottomButtons(ColorPalette palette)
     {
-        var width = Mathf.Max(20, (EditorGUIUtility.currentViewWidth - 40) / 3f);
-        
+        float width = Mathf.Max(20, (EditorGUIUtility.currentViewWidth - 40) / 3f);
+
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("New", GUILayout.Width(width))) CreateNewPaletteWindow.ShowWindow();
         if (GUILayout.Button("Load", GUILayout.Width(width))) OpenPalettePicker();
-        
+
         GUI.enabled = palette != null;
         if (GUILayout.Button("Save", GUILayout.Width(width))) SavePaletteAsset(palette);
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Save As", GUILayout.Width(width))) DuplicatePalette(palette);
-        
+
         if (EditorGUILayout.DropdownButton(new GUIContent("Import"), FocusType.Passive, GUILayout.Width(width)))
             ShowImportMenu(palette);
-            
+
         if (EditorGUILayout.DropdownButton(new GUIContent("Export"), FocusType.Passive, GUILayout.Width(width)))
             ShowExportMenu(palette);
         GUI.enabled = true;
         EditorGUILayout.EndHorizontal();
     }
 
-    void DrawLibraryTab()
+    private void DrawLibraryTab()
     {
         if (_selectedPalette == null)
         {
@@ -820,37 +814,38 @@ public class PaletteStudioWindow : EditorWindow
         if (_showColorBlindPreview)
         {
             _colorBlindMode = GUILayout.Toolbar(_colorBlindMode, ColorBlindTabs);
-            var simulated = SimulateColorBlindness(_selectedPalette.ToArray(), _colorBlindMode);
+            Color[] simulated = SimulateColorBlindness(_selectedPalette.ToArray(), _colorBlindMode);
             DrawSwatchPreview(simulated, 32f);
         }
     }
 
-    void DrawPaletteGrid(ColorPalette palette, bool allowEdit)
+    private void DrawPaletteGrid(ColorPalette palette, bool allowEdit)
     {
-        var colors = palette.ToArray();
+        Color[] colors = palette.ToArray();
         if (colors == null || colors.Length == 0)
         {
             EditorGUILayout.HelpBox("Palette is empty.", MessageType.Info);
             return;
         }
 
-        var columns = palette.GenerationMode == PaletteGenerationMode.Generated
+        int columns = palette.GenerationMode == PaletteGenerationMode.Generated
             ? Mathf.Max(1, PaletteGenerator.GetEffectiveHueCount(palette))
             : Mathf.Max(1, Mathf.FloorToInt((EditorGUIUtility.currentViewWidth - 260f) / 26f));
 
-        var rows = palette.GenerationMode == PaletteGenerationMode.Generated
+        int rows = palette.GenerationMode == PaletteGenerationMode.Generated
             ? Mathf.Max(1, palette.Shades)
             : Mathf.CeilToInt(colors.Length / (float)columns);
 
-        var swatchSize = Mathf.Clamp((EditorGUIUtility.currentViewWidth - 260f) / columns, SwatchMinSize, 32f);
+        float swatchSize = Mathf.Clamp((EditorGUIUtility.currentViewWidth - 260f) / columns, SwatchMinSize, 32f);
 
         for (var row = 0; row < rows; row++)
         {
             EditorGUILayout.BeginHorizontal();
             for (var col = 0; col < columns; col++)
             {
-                var idx = row * columns + col;
-                var rect = GUILayoutUtility.GetRect(swatchSize, swatchSize, GUILayout.Width(swatchSize), GUILayout.Height(swatchSize));
+                int idx = row * columns + col;
+                Rect rect = GUILayoutUtility.GetRect(swatchSize, swatchSize, GUILayout.Width(swatchSize),
+                    GUILayout.Height(swatchSize));
 
                 if (idx < colors.Length)
                 {
@@ -863,7 +858,9 @@ public class PaletteStudioWindow : EditorWindow
                     EditorGUI.DrawRect(rect, new Color(0f, 0f, 0f, 0.1f));
                 }
 
-                if (idx < colors.Length && Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                if (idx < colors.Length &&
+                    Event.current.type == EventType.MouseDown &&
+                    rect.Contains(Event.current.mousePosition))
                 {
                     if (Event.current.button == 0)
                     {
@@ -880,76 +877,78 @@ public class PaletteStudioWindow : EditorWindow
                     }
                 }
             }
+
             EditorGUILayout.EndHorizontal();
         }
     }
-    void UpdateHSV()
+
+    private void UpdateHSV()
     {
         Color.RGBToHSV(_selectedColor, out _h, out _s, out _v);
         _a = _selectedColor.a;
         UpdateLightnessBarTexture();
     }
 
-    void UpdateSelectedColorFromHSV()
+    private void UpdateSelectedColorFromHSV()
     {
         _selectedColor = Color.HSVToRGB(_h, _s, _v).WithAlpha(_a);
         UpdateLightnessBarTexture();
     }
 
-    void GenerateTextures()
+    private void GenerateTextures()
     {
         if (_hueWheel == null)
         {
             _hueWheel = new Texture2D(WheelSize, WheelSize);
             for (var y = 0; y < WheelSize; y++)
+            for (var x = 0; x < WheelSize; x++)
             {
-                for (var x = 0; x < WheelSize; x++)
+                float dx = (x - WheelSize / 2f) / (WheelSize / 2f);
+                float dy = (y - WheelSize / 2f) / (WheelSize / 2f);
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                if (dist is >= 0.8f and <= 1f)
                 {
-                    var dx = (x - WheelSize / 2f) / (WheelSize / 2f);
-                    var dy = (y - WheelSize / 2f) / (WheelSize / 2f);
-                    var dist = Mathf.Sqrt(dx * dx + dy * dy);
-                    if (dist >= 0.8f && dist <= 1f)
-                    {
-                        var angle = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
-                        if (angle < 0) angle += 360f;
-                        _hueWheel.SetPixel(x, y, Color.HSVToRGB(angle / 360f, 1f, 1f));
-                    }
-                    else
-                    {
-                        _hueWheel.SetPixel(x, y, Color.clear);
-                    }
+                    float angle = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
+                    if (angle < 0) angle += 360f;
+                    _hueWheel.SetPixel(x, y, Color.HSVToRGB(angle / 360f, 1f, 1f));
                 }
+                else { _hueWheel.SetPixel(x, y, Color.clear); }
             }
+
             _hueWheel.Apply();
         }
+
         UpdateLightnessBarTexture();
     }
 
-    void UpdateLightnessBarTexture()
+    private void UpdateLightnessBarTexture()
     {
         if (_lightnessBar == null)
             _lightnessBar = new Texture2D(256, 1, TextureFormat.RGBA32, false);
 
         for (var i = 0; i < 256; i++)
         {
-            var v = i / 255f;
+            float v = i / 255f;
             _lightnessBar.SetPixel(i, 0, Color.HSVToRGB(_h, _s, v));
         }
+
         _lightnessBar.Apply();
     }
 
-    void DestroyTextures()
+    private void DestroyTextures()
     {
         if (_hueWheel != null)
         {
             DestroyImmediate(_hueWheel);
             _hueWheel = null;
         }
+
         if (_centerPie != null)
         {
             DestroyImmediate(_centerPie);
             _centerPie = null;
         }
+
         if (_lightnessBar != null)
         {
             DestroyImmediate(_lightnessBar);
@@ -957,7 +956,7 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void DrawHarmonyMarkers(Vector2 center)
+    private void DrawHarmonyMarkers(Vector2 center)
     {
         var hues = new List<float>();
         GetSchemeHues(hues);
@@ -981,17 +980,17 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void GetSchemeHues(List<float> hues)
+    private void GetSchemeHues(List<float> hues)
     {
         hues.Clear();
         hues.Add(_h);
 
-        var scheme = GetActiveScheme();
+        PaletteScheme scheme = GetActiveScheme();
         if (scheme == PaletteScheme.Custom || scheme == PaletteScheme.Monochromatic)
             return;
 
-        var analogStep = (_selectedPalette != null ? _selectedPalette.AnalogousStepDegrees : 30f) / 360f;
-        var splitStep = (_selectedPalette != null ? _selectedPalette.SplitComplementaryDegrees : 30f) / 360f;
+        float analogStep = (_selectedPalette != null ? _selectedPalette.AnalogousStepDegrees : 30f) / 360f;
+        float splitStep = (_selectedPalette != null ? _selectedPalette.SplitComplementaryDegrees : 30f) / 360f;
 
         switch (scheme)
         {
@@ -1021,7 +1020,7 @@ public class PaletteStudioWindow : EditorWindow
                 hues.Add(Mathf.Repeat(_h + 0.75f, 1f));
                 break;
             case PaletteScheme.Spectrum:
-                var count = Mathf.Clamp(_selectedPalette != null ? _selectedPalette.HueCount : 8, 3, 12);
+                int count = Mathf.Clamp(_selectedPalette != null ? _selectedPalette.HueCount : 8, 3, 12);
                 hues.Clear();
                 for (var i = 0; i < count; i++)
                     hues.Add(Mathf.Repeat(_h + i / (float)count, 1f));
@@ -1029,16 +1028,16 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    Vector2 GetPosOnWheel(float hue)
+    private Vector2 GetPosOnWheel(float hue)
     {
-        var angle = hue * Mathf.PI * 2f;
+        float angle = hue * Mathf.PI * 2f;
         return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (WheelSize * 0.45f);
     }
 
-    void DrawWheelCenterPreview(Rect rect)
+    private void DrawWheelCenterPreview(Rect rect)
     {
-        var center = rect.center;
-        var radius = rect.width * 0.5f;
+        Vector2 center = rect.center;
+        float radius = rect.width * 0.5f;
 
         UpdateCenterPieTexture();
         if (_centerPie != null)
@@ -1048,27 +1047,27 @@ public class PaletteStudioWindow : EditorWindow
         Handles.DrawWireDisc(center, Vector3.forward, radius);
     }
 
-    Color ResolveCenterColor(float hue)
+    private Color ResolveCenterColor(float hue)
     {
         if (_selectedPalette == null || _selectedPalette.Count == 0)
             return Color.HSVToRGB(hue, _s, _v);
 
-        var source = _selectedPalette.GenerationMode == PaletteGenerationMode.Generated
+        List<Color> source = _selectedPalette.GenerationMode == PaletteGenerationMode.Generated
             ? PaletteGenerator.BuildBaseColors(_selectedPalette)
             : new List<Color>(_selectedPalette.ToArray());
 
         if (source.Count == 0)
             return Color.HSVToRGB(hue, _s, _v);
 
-        var best = source[0];
+        Color best = source[0];
         var bestDist = float.MaxValue;
-        var bestSat = source[0];
+        Color bestSat = source[0];
         var bestSatDist = float.MaxValue;
         var hasSaturated = false;
         for (var i = 0; i < source.Count; i++)
         {
-            Color.RGBToHSV(source[i], out var h, out var s, out _);
-            var dist = HueDistance(h, hue);
+            Color.RGBToHSV(source[i], out float h, out float s, out _);
+            float dist = HueDistance(h, hue);
             if (dist < bestDist)
             {
                 bestDist = dist;
@@ -1083,23 +1082,23 @@ public class PaletteStudioWindow : EditorWindow
             }
         }
 
-        var result = hasSaturated ? bestSat : best;
+        Color result = hasSaturated ? bestSat : best;
         result.a = 1f;
         return result;
     }
 
-    static float HueDistance(float a, float b) =>
+    private static float HueDistance(float a, float b) =>
         Mathf.Abs(Mathf.DeltaAngle(a * 360f, b * 360f));
 
-    static float MidAngleDeg(float aHue, float bHue)
+    private static float MidAngleDeg(float aHue, float bHue)
     {
-        var a = Mathf.Repeat(aHue, 1f) * 360f;
-        var b = Mathf.Repeat(bHue, 1f) * 360f;
+        float a = Mathf.Repeat(aHue, 1f) * 360f;
+        float b = Mathf.Repeat(bHue, 1f) * 360f;
         if (b < a) b += 360f;
         return Mathf.Repeat((a + b) * 0.5f, 360f);
     }
 
-    void UpdateCenterPieTexture()
+    private void UpdateCenterPieTexture()
     {
         if (_centerPie == null || _centerPie.width != CenterPieSize)
             _centerPie = new Texture2D(CenterPieSize, CenterPieSize, TextureFormat.RGBA32, false);
@@ -1115,50 +1114,46 @@ public class PaletteStudioWindow : EditorWindow
         var boundaries = new (float start, float end)[hues.Count];
         for (var i = 0; i < hues.Count; i++)
         {
-            var prev = hues[(i - 1 + hues.Count) % hues.Count];
-            var next = hues[(i + 1) % hues.Count];
+            float prev = hues[(i - 1 + hues.Count) % hues.Count];
+            float next = hues[(i + 1) % hues.Count];
             boundaries[i] = (MidAngleDeg(prev, hues[i]), MidAngleDeg(hues[i], next));
         }
 
-        var size = CenterPieSize;
-        var center = (size - 1) * 0.5f;
-        var radius = center;
-        var r2 = radius * radius;
+        int size = CenterPieSize;
+        float center = (size - 1) * 0.5f;
+        float radius = center;
+        float r2 = radius * radius;
 
         for (var y = 0; y < size; y++)
+        for (var x = 0; x < size; x++)
         {
-            for (var x = 0; x < size; x++)
+            float dx = x - center;
+            float dy = y - center;
+            float dist2 = dx * dx + dy * dy;
+            if (dist2 > r2)
             {
-                var dx = x - center;
-                var dy = y - center;
-                var dist2 = dx * dx + dy * dy;
-                if (dist2 > r2)
-                {
-                    _centerPie.SetPixel(x, y, Color.clear);
-                    continue;
-                }
-
-                var angle = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
-                if (angle < 0f) angle += 360f;
-
-                var idx = 0;
-                for (var i = 0; i < boundaries.Length; i++)
-                {
-                    if (AngleInRange(angle, boundaries[i].start, boundaries[i].end))
-                    {
-                        idx = i;
-                        break;
-                    }
-                }
-
-                _centerPie.SetPixel(x, y, colors[idx]);
+                _centerPie.SetPixel(x, y, Color.clear);
+                continue;
             }
+
+            float angle = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
+            if (angle < 0f) angle += 360f;
+
+            var idx = 0;
+            for (var i = 0; i < boundaries.Length; i++)
+                if (AngleInRange(angle, boundaries[i].start, boundaries[i].end))
+                {
+                    idx = i;
+                    break;
+                }
+
+            _centerPie.SetPixel(x, y, colors[idx]);
         }
 
         _centerPie.Apply();
     }
 
-    static bool AngleInRange(float angle, float start, float end)
+    private static bool AngleInRange(float angle, float start, float end)
     {
         angle = Mathf.Repeat(angle, 360f);
         start = Mathf.Repeat(start, 360f);
@@ -1167,14 +1162,13 @@ public class PaletteStudioWindow : EditorWindow
         return angle >= start || angle < end;
     }
 
-
-    static void DrawThickLine(Vector2 a, Vector2 b, float width)
+    private static void DrawThickLine(Vector2 a, Vector2 b, float width)
     {
         var pts = new[] { (Vector3)a, (Vector3)b };
         Handles.DrawAAPolyLine(width, pts);
     }
 
-    static void DrawRectOutline(Rect rect, Color color, float width)
+    private static void DrawRectOutline(Rect rect, Color color, float width)
     {
         var p0 = new Vector3(rect.xMin, rect.yMin);
         var p1 = new Vector3(rect.xMax, rect.yMin);
@@ -1184,7 +1178,7 @@ public class PaletteStudioWindow : EditorWindow
         Handles.DrawAAPolyLine(width, new[] { p0, p1, p2, p3, p0 });
     }
 
-    void ApplyPickerSvToPalette()
+    private void ApplyPickerSvToPalette()
     {
         if (_selectedPalette == null) return;
 
@@ -1194,7 +1188,7 @@ public class PaletteStudioWindow : EditorWindow
             _selectedPalette.Saturation = _s;
             _selectedPalette.Value = _v;
             _selectedPalette.BaseColor = Color.HSVToRGB(_h, _s, _v).WithAlpha(_a);
-            RegeneratePalette(_selectedPalette, recordUndo: false);
+            RegeneratePalette(_selectedPalette, false);
             EditorUtility.SetDirty(_selectedPalette);
         }
         else if (_selectedPaletteColorIndex >= 0)
@@ -1203,9 +1197,9 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void DrawCompactPaletteSelector()
+    private void DrawCompactPaletteSelector()
     {
-        var palettes = PaletteDatabase.Palettes;
+        IReadOnlyList<ColorPalette> palettes = PaletteDatabase.Palettes;
 
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
@@ -1223,13 +1217,14 @@ public class PaletteStudioWindow : EditorWindow
         var currentIndex = 0;
         for (var i = 0; i < palettes.Count; i++)
         {
-            var pal = palettes[i];
+            ColorPalette pal = palettes[i];
             paletteNames[i] = GetPaletteDisplayName(pal);
             if (pal == _selectedPalette) currentIndex = i;
         }
 
         GUILayout.Label("Palette", EditorStyles.miniLabel, GUILayout.Width(50));
-        var newIndex = EditorGUILayout.Popup(currentIndex, paletteNames, EditorStyles.toolbarPopup, GUILayout.MinWidth(180));
+        int newIndex = EditorGUILayout.Popup(currentIndex, paletteNames, EditorStyles.toolbarPopup,
+            GUILayout.MinWidth(180));
         if (newIndex != currentIndex)
             SelectPalette(palettes[newIndex]);
 
@@ -1242,28 +1237,30 @@ public class PaletteStudioWindow : EditorWindow
             RefreshDiscoveredTags();
             EnsureSelectedPalette();
         }
+
         GUI.enabled = _selectedPalette != null;
         if (GUILayout.Button("Ping", EditorStyles.toolbarButton, GUILayout.Width(50)))
         {
             Selection.activeObject = _selectedPalette;
             EditorGUIUtility.PingObject(_selectedPalette);
         }
+
         GUI.enabled = true;
 
         EditorGUILayout.EndHorizontal();
     }
 
-    void AddSchemeColorsToPalette()
+    private void AddSchemeColorsToPalette()
     {
         if (_selectedPalette == null) return;
 
-        var scheme = GetActiveScheme();
+        PaletteScheme scheme = GetActiveScheme();
         if (scheme == PaletteScheme.Custom || scheme == PaletteScheme.Monochromatic) return;
 
         var hues = new List<float>();
         GetSchemeHues(hues);
         var list = new List<Color>(_selectedPalette.ToArray());
-        foreach (var hue in hues)
+        foreach (float hue in hues)
             list.Add(Color.HSVToRGB(hue, _s, _v).WithAlpha(_a));
 
         Undo.RecordObject(_selectedPalette, "Add Scheme Colors");
@@ -1271,7 +1268,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(_selectedPalette);
     }
 
-    void RegeneratePalette(ColorPalette palette, bool recordUndo)
+    private void RegeneratePalette(ColorPalette palette, bool recordUndo)
     {
         if (palette == null) return;
         if (recordUndo) Undo.RecordObject(palette, "Regenerate Palette");
@@ -1279,7 +1276,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void BakeToManual(ColorPalette palette)
+    private void BakeToManual(ColorPalette palette)
     {
         if (palette == null) return;
         Undo.RecordObject(palette, "Bake Palette");
@@ -1287,7 +1284,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void AddColorToPalette(ColorPalette palette, Color color)
+    private void AddColorToPalette(ColorPalette palette, Color color)
     {
         if (palette == null) return;
         var list = new List<Color>(palette.ToArray()) { color };
@@ -1296,7 +1293,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void ReplaceColorAt(ColorPalette palette, int index, Color color)
+    private void ReplaceColorAt(ColorPalette palette, int index, Color color)
     {
         if (palette == null || index < 0) return;
         var list = new List<Color>(palette.ToArray());
@@ -1307,7 +1304,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void RemoveColorAt(ColorPalette palette, int index)
+    private void RemoveColorAt(ColorPalette palette, int index)
     {
         if (palette == null || index < 0) return;
         var list = new List<Color>(palette.ToArray());
@@ -1319,7 +1316,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void ClearPaletteColors(ColorPalette palette)
+    private void ClearPaletteColors(ColorPalette palette)
     {
         if (palette == null) return;
         Undo.RecordObject(palette, "Clear Palette");
@@ -1328,11 +1325,12 @@ public class PaletteStudioWindow : EditorWindow
         EditorUtility.SetDirty(palette);
     }
 
-    void ExportPaletteTexture(ColorPalette palette)
+    private void ExportPaletteTexture(ColorPalette palette)
     {
         if (palette == null) return;
-        var tex = PaletteUtils.PaletteToTexture(palette, false);
-        var path = EditorUtility.SaveFilePanelInProject("Export Palette Texture", $"{GetPaletteDisplayName(palette)}_Palette", "png", "Export palette texture");
+        Texture2D tex = PaletteUtils.PaletteToTexture(palette, false);
+        string path = EditorUtility.SaveFilePanelInProject("Export Palette Texture",
+            $"{GetPaletteDisplayName(palette)}_Palette", "png", "Export palette texture");
         if (string.IsNullOrEmpty(path))
         {
             DestroyImmediate(tex);
@@ -1354,13 +1352,14 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void ExportPaletteLut(ColorPalette palette, int size)
+    private void ExportPaletteLut(ColorPalette palette, int size)
     {
         if (palette == null) return;
-        var tex = PaletteUtils.PaletteToLut(palette, size);
+        Texture2D tex = PaletteUtils.PaletteToLut(palette, size);
         if (tex == null) return;
 
-        var path = EditorUtility.SaveFilePanelInProject("Export Palette LUT", $"{GetPaletteDisplayName(palette)}_LUT_{size}", "png", "Export palette LUT");
+        string path = EditorUtility.SaveFilePanelInProject("Export Palette LUT",
+            $"{GetPaletteDisplayName(palette)}_LUT_{size}", "png", "Export palette LUT");
         if (string.IsNullOrEmpty(path))
         {
             DestroyImmediate(tex);
@@ -1382,7 +1381,7 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void ExportUnityPalette(ColorPalette palette)
+    private void ExportUnityPalette(ColorPalette palette)
     {
         if (palette == null || palette.Count == 0)
         {
@@ -1390,7 +1389,7 @@ public class PaletteStudioWindow : EditorWindow
             return;
         }
 
-        var colors = palette.ToArray();
+        Color[] colors = palette.ToArray();
         if (colors.Length > UnityPaletteSlotCount)
         {
             EditorUtility.DisplayDialog(
@@ -1400,15 +1399,15 @@ public class PaletteStudioWindow : EditorWindow
             return;
         }
 
-        var lib = ColorPresetLibraryWrapper.CreateLibrary();
-        var paletteName = GetPaletteDisplayName(palette);
+        ScriptableObject lib = ColorPresetLibraryWrapper.CreateLibrary();
+        string paletteName = GetPaletteDisplayName(palette);
         for (var i = 0; i < UnityPaletteSlotCount; i++)
         {
-            var c = i < colors.Length ? colors[i] : Color.black;
+            Color c = i < colors.Length ? colors[i] : Color.black;
             ColorPresetLibraryWrapper.Add(lib, c, $"{paletteName} {i + 1:00}");
         }
 
-        var path = EditorUtility.SaveFilePanelInProject(
+        string path = EditorUtility.SaveFilePanelInProject(
             "Export Unity Palette",
             paletteName,
             "colors",
@@ -1436,7 +1435,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUIUtility.PingObject(lib);
     }
 
-    void CreatePaletteFromTexture(Texture2D tex, int colorCount)
+    private void CreatePaletteFromTexture(Texture2D tex, int colorCount)
     {
         if (!tex)
         {
@@ -1446,11 +1445,12 @@ public class PaletteStudioWindow : EditorWindow
 
         if (!tex.isReadable)
         {
-            EditorUtility.DisplayDialog("Create Palette From Texture", "Texture must be Read/Write enabled in its importer.", "OK");
+            EditorUtility.DisplayDialog("Create Palette From Texture",
+                "Texture must be Read/Write enabled in its importer.", "OK");
             return;
         }
 
-        var extracted = PaletteExtraction.ExtractColors(tex, colorCount);
+        Color[] extracted = PaletteExtraction.ExtractColors(tex, colorCount);
         if (extracted == null || extracted.Length == 0)
         {
             EditorUtility.DisplayDialog("Create Palette From Texture", "Failed to extract colors.", "OK");
@@ -1458,7 +1458,7 @@ public class PaletteStudioWindow : EditorWindow
         }
 
         var defaultName = $"{tex.name}_Palette";
-        var path = EditorUtility.SaveFilePanelInProject(
+        string path = EditorUtility.SaveFilePanelInProject(
             "Create Palette From Texture",
             defaultName,
             "asset",
@@ -1472,7 +1472,7 @@ public class PaletteStudioWindow : EditorWindow
             AssetDatabase.DeleteAsset(path);
         }
 
-        var newPalette = ScriptableObject.CreateInstance<ColorPalette>();
+        var newPalette = CreateInstance<ColorPalette>();
         newPalette.paletteName = Path.GetFileNameWithoutExtension(path);
         newPalette.colors = extracted;
         newPalette.GenerationMode = PaletteGenerationMode.Manual;
@@ -1495,7 +1495,7 @@ public class PaletteStudioWindow : EditorWindow
         DLog.Log($"Created palette from texture '{tex.name}' at {path}");
     }
 
-    void SavePaletteAsset(ColorPalette palette)
+    private void SavePaletteAsset(ColorPalette palette)
     {
         if (palette == null) return;
         EditorUtility.SetDirty(palette);
@@ -1503,15 +1503,15 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUIUtility.PingObject(palette);
     }
 
-    void OpenPalettePicker()
+    private void OpenPalettePicker()
     {
         _palettePickerId = GUIUtility.GetControlID(FocusType.Passive);
         EditorGUIUtility.ShowObjectPicker<ColorPalette>(_selectedPalette, false, string.Empty, _palettePickerId);
     }
 
-    void HandleObjectPicker()
+    private void HandleObjectPicker()
     {
-        var e = Event.current;
+        Event e = Event.current;
         if (e == null) return;
 
         if (e.commandName != "ObjectSelectorUpdated" && e.commandName != "ObjectSelectorClosed") return;
@@ -1525,7 +1525,7 @@ public class PaletteStudioWindow : EditorWindow
             _palettePickerId = -1;
     }
 
-    void SetAsGlobalDefault(ColorPalette palette)
+    private void SetAsGlobalDefault(ColorPalette palette)
     {
         if (palette == null) return;
         var path = "Assets/Resources";
@@ -1536,7 +1536,7 @@ public class PaletteStudioWindow : EditorWindow
         var settings = AssetDatabase.LoadAssetAtPath<PaletteSettings>(assetPath);
         if (settings == null)
         {
-            settings = ScriptableObject.CreateInstance<PaletteSettings>();
+            settings = CreateInstance<PaletteSettings>();
             AssetDatabase.CreateAsset(settings, assetPath);
         }
 
@@ -1547,13 +1547,13 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUIUtility.PingObject(settings);
     }
 
-    void DuplicatePalette(ColorPalette palette)
+    private void DuplicatePalette(ColorPalette palette)
     {
         if (palette == null) return;
-        var path = AssetDatabase.GetAssetPath(palette);
+        string path = AssetDatabase.GetAssetPath(palette);
         if (string.IsNullOrEmpty(path)) return;
 
-        var newPath = AssetDatabase.GenerateUniqueAssetPath(path);
+        string newPath = AssetDatabase.GenerateUniqueAssetPath(path);
         AssetDatabase.CopyAsset(path, newPath);
         AssetDatabase.Refresh();
         PaletteDatabase.Refresh();
@@ -1561,12 +1561,13 @@ public class PaletteStudioWindow : EditorWindow
         _selectedPalette = AssetDatabase.LoadAssetAtPath<ColorPalette>(newPath);
     }
 
-    void DeletePalette(ColorPalette palette)
+    private void DeletePalette(ColorPalette palette)
     {
         if (palette == null) return;
-        var path = AssetDatabase.GetAssetPath(palette);
+        string path = AssetDatabase.GetAssetPath(palette);
         if (string.IsNullOrEmpty(path)) return;
-        if (!EditorUtility.DisplayDialog("Delete Palette", $"Delete '{GetPaletteDisplayName(palette)}'?", "Delete", "Cancel")) return;
+        if (!EditorUtility.DisplayDialog("Delete Palette", $"Delete '{GetPaletteDisplayName(palette)}'?", "Delete",
+                "Cancel")) return;
 
         AssetDatabase.DeleteAsset(path);
         PaletteDatabase.Refresh();
@@ -1574,12 +1575,12 @@ public class PaletteStudioWindow : EditorWindow
         EnsureSelectedPalette();
     }
 
-    void DrawSwatchPreview(Color[] colors, float height)
+    private void DrawSwatchPreview(Color[] colors, float height)
     {
-        var rect = EditorGUILayout.GetControlRect(GUILayout.Height(height));
+        Rect rect = EditorGUILayout.GetControlRect(GUILayout.Height(height));
         if (colors == null || colors.Length == 0) return;
 
-        var sw = rect.width / colors.Length;
+        float sw = rect.width / colors.Length;
         for (var i = 0; i < colors.Length; i++)
         {
             var r = new Rect(rect.x + i * sw, rect.y, sw, rect.height);
@@ -1588,7 +1589,7 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void DrawColorTheory(Color[] colors)
+    private void DrawColorTheory(Color[] colors)
     {
         if (colors == null || colors.Length == 0) return;
 
@@ -1598,44 +1599,51 @@ public class PaletteStudioWindow : EditorWindow
                 EditorGUILayout.LabelField("Complementary Colors");
                 for (var i = 0; i < colors.Length; i++)
                 {
-                    var comp = ColorTheory.Complementary(colors[i]);
+                    Color comp = ColorTheory.Complementary(colors[i]);
                     EditorGUILayout.LabelField($"Color {i} complement:");
-                    var previewRect = EditorGUILayout.GetControlRect(GUILayout.Height(20));
-                    EditorGUI.DrawRect(new Rect(previewRect.x, previewRect.y, previewRect.width / 2, previewRect.height), colors[i]);
-                    EditorGUI.DrawRect(new Rect(previewRect.x + previewRect.width / 2, previewRect.y, previewRect.width / 2, previewRect.height), comp);
+                    Rect previewRect = EditorGUILayout.GetControlRect(GUILayout.Height(20));
+                    EditorGUI.DrawRect(
+                        new Rect(previewRect.x, previewRect.y, previewRect.width / 2, previewRect.height), colors[i]);
+                    EditorGUI.DrawRect(
+                        new Rect(previewRect.x + previewRect.width / 2, previewRect.y, previewRect.width / 2,
+                            previewRect.height), comp);
                 }
+
                 break;
             case 1:
                 EditorGUILayout.LabelField("Triadic Colors");
                 for (var i = 0; i < colors.Length; i++)
                 {
-                    var triadic = ColorTheory.Triadic(colors[i]);
+                    Color[] triadic = ColorTheory.Triadic(colors[i]);
                     EditorGUILayout.LabelField($"Color {i} triadic:");
                     DrawSwatchPreview(triadic, 20f);
                 }
+
                 break;
             case 2:
                 EditorGUILayout.LabelField("Analogous Colors");
                 for (var i = 0; i < colors.Length; i++)
                 {
-                    var analogous = ColorTheory.Analogous(colors[i], 5, 30f);
+                    Color[] analogous = ColorTheory.Analogous(colors[i], 5, 30f);
                     EditorGUILayout.LabelField($"Color {i} analogous:");
                     DrawSwatchPreview(analogous, 20f);
                 }
+
                 break;
             case 3:
                 EditorGUILayout.LabelField("WCAG Contrast Ratios (foreground on white bg)");
                 for (var i = 0; i < colors.Length; i++)
                 {
-                    var ratio = GetContrastRatio(Color.white, colors[i]);
-                    var rating = ratio >= 4.5f ? "✓ Pass" : "✗ Fail";
+                    float ratio = GetContrastRatio(Color.white, colors[i]);
+                    string rating = ratio >= 4.5f ? "✓ Pass" : "✗ Fail";
                     EditorGUILayout.LabelField($"Color {i}: {ratio:F2}:1 [{rating}]");
                 }
+
                 break;
         }
     }
 
-    void DrawPaletteOverview(Color[] colors)
+    private void DrawPaletteOverview(Color[] colors)
     {
         if (colors == null || colors.Length == 0)
         {
@@ -1646,12 +1654,12 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.LabelField($"Colors: {colors.Length}");
         for (var i = 0; i < colors.Length; i++)
         {
-            Color.RGBToHSV(colors[i], out var h, out var s, out var v);
+            Color.RGBToHSV(colors[i], out float h, out float s, out float v);
             EditorGUILayout.LabelField($"Color {i}: H={h * 360f:F1}° S={s * 100f:F1}% V={v * 100f:F1}%");
         }
     }
 
-    Color[] SimulateColorBlindness(Color[] colors, int mode)
+    private Color[] SimulateColorBlindness(Color[] colors, int mode)
     {
         if (colors == null) return colors;
         var result = new Color[colors.Length];
@@ -1660,11 +1668,11 @@ public class PaletteStudioWindow : EditorWindow
         return result;
     }
 
-    Color SimulateColorBlindnessForColor(Color c, int mode)
+    private Color SimulateColorBlindnessForColor(Color c, int mode)
     {
-        var r = c.r;
-        var g = c.g;
-        var b = c.b;
+        float r = c.r;
+        float g = c.g;
+        float b = c.b;
 
         return mode switch
         {
@@ -1675,34 +1683,34 @@ public class PaletteStudioWindow : EditorWindow
         };
     }
 
-    float GetContrastRatio(Color a, Color b)
+    private float GetContrastRatio(Color a, Color b)
     {
-        var l1 = GetRelativeLuminance(a);
-        var l2 = GetRelativeLuminance(b);
-        var lighter = Mathf.Max(l1, l2);
-        var darker = Mathf.Min(l1, l2);
+        float l1 = GetRelativeLuminance(a);
+        float l2 = GetRelativeLuminance(b);
+        float lighter = Mathf.Max(l1, l2);
+        float darker = Mathf.Min(l1, l2);
         return (lighter + 0.05f) / (darker + 0.05f);
     }
 
-    float GetRelativeLuminance(Color c)
+    private float GetRelativeLuminance(Color c)
     {
-        var r = Linearize(c.r);
-        var g = Linearize(c.g);
-        var b = Linearize(c.b);
+        float r = Linearize(c.r);
+        float g = Linearize(c.g);
+        float b = Linearize(c.b);
         return 0.2126f * r + 0.7152f * g + 0.0722f * b;
     }
 
-    float Linearize(float c) => (c <= 0.03928f) ? c / 12.92f : Mathf.Pow((c + 0.055f) / 1.055f, 2.4f);
+    private float Linearize(float c) => c <= 0.03928f ? c / 12.92f : Mathf.Pow((c + 0.055f) / 1.055f, 2.4f);
 
-    void EnsureSelectedPalette()
+    private void EnsureSelectedPalette()
     {
         if (_selectedPalette != null) return;
-        var palettes = PaletteDatabase.Palettes;
+        IReadOnlyList<ColorPalette> palettes = PaletteDatabase.Palettes;
         if (palettes.Count > 0)
             SelectPalette(palettes[0]);
     }
 
-    void SelectPalette(ColorPalette palette)
+    private void SelectPalette(ColorPalette palette)
     {
         _selectedPalette = palette;
         _selectedPaletteColorIndex = -1;
@@ -1713,18 +1721,18 @@ public class PaletteStudioWindow : EditorWindow
         }
     }
 
-    void RefreshDiscoveredTags()
+    private void RefreshDiscoveredTags()
     {
         _discoveredTags.Clear();
-        foreach (var pal in PaletteDatabase.Palettes)
+        foreach (ColorPalette pal in PaletteDatabase.Palettes)
         {
             if (pal.tags == null) continue;
-            foreach (var tag in pal.tags)
+            foreach (string tag in pal.tags)
                 _discoveredTags.Add(tag);
         }
     }
 
-    List<ColorPalette> FilterPalettesByTag(IReadOnlyList<ColorPalette> palettes, string tag)
+    private List<ColorPalette> FilterPalettesByTag(IReadOnlyList<ColorPalette> palettes, string tag)
     {
         var result = new List<ColorPalette>();
         if (string.IsNullOrEmpty(tag))
@@ -1734,23 +1742,21 @@ public class PaletteStudioWindow : EditorWindow
         }
 
         for (var i = 0; i < palettes.Count; i++)
-        {
             if (palettes[i].HasTag(tag))
                 result.Add(palettes[i]);
-        }
 
         return result;
     }
 
-    string GetPaletteDisplayName(ColorPalette palette)
+    private string GetPaletteDisplayName(ColorPalette palette)
     {
         if (palette == null) return "(None)";
         return string.IsNullOrEmpty(palette.paletteName) ? palette.name : palette.paletteName;
     }
 
-    PaletteScheme GetActiveScheme() => _selectedPalette != null ? _selectedPalette.Scheme : _schemePreview;
+    private PaletteScheme GetActiveScheme() => _selectedPalette != null ? _selectedPalette.Scheme : _schemePreview;
 
-    void SetActiveScheme(PaletteScheme scheme)
+    private void SetActiveScheme(PaletteScheme scheme)
     {
         if (_selectedPalette != null)
         {
@@ -1758,17 +1764,14 @@ public class PaletteStudioWindow : EditorWindow
             Undo.RecordObject(_selectedPalette, "Change Scheme");
             _selectedPalette.Scheme = scheme;
             if (_selectedPalette.GenerationMode == PaletteGenerationMode.Generated)
-                RegeneratePalette(_selectedPalette, recordUndo: false);
+                RegeneratePalette(_selectedPalette, false);
             EditorUtility.SetDirty(_selectedPalette);
         }
-        else
-        {
-            _schemePreview = scheme;
-        }
+        else { _schemePreview = scheme; }
 
         Repaint();
     }
 
-    void NotifyColorChanged() => _onColorChanged?.Invoke(_selectedColor);
+    private void NotifyColorChanged() => _onColorChanged?.Invoke(_selectedColor);
 }
 #endif

@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class PathCache
 {
-    readonly LRUCache<long, List<Vector2Int>> _cache;
-    int _version;
+    private readonly LRUCache<long, List<Vector2Int>> _cache;
+    private int _version;
 
     public PathCache(int capacity = 64) => _cache = new LRUCache<long, List<Vector2Int>>(capacity);
 
@@ -31,13 +31,13 @@ public class PathCache
 
     public void Clear() => _cache.Clear();
 
-    static long MakeKey(Vector2Int start, Vector2Int goal)
+    private static long MakeKey(Vector2Int start, Vector2Int goal)
     {
         // Pack 4 shorts into a long: start.x, start.y, goal.x, goal.y
-        long key = (long)(start.x & 0xFFFF) << 48
-                 | (long)(start.y & 0xFFFF) << 32
-                 | (long)(goal.x & 0xFFFF) << 16
-                 | (long)(goal.y & 0xFFFF);
+        long key = ((long)(start.x & 0xFFFF) << 48) |
+                   ((long)(start.y & 0xFFFF) << 32) |
+                   ((long)(goal.x & 0xFFFF) << 16) |
+                   (long)(goal.y & 0xFFFF);
         return key;
     }
 }

@@ -11,7 +11,7 @@ public struct Circle2D : IShape2D
 
     public Vector2 NearestPoint(Vector2 p)
     {
-        var d = p - Center;
+        Vector2 d = p - Center;
         return Center + d.normalized * Mathf.Min(Radius, d.magnitude);
     }
 
@@ -19,7 +19,7 @@ public struct Circle2D : IShape2D
 
     public bool Intersects(Circle2D c)
     {
-        var rSum = Radius + c.Radius;
+        float rSum = Radius + c.Radius;
         return (Center - c.Center).sqrMagnitude <= rSum * rSum;
     }
 }

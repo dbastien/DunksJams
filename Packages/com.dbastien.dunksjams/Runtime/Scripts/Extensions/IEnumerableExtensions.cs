@@ -25,7 +25,7 @@ public static class IEnumerableExtensions
         if (size <= 0) throw new ArgumentException("Chunk size must be greater than 0.", nameof(size));
 
         var chunk = new List<T>(size);
-        foreach (var item in e)
+        foreach (T item in e)
         {
             chunk.Add(item);
             if (chunk.Count != size) continue;
@@ -38,14 +38,14 @@ public static class IEnumerableExtensions
 
     public static T RandomElement<T>(this IEnumerable<T> e)
     {
-        var list = e as List<T> ?? e.ToList();
+        List<T> list = e as List<T> ?? e.ToList();
         return list.Count == 0 ? default : Rand.Element(list);
     }
 
     public static int IndexOf<T>(this IEnumerable<T> e, T element)
     {
         var index = 0;
-        foreach (var item in e)
+        foreach (T item in e)
         {
             if (EqualityComparer<T>.Default.Equals(item, element)) return index;
             ++index;
@@ -61,7 +61,7 @@ public static class IEnumerableExtensions
         if (count <= 0) return Enumerable.Empty<T>();
 
         var result = new Queue<T>(count);
-        foreach (var item in e)
+        foreach (T item in e)
         {
             if (result.Count == count) result.Dequeue();
             result.Enqueue(item);
@@ -74,45 +74,45 @@ public static class IEnumerableExtensions
     {
         if (count <= 0)
         {
-            foreach (var item in e) yield return item;
+            foreach (T item in e) yield return item;
             yield break;
         }
 
         var buffer = new Queue<T>(count);
-        foreach (var item in e)
+        foreach (T item in e)
         {
             if (buffer.Count == count) yield return buffer.Dequeue();
             buffer.Enqueue(item);
         }
     }
 
-    public static (IEnumerable<T> Matches, IEnumerable<T> NonMatches) Partition<T>(
-        this IEnumerable<T> e, Func<T, bool> predicate)
+    public static (IEnumerable<T> Matches, IEnumerable<T> NonMatches) Partition<T>
+    (
+        this IEnumerable<T> e, Func<T, bool> predicate
+    )
     {
         var matches = new List<T>();
         var nonMatches = new List<T>();
-        foreach (var item in e)
-        {
+        foreach (T item in e)
             if (predicate(item)) matches.Add(item);
             else nonMatches.Add(item);
-        }
 
         return (matches, nonMatches);
     }
 
     public static bool IsSingle<T>(this IEnumerable<T> e)
     {
-        using var enumerator = e.GetEnumerator();
+        using IEnumerator<T> enumerator = e.GetEnumerator();
         return enumerator.MoveNext() && !enumerator.MoveNext();
     }
 
     public static bool SequenceEqualUnordered<T>(this IEnumerable<T> e, IEnumerable<T> second)
     {
-        var firstCounts = e.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+        Dictionary<T, int> firstCounts = e.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
 
-        foreach (var item in second)
+        foreach (T item in second)
         {
-            if (!firstCounts.TryGetValue(item, out var count) || count == 0) return false;
+            if (!firstCounts.TryGetValue(item, out int count) || count == 0) return false;
             --firstCounts[item];
         }
 
@@ -130,4 +130,22 @@ public static class IEnumerableExtensions
 
     public static IDictionary<TKey, int> CountBy<T, TKey>(this IEnumerable<T> e, Func<T, TKey> key) =>
         e.GroupBy(key).ToDictionary(g => g.Key, g => g.Count());
+
+    // Tabify compatibility extensions
+    public static T NextTo<T>(this IEnumerable<T> e, T to) =>
+        e.SkipWhile(r => !EqualityComparer<T>.Default.Equals(r, to)).Skip(1).FirstOrDefault();
+
+    public static T PreviousTo<T>(this IEnumerable<T> e, T to) =>
+        e.Reverse().SkipWhile(r => !EqualityComparer<T>.Default.Equals(r, to)).Skip(1).FirstOrDefault();
+
+    public static T NextToOrFirst<T>(this IEnumerable<T> e, T to) => e.NextTo(to) ?? e.First();
+
+    public static T PreviousToOrLast<T>(this IEnumerable<T> e, T to) => e.PreviousTo(to) ?? e.Last();
+
+    public static IEnumerable<T> InsertFirst<T>(this IEnumerable<T> ie, T t) => new[] { t }.Concat(ie);
+
+    public static void ForEach<T>(this IEnumerable<T> e, Action<T> action)
+    {
+        foreach (T item in e) action(item);
+    }
 }

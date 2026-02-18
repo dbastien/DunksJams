@@ -1,4 +1,4 @@
-﻿﻿﻿using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 public class PalettePostProcess : MonoBehaviour
@@ -7,17 +7,17 @@ public class PalettePostProcess : MonoBehaviour
     [Range(8, 64)] public int lutSize = 16;
 
     public Shader paletteShader;
-    Material _material;
-    Texture2D _currentLut;
-    ColorPalette _lastPalette;
+    private Material _material;
+    private Texture2D _currentLut;
+    private ColorPalette _lastPalette;
 
-    void OnEnable()
+    private void OnEnable()
     {
         if (paletteShader == null) paletteShader = Shader.Find("Hidden/DunksJams/PaletteQuantize");
         if (paletteShader != null) _material = new Material(paletteShader);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         if (_material) Destroy(_material);
         _material = null;
@@ -25,10 +25,10 @@ public class PalettePostProcess : MonoBehaviour
         _currentLut = null;
     }
 
-    void UpdateLutIfNeeded()
+    private void UpdateLutIfNeeded()
     {
         // Resolve palette: explicit component palette wins, otherwise use global default
-        var resolved = palette != null ? palette : PaletteSettings.Load()?.defaultPalette;
+        ColorPalette resolved = palette != null ? palette : PaletteSettings.Load()?.defaultPalette;
 
         if (resolved == _lastPalette && _currentLut != null) return;
 
@@ -44,7 +44,7 @@ public class PalettePostProcess : MonoBehaviour
         _lastPalette = resolved;
     }
 
-    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         if (!_material)
         {

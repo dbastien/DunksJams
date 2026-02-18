@@ -6,45 +6,33 @@ using UnityEngine.Pool;
 [DisallowMultipleComponent]
 public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 {
-    [Header("Pooling")] [SerializeField] int initialPoolSize = 10;
-    [SerializeField] int maxPoolSize = 50;
+    [Header("Pooling")] [SerializeField] private int initialPoolSize = 10;
+    [SerializeField] private int maxPoolSize = 50;
 
     [Header("Volume")] [SerializeField] [Range(0f, 1f)]
-    float masterVolume = 1f;
+    private float masterVolume = 1f;
 
-    [SerializeField] [Range(0f, 1f)] float musicVolume = 1f;
-    [SerializeField] [Range(0f, 1f)] float sfxVolume = 1f;
+    [SerializeField] [Range(0f, 1f)] private float musicVolume = 1f;
+    [SerializeField] [Range(0f, 1f)] private float sfxVolume = 1f;
 
-    [Header("Music")] [SerializeField] float musicCrossfadeDuration = 1f;
-    [SerializeField] AudioChannel defaultMusicChannel;
-    [SerializeField] List<AudioChannel> channels = new();
+    [Header("Music")] [SerializeField] private float musicCrossfadeDuration = 1f;
+    [SerializeField] private AudioChannel defaultMusicChannel;
+    [SerializeField] private List<AudioChannel> channels = new();
 
-    ObjectPool<AudioSource> audioSourcePool;
-    readonly List<AudioSource> activeAudioSources = new();
-    readonly List<AudioSource> pausedAudioSources = new();
+    private ObjectPool<AudioSource> audioSourcePool;
+    private readonly List<AudioSource> activeAudioSources = new();
+    private readonly List<AudioSource> pausedAudioSources = new();
 
-    AudioSource musicSourceA;
-    AudioSource musicSourceB;
-    AudioSource activeMusicSource;
-    Coroutine musicCrossfadeCoroutine;
+    private AudioSource musicSourceA;
+    private AudioSource musicSourceB;
+    private AudioSource activeMusicSource;
+    private Coroutine musicCrossfadeCoroutine;
 
-    public float MasterVolume
-    {
-        get => masterVolume;
-        set => masterVolume = Mathf.Clamp01(value);
-    }
+    public float MasterVolume { get => masterVolume; set => masterVolume = Mathf.Clamp01(value); }
 
-    public float MusicVolume
-    {
-        get => musicVolume;
-        set => musicVolume = Mathf.Clamp01(value);
-    }
+    public float MusicVolume { get => musicVolume; set => musicVolume = Mathf.Clamp01(value); }
 
-    public float SfxVolume
-    {
-        get => sfxVolume;
-        set => sfxVolume = Mathf.Clamp01(value);
-    }
+    public float SfxVolume { get => sfxVolume; set => sfxVolume = Mathf.Clamp01(value); }
 
     protected override void InitInternal()
     {
@@ -57,8 +45,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
             maxSize: maxPoolSize
         );
 
-        foreach (var channel in channels)
-        {
+        foreach (AudioChannel channel in channels)
             if (channel.IsSingleTrack)
             {
                 channel.SourceA = CreateNamedSource($"{channel.name}_SourceA");
@@ -67,21 +54,20 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
                 channel.SourceA.outputAudioMixerGroup = channel.MixerGroup;
                 channel.SourceB.outputAudioMixerGroup = channel.MixerGroup;
             }
-        }
 
         musicSourceA = CreateNamedSource("MusicSourceA");
         musicSourceB = CreateNamedSource("MusicSourceB");
         activeMusicSource = musicSourceA;
     }
 
-    AudioSource CreateAudioSource()
+    private AudioSource CreateAudioSource()
     {
         var go = new GameObject("PooledAudioSource");
         go.transform.SetParent(transform);
         return go.AddComponent<AudioSource>();
     }
 
-    AudioSource CreateNamedSource(string name)
+    private AudioSource CreateNamedSource(string name)
     {
         var go = new GameObject(name);
         go.transform.SetParent(transform);
@@ -91,13 +77,13 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         return source;
     }
 
-    void OnGetAudioSource(AudioSource source)
+    private void OnGetAudioSource(AudioSource source)
     {
         source.gameObject.SetActive(true);
         activeAudioSources.Add(source);
     }
 
-    void OnReleaseAudioSource(AudioSource source)
+    private void OnReleaseAudioSource(AudioSource source)
     {
         activeAudioSources.Remove(source);
         source.Stop();
@@ -107,7 +93,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         source.gameObject.SetActive(false);
     }
 
-    void OnDestroyAudioSource(AudioSource source)
+    private void OnDestroyAudioSource(AudioSource source)
     {
         if (source != null) Destroy(source.gameObject);
     }
@@ -121,7 +107,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
     public void PlayOneShot(AudioClipReference reference, float delay = 0f, System.Action onComplete = null)
     {
         if (reference == null) return;
-        var clip = reference.Clip;
+        AudioClip clip = reference.Clip;
         if (clip == null) return;
 
         if (reference.Channel != null && reference.Channel.IsSingleTrack)
@@ -132,20 +118,26 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 
         float categoryVolume = reference.Category != null ? reference.Category.GetEffectiveVolume() : 1f;
         float volume = reference.Volume * categoryVolume;
-        
-        StartCoroutine(PlayInternal(clip, volume, reference.SpatialBlend, Vector3.zero, false, delay, onComplete, reference.Pitch, reference.Channel));
+
+        StartCoroutine(PlayInternal(clip, volume, reference.SpatialBlend, Vector3.zero, false, delay, onComplete,
+            reference.Pitch, reference.Channel));
     }
 
-    public void PlayOneShot3D(AudioClip clip, Vector3 position, float volumeScale = 1f, float spatialBlend = 1f, float delay = 0f, System.Action onComplete = null)
+    public void PlayOneShot3D
+    (
+        AudioClip clip, Vector3 position, float volumeScale = 1f, float spatialBlend = 1f, float delay = 0f,
+        System.Action onComplete = null
+    )
     {
         if (clip == null) return;
         StartCoroutine(PlayInternal(clip, volumeScale, spatialBlend, position, true, delay, onComplete));
     }
 
-    public void PlayOneShot3D(AudioClipReference reference, Vector3 position, float delay = 0f, System.Action onComplete = null)
+    public void PlayOneShot3D
+        (AudioClipReference reference, Vector3 position, float delay = 0f, System.Action onComplete = null)
     {
         if (reference == null) return;
-        var clip = reference.Clip;
+        AudioClip clip = reference.Clip;
         if (clip == null) return;
 
         if (reference.Channel != null && reference.Channel.IsSingleTrack)
@@ -157,14 +149,19 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         float categoryVolume = reference.Category != null ? reference.Category.GetEffectiveVolume() : 1f;
         float volume = reference.Volume * categoryVolume;
 
-        StartCoroutine(PlayInternal(clip, volume, reference.SpatialBlend, position, true, delay, onComplete, reference.Pitch, reference.Channel));
+        StartCoroutine(PlayInternal(clip, volume, reference.SpatialBlend, position, true, delay, onComplete,
+            reference.Pitch, reference.Channel));
     }
 
-    IEnumerator PlayInternal(AudioClip clip, float volume, float spatialBlend, Vector3 position, bool is3D, float delay, System.Action onComplete, float pitch = 1f, AudioChannel channel = null)
+    private IEnumerator PlayInternal
+    (
+        AudioClip clip, float volume, float spatialBlend, Vector3 position, bool is3D, float delay,
+        System.Action onComplete, float pitch = 1f, AudioChannel channel = null
+    )
     {
         if (delay > 0) yield return new WaitForSeconds(delay);
 
-        var source = audioSourcePool.Get();
+        AudioSource source = audioSourcePool.Get();
         source.clip = clip;
 
         float channelVolume = channel != null ? channel.GetEffectiveVolume() : 1f;
@@ -182,11 +179,12 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         audioSourcePool.Release(source);
     }
 
-    public AudioSource PlayLooped(AudioClip clip, float volumeScale = 1f, bool is3D = false, AudioCategory category = null)
+    public AudioSource PlayLooped
+        (AudioClip clip, float volumeScale = 1f, bool is3D = false, AudioCategory category = null)
     {
         if (clip == null) return null;
 
-        var source = audioSourcePool.Get();
+        AudioSource source = audioSourcePool.Get();
         source.clip = clip;
         float categoryVolume = category != null ? category.GetEffectiveVolume() : 1f;
         source.volume = volumeScale * categoryVolume * sfxVolume * masterVolume;
@@ -224,7 +222,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         }
         else
         {
-            var nextSource = activeMusicSource == musicSourceA ? musicSourceB : musicSourceA;
+            AudioSource nextSource = activeMusicSource == musicSourceA ? musicSourceB : musicSourceA;
             musicCrossfadeCoroutine = StartCoroutine(CrossfadeMusic(activeMusicSource, nextSource, clip));
         }
     }
@@ -250,25 +248,26 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         }
         else
         {
-            var nextSource = channel.ActiveSource == channel.SourceA ? channel.SourceB : channel.SourceA;
-            channel.CrossfadeCoroutine = StartCoroutine(CrossfadeChannel(channel, channel.ActiveSource, nextSource, clip));
+            AudioSource nextSource = channel.ActiveSource == channel.SourceA ? channel.SourceB : channel.SourceA;
+            channel.CrossfadeCoroutine =
+                StartCoroutine(CrossfadeChannel(channel, channel.ActiveSource, nextSource, clip));
         }
     }
 
-    IEnumerator CrossfadeChannel(AudioChannel channel, AudioSource from, AudioSource to, AudioClip newClip)
+    private IEnumerator CrossfadeChannel(AudioChannel channel, AudioSource from, AudioSource to, AudioClip newClip)
     {
         to.clip = newClip;
         to.volume = 0f;
         to.Play();
 
         var elapsed = 0f;
-        var duration = channel.CrossfadeDuration;
-        var targetVolume = channel.GetEffectiveVolume() * masterVolume;
+        float duration = channel.CrossfadeDuration;
+        float targetVolume = channel.GetEffectiveVolume() * masterVolume;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            var t = elapsed / duration;
+            float t = elapsed / duration;
 
             from.volume = Mathf.Lerp(targetVolume, 0f, t);
             to.volume = Mathf.Lerp(0f, targetVolume, t);
@@ -283,19 +282,19 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         channel.CrossfadeCoroutine = null;
     }
 
-    IEnumerator CrossfadeMusic(AudioSource from, AudioSource to, AudioClip newClip)
+    private IEnumerator CrossfadeMusic(AudioSource from, AudioSource to, AudioClip newClip)
     {
         to.clip = newClip;
         to.volume = 0f;
         to.Play();
 
         var elapsed = 0f;
-        var targetVolume = musicVolume * masterVolume;
+        float targetVolume = musicVolume * masterVolume;
 
         while (elapsed < musicCrossfadeDuration)
         {
             elapsed += Time.deltaTime;
-            var t = elapsed / musicCrossfadeDuration;
+            float t = elapsed / musicCrossfadeDuration;
 
             from.volume = Mathf.Lerp(targetVolume, 0f, t);
             to.volume = Mathf.Lerp(0f, targetVolume, t);
@@ -318,15 +317,12 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
                 StopCoroutine(musicCrossfadeCoroutine);
             musicCrossfadeCoroutine = StartCoroutine(FadeOutMusic(activeMusicSource));
         }
-        else
-        {
-            activeMusicSource.Stop();
-        }
+        else { activeMusicSource.Stop(); }
     }
 
-    IEnumerator FadeOutMusic(AudioSource source)
+    private IEnumerator FadeOutMusic(AudioSource source)
     {
-        var startVolume = source.volume;
+        float startVolume = source.volume;
         var elapsed = 0f;
 
         while (elapsed < musicCrossfadeDuration)
@@ -343,21 +339,19 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 
     public void PauseAll()
     {
-        foreach (var source in activeAudioSources)
-        {
+        foreach (AudioSource source in activeAudioSources)
             if (source.isPlaying)
             {
                 source.Pause();
                 pausedAudioSources.Add(source);
             }
-        }
 
         if (activeMusicSource.isPlaying) activeMusicSource.Pause();
     }
 
     public void ResumeAll()
     {
-        foreach (var source in pausedAudioSources) source.UnPause();
+        foreach (AudioSource source in pausedAudioSources) source.UnPause();
         pausedAudioSources.Clear();
 
         activeMusicSource.UnPause();
@@ -365,7 +359,7 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
 
     public void StopAll()
     {
-        foreach (var source in activeAudioSources.ToArray()) audioSourcePool.Release(source);
+        foreach (AudioSource source in activeAudioSources.ToArray()) audioSourcePool.Release(source);
         pausedAudioSources.Clear();
 
         activeMusicSource.Stop();
@@ -383,8 +377,11 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         StartCoroutine(FadeVolume(source, source.volume, 0f, duration, stopAfter));
     }
 
-    IEnumerator FadeVolume(AudioSource source, float fromVolume, float toVolume, float duration,
-        bool stopAfter = false)
+    private IEnumerator FadeVolume
+    (
+        AudioSource source, float fromVolume, float toVolume, float duration,
+        bool stopAfter = false
+    )
     {
         var elapsed = 0f;
         source.volume = fromVolume;
@@ -400,11 +397,10 @@ public class AudioSystem : SingletonEagerBehaviour<AudioSystem>
         if (stopAfter) source.Stop();
     }
 
-
-    void Update()
+    private void Update()
     {
         // Update all active sources with current volume settings
-        foreach (var source in activeAudioSources)
+        foreach (AudioSource source in activeAudioSources)
         {
             if (!source.loop) continue;
             source.volume = sfxVolume * masterVolume;

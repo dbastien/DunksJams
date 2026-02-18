@@ -45,9 +45,9 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
             Errors.Clear();
             Warnings.Clear();
 
-        #pragma warning disable CS0618 // No modern equivalent for GetShaderData
+#pragma warning disable CS0618 // No modern equivalent for GetShaderData
             Data = ShaderUtil.GetShaderData(TypedAsset);
-        #pragma warning restore CS0618
+#pragma warning restore CS0618
 
             HasShadowCasterPass = ShaderUtilWrapper.HasShadowCasterPass(TypedAsset);
             IsSRPBatcherCompatible = ShaderUtilWrapper.IsSRPBatcherCompatible(TypedAsset);
@@ -56,23 +56,23 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
             KeywordsLocal = ShaderUtilWrapper.GetShaderLocalKeywords(TypedAsset);
 
             SerializedObject so = new(TypedAsset);
-            var subShaders = so.FindProperty("m_ParsedForm.m_SubShaders");
+            SerializedProperty subShaders = so.FindProperty("m_ParsedForm.m_SubShaders");
             for (var s = 0; s < subShaders.arraySize; ++s)
             {
-                var subShader = subShaders.GetArrayElementAtIndex(s);
-                var passes = subShader.FindPropertyRelative("m_Passes");
+                SerializedProperty subShader = subShaders.GetArrayElementAtIndex(s);
+                SerializedProperty passes = subShader.FindPropertyRelative("m_Passes");
                 for (var p = 0; p < passes.arraySize; ++p)
                 {
-                    var pass = passes.GetArrayElementAtIndex(p);
-                    var tags = pass.FindPropertyRelative("m_State.m_Tags.tags");
+                    SerializedProperty pass = passes.GetArrayElementAtIndex(p);
+                    SerializedProperty tags = pass.FindPropertyRelative("m_State.m_Tags.tags");
                     for (var t = 0; t < tags.arraySize; ++t)
                     {
-                        var tag = tags.GetArrayElementAtIndex(t);
-                        var first = tag.FindPropertyRelative("first");
-                        var second = tag.FindPropertyRelative("second");
+                        SerializedProperty tag = tags.GetArrayElementAtIndex(t);
+                        SerializedProperty first = tag.FindPropertyRelative("first");
+                        SerializedProperty second = tag.FindPropertyRelative("second");
 
                         if (string.CompareOrdinal(first.stringValue, "LIGHTMODE") != 0) continue;
-                        var lightmodeType = second.stringValue;
+                        string lightmodeType = second.stringValue;
                         if (Enum.TryParse(lightmodeType, true, out PassType passType))
                             if (passType == PassType.MotionVectors)
                                 HasMotionVectorsPass = true;
@@ -80,17 +80,17 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
                 }
             }
 
-            var propertyCount = TypedAsset.GetPropertyCount();
+            int propertyCount = TypedAsset.GetPropertyCount();
             for (var i = 0; i < propertyCount; ++i)
             {
-                var name = TypedAsset.GetPropertyName(i);
+                string name = TypedAsset.GetPropertyName(i);
                 if (!string.IsNullOrEmpty(name)) PropNames.Add(name);
             }
 
-        #pragma warning disable CS0618 // No modern equivalent for shader message APIs
-            var n = ShaderUtil.GetShaderMessageCount(TypedAsset);
-            var msgs = n > 0 ? ShaderUtil.GetShaderMessages(TypedAsset) : null;
-        #pragma warning restore CS0618
+#pragma warning disable CS0618 // No modern equivalent for shader message APIs
+            int n = ShaderUtil.GetShaderMessageCount(TypedAsset);
+            ShaderMessage[] msgs = n > 0 ? ShaderUtil.GetShaderMessages(TypedAsset) : null;
+#pragma warning restore CS0618
             for (var i = 0; i < n; ++i)
                 (msgs[i].severity == ShaderCompilerMessageSeverity.Error ? Errors : Warnings).Add(msgs[i]);
 
@@ -105,11 +105,12 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
         if (!sceneOnly) return FindAssetGuids("Shader", path);
 
         HashSet<Shader> shaders = new();
-        var renderers =
+        Renderer[] renderers =
             UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var renderer in renderers)
-            foreach (var material in renderer.sharedMaterials)
-                if (material) shaders.Add(material.shader);
+        foreach (Renderer renderer in renderers)
+        foreach (Material material in renderer.sharedMaterials)
+            if (material)
+                shaders.Add(material.shader);
         return AssetGuidsFromObjects(shaders);
     }
 
@@ -148,12 +149,12 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
         const string lineStart = "  m_Shader";
         EditorUtility.DisplayProgressBar(TitleReferences, "", 0f);
 
-        var targetPaths = Directory.GetFiles(Application.dataPath, "*.mat", SearchOption.AllDirectories);
+        string[] targetPaths = Directory.GetFiles(Application.dataPath, "*.mat", SearchOption.AllDirectories);
         var guidStrings = new List<string>();
         for (var i = 0; i < targetPaths.Length; ++i)
         {
-            var path = targetPaths[i];
-            var pathShort = path.Remove(Application.dataPath);
+            string path = targetPaths[i];
+            string pathShort = path.Remove(Application.dataPath);
 
             if (EditorUtility.DisplayCancelableProgressBar(TitleReferences, pathShort, i / (float)targetPaths.Length))
                 break;
@@ -162,27 +163,22 @@ public class ShaderBrowserTreeView : AssetBrowserTreeView<ShaderBrowserTreeView.
 
             try
             {
-                using var fs = File.OpenText(path);
+                using StreamReader fs = File.OpenText(path);
                 while (fs.Peek() != -1)
                 {
-                    var line = fs.ReadLine();
+                    string line = fs.ReadLine();
                     if (line.StartsWithFast(lineStart))
                         guidStrings.Add(line?[lineStart.Length..]);
                 }
             }
-            catch (Exception ex)
-            {
-                DLog.Log($"Error reading file: {path} - {ex.Message}");
-            }
+            catch (Exception ex) { DLog.Log($"Error reading file: {path} - {ex.Message}"); }
 
-            foreach (var row in AllItems)
+            foreach (TreeViewItem row in AllItems)
+            foreach (string gs in guidStrings)
             {
-                foreach (var gs in guidStrings)
-                {
-                    if (!gs.Contains(row.Guid)) continue;
-                    row.Refs.Add(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>($"Assets{pathShort}"));
-                    break;
-                }
+                if (!gs.Contains(row.Guid)) continue;
+                row.Refs.Add(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>($"Assets{pathShort}"));
+                break;
             }
         }
 

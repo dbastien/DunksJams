@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class SpatialHash2D<T>
 {
-    readonly float _cellSize;
-    readonly Dictionary<Vector2Int, List<(T obj, Vector2 pos)>> _cells = new();
-    int _totalObjectCount;
+    private readonly float _cellSize;
+    private readonly Dictionary<Vector2Int, List<(T obj, Vector2 pos)>> _cells = new();
+    private int _totalObjectCount;
 
     public int CellCount => _cells.Count;
     public int Count => _totalObjectCount;
@@ -14,13 +14,13 @@ public class SpatialHash2D<T>
     public SpatialHash2D(float cellSize) =>
         _cellSize = cellSize > 0 ? cellSize : throw new ArgumentOutOfRangeException(nameof(cellSize));
 
-    Vector2Int GetCell(Vector2 pos) =>
+    private Vector2Int GetCell(Vector2 pos) =>
         new(Mathf.FloorToInt(pos.x / _cellSize), Mathf.FloorToInt(pos.y / _cellSize));
 
     public void Insert(Vector2 pos, T obj)
     {
-        var cell = GetCell(pos);
-        if (!_cells.TryGetValue(cell, out var objects))
+        Vector2Int cell = GetCell(pos);
+        if (!_cells.TryGetValue(cell, out List<(T obj, Vector2 pos)> objects))
         {
             objects = new List<(T, Vector2)>();
             _cells[cell] = objects;
@@ -32,10 +32,10 @@ public class SpatialHash2D<T>
 
     public bool Remove(Vector2 pos, T obj)
     {
-        var cell = GetCell(pos);
-        if (_cells.TryGetValue(cell, out var objects))
+        Vector2Int cell = GetCell(pos);
+        if (_cells.TryGetValue(cell, out List<(T obj, Vector2 pos)> objects))
         {
-            var removed = objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj));
+            int removed = objects.RemoveAll(o => EqualityComparer<T>.Default.Equals(o.obj, obj));
             if (removed > 0)
             {
                 _totalObjectCount -= removed;
@@ -58,7 +58,7 @@ public class SpatialHash2D<T>
         result ??= new List<T>();
         result.Clear();
 
-        if (_cells.TryGetValue(GetCell(pos), out var objects))
+        if (_cells.TryGetValue(GetCell(pos), out List<(T obj, Vector2 pos)> objects))
             ExtractObjects(objects, result);
 
         return result;
@@ -69,15 +69,13 @@ public class SpatialHash2D<T>
         result ??= new List<T>();
         result.Clear();
 
-        var centerCell = GetCell(pos);
-        for (var x = -maxDistInCells; x <= maxDistInCells; ++x)
+        Vector2Int centerCell = GetCell(pos);
+        for (int x = -maxDistInCells; x <= maxDistInCells; ++x)
+        for (int y = -maxDistInCells; y <= maxDistInCells; ++y)
         {
-            for (var y = -maxDistInCells; y <= maxDistInCells; ++y)
-            {
-                var neighborCell = new Vector2Int(centerCell.x + x, centerCell.y + y);
-                if (_cells.TryGetValue(neighborCell, out var objects))
-                    ExtractObjects(objects, result);
-            }
+            var neighborCell = new Vector2Int(centerCell.x + x, centerCell.y + y);
+            if (_cells.TryGetValue(neighborCell, out List<(T obj, Vector2 pos)> objects))
+                ExtractObjects(objects, result);
         }
 
         return result;
@@ -88,22 +86,18 @@ public class SpatialHash2D<T>
         result ??= new List<T>();
         result.Clear();
 
-        var radiusSquared = radius * radius;
-        var minCell = GetCell(pos - new Vector2(radius, radius));
-        var maxCell = GetCell(pos + new Vector2(radius, radius));
+        float radiusSquared = radius * radius;
+        Vector2Int minCell = GetCell(pos - new Vector2(radius, radius));
+        Vector2Int maxCell = GetCell(pos + new Vector2(radius, radius));
 
-        for (var y = minCell.y; y <= maxCell.y; ++y)
+        for (int y = minCell.y; y <= maxCell.y; ++y)
+        for (int x = minCell.x; x <= maxCell.x; ++x)
         {
-            for (var x = minCell.x; x <= maxCell.x; ++x)
-            {
-                var cell = new Vector2Int(x, y);
-                if (_cells.TryGetValue(cell, out var objects))
-                    foreach (var (obj, objPos) in objects)
-                    {
-                        if ((objPos - pos).sqrMagnitude <= radiusSquared)
-                            result.Add(obj);
-                    }
-            }
+            var cell = new Vector2Int(x, y);
+            if (_cells.TryGetValue(cell, out List<(T obj, Vector2 pos)> objects))
+                foreach ((T obj, Vector2 objPos) in objects)
+                    if ((objPos - pos).sqrMagnitude <= radiusSquared)
+                        result.Add(obj);
         }
 
         return result;
@@ -117,15 +111,13 @@ public class SpatialHash2D<T>
 
     public IEnumerable<T> AllObjects()
     {
-        foreach (var objects in _cells.Values)
-        {
-            foreach (var (obj, _) in objects)
-                yield return obj;
-        }
+        foreach (List<(T obj, Vector2 pos)> objects in _cells.Values)
+        foreach ((T obj, Vector2 _) in objects)
+            yield return obj;
     }
 
-    void ExtractObjects(List<(T obj, Vector2 pos)> objects, List<T> result)
+    private void ExtractObjects(List<(T obj, Vector2 pos)> objects, List<T> result)
     {
-        foreach (var (obj, _) in objects) result.Add(obj);
+        foreach ((T obj, Vector2 _) in objects) result.Add(obj);
     }
 }

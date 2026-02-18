@@ -35,7 +35,8 @@ public class DialogBubbleUI : MonoBehaviour
         Vector3 screenPos = _mainCamera.WorldToScreenPoint(_target.position);
 
         // Check if behind camera
-        bool isBehind = Vector3.Dot(_target.position - _mainCamera.transform.position, _mainCamera.transform.forward) < 0;
+        bool isBehind = Vector3.Dot(_target.position - _mainCamera.transform.position, _mainCamera.transform.forward) <
+                        0;
 
         if (isBehind)
         {
@@ -51,10 +52,7 @@ public class DialogBubbleUI : MonoBehaviour
         screenPos += (Vector3)screenOffset;
 
         // Set position
-        if (_canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-        {
-            _rectTransform.position = screenPos;
-        }
+        if (_canvas.renderMode == RenderMode.ScreenSpaceOverlay) { _rectTransform.position = screenPos; }
         else
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -76,6 +74,7 @@ public class DialogBubbleUI : MonoBehaviour
                 t += Time.deltaTime;
                 yield return null;
             }
+
             canvasGroup.alpha = 1;
         }
 
@@ -87,7 +86,7 @@ public class DialogBubbleUI : MonoBehaviour
             float t = 0;
             while (t < 0.5f)
             {
-                canvasGroup.alpha = 1 - (t / 0.5f);
+                canvasGroup.alpha = 1 - t / 0.5f;
                 t += Time.deltaTime;
                 yield return null;
             }

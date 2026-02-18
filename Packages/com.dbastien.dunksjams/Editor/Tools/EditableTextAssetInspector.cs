@@ -18,11 +18,11 @@ public class TextAssetEditor : EditableTextAssetInspector
 
 public abstract class EditableTextAssetInspector : Editor
 {
-    string _filePath;
-    string _currentContent;
-    bool _focused;
+    private string _filePath;
+    private string _currentContent;
+    private bool _focused;
 
-    void OnEnable()
+    private void OnEnable()
     {
         _filePath = GetFilePath(target);
         _currentContent = ReadFileSafe(_filePath);
@@ -60,9 +60,9 @@ public abstract class EditableTextAssetInspector : Editor
         if (GUILayout.Button("Save")) SaveFile();
     }
 
-    bool IsBinaryFile(string path) => Path.GetExtension(path) == ".bytes";
+    private bool IsBinaryFile(string path) => Path.GetExtension(path) == ".bytes";
 
-    void HandleContextMenu()
+    private void HandleContextMenu()
     {
         if (Event.current.type != EventType.ContextClick) return;
         var menu = new GenericMenu();
@@ -72,13 +72,13 @@ public abstract class EditableTextAssetInspector : Editor
         Event.current.Use();
     }
 
-    void ReloadFile()
+    private void ReloadFile()
     {
         _currentContent = ReadFileSafe(_filePath);
         Repaint();
     }
 
-    void SaveFile()
+    private void SaveFile()
     {
         var fileInfo = new FileInfo(_filePath);
         if (fileInfo.IsReadOnly)
@@ -93,18 +93,12 @@ public abstract class EditableTextAssetInspector : Editor
             AssetDatabase.Refresh();
             EditorUtility.DisplayDialog("Saved", "File successfully saved!", "OK");
         }
-        catch (IOException e)
-        {
-            DLog.LogE($"Failed to save {_filePath}: {e.Message}");
-        }
+        catch (IOException e) { DLog.LogE($"Failed to save {_filePath}: {e.Message}"); }
     }
 
-    string ReadFileSafe(string path)
+    private string ReadFileSafe(string path)
     {
-        try
-        {
-            return File.ReadAllText(path);
-        }
+        try { return File.ReadAllText(path); }
         catch (IOException e)
         {
             DLog.LogE($"Failed to read {path}: {e.Message}");

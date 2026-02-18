@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class IOUtils
 {
-    static readonly string _projectRoot = Application.dataPath[..^7];
+    private static readonly string _projectRoot = Application.dataPath[..^7];
     public static string ProjectRootFolder => _projectRoot;
 
     public static string ToRelativePath(string path)
@@ -30,7 +30,7 @@ public static class IOUtils
     public static string GetConsoleClickableLink(string path, int lineNumber = 0)
     {
         if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
-        var relativePath = ToRelativePath(path);
+        string relativePath = ToRelativePath(path);
         return $"{relativePath}:{lineNumber}";
     }
 
@@ -43,24 +43,20 @@ public static class IOUtils
         if (recurse)
             GetFilesRecursively(dir, files, filter);
         else
-            foreach (var file in Directory.GetFiles(dir))
-            {
+            foreach (string file in Directory.GetFiles(dir))
                 if (filter == null || filter(file))
                     files.Add(file);
-            }
 
         return files;
     }
 
-    static void GetFilesRecursively(string dir, List<string> files, Func<string, bool> filter)
+    private static void GetFilesRecursively(string dir, List<string> files, Func<string, bool> filter)
     {
-        foreach (var file in Directory.GetFiles(dir))
-        {
+        foreach (string file in Directory.GetFiles(dir))
             if (filter == null || filter(file))
                 files.Add(file);
-        }
 
-        foreach (var subDir in Directory.GetDirectories(dir)) GetFilesRecursively(subDir, files, filter);
+        foreach (string subDir in Directory.GetDirectories(dir)) GetFilesRecursively(subDir, files, filter);
     }
 
     public static List<string> GetDirectories(string dir, bool recurse = false, Func<string, bool> filter = null)
@@ -72,18 +68,16 @@ public static class IOUtils
         if (recurse)
             GetDirectoriesRecursively(dir, directories, filter);
         else
-            foreach (var subDir in Directory.GetDirectories(dir))
-            {
+            foreach (string subDir in Directory.GetDirectories(dir))
                 if (filter == null || filter(subDir))
                     directories.Add(subDir);
-            }
 
         return directories;
     }
 
-    static void GetDirectoriesRecursively(string dir, List<string> dirs, Func<string, bool> filter)
+    private static void GetDirectoriesRecursively(string dir, List<string> dirs, Func<string, bool> filter)
     {
-        foreach (var subDir in Directory.GetDirectories(dir))
+        foreach (string subDir in Directory.GetDirectories(dir))
         {
             if (filter == null || filter(subDir)) dirs.Add(subDir);
             GetDirectoriesRecursively(subDir, dirs, filter);
@@ -93,11 +87,9 @@ public static class IOUtils
     public static bool IsPathValid(string path)
     {
         if (string.IsNullOrEmpty(path)) return false;
-        foreach (var c in Path.GetInvalidPathChars())
-        {
+        foreach (char c in Path.GetInvalidPathChars())
             if (path.Contains(c))
                 return false;
-        }
 
         return true;
     }
@@ -110,20 +102,14 @@ public static class IOUtils
             if (!File.Exists(fullPath)) return false;
             return (File.GetAttributes(fullPath) & FileAttributes.ReadOnly) == 0;
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
     }
 
     //todo: ugh on the error handling
     public static string ReadAllTextSafe(string fullPath, out string error)
     {
         error = null;
-        try
-        {
-            return File.ReadAllText(fullPath);
-        }
+        try { return File.ReadAllText(fullPath); }
         catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
         {
             error = e.Message;
@@ -135,7 +121,7 @@ public static class IOUtils
     {
         if (string.IsNullOrEmpty(dir)) throw new ArgumentNullException(nameof(dir));
         if (!Directory.Exists(dir)) throw new DirectoryNotFoundException($"Directory not found: {dir}");
-        using var enumerator = Directory.EnumerateFileSystemEntries(dir).GetEnumerator();
+        using IEnumerator<string> enumerator = Directory.EnumerateFileSystemEntries(dir).GetEnumerator();
         return !enumerator.MoveNext();
     }
 
@@ -169,7 +155,8 @@ public static class IOUtils
         {
             fileName = Path.Combine(dir, $"{baseName}{(index > 1 ? $"_{index}" : "")}{extension}");
             ++index;
-        } while (File.Exists(fileName));
+        }
+        while (File.Exists(fileName));
 
         return fileName;
     }

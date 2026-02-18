@@ -3,12 +3,15 @@ using UnityEngine;
 
 public struct GUIScope : IDisposable
 {
-    readonly Color prevColor, prevBgColor, prevContentColor;
-    readonly bool prevEnabled;
-    readonly int prevFontSize;
+    private readonly Color prevColor, prevBgColor, prevContentColor;
+    private readonly bool prevEnabled;
+    private readonly int prevFontSize;
 
-    public GUIScope(Color? color = null, Color? backgroundColor = null, Color? contentColor = null,
-        bool? enabled = null, int? fontSize = null)
+    public GUIScope
+    (
+        Color? color = null, Color? backgroundColor = null, Color? contentColor = null,
+        bool? enabled = null, int? fontSize = null
+    )
     {
         prevColor = GUI.color;
         prevBgColor = GUI.backgroundColor;
@@ -35,7 +38,7 @@ public struct GUIScope : IDisposable
 
 public struct GUIColorScope : IDisposable
 {
-    readonly Color prev;
+    private readonly Color prev;
 
     public GUIColorScope(Color color)
     {
@@ -48,7 +51,7 @@ public struct GUIColorScope : IDisposable
 
 public struct GuiChangedScope : IDisposable
 {
-    bool saved;
+    private bool saved;
 
     public GuiChangedScope(bool? setChangedTo = null)
     {
@@ -61,7 +64,7 @@ public struct GuiChangedScope : IDisposable
 
 public struct GUIFontSizeScope : IDisposable
 {
-    readonly int prev;
+    private readonly int prev;
 
     public GUIFontSizeScope(int size)
     {
@@ -74,7 +77,7 @@ public struct GUIFontSizeScope : IDisposable
 
 public struct GUIEnabledScope : IDisposable
 {
-    readonly bool prev;
+    private readonly bool prev;
 
     public GUIEnabledScope(bool enabled)
     {
@@ -87,7 +90,7 @@ public struct GUIEnabledScope : IDisposable
 
 public struct GUIBackgroundColorScope : IDisposable
 {
-    readonly Color prev;
+    private readonly Color prev;
 
     public GUIBackgroundColorScope(Color color)
     {
@@ -100,7 +103,7 @@ public struct GUIBackgroundColorScope : IDisposable
 
 public struct GUIContentColorScope : IDisposable
 {
-    readonly Color prev;
+    private readonly Color prev;
 
     public GUIContentColorScope(Color color)
     {

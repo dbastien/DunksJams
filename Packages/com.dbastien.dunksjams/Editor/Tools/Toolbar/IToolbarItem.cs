@@ -15,18 +15,18 @@ public enum ToolbarItemAnchor
 
 public interface IToolbarItem
 {
-    string Name { get; }
-    ToolbarItemPosition Position { get; }
-    ToolbarItemAnchor Anchor { get; }
-    int Priority { get; }
-    bool Enabled { get; }
-    void Init();
-    SettingsProvider GetSettingsProvider();
-    void DrawInToolbar();
-    void DrawInWindow();
+    public string Name { get; }
+    public ToolbarItemPosition Position { get; }
+    public ToolbarItemAnchor Anchor { get; }
+    public int Priority { get; }
+    public bool Enabled { get; }
+    public void Init();
+    public SettingsProvider GetSettingsProvider();
+    public void DrawInToolbar();
+    public void DrawInWindow();
 }
 
 public interface IUpdatingToolbarItem : IToolbarItem
 {
-    void Update(double timeDelta);
+    public void Update(double timeDelta);
 }
