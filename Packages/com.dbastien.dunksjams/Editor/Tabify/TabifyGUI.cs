@@ -25,7 +25,9 @@ public class TabifyGUI
         if (TabifyMenu.addTabButtonEnabled)
         {
             Rect buttonRect1 = stripRect.SetX(tabEndPositions.Last()).
+                SetY(stripRect.center.y).
                 SetWidth(0).
+                SetHeight(0).
                 SetSizeFromMid(24).
                 MoveX(TabifyMenu.neatTabStyleEnabled ? 12 : 13);
 
