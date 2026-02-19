@@ -1,24 +1,29 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-/// <summary>
-/// Color theory helpers: conversions and palette generators. Includes RGB->Lab conversions for perceptual distance.
-/// </summary>
 public static class ColorTheory
 {
-    // -- Palette generators (simple HSV-based helpers)
+    private static Color WithAlpha(Color c, float a) { c.a = a; return c; }
+
     public static Color Complementary(Color c)
     {
         Color.RGBToHSV(c, out float h, out float s, out float v);
-        return Color.HSVToRGB(Mathf.Repeat(h + 0.5f, 1f), s, v).WithAlpha(c.a);
+        return WithAlpha(Color.HSVToRGB(Mathf.Repeat(h + 0.5f, 1f), s, v), c.a);
     }
 
     public static Color[] Analogous(Color c, int count = 5, float stepDegrees = 30f)
     {
+        if (count <= 0) return Array.Empty<Color>();
+
         Color.RGBToHSV(c, out float h, out float s, out float v);
         var palette = new Color[count];
+
         float step = stepDegrees / 360f;
-        for (var i = 0; i < count; i++)
-            palette[i] = Color.HSVToRGB(Mathf.Repeat(h + (i - count / 2) * step, 1f), s, v).WithAlpha(c.a);
+        float half = (count - 1) * 0.5f;
+
+        for (int i = 0; i < count; i++)
+            palette[i] = WithAlpha(Color.HSVToRGB(Mathf.Repeat(h + (i - half) * step, 1f), s, v), c.a);
+
         return palette;
     }
 
@@ -27,20 +32,37 @@ public static class ColorTheory
         Color.RGBToHSV(c, out float h, out float s, out float v);
         return new[]
         {
-            Color.HSVToRGB(h, s, v).WithAlpha(c.a),
-            Color.HSVToRGB(Mathf.Repeat(h + 1f / 3f, 1f), s, v).WithAlpha(c.a),
-            Color.HSVToRGB(Mathf.Repeat(h + 2f / 3f, 1f), s, v).WithAlpha(c.a)
+            WithAlpha(Color.HSVToRGB(h, s, v), c.a),
+            WithAlpha(Color.HSVToRGB(Mathf.Repeat(h + 1f / 3f, 1f), s, v), c.a),
+            WithAlpha(Color.HSVToRGB(Mathf.Repeat(h + 2f / 3f, 1f), s, v), c.a)
         };
     }
 
     public static Color[] TintsAndShades(Color c, int steps = 5)
     {
+        steps = Mathf.Max(1, steps);
+        if (steps == 1) return new[] { c };
+
         var colors = new Color[steps];
-        for (var i = 0; i < steps; ++i)
+        int mid = (steps - 1) / 2;
+
+        for (int i = 0; i < steps; i++)
         {
-            float t = (float)i / (steps - 1);
-            // lerp between white and c for tints, and between c and black for shades
-            colors[i] = Color.Lerp(Color.white, c, t);
+            Color outC;
+
+            if (i <= mid)
+            {
+                float t = mid == 0 ? 1f : (float)i / mid;
+                outC = Color.Lerp(Color.white, c, t);
+            }
+            else
+            {
+                float t = (float)(i - mid) / (steps - 1 - mid);
+                outC = Color.Lerp(c, Color.black, t);
+            }
+
+            outC.a = c.a;
+            colors[i] = outC;
         }
 
         return colors;
@@ -48,14 +70,15 @@ public static class ColorTheory
 
     public static Color[] EvenHuePalette(int count, float saturation = 0.8f, float value = 0.9f)
     {
+        if (count <= 0) return Array.Empty<Color>();
+
         var palette = new Color[count];
-        for (var i = 0; i < count; ++i)
+        for (int i = 0; i < count; i++)
             palette[i] = Color.HSVToRGB((float)i / count, saturation, value);
+
         return palette;
     }
 
-    // -- Perceptual conversion helpers (sRGB -> CIE Lab)
-    // Reference white (D65)
     private const float Xn = 95.047f;
     private const float Yn = 100f;
     private const float Zn = 108.883f;
@@ -65,12 +88,10 @@ public static class ColorTheory
 
     public static void ColorToLab(Color c, out float L, out float a, out float b)
     {
-        // Convert sRGB [0..1] to XYZ
         float r = PivotRgb(c.r) * 100f;
         float g = PivotRgb(c.g) * 100f;
         float bl = PivotRgb(c.b) * 100f;
 
-        // Observer = 2°, Illuminant = D65
         float x = r * 0.4124f + g * 0.3576f + bl * 0.1805f;
         float y = r * 0.2126f + g * 0.7152f + bl * 0.0722f;
         float z = r * 0.0193f + g * 0.1192f + bl * 0.9505f;
@@ -88,9 +109,11 @@ public static class ColorTheory
     {
         ColorToLab(c1, out float L1, out float a1, out float b1);
         ColorToLab(c2, out float L2, out float a2, out float b2);
+
         float dL = L1 - L2;
         float da = a1 - a2;
         float db = b1 - b2;
+
         return Mathf.Sqrt(dL * dL + da * da + db * db);
     }
 }

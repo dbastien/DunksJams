@@ -93,4 +93,6 @@
     public const float Ω = Omega;
     public const float R = RamanujanSoldner;
     public const float P = Plastic;
+
+    static readonly float[] Pow10s = { 1f, 10f, 100f, 1000f, 10000f, 100000f, 1000000f };
 }

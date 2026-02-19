@@ -25,7 +25,7 @@ public class DLogConsoleTest
         DLog.Log("- Test warning from the menu method");
 
         // Open the DLog Console window
-        DLogConsole.ShowWindow();
+        //DLogConsole.ShowWindow();
     }
 
     [MenuItem("‽/DLog/Test Compilation Warnings Only")]

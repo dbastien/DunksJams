@@ -3,63 +3,58 @@ using UnityEngine;
 
 public sealed class ArrayPool<T>
 {
-    private const int MaxArraysPerBucket = 64;
-    private const int MaxBuckets = 16;
-    private static readonly T[] _emptyArray = Array.Empty<T>();
-    public static readonly ArrayPool<T> Shared = new();
+	private const int MaxArraysPerBucket = 64;
+	private const int MaxBuckets = 16;
 
-    private readonly MinimumQueue<T[]>[] _buckets = new MinimumQueue<T[]>[MaxBuckets];
+	private static readonly T[] EmptyArray = Array.Empty<T>();
+	public static readonly ArrayPool<T> Shared = new();
 
-    private ArrayPool()
-    {
-        for (var i = 0; i < _buckets.Length; ++i)
-            _buckets[i] = new MinimumQueue<T[]>(4);
-    }
+	private readonly ArrayQueue<T[]>[] buckets = new ArrayQueue<T[]>[MaxBuckets];
 
-    /// <summary> Rent cleared array w/ at least the specified length </summary>
-    public T[] RentCleared(int minLen)
-    {
-        T[] rentedArray = Rent(minLen);
-        Array.Clear(rentedArray, 0, rentedArray.Length);
-        return rentedArray;
-    }
+	private ArrayPool()
+	{
+		for (var i = 0; i < buckets.Length; ++i)
+			buckets[i] = new ArrayQueue<T[]>(capacity: 4, fullMode: QueueFullMode.Grow);
+	}
 
-    /// <summary> Rent an array w/ at least the specified length. </summary>
-    public T[] Rent(int minLen)
-    {
-        Debug.Assert(minLen >= 0, "Array length must be non-negative.");
+	/// <summary> Rent cleared array w/ at least the specified length </summary>
+	public T[] RentCleared(int minLen)
+	{
+		T[] rentedArray = Rent(minLen);
+		Array.Clear(rentedArray, 0, rentedArray.Length);
+		return rentedArray;
+	}
 
-        if (minLen == 0) return _emptyArray;
+	/// <summary> Rent an array w/ at least the specified length. </summary>
+	public T[] Rent(int minLen)
+	{
+		Debug.Assert(minLen >= 0, "Array length must be non-negative.");
 
-        int size = minLen.NextPowerOfTwoAtLeast();
-        int index = GetQueueIndex(size);
+		if (minLen == 0) return EmptyArray;
 
-        if (index < 0 || index >= MaxBuckets) return new T[size];
+		int size = minLen.NextPowerOfTwoAtLeast();
+		int index = DataStructureUtils.GetQueueIndex(size);
 
-        MinimumQueue<T[]> bucket = _buckets[index];
-        return bucket.Count > 0 ? bucket.Dequeue() : new T[size];
-    }
+		if ((uint)index >= (uint)MaxBuckets) return new T[size];
 
-    /// <summary> Returns an array to the pool </summary>
-    public void Return(T[] array)
-    {
-        if (array == null) throw new ArgumentNullException(nameof(array));
-        if (array.Length == 0) throw new ArgumentException("Array must have positive length.", nameof(array));
+		var bucket = buckets[index];
+		return bucket.Count > 0 ? bucket.Dequeue() : new T[size];
+	}
 
-        int index = GetQueueIndex(array.Length);
-        Debug.Assert(index >= 0, $"Invalid bucket index: {index}");
+	/// <summary> Returns an array to the pool </summary>
+	public void Return(T[] array)
+	{
+		if (array == null) throw new ArgumentNullException(nameof(array));
+		if (array.Length == 0) throw new ArgumentException("Array must have positive length.", nameof(array));
 
-        MinimumQueue<T[]> bucket = _buckets[index];
-        if (bucket.Count >= MaxArraysPerBucket) bucket.Dequeue(); // LRU-style eviction
-        bucket.Enqueue(array);
-    }
+		int index = DataStructureUtils.GetQueueIndex(array.Length);
+		Debug.Assert((uint)index < (uint)MaxBuckets, $"Invalid bucket index: {index}");
 
-    /// <summary> Map array size to bucket index based on power-of-2 increments </summary>
-    private static int GetQueueIndex(int size) => size switch
-    {
-        8 => 0, 16 => 1, 32 => 2, 64 => 3, 128 => 4, 256 => 5,
-        512 => 6, 1024 => 7, 2048 => 8, 4096 => 9, 8192 => 10,
-        16384 => 11, 32768 => 12, 65536 => 13, 131072 => 14,
-        262144 => 15, _ => -1
-    };
+		var bucket = buckets[index];
+
+		if (bucket.Count >= MaxArraysPerBucket)
+			bucket.Dequeue(); // drop oldest
+
+		bucket.Enqueue(array);
+	}
 }

@@ -16,7 +16,7 @@ public abstract class ConditionalPropertyDrawer : PropertyDrawer
     private bool EvaluateCondition(SerializedProperty prop)
     {
         SerializedProperty condition =
-            prop.serializedObject.FindProperty(((ConditionalAttribute)attribute).ConditionField);
+            prop.serializedObject.FindProperty(((InspectorConditionaPropertyAttribute)attribute).ConditionField);
         return condition != null && ShouldShow(condition.boolValue);
     }
 }

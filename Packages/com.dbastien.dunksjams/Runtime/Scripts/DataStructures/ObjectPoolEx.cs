@@ -3,26 +3,55 @@ using UnityEngine.Pool;
 
 public interface IPoolable
 {
-    public void OnPoolGet();
-    public void OnPoolRelease();
+    void OnPoolGet();
+    void OnPoolRelease();
 }
 
-public class ObjectPoolEx<T> where T : class, new()
+public sealed class ObjectPoolEx<T> where T : class
 {
-    private readonly ObjectPool<T> _pool;
+    private readonly ObjectPool<T> pool;
 
-    public ObjectPoolEx(int initialCap = 8, int maxCap = 128)
+    public ObjectPoolEx(
+        Func<T> createFunc,
+        int initialCap = 8,
+        int maxCap = 128,
+        bool callDisposeOnDestroy = true)
     {
-        _pool = new ObjectPool<T>(
-            () => new T(),
-            obj => (obj as IPoolable)?.OnPoolGet(),
-            obj => (obj as IPoolable)?.OnPoolRelease(),
-            obj => (obj as IDisposable)?.Dispose(),
+        if (createFunc == null) throw new ArgumentNullException(nameof(createFunc));
+        if (initialCap < 0) throw new ArgumentOutOfRangeException(nameof(initialCap));
+        if (maxCap <= 0) throw new ArgumentOutOfRangeException(nameof(maxCap));
+
+        var hasPoolable = typeof(IPoolable).IsAssignableFrom(typeof(T));
+        var hasDisposable = callDisposeOnDestroy && typeof(IDisposable).IsAssignableFrom(typeof(T));
+
+        Action<T> onGet = hasPoolable ? static obj => ((IPoolable)obj).OnPoolGet() : null;
+        Action<T> onRelease = hasPoolable ? static obj => ((IPoolable)obj).OnPoolRelease() : null;
+        Action<T> onDestroy = hasDisposable ? static obj => ((IDisposable)obj).Dispose() : null;
+
+        pool = new ObjectPool<T>(
+            createFunc,
+            onGet,
+            onRelease,
+            onDestroy,
+            collectionCheck: false,
             defaultCapacity: initialCap,
             maxSize: maxCap
         );
     }
 
-    public T Get() => _pool.Get();
-    public void Release(T obj) => _pool.Release(obj);
+    public ObjectPoolEx(int initialCap = 8, int maxCap = 128)
+        : this(static () => Activator.CreateInstance<T>(), initialCap, maxCap) { }
+
+    public int CountInactive => pool.CountInactive;
+
+    public T Get() => pool.Get();
+    public PooledObject<T> Get(out T value) => pool.Get(out value);
+
+    public void Release(T obj)
+    {
+        if (obj == null) throw new ArgumentNullException(nameof(obj));
+        pool.Release(obj);
+    }
+
+    public void Clear() => pool.Clear();
 }

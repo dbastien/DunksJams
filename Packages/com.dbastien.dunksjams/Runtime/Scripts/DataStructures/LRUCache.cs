@@ -2,75 +2,138 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
+public sealed class LRUCache<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>
 {
-    private readonly int _capacity;
-    private readonly Dictionary<TK, LinkedListNode<(TK key, TV val)>> _cache = new();
-    private readonly LinkedList<(TK key, TV val)> _order = new();
+	private readonly int capacity;
+	private readonly Dictionary<TK, LinkedListNode<Entry>> cache;
+	private readonly LinkedList<Entry> order;
 
-    public LRUCache(int capacity) =>
-        _capacity = capacity > 0 ? capacity : throw new ArgumentOutOfRangeException(nameof(capacity));
+	private struct Entry
+	{
+		public TK Key;
+		public TV Value;
 
-    public TV Get
-        (TK key) => _cache.TryGetValue(key, out LinkedListNode<(TK key, TV val)> node)
-        ? MoveToFrontAndReturn(node)
-        : default;
+		public Entry(TK key, TV value)
+		{
+			Key = key;
+			Value = value;
+		}
+	}
 
-    public bool TryGetValue(TK key, out TV val)
-    {
-        if (_cache.TryGetValue(key, out LinkedListNode<(TK key, TV val)> node))
-        {
-            val = MoveToFrontAndReturn(node);
-            return true;
-        }
+	/// <summary>
+	/// Called when an entry is evicted (LRU removed). Useful for Dispose/Return-to-pool/etc.
+	/// </summary>
+	public Action<TK, TV> OnEvicted { get; set; }
 
-        val = default!;
-        return false;
-    }
+	public int Capacity => capacity;
+	public int Count => cache.Count;
 
-    public void Set(TK key, TV val)
-    {
-        if (_cache.TryGetValue(key, out LinkedListNode<(TK key, TV val)> node))
-        {
-            node.Value = (key, val);
-            if (node != _order.First) MoveToFront(node);
-        }
-        else
-        {
-            if (_cache.Count >= _capacity)
-            {
-                TK lru = _order.Last!.Value.key;
-                _order.RemoveLast();
-                _cache.Remove(lru);
-            }
+	public LRUCache(int capacity, IEqualityComparer<TK> keyComparer = null)
+	{
+		if (capacity <= 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+		this.capacity = capacity;
 
-            _cache[key] = _order.AddFirst((key, val));
-        }
-    }
+		cache = new Dictionary<TK, LinkedListNode<Entry>>(capacity, keyComparer);
+		order = new LinkedList<Entry>();
+	}
 
-    public void Clear()
-    {
-        _cache.Clear();
-        _order.Clear();
-    }
+	/// <summary> True if the key exists (does not update recency). </summary>
+	public bool ContainsKey(TK key) => cache.ContainsKey(key);
 
-    private TV MoveToFrontAndReturn(LinkedListNode<(TK key, TV val)> node)
-    {
-        MoveToFront(node);
-        return node.Value.val;
-    }
+	/// <summary> Try get a value; updates recency if found. </summary>
+	public bool TryGetValue(TK key, out TV value)
+	{
+		if (cache.TryGetValue(key, out var node))
+		{
+			MoveToFront(node);
+			value = node.Value.Value;
+			return true;
+		}
 
-    private void MoveToFront(LinkedListNode<(TK key, TV val)> node)
-    {
-        _order.Remove(node);
-        _order.AddFirst(node);
-    }
+		value = default;
+		return false;
+	}
 
-    public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
-    {
-        foreach ((TK key, TV val) in _order)
-            yield return new KeyValuePair<TK, TV>(key, val);
-    }
+	/// <summary> Get value or throw; updates recency. </summary>
+	public TV GetOrThrow(TK key)
+	{
+		if (!TryGetValue(key, out var value))
+			throw new KeyNotFoundException($"Key not found: {key}");
+		return value;
+	}
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	/// <summary> Get value or return fallback; updates recency if found. </summary>
+	public TV GetOrDefault(TK key, TV fallback = default)
+	{
+		return TryGetValue(key, out var value) ? value : fallback;
+	}
+
+	/// <summary> Add or update; updates recency. </summary>
+	public void Set(TK key, TV value)
+	{
+		if (cache.TryGetValue(key, out var node))
+		{
+			node.Value = new Entry(key, value);
+			MoveToFront(node);
+			return;
+		}
+
+		if (cache.Count >= capacity)
+			EvictOne();
+
+		cache[key] = order.AddFirst(new Entry(key, value));
+	}
+
+	/// <summary> Remove key if present; returns true if removed. </summary>
+	public bool Remove(TK key)
+	{
+		if (!cache.TryGetValue(key, out var node))
+			return false;
+
+		cache.Remove(key);
+		order.Remove(node);
+		return true;
+	}
+
+	/// <summary> Clears cache (does not call OnEvicted). </summary>
+	public void Clear()
+	{
+		cache.Clear();
+		order.Clear();
+	}
+
+	/// <summary> Remove least-recently-used entry; returns true if an entry was evicted. </summary>
+	public bool EvictLeastRecent()
+	{
+		if (cache.Count == 0) return false;
+		EvictOne();
+		return true;
+	}
+
+	private void EvictOne()
+	{
+		var lruNode = order.Last;
+		var entry = lruNode.Value;
+
+		order.RemoveLast();
+		cache.Remove(entry.Key);
+
+		OnEvicted?.Invoke(entry.Key, entry.Value);
+	}
+
+	private void MoveToFront(LinkedListNode<Entry> node)
+	{
+		if (node == order.First) return;
+		order.Remove(node);
+		order.AddFirst(node);
+	}
+
+	/// <summary> Enumerates from most-recently-used (MRU) to least-recently-used (LRU). </summary>
+	public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
+	{
+		for (var node = order.First; node != null; node = node.Next)
+			yield return new KeyValuePair<TK, TV>(node.Value.Key, node.Value.Value);
+	}
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

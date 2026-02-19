@@ -1,25 +1,34 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-public sealed class Deque<T> : IEnumerable<T>
+public enum QueueFullMode
+{
+	ThrowOnFull = 0,
+	Grow = 1
+}
+
+public sealed class ArrayQueue<T> : IEnumerable<T>
 {
 	private const int DefaultCapacity = 16;
 	private const int GrowthFactor = 2;
 
 	private RingCore<T> core;
 	private int version;
+	private readonly QueueFullMode fullMode;
 
-	public Deque(int capacity = DefaultCapacity)
+	public ArrayQueue(int capacity = DefaultCapacity, QueueFullMode fullMode = QueueFullMode.Grow)
 	{
 		core = new RingCore<T>(Math.Max(1, capacity));
 		version = 0;
+		this.fullMode = fullMode;
 	}
 
 	public int Count => core.Size;
 	public int Capacity => core.Capacity;
 	public bool IsEmpty => core.IsEmpty;
+	public bool IsFull => core.IsFull;
 
 	public void EnsureCapacity(int minCapacity)
 	{
@@ -35,37 +44,42 @@ public sealed class Deque<T> : IEnumerable<T>
 		version++;
 	}
 
-	public void PushFront(T item)
+	public void Enqueue(T item)
 	{
-		EnsureSpaceForOne();
-		core.PushFrontAssumeNotFull(item);
-		version++;
-	}
-
-	public void PushBack(T item)
-	{
-		EnsureSpaceForOne();
+		EnsureSpaceForOneThrowing();
 		core.PushBackAssumeNotFull(item);
 		version++;
 	}
 
-	public T PopFront()
+	public bool TryEnqueue(T item)
+	{
+		if (core.IsFull)
+		{
+			switch (fullMode)
+			{
+				case QueueFullMode.ThrowOnFull:
+					return false;
+
+				case QueueFullMode.Grow:
+					core.GrowToAtLeast(Math.Max(1, core.Capacity * GrowthFactor));
+					break;
+			}
+		}
+
+		core.PushBackAssumeNotFull(item);
+		version++;
+		return true;
+	}
+
+	public T Dequeue()
 	{
 		if (!core.TryPopFront(out var value, clearSlot: true))
-			throw new InvalidOperationException("Deque is empty.");
+			throw new InvalidOperationException("Queue is empty.");
 		version++;
 		return value;
 	}
 
-	public T PopBack()
-	{
-		if (!core.TryPopBack(out var value, clearSlot: true))
-			throw new InvalidOperationException("Deque is empty.");
-		version++;
-		return value;
-	}
-
-	public bool TryPopFront(out T value)
+	public bool TryDequeue(out T value)
 	{
 		if (!core.TryPopFront(out value, clearSlot: true))
 			return false;
@@ -73,30 +87,14 @@ public sealed class Deque<T> : IEnumerable<T>
 		return true;
 	}
 
-	public bool TryPopBack(out T value)
-	{
-		if (!core.TryPopBack(out value, clearSlot: true))
-			return false;
-		version++;
-		return true;
-	}
-
-	public T PeekFront()
+	public T Peek()
 	{
 		if (!core.TryPeekFront(out var value))
-			throw new InvalidOperationException("Deque is empty.");
+			throw new InvalidOperationException("Queue is empty.");
 		return value;
 	}
 
-	public T PeekBack()
-	{
-		if (!core.TryPeekBack(out var value))
-			throw new InvalidOperationException("Deque is empty.");
-		return value;
-	}
-
-	public bool TryPeekFront(out T value) => core.TryPeekFront(out value);
-	public bool TryPeekBack(out T value) => core.TryPeekBack(out value);
+	public bool TryPeek(out T value) => core.TryPeekFront(out value);
 
 	public void CopyTo(T[] destination, int destinationIndex)
 	{
@@ -117,30 +115,30 @@ public sealed class Deque<T> : IEnumerable<T>
 
 	public struct Enumerator : IEnumerator<T>
 	{
-		private readonly Deque<T> deque;
+		private readonly ArrayQueue<T> queue;
 		private readonly int version;
 		private RingSnapshotEnumerator<T> inner;
 
 		public T Current => inner.Current;
 		object IEnumerator.Current => Current;
 
-		internal Enumerator(Deque<T> deque)
+		internal Enumerator(ArrayQueue<T> queue)
 		{
-			this.deque = deque;
-			version = deque.version;
-			inner = new RingSnapshotEnumerator<T>(deque.core.Buffer, deque.core.Head, deque.core.Size);
+			this.queue = queue;
+			version = queue.version;
+			inner = new RingSnapshotEnumerator<T>(queue.core.Buffer, queue.core.Head, queue.core.Size);
 		}
 
 		public bool MoveNext()
 		{
-			if (version != deque.version)
+			if (version != queue.version)
 				throw new InvalidOperationException("Collection was modified during enumeration.");
 			return inner.MoveNext();
 		}
 
 		public void Reset()
 		{
-			if (version != deque.version)
+			if (version != queue.version)
 				throw new InvalidOperationException("Collection was modified during enumeration.");
 			inner.Reset();
 		}
@@ -148,10 +146,18 @@ public sealed class Deque<T> : IEnumerable<T>
 		public void Dispose() => inner.Dispose();
 	}
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private void EnsureSpaceForOne()
+	private void EnsureSpaceForOneThrowing()
 	{
 		if (!core.IsFull) return;
-		core.GrowToAtLeast(Math.Max(1, core.Capacity * GrowthFactor));
+
+		switch (fullMode)
+		{
+			case QueueFullMode.ThrowOnFull:
+				throw new InvalidOperationException("Queue is full.");
+
+			case QueueFullMode.Grow:
+				core.GrowToAtLeast(Math.Max(1, core.Capacity * GrowthFactor));
+				return;
+		}
 	}
 }

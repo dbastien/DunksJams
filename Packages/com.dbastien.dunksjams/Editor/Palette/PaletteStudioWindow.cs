@@ -232,44 +232,54 @@ public class PaletteStudioWindow : EditorWindow
         float prevLabelWidth = EditorGUIUtility.labelWidth;
         float prevFieldWidth = EditorGUIUtility.fieldWidth;
         EditorGUIUtility.labelWidth = 18f;
-        EditorGUIUtility.fieldWidth = 42f;
+        EditorGUIUtility.fieldWidth = 55f;
 
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.BeginVertical(GUILayout.MinWidth(150));
+        EditorGUILayout.BeginVertical(GUILayout.MinWidth(200));
         EditorGUILayout.LabelField("HSVA", EditorStyles.miniBoldLabel);
         EditorGUI.BeginChangeCheck();
-        float h = EditorGUILayout.Slider("H", _h * 360f, 0, 360f) / 360f;
-        float s = EditorGUILayout.Slider("S", _s * 100f, 0, 100f) / 100f;
-        float v = EditorGUILayout.Slider("V", _v * 100f, 0, 100f) / 100f;
-        float a = EditorGUILayout.Slider("A", _a * 100f, 0, 100f) / 100f;
+
+        float hDeg = SliderSnap.Snap(EditorGUILayout.Slider("H", _h * 360f, 0f, 360f), 2);
+        float sPct = SliderSnap.Snap(EditorGUILayout.Slider("S", _s * 100f, 0f, 100f), 2);
+        float vPct = SliderSnap.Snap(EditorGUILayout.Slider("V", _v * 100f, 0f, 100f), 2);
+        float aPct = SliderSnap.Snap(EditorGUILayout.Slider("A", _a * 100f, 0f, 100f), 2);
+
         if (EditorGUI.EndChangeCheck())
         {
-            _h = h;
-            _s = s;
-            _v = v;
-            _a = a;
+            _h = hDeg / 360f;
+            _s = sPct / 100f;
+            _v = vPct / 100f;
+            _a = aPct / 100f;
             UpdateSelectedColorFromHSV();
             colorChanged = true;
         }
 
         EditorGUILayout.EndVertical();
 
-        GUILayout.Space(10);
+        GUILayout.Space(15);
 
-        EditorGUILayout.BeginVertical(GUILayout.MinWidth(150));
+        EditorGUILayout.BeginVertical(GUILayout.MinWidth(200));
         EditorGUILayout.LabelField("RGBA", EditorStyles.miniBoldLabel);
+
         EditorGUI.BeginChangeCheck();
-        float r = EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0, 255f) / 255f;
-        float g = EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0, 255f) / 255f;
-        float b = EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0, 255f) / 255f;
+
+        float r255 = SliderSnap.Snap(EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0f, 255f), 2);
+        float g255 = SliderSnap.Snap(EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0f, 255f), 2);
+        float b255 = SliderSnap.Snap(EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0f, 255f), 2);
+
         if (EditorGUI.EndChangeCheck())
         {
+            float r = r255 / 255f;
+            float g = g255 / 255f;
+            float b = b255 / 255f;
+
             _selectedColor = new Color(r, g, b, _a);
             UpdateHSV();
             colorChanged = true;
         }
 
         EditorGUILayout.EndVertical();
+
         EditorGUILayout.EndHorizontal();
 
         EditorGUIUtility.labelWidth = prevLabelWidth;
@@ -279,7 +289,7 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Hex", GUILayout.Width(30));
         string hex = ColorUtility.ToHtmlStringRGBA(_selectedColor);
-        string hexInput = EditorGUILayout.TextField(hex);
+        string hexInput = EditorGUILayout.TextField(hex, GUILayout.Width(100));
         if (!string.Equals(hexInput, hex, StringComparison.OrdinalIgnoreCase) &&
             ColorUtility.TryParseHtmlString("#" + hexInput, out Color parsed))
         {
@@ -364,7 +374,13 @@ public class PaletteStudioWindow : EditorWindow
     {
         PaletteScheme scheme = GetActiveScheme();
         EditorGUI.BeginChangeCheck();
-        scheme = (PaletteScheme)EditorGUILayout.EnumPopup("Scheme", scheme);
+
+        using (new EditorGUILayout.HorizontalScope(GUILayout.Width(200)))
+        {
+            EditorGUILayout.LabelField("Scheme", GUILayout.Width(70));
+            scheme = (PaletteScheme)EditorGUILayout.EnumPopup(scheme);
+        }
+
         if (EditorGUI.EndChangeCheck())
             SetActiveScheme(scheme);
     }
@@ -1222,7 +1238,7 @@ public class PaletteStudioWindow : EditorWindow
             if (pal == _selectedPalette) currentIndex = i;
         }
 
-        GUILayout.Label("Palette", EditorStyles.miniLabel, GUILayout.Width(50));
+        GUILayout.Label("Palette", EditorStyles.label, GUILayout.Width(50));
         int newIndex = EditorGUILayout.Popup(currentIndex, paletteNames, EditorStyles.toolbarPopup,
             GUILayout.MinWidth(180));
         if (newIndex != currentIndex)

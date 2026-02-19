@@ -6,10 +6,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Debug = UnityEngine.Debug;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public static class DLog
 {
@@ -20,8 +23,8 @@ public static class DLog
     public enum CallerInfoMode
     {
         None,
-        Top, // fast: uses CallerFilePath/LineNumber
-        Full // slow: StackTrace walk
+        Top,
+        Full
     }
 
     public static CallerInfoMode CallerMode = CallerInfoMode.Top;
@@ -50,7 +53,7 @@ public static class DLog
 
     public interface ILogSink
     {
-        public void Log(LogType logType, string message, Object context);
+        void Log(LogType logType, string message, Object context);
     }
 
     private sealed class ConsoleSink : ILogSink
@@ -61,7 +64,6 @@ public static class DLog
 
     private sealed class FileSink : ILogSink
     {
-        // Strip basic rich-text tags (color, link, bold) for file output.
         private static readonly Regex s_stripTags = new(
             @"</?(color|a|b)(\s+[^>]*)?>",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -69,8 +71,6 @@ public static class DLog
         private readonly object _lock = new();
         private readonly string _logFilePath;
         private StreamWriter _writer;
-
-        // Prevent recursive “file sink failed” loops.
         private int _writeFailures;
 
         public FileSink()
@@ -84,7 +84,10 @@ public static class DLog
                 var fs = new FileStream(_logFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
                 _writer = new StreamWriter(fs, Encoding.UTF8) { AutoFlush = true };
             }
-            catch { _writer = null; }
+            catch
+            {
+                _writer = null;
+            }
         }
 
         public void Log(LogType logType, string message, Object context)
@@ -93,7 +96,6 @@ public static class DLog
             if (_writer == null) return;
 
             string clean = s_stripTags.Replace(message ?? "", "");
-
             var ts = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             string lvl = logType.ToString().ToUpperInvariant();
             string ctx = context != null ? $" [{context.name}]" : "";
@@ -111,86 +113,146 @@ public static class DLog
         }
 
         public string GetLogFilePath() => _logFilePath;
+
+        public void Dispose()
+        {
+            lock (_lock)
+            {
+                try { _writer?.Dispose(); }
+                catch { /* ignore */ }
+                _writer = null;
+            }
+        }
     }
 
-    private static readonly List<ILogSink> s_sinks = new()
-    {
-        new ConsoleSink(),
-        new FileSink()
-    };
+    private static readonly List<ILogSink> s_sinks = new(2);
+    private static FileSink s_fileSink;
 
-    // Hyperlink formatting
-    // We use a custom scheme so we never collide with Unity’s own URL/path handlers.
+    private struct Pending
+    {
+        public LogType type;
+        public string msg;
+        public Object ctx;
+    }
+
+    private const int PendingCap = 128;
+    private static readonly Queue<Pending> s_pending = new(PendingCap);
+    private static bool s_inited;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void SubsystemReset()
+    {
+        s_inited = false;
+        s_pending.Clear();
+
+        if (s_fileSink != null)
+        {
+            s_fileSink.Dispose();
+            s_fileSink = null;
+        }
+
+        s_sinks.Clear();
+        s_projectRoot = null;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+    private static void EarlyInit()
+    {
+        EnsureInitialized();
+        FlushPending();
+    }
+
     public static string DLogLink(string pathOrAssetPath, int lineNumber, string displayText = null)
     {
         string text = displayText ?? $"{Path.GetFileName(pathOrAssetPath)}:{lineNumber}";
+        // IMPORTANT: don’t URI-escape this; Unity/editor click handlers often expect raw paths.
         return $"<a href=\"dlog://{pathOrAssetPath}\" line=\"{lineNumber}\">{text}</a>";
     }
 
     public static string UrlLink(string url, string displayText = null)
         => $"<a href=\"{url}\">{displayText ?? url}</a>";
 
-    // ----------------------------
-    // Public API
-    // ----------------------------
     [HideInStackTrace]
-    public static void Log
-    (
+    public static void Log(
         string msg, Object ctx = null, bool timestamp = false,
         [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = ""
-    )
-        => LogImpl(LogType.Log, msg, ctx, timestamp, file, line, member);
+    ) => LogImpl(LogType.Log, msg, ctx, timestamp, file, line, member);
 
     [HideInStackTrace]
-    public static void LogW
-    (
+    public static void LogW(
         string msg, Object ctx = null, bool timestamp = false,
         [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = ""
-    )
-        => LogImpl(LogType.Warning, msg, ctx, timestamp, file, line, member);
+    ) => LogImpl(LogType.Warning, msg, ctx, timestamp, file, line, member);
 
     [HideInStackTrace]
-    public static void LogE
-    (
+    public static void LogE(
         string msg, Object ctx = null, bool timestamp = false,
         [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = ""
-    )
-        => LogImpl(LogType.Error, msg, ctx, timestamp, file, line, member);
+    ) => LogImpl(LogType.Error, msg, ctx, timestamp, file, line, member);
 
     [HideInStackTrace]
-    public static void LogException(Exception ex, Object ctx = null)
-        => Debug.unityLogger.LogException(ex, ctx);
+    public static void LogException(Exception ex, Object ctx = null) =>
+        Debug.unityLogger.LogException(ex, ctx);
 
     [HideInStackTrace]
-    public static void LogFormat(string format, params object[] args) =>
-        Log(string.Format(format, args));
-
-    [HideInStackTrace]
-    public static void LogWFormat(string format, params object[] args) =>
-        LogW(string.Format(format, args));
-
-    [HideInStackTrace]
-    public static void LogEFormat(string format, params object[] args) =>
-        LogE(string.Format(format, args));
-
-    [HideInStackTrace]
-    public static void Time
-    (
+    public static void Time(
         Action action, string label = null,
         [CallerFilePath] string file = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = ""
     )
     {
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
         var sw = Stopwatch.StartNew();
         action();
         sw.Stop();
 
         if (!IsTimingEnabled) return;
-
-        // Respect output settings.
         if (!UnityLoggerEnabled && !IsFileLoggingEnabled) return;
 
         string where = label ?? $"{Path.GetFileName(file)}:{line} ({member})";
         LogTiming($"{where} took {sw.ElapsedMilliseconds}ms", null, true, file, line, member);
+    }
+
+    private static void EnsureInitialized()
+    {
+        if (s_inited) return;
+
+        s_sinks.Clear();
+        s_sinks.Add(new ConsoleSink());
+
+        if (IsFileLoggingEnabled)
+        {
+            try
+            {
+                s_fileSink = new FileSink();
+                s_sinks.Add(s_fileSink);
+            }
+            catch
+            {
+                s_fileSink = null;
+            }
+        }
+
+        s_inited = true;
+    }
+
+    private static void EnqueuePending(LogType type, string formatted, Object ctx)
+    {
+        if (s_pending.Count >= PendingCap)
+            s_pending.Dequeue();
+
+        s_pending.Enqueue(new Pending { type = type, msg = formatted, ctx = ctx });
+    }
+
+    private static void FlushPending()
+    {
+        if (!s_inited) return;
+        while (s_pending.Count > 0)
+        {
+            var p = s_pending.Dequeue();
+            for (var i = 0; i < s_sinks.Count; i++)
+                s_sinks[i].Log(p.type, p.msg, p.ctx);
+        }
     }
 
     private static string s_projectRoot;
@@ -215,7 +277,7 @@ public static class DLog
     {
         get
         {
-            if (t_sb == null) t_sb = new StringBuilder(256);
+            t_sb ??= new StringBuilder(256);
             t_sb.Length = 0;
             return t_sb;
         }
@@ -232,29 +294,30 @@ public static class DLog
     private static string Colorize(string text, string color)
         => IsColorEnabled ? $"<color={color}>{text}</color>" : text;
 
-    private static void LogImpl
-    (
+    private static void LogImpl(
         LogType type, string msg, Object ctx, bool timestamp,
         string file, int line, string member
     )
     {
         if (!IsLoggingEnabled) return;
+        if (!UnityLoggerEnabled && !IsFileLoggingEnabled) return;
+
+        EnsureInitialized();
         LogImplInternal(type, msg, ctx, timestamp, file, line, member);
     }
 
-    // Used by timing (bypasses IsLoggingEnabled but respects output settings)
-    private static void LogTiming
-    (
+    private static void LogTiming(
         string msg, Object ctx = null, bool timestamp = false,
         string file = "", int line = 0, string member = ""
     )
     {
         if (!UnityLoggerEnabled && !IsFileLoggingEnabled) return;
+
+        EnsureInitialized();
         LogImplInternal(LogType.Log, msg, ctx, timestamp, file, line, member);
     }
 
-    private static void LogImplInternal
-    (
+    private static void LogImplInternal(
         LogType type, string msg, Object ctx, bool timestamp,
         string file, int line, string member
     )
@@ -262,9 +325,11 @@ public static class DLog
         StringBuilder sb = SB;
 
         if (timestamp && IsTimestampEnabled)
-            sb.Append(Colorize("[", TimeColor)).
-                Append(Colorize(DateTime.Now.ToString("HH:mm:ss.fff"), TimeColor)).
-                Append(Colorize("] ", TimeColor));
+        {
+            sb.Append(Colorize("[", TimeColor))
+              .Append(Colorize(DateTime.Now.ToString("HH:mm:ss.fff"), TimeColor))
+              .Append(Colorize("] ", TimeColor));
+        }
 
         if (CallerMode != CallerInfoMode.None)
         {
@@ -281,6 +346,12 @@ public static class DLog
         }
 
         var formatted = sb.ToString();
+
+        if (!s_inited || s_sinks.Count == 0)
+        {
+            EnqueuePending(type, formatted, ctx);
+            return;
+        }
 
         for (var i = 0; i < s_sinks.Count; i++)
             s_sinks[i].Log(type, formatted, ctx);
@@ -305,8 +376,7 @@ public static class DLog
     {
         var trace = new StackTrace(true);
         StackFrame[] frames = trace.GetFrames();
-        if (frames == null || frames.Length == 0)
-            return;
+        if (frames == null || frames.Length == 0) return;
 
         var first = true;
 
@@ -334,19 +404,17 @@ public static class DLog
             var display = $"{Path.GetFileName(wherePath)}:{whereLine}";
             string link = DLogLink(wherePath, whereLine, display);
 
-            sb.Append(Colorize(link, CallerColor)).Append(Colorize($" {cls}.{name}()", CallerColor));
+            sb.Append(Colorize(link, CallerColor))
+              .Append(Colorize($" {cls}.{name}()", CallerColor));
 
             first = false;
-
-            // Cap the breadcrumb chain.
             if (i >= 12) break;
         }
     }
 
     private static string ToAssetOrPath(string file)
     {
-        if (string.IsNullOrEmpty(file))
-            return "Unknown";
+        if (string.IsNullOrEmpty(file)) return "Unknown";
 
         string p = file.Replace("\\", "/");
 
@@ -363,10 +431,13 @@ public static class DLog
             return rel;
         }
 
-        return p; // absolute fallback
+        return p;
     }
 
 #if UNITY_EDITOR
-    public static void OpenConsole() { EditorApplication.ExecuteMenuItem("Window/DLog"); }
+    public static void OpenConsole()
+    {
+        EditorApplication.ExecuteMenuItem("‽/DLog/Window");
+    }
 #endif
 }

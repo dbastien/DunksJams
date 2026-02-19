@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public abstract class ConditionalAttribute : PropertyAttribute
+public abstract class InspectorConditionaPropertyAttribute : PropertyAttribute
 {
     public string ConditionField { get; }
-    protected ConditionalAttribute(string conditionField) => ConditionField = conditionField;
+    protected InspectorConditionaPropertyAttribute(string conditionField) => ConditionField = conditionField;
 }
 
-public class HideIfAttribute : ConditionalAttribute
+public class HideIfAttribute : InspectorConditionaPropertyAttribute
 {
     public HideIfAttribute(string conditionField) : base(conditionField) { }
 }
 
-public class ShowIfAttribute : ConditionalAttribute
+public class ShowIfAttribute : InspectorConditionaPropertyAttribute
 {
     public ShowIfAttribute(string conditionField) : base(conditionField) { }
 }
