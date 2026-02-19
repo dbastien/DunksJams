@@ -33,8 +33,8 @@ public class MeshGeneratorWindow : EditorWindow
 
     // Shared
     private float _width = 1f, _height = 1f, _depth = 1f;
-    private float _radius = 0.5f, _radius2 = 0f;
-    private int _segments = 16, _segments2 = 8;
+    private float _radius = 0.5f, _radius2;
+    private int _segments = 16;
     private int _widthSegs = 1, _heightSegs = 1, _depthSegs = 1;
     private int _resX = 10, _resZ = 10;
 

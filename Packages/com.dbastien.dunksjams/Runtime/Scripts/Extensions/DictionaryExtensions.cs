@@ -17,7 +17,6 @@ public static class DictionaryExtensions
         d.EnsureCapacity(cap);
     }
 
-    // Tabify compatibility extension
     public static void RemoveValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TValue value)
     {
         if (dict.FirstOrDefault(kvp => EqualityComparer<TValue>.Default.Equals(kvp.Value, value)) is var pair)

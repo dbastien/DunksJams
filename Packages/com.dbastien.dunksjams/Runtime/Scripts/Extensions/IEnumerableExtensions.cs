@@ -131,7 +131,6 @@ public static class IEnumerableExtensions
     public static IDictionary<TKey, int> CountBy<T, TKey>(this IEnumerable<T> e, Func<T, TKey> key) =>
         e.GroupBy(key).ToDictionary(g => g.Key, g => g.Count());
 
-    // Tabify compatibility extensions
     public static T NextTo<T>(this IEnumerable<T> e, T to) =>
         e.SkipWhile(r => !EqualityComparer<T>.Default.Equals(r, to)).Skip(1).FirstOrDefault();
 
