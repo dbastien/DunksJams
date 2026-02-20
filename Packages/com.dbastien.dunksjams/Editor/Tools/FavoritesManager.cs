@@ -1,160 +1,253 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 public class FavoritesManager : EditorWindow
 {
-    private const string PrefsKey = "FavoritesManager.Guids";
+    private const string PrefsKey = "FavoritesManager.Entries";
+    private const float RowHeight = 22f;
 
-    private static readonly string[] ScriptExtensions = { ".cs", ".compute", ".shader", ".cginc", ".hlsl", ".json" };
+    private static readonly string[] ScriptExtensions =
+    {
+        ".cs", ".compute", ".shader", ".cginc", ".hlsl", ".json"
+    };
 
-    private List<string> _guids = new();
     private readonly Dictionary<string, Texture2D> _iconCache = new();
-    private Vector2 _scrollPos;
-    private string _filter = "";
-    private double _lastClickTime;
-    private string _lastClickGuid;
+    private readonly List<string> _pendingAdd = new();
 
-    // drag-to-reorder state
+    // Stores GlobalObjectId strings (works for both assets and scene objects).
+    // Legacy plain asset GUIDs are supported transparently as a fallback.
+    private List<string> _entries = new();
+    private Vector2 _scrollPos;
+
+    private SearchField _searchField;
+    private string _filter = "";
+
+    private double _lastClickTime;
+    private string _lastClickEntry;
+
+    private string _pendingRemoveEntry;
+
+    private bool _reorderDragging;
     private int _dragFromIndex = -1;
     private int _dragToIndex = -1;
-    private bool _reorderDragging;
+    private Vector2 _dragStartMouse;
+    private const float DragStartThreshold = 6f;
 
-    [MenuItem("‽/Favorites Manager")] private static void Open() => GetWindow<FavoritesManager>("Favorites").Show();
+    [MenuItem("‽/Favorites Manager")]
+    private static void Open() => GetWindow<FavoritesManager>("Favorites").Show();
 
-    private void OnEnable() => Load();
+    private void OnEnable()
+    {
+        _searchField ??= new SearchField();
+        Load();
+    }
 
     private void OnGUI()
     {
+        ProcessPendingOperations();
+
         DrawToolbar();
 
-        _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
-        DrawRows();
-        EditorGUILayout.EndScrollView();
-
         HandleExternalDragDrop();
-    }
 
-    // ── toolbar ──────────────────────────────────────────────────────────
-    private void DrawToolbar()
-    {
-        using (new GUIHorizontalScope())
+        using (var scroll = new EditorGUILayout.ScrollViewScope(_scrollPos))
         {
-            _filter = EditorGUILayout.TextField("Search", _filter);
-            if (GUILayout.Button("+ Selection", GUILayout.Width(80)))
-                AddFromSelection();
-        }
-    }
-
-    // ── rows ─────────────────────────────────────────────────────────────
-    private void DrawRows()
-    {
-        string removeGuid = null;
-
-        for (var i = 0; i < _guids.Count; i++)
-        {
-            string guid = _guids[i];
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-
-            if (string.IsNullOrEmpty(path))
-            {
-                removeGuid = guid;
-                continue;
-            }
-
-            string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
-            if (!string.IsNullOrEmpty(_filter) &&
-                !assetName.Contains(_filter, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-            if (!obj)
-            {
-                removeGuid = guid;
-                continue;
-            }
-
-            // reorder drop target indicator
-            if (_reorderDragging && _dragToIndex == i)
-                DrawDropIndicator();
-
-            DrawRow(i, guid, path, obj);
-        }
-
-        // indicator after last row
-        if (_reorderDragging && _dragToIndex == _guids.Count)
-            DrawDropIndicator();
-
-        if (removeGuid != null)
-        {
-            _guids.Remove(removeGuid);
-            Save();
+            _scrollPos = scroll.scrollPosition;
+            DrawRows();
         }
 
         HandleReorderDragEnd();
     }
 
-    private void DrawRow(int index, string guid, string path, Object obj)
+    private void DrawToolbar()
     {
-        Rect rect = EditorGUILayout.BeginHorizontal();
+        using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
+        {
+            GUILayout.Space(6);
 
-        // icon
-        Texture2D icon = GetIcon(guid, obj);
+            string next = _searchField.OnToolbarGUI(_filter);
+            if (!string.Equals(next, _filter, StringComparison.Ordinal))
+            {
+                _filter = next ?? "";
+                Repaint();
+            }
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("+ Selection", EditorStyles.toolbarButton, GUILayout.Width(95)))
+                AddFromSelection();
+        }
+    }
+
+    private void DrawRows()
+    {
+        int visibleIndex = 0;
+
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            string entry = _entries[i];
+
+            if (!TryResolveEntry(entry, out Object obj, out string path, out bool isSceneObj))
+            {
+                // Assets that can't be resolved are gone — auto-remove them.
+                // Scene objects whose scene is closed resolve as null but shouldn't be removed.
+                if (!isSceneObj)
+                    _pendingRemoveEntry = entry;
+                continue;
+            }
+
+            if (!PassesFilter(obj, path))
+                continue;
+
+            Rect rowRect = EditorGUILayout.GetControlRect(false, RowHeight);
+
+            if (_reorderDragging)
+                DrawDropIndicator(rowRect, _dragToIndex == i);
+
+            DrawRow(rowRect, i, entry, path, obj, isSceneObj, visibleIndex);
+            visibleIndex++;
+        }
+
+        Rect tail = EditorGUILayout.GetControlRect(false, 2f);
+        if (_reorderDragging)
+            DrawDropIndicator(tail, _dragToIndex == _entries.Count);
+    }
+
+    // Returns true when the object is resolved. isSceneObj is set even when obj is null
+    // (scene object in a closed scene), so callers can skip rather than delete the entry.
+    private static bool TryResolveEntry(string entry, out Object obj, out string path, out bool isSceneObj)
+    {
+        obj = null;
+        path = null;
+        isSceneObj = false;
+
+        if (GlobalObjectId.TryParse(entry, out GlobalObjectId goid))
+        {
+            isSceneObj = goid.identifierType == 2;
+            obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(goid);
+            if (obj != null)
+                path = AssetDatabase.GetAssetPath(obj); // empty for scene objects
+            return obj != null || isSceneObj; // keep scene entries even when scene is closed
+        }
+
+        // Legacy: plain asset GUID stored by older versions
+        path = AssetDatabase.GUIDToAssetPath(entry);
+        if (string.IsNullOrEmpty(path)) return false;
+        obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+        return obj != null;
+    }
+
+    private static string GetEntryForObject(Object obj)
+        => GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
+
+    private bool PassesFilter(Object obj, string path)
+    {
+        if (string.IsNullOrWhiteSpace(_filter)) return true;
+
+        string needle = _filter.Trim();
+        if (needle.Length == 0) return true;
+
+        string haystack = obj ? $"{obj.name} {path}" : path ?? "";
+        return haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private void DrawRow(Rect rowRect, int index, string entry, string path, Object obj, bool isSceneObj, int visibleIndex)
+    {
+        Event evt = Event.current;
+
+        Color baseStripe = (visibleIndex & 1) == 0 ? new Color(0, 0, 0, 0.06f) : new Color(0, 0, 0, 0.02f);
+        EditorGUI.DrawRect(rowRect, baseStripe);
+
+        Color typeTint = GetTypeTint(obj, path, isSceneObj);
+        typeTint.a = 0.18f;
+        EditorGUI.DrawRect(rowRect, typeTint);
+
+        Rect contentRect = rowRect;
+        contentRect.xMin += 6;
+        contentRect.xMax -= 6;
+
+        Rect iconRect = new Rect(contentRect.x, contentRect.y + 1, RowHeight - 2, RowHeight - 2);
+        Rect xRect = new Rect(contentRect.xMax - 20, contentRect.y + 1, 20, RowHeight - 2);
+        Rect labelRect = new Rect(iconRect.xMax + 6, contentRect.y + 1, xRect.xMin - (iconRect.xMax + 10), RowHeight - 2);
+
+        Texture2D icon = obj ? GetIcon(entry, obj) : null;
         if (icon)
-            GUILayout.Label(new GUIContent(icon), GUILayout.Width(22), GUILayout.Height(22));
+            GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit, true);
 
-        // label
-        using (new GUIColorScope(obj.GetTypeColor()))
-        {
-            if (GUILayout.Button(obj.name, EditorStyles.label, GUILayout.ExpandWidth(true)))
-                HandleClick(guid, path);
-        }
+        bool hovered = rowRect.Contains(evt.mousePosition);
+        if (hovered)
+            EditorGUI.DrawRect(rowRect, new Color(1f, 1f, 1f, 0.05f));
 
-        // remove button
-        if (GUILayout.Button("X", GUILayout.Width(20)))
+        if (GUI.Button(xRect, "X", EditorStyles.miniButton))
         {
-            _guids.Remove(guid);
-            Save();
+            _pendingRemoveEntry = entry;
             GUIUtility.ExitGUI();
+            return;
         }
 
-        EditorGUILayout.EndHorizontal();
+        // Show "(closed)" when the scene object's scene isn't loaded
+        string label = obj ? obj.name : "(scene closed)";
+        using (new EditorGUI.DisabledScope(!obj))
+        {
+            if (GUI.Button(labelRect, label, EditorStyles.label) && obj)
+            {
+                HandleClick(entry, path, obj, isSceneObj);
+                evt.Use();
+            }
+        }
 
-        // reorder drag source
-        HandleReorderDragStart(rect, index);
-        HandleReorderDragUpdate(rect, index);
+        HandleReorderDragStart(rowRect, index);
+        HandleReorderDragUpdate(rowRect, index);
     }
 
-    private static void DrawDropIndicator()
+    private static void DrawDropIndicator(Rect rowRect, bool active)
     {
-        Rect r = GUILayoutUtility.GetRect(0, 2, GUILayout.ExpandWidth(true));
-        EditorGUI.DrawRect(r, new Color(0.3f, 0.6f, 1f, 0.9f));
+        Rect r = new Rect(rowRect.xMin + 8, rowRect.yMin - 1, rowRect.width - 16, 2);
+        if (active && Event.current.type == EventType.Repaint)
+            EditorGUI.DrawRect(r, new Color(0.3f, 0.6f, 1f, 0.9f));
     }
 
-    // ── click ────────────────────────────────────────────────────────────
-    private void HandleClick(string guid, string path)
+    private void HandleClick(string entry, string path, Object obj, bool isSceneObj)
     {
-        bool isDoubleClick = guid == _lastClickGuid &&
+        bool isDoubleClick = entry == _lastClickEntry &&
                              EditorApplication.timeSinceStartup - _lastClickTime < 0.3;
-        _lastClickGuid = guid;
+
+        _lastClickEntry = entry;
         _lastClickTime = EditorApplication.timeSinceStartup;
+
+        if (isSceneObj)
+        {
+            Selection.activeObject = obj;
+            EditorGUIUtility.PingObject(obj);
+            if (isDoubleClick)
+                SceneView.FrameLastActiveSceneView();
+            return;
+        }
 
         string ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
-        if (AssetDatabase.IsValidFolder(path)) { RevealInProjectBrowser(path); }
-        else if (isDoubleClick && ScriptExtensions.Contains(ext))
+        if (AssetDatabase.IsValidFolder(path))
         {
-            AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<Object>(path));
+            RevealInProjectBrowser(path);
+            return;
         }
-        else
+
+        if (isDoubleClick && ScriptExtensions.Contains(ext))
         {
-            RevealInProjectBrowser(System.IO.Path.GetDirectoryName(path)?.Replace('\\', '/'));
-            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(path));
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(path);
+            AssetDatabase.OpenAsset(obj);
+            return;
         }
+
+        string folder = System.IO.Path.GetDirectoryName(path)?.Replace('\\', '/');
+        RevealInProjectBrowser(folder);
+
+        EditorGUIUtility.PingObject(obj);
+        Selection.activeObject = obj;
     }
 
     private static void RevealInProjectBrowser(string folderPath)
@@ -164,130 +257,201 @@ public class FavoritesManager : EditorWindow
         if (folder) Selection.activeObject = folder;
     }
 
-    // ── icon cache ───────────────────────────────────────────────────────
-    private Texture2D GetIcon(string guid, Object obj)
+    private Texture2D GetIcon(string entry, Object obj)
     {
-        if (_iconCache.TryGetValue(guid, out Texture2D cached) && cached) return cached;
+        if (_iconCache.TryGetValue(entry, out Texture2D cached) && cached)
+            return cached;
 
-        Texture2D tex = AssetPreview.GetAssetPreview(obj) ??
-                        AssetPreview.GetMiniThumbnail(obj) ??
-                        (obj ? AssetPreview.GetMiniTypeThumbnail(obj.GetType()) : null);
+        Texture2D tex =
+            AssetPreview.GetAssetPreview(obj) ??
+            AssetPreview.GetMiniThumbnail(obj) ??
+            (obj ? AssetPreview.GetMiniTypeThumbnail(obj.GetType()) : null);
 
-        if (tex) _iconCache[guid] = tex;
+        if (tex)
+            _iconCache[entry] = tex;
+
         return tex;
     }
 
-    // ── external drag-and-drop (add from Project window) ─────────────────
+    private static Color GetTypeTint(Object obj, string path, bool isSceneObj)
+    {
+        if (isSceneObj) return new Color(1f, 0.75f, 0.3f, 1f); // warm amber for scene objects
+
+        if (!string.IsNullOrEmpty(path) && AssetDatabase.IsValidFolder(path))
+            return new Color(0.25f, 0.55f, 1f, 1f);
+
+        string ext = string.IsNullOrEmpty(path) ? "" : System.IO.Path.GetExtension(path).ToLowerInvariant();
+        if (ext == ".cs") return new Color(0.35f, 1f, 0.55f, 1f);
+        if (ext == ".shader" || ext == ".hlsl" || ext == ".cginc" || ext == ".compute") return new Color(1f, 0.55f, 0.25f, 1f);
+
+        if (!obj) return new Color(0.5f, 0.5f, 0.5f, 1f);
+
+        Type t = obj.GetType();
+        if (typeof(Material).IsAssignableFrom(t)) return new Color(0.95f, 0.65f, 0.2f, 1f);
+        if (typeof(Texture).IsAssignableFrom(t)) return new Color(0.6f, 0.85f, 1f, 1f);
+        if (typeof(SceneAsset).IsAssignableFrom(t)) return new Color(0.75f, 0.65f, 1f, 1f);
+        if (typeof(GameObject).IsAssignableFrom(t)) return new Color(1f, 0.45f, 0.65f, 1f);
+
+        return new Color(0.7f, 0.7f, 0.7f, 1f);
+    }
+
     private void HandleExternalDragDrop()
     {
-        if (_reorderDragging) return;
-
         Event evt = Event.current;
-        if (evt.type is not (EventType.DragUpdated or EventType.DragPerform)) return;
+        if (evt.type != EventType.DragUpdated && evt.type != EventType.DragPerform)
+            return;
 
-        DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+        // If we're mid-reorder, cancel it — an external drag-drop takes priority.
+        if (_reorderDragging)
+        {
+            _reorderDragging = false;
+            _dragFromIndex = -1;
+            _dragToIndex = -1;
+        }
 
-        if (evt.type == EventType.DragPerform)
+        bool hasRefs = DragAndDrop.objectReferences != null && DragAndDrop.objectReferences.Length > 0;
+        DragAndDrop.visualMode = hasRefs ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected;
+
+        if (evt.type == EventType.DragPerform && hasRefs)
         {
             DragAndDrop.AcceptDrag();
-            foreach (Object obj in DragAndDrop.objectReferences)
+
+            foreach (Object o in DragAndDrop.objectReferences)
             {
-                if (!obj) continue;
-                string path = AssetDatabase.GetAssetPath(obj);
-                string guid = AssetDatabase.AssetPathToGUID(path);
-                if (!string.IsNullOrEmpty(guid) && !_guids.Contains(guid))
-                {
-                    _guids.Add(guid);
-                    Save();
-                }
+                if (!o) continue;
+                _pendingAdd.Add(GetEntryForObject(o));
             }
+
+            ProcessPendingOperations();
+            Repaint();
         }
 
         evt.Use();
     }
 
-    // ── reorder drag-and-drop ────────────────────────────────────────────
     private void HandleReorderDragStart(Rect rowRect, int index)
     {
         Event evt = Event.current;
-        if (evt.type != EventType.MouseDrag || !rowRect.Contains(evt.mousePosition)) return;
+        if (evt.type != EventType.MouseDown) return;
+        if (evt.button != 0) return;
+        if (!rowRect.Contains(evt.mousePosition)) return;
         if (_reorderDragging) return;
 
-        _reorderDragging = true;
         _dragFromIndex = index;
         _dragToIndex = index;
+        _dragStartMouse = evt.mousePosition;
 
-        DragAndDrop.PrepareStartDrag();
-        DragAndDrop.objectReferences = Array.Empty<Object>();
-        DragAndDrop.paths = Array.Empty<string>();
-        DragAndDrop.StartDrag($"Reorder {_guids[index]}");
         evt.Use();
     }
 
     private void HandleReorderDragUpdate(Rect rowRect, int index)
     {
+        Event evt = Event.current;
+
+        if (_dragFromIndex < 0) return;
+
+        if (!_reorderDragging && evt.type == EventType.MouseDrag)
+        {
+            if (Vector2.Distance(evt.mousePosition, _dragStartMouse) >= DragStartThreshold)
+            {
+                _reorderDragging = true;
+                evt.Use();
+            }
+        }
+
         if (!_reorderDragging) return;
 
-        Event evt = Event.current;
-        if (evt.type != EventType.DragUpdated) return;
+        if (evt.type == EventType.MouseDrag || evt.type == EventType.MouseMove || evt.type == EventType.Repaint || evt.type == EventType.Layout)
+        {
+            float midY = rowRect.y + rowRect.height * 0.5f;
+            if (evt.mousePosition.y < midY) _dragToIndex = index;
+            else _dragToIndex = index + 1;
 
-        DragAndDrop.visualMode = DragAndDropVisualMode.Move;
-
-        float midY = rowRect.y + rowRect.height * 0.5f;
-        _dragToIndex = evt.mousePosition.y < midY ? index : index + 1;
-
-        Repaint();
-        evt.Use();
+            _dragToIndex = Mathf.Clamp(_dragToIndex, 0, _entries.Count);
+            Repaint();
+        }
     }
 
     private void HandleReorderDragEnd()
     {
-        if (!_reorderDragging) return;
-
         Event evt = Event.current;
-        if (evt.type != EventType.DragPerform && evt.type != EventType.DragExited) return;
 
-        if (evt.type == EventType.DragPerform &&
-            _dragFromIndex >= 0 &&
-            _dragToIndex >= 0 &&
-            _dragFromIndex != _dragToIndex &&
-            _dragToIndex != _dragFromIndex + 1)
+        if (_reorderDragging && (evt.type == EventType.MouseUp || evt.type == EventType.MouseLeaveWindow))
         {
-            DragAndDrop.AcceptDrag();
-            string guid = _guids[_dragFromIndex];
-            _guids.RemoveAt(_dragFromIndex);
-            int insertAt = _dragToIndex > _dragFromIndex ? _dragToIndex - 1 : _dragToIndex;
-            _guids.Insert(insertAt, guid);
-            Save();
+            if (_dragFromIndex >= 0 &&
+                _dragToIndex >= 0 &&
+                _dragFromIndex != _dragToIndex &&
+                _dragToIndex != _dragFromIndex + 1)
+            {
+                string entry = _entries[_dragFromIndex];
+                _entries.RemoveAt(_dragFromIndex);
+
+                int insertAt = _dragToIndex > _dragFromIndex ? _dragToIndex - 1 : _dragToIndex;
+                insertAt = Mathf.Clamp(insertAt, 0, _entries.Count);
+
+                _entries.Insert(insertAt, entry);
+                Save();
+            }
+
+            _reorderDragging = false;
+            _dragFromIndex = -1;
+            _dragToIndex = -1;
+            evt.Use();
+            Repaint();
         }
 
-        _reorderDragging = false;
-        _dragFromIndex = -1;
-        _dragToIndex = -1;
-        evt.Use();
-        Repaint();
+        if (!_reorderDragging && _dragFromIndex >= 0 && evt.type == EventType.MouseUp)
+        {
+            _dragFromIndex = -1;
+            _dragToIndex = -1;
+        }
     }
 
-    // ── add / persistence ────────────────────────────────────────────────
     private void AddFromSelection()
     {
         if (!Selection.activeObject) return;
-        string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-        string guid = AssetDatabase.AssetPathToGUID(path);
-        if (!string.IsNullOrEmpty(guid) && !_guids.Contains(guid))
+        _pendingAdd.Add(GetEntryForObject(Selection.activeObject));
+        ProcessPendingOperations();
+        Repaint();
+    }
+
+    private void ProcessPendingOperations()
+    {
+        bool modified = false;
+
+        if (_pendingRemoveEntry != null)
         {
-            _guids.Add(guid);
-            Save();
+            _entries.Remove(_pendingRemoveEntry);
+            _pendingRemoveEntry = null;
+            modified = true;
         }
+
+        if (_pendingAdd.Count > 0)
+        {
+            foreach (string entry in _pendingAdd)
+            {
+                if (!_entries.Contains(entry))
+                    _entries.Add(entry);
+            }
+            _pendingAdd.Clear();
+            modified = true;
+        }
+
+        if (modified)
+            Save();
     }
 
     private void Load()
     {
+        // Try new key first, fall back to old key for migration
         string raw = EditorPrefs.GetString(PrefsKey, "");
-        _guids = string.IsNullOrEmpty(raw)
+        if (string.IsNullOrEmpty(raw))
+            raw = EditorPrefs.GetString("FavoritesManager.Guids", "");
+
+        _entries = string.IsNullOrEmpty(raw)
             ? new List<string>()
-            : raw.Split(',').Where(g => !string.IsNullOrEmpty(g)).ToList();
+            : raw.Split(',').Where(e => !string.IsNullOrEmpty(e)).ToList();
     }
 
-    private void Save() => EditorPrefs.SetString(PrefsKey, string.Join(",", _guids));
+    private void Save() => EditorPrefs.SetString(PrefsKey, string.Join(",", _entries));
 }
