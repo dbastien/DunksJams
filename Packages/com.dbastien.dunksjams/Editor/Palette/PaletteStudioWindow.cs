@@ -48,6 +48,9 @@ public class PaletteStudioWindow : EditorWindow
     private const int UnityPaletteSlotCount = 16;
     private const int CenterPieSize = 128;
 
+    private const int UiDecimals = 2;
+    private bool _isProgrammaticUpdate;
+
     private readonly HashSet<string> _discoveredTags = new();
 
     private static readonly string[] TabLabels = { "Picker", "Library" };
@@ -92,6 +95,39 @@ public class PaletteStudioWindow : EditorWindow
         else
             DrawFullWidthContent();
     }
+
+private void RunProgrammatic(Action action)
+{
+    _isProgrammaticUpdate = true;
+    try { action(); }
+    finally { _isProgrammaticUpdate = false; }
+}
+
+private bool BeginUserEdit()
+{
+    if (_isProgrammaticUpdate) return false;
+    EditorGUI.BeginChangeCheck();
+    return true;
+}
+
+private bool EndUserEdit() => !_isProgrammaticUpdate && EditorGUI.EndChangeCheck();
+
+private void SnapHsvaInPlace()
+{
+    _h = SliderSnap.Snap(_h * 360f, UiDecimals) / 360f;
+    _s = SliderSnap.Snap(_s * 100f, UiDecimals) / 100f;
+    _v = SliderSnap.Snap(_v * 100f, UiDecimals) / 100f;
+    _a = SliderSnap.Snap(_a * 100f, UiDecimals) / 100f;
+}
+
+private void SnapSelectedColorRgbInPlace()
+{
+    float r = SliderSnap.Snap(_selectedColor.r * 255f, UiDecimals) / 255f;
+    float g = SliderSnap.Snap(_selectedColor.g * 255f, UiDecimals) / 255f;
+    float b = SliderSnap.Snap(_selectedColor.b * 255f, UiDecimals) / 255f;
+    float a = SliderSnap.Snap(_selectedColor.a * 100f, UiDecimals) / 100f;
+    _selectedColor = new Color(r, g, b, a);
+}
 
     private void DrawToolbar()
     {
@@ -224,7 +260,7 @@ public class PaletteStudioWindow : EditorWindow
             EditorGUILayout.ColorField(GUIContent.none, _selectedColor, true, true, false, GUILayout.Height(40));
         if (EditorGUI.EndChangeCheck())
         {
-            UpdateHSV();
+            RunProgrammatic(UpdateHSV);
             colorChanged = true;
         }
 
@@ -237,21 +273,24 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.BeginVertical(GUILayout.MinWidth(200));
         EditorGUILayout.LabelField("HSVA", EditorStyles.miniBoldLabel);
-        EditorGUI.BeginChangeCheck();
 
-        float hDeg = SliderSnap.Snap(EditorGUILayout.Slider("H", _h * 360f, 0f, 360f), 2);
-        float sPct = SliderSnap.Snap(EditorGUILayout.Slider("S", _s * 100f, 0f, 100f), 2);
-        float vPct = SliderSnap.Snap(EditorGUILayout.Slider("V", _v * 100f, 0f, 100f), 2);
-        float aPct = SliderSnap.Snap(EditorGUILayout.Slider("A", _a * 100f, 0f, 100f), 2);
-
-        if (EditorGUI.EndChangeCheck())
+        if (BeginUserEdit())
         {
-            _h = hDeg / 360f;
-            _s = sPct / 100f;
-            _v = vPct / 100f;
-            _a = aPct / 100f;
-            UpdateSelectedColorFromHSV();
-            colorChanged = true;
+            float hDeg = SliderSnap.Snap(EditorGUILayout.Slider("H", _h * 360f, 0f, 360f), UiDecimals);
+            float sPct = SliderSnap.Snap(EditorGUILayout.Slider("S", _s * 100f, 0f, 100f), UiDecimals);
+            float vPct = SliderSnap.Snap(EditorGUILayout.Slider("V", _v * 100f, 0f, 100f), UiDecimals);
+            float aPct = SliderSnap.Snap(EditorGUILayout.Slider("A", _a * 100f, 0f, 100f), UiDecimals);
+
+            if (EndUserEdit())
+            {
+                _h = hDeg / 360f;
+                _s = sPct / 100f;
+                _v = vPct / 100f;
+                _a = aPct / 100f;
+
+                RunProgrammatic(UpdateSelectedColorFromHSV);
+                colorChanged = true;
+            }
         }
 
         EditorGUILayout.EndVertical();
@@ -261,21 +300,25 @@ public class PaletteStudioWindow : EditorWindow
         EditorGUILayout.BeginVertical(GUILayout.MinWidth(200));
         EditorGUILayout.LabelField("RGBA", EditorStyles.miniBoldLabel);
 
-        EditorGUI.BeginChangeCheck();
-
-        float r255 = SliderSnap.Snap(EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0f, 255f), 2);
-        float g255 = SliderSnap.Snap(EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0f, 255f), 2);
-        float b255 = SliderSnap.Snap(EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0f, 255f), 2);
-
-        if (EditorGUI.EndChangeCheck())
+        if (BeginUserEdit())
         {
-            float r = r255 / 255f;
-            float g = g255 / 255f;
-            float b = b255 / 255f;
+            float r255 = SliderSnap.Snap(EditorGUILayout.Slider("R", _selectedColor.r * 255f, 0f, 255f), UiDecimals);
+            float g255 = SliderSnap.Snap(EditorGUILayout.Slider("G", _selectedColor.g * 255f, 0f, 255f), UiDecimals);
+            float b255 = SliderSnap.Snap(EditorGUILayout.Slider("B", _selectedColor.b * 255f, 0f, 255f), UiDecimals);
 
-            _selectedColor = new Color(r, g, b, _a);
-            UpdateHSV();
-            colorChanged = true;
+            if (EndUserEdit())
+            {
+                float r = r255 / 255f;
+                float g = g255 / 255f;
+                float b = b255 / 255f;
+
+                _selectedColor = new Color(r, g, b, _a);
+                SnapSelectedColorRgbInPlace();
+                _a = _selectedColor.a;
+
+                RunProgrammatic(UpdateHSV);
+                colorChanged = true;
+            }
         }
 
         EditorGUILayout.EndVertical();
@@ -294,7 +337,7 @@ public class PaletteStudioWindow : EditorWindow
             ColorUtility.TryParseHtmlString("#" + hexInput, out Color parsed))
         {
             _selectedColor = parsed;
-            UpdateHSV();
+            RunProgrammatic(UpdateHSV);
             colorChanged = true;
         }
 
@@ -319,7 +362,8 @@ public class PaletteStudioWindow : EditorWindow
         if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && rect.Contains(e.mousePosition))
         {
             _v = Mathf.Clamp01((e.mousePosition.x - rect.x) / rect.width);
-            UpdateSelectedColorFromHSV();
+            _v = SliderSnap.Snap(_v * 100f, UiDecimals) / 100f;
+            RunProgrammatic(UpdateSelectedColorFromHSV);
             colorChanged = true;
             if (_selectedPalette != null && _selectedPalette.GenerationMode == PaletteGenerationMode.Generated)
                 ApplyPickerSvToPalette();
@@ -361,7 +405,8 @@ public class PaletteStudioWindow : EditorWindow
                 float a = Mathf.Atan2(dir.y, dir.x);
                 if (a < 0) a += Mathf.PI * 2f;
                 _h = a / (Mathf.PI * 2f);
-                UpdateSelectedColorFromHSV();
+                _h = SliderSnap.Snap(_h * 360f, UiDecimals) / 360f;
+                RunProgrammatic(UpdateSelectedColorFromHSV);
                 colorChanged = true;
                 e.Use();
             }
@@ -902,12 +947,20 @@ public class PaletteStudioWindow : EditorWindow
     {
         Color.RGBToHSV(_selectedColor, out _h, out _s, out _v);
         _a = _selectedColor.a;
+
+        SnapHsvaInPlace();
+        _selectedColor = Color.HSVToRGB(_h, _s, _v, true).WithAlpha(_a);
+        SnapSelectedColorRgbInPlace();
+
         UpdateLightnessBarTexture();
     }
 
     private void UpdateSelectedColorFromHSV()
     {
-        _selectedColor = Color.HSVToRGB(_h, _s, _v).WithAlpha(_a);
+        SnapHsvaInPlace();
+        _selectedColor = Color.HSVToRGB(_h, _s, _v, true).WithAlpha(_a);
+        SnapSelectedColorRgbInPlace();
+
         UpdateLightnessBarTexture();
     }
 

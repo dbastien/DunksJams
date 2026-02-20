@@ -181,7 +181,7 @@ public static class Palettes
         return result;
     }
 
-    /// <summary>All discovered LUTs from LutRegistry. Run DunksJams‽/Refresh LUT Registry to populate.</summary>
+    /// <summary>All discovered LUTs from LutRegistry. Run ‽/Refresh LUT Registry to populate.</summary>
     public static LutRegistry DiscoveredLuts =>
         _discoveredLuts ??= Resources.Load<LutRegistry>("LutRegistry");
 

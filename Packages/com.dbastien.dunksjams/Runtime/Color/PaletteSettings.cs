@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "PaletteSettings", menuName = "DunksJams/Palette Settings")]
+[CreateAssetMenu(fileName = "PaletteSettings", menuName = "‽/Palette Settings")]
 public class PaletteSettings : ScriptableObject
 {
     [Tooltip(

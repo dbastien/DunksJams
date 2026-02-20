@@ -20,7 +20,7 @@ public enum PaletteScheme
     UI_Kit
 }
 
-[CreateAssetMenu(fileName = "ColorPalette", menuName = "DunksJams/Color Palette")]
+[CreateAssetMenu(fileName = "ColorPalette", menuName = "‽/Color Palette")]
 public class ColorPalette : ScriptableObject
 {
     public string paletteName;

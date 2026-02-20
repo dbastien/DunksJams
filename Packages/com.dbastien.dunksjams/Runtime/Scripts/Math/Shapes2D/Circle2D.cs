@@ -9,11 +9,15 @@ public struct Circle2D : IShape2D
 
     public bool Contains(Vector2 p) => (Center - p).sqrMagnitude <= Radius * Radius;
 
-    public Vector2 NearestPoint(Vector2 p)
-    {
-        Vector2 d = p - Center;
-        return Center + d.normalized * Mathf.Min(Radius, d.magnitude);
-    }
+	public Vector2 NearestPoint(Vector2 p)
+	{
+		Vector2 d = p - Center;
+		float mag = d.magnitude;
+		if (mag <= 1e-8f) return Center + Vector2.right * Radius;
+
+		float t = Mathf.Min(Radius, mag);
+		return Center + d * (t / mag);
+	}
 
     public void DrawGizmos() => Gizmos.DrawWireSphere(Center, Radius);
 
