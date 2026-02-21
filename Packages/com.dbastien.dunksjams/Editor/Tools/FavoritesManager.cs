@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 public class FavoritesManager : EditorWindow
 {
-    private const string PrefsKey = "FavoritesManager.Entries";
+    private const string PrefsKey = "FavoritesManager.Guids";
     private const float RowHeight = 22f;
 
     private static readonly string[] ScriptExtensions =
@@ -19,18 +19,16 @@ public class FavoritesManager : EditorWindow
     private readonly Dictionary<string, Texture2D> _iconCache = new();
     private readonly List<string> _pendingAdd = new();
 
-    // Stores GlobalObjectId strings (works for both assets and scene objects).
-    // Legacy plain asset GUIDs are supported transparently as a fallback.
-    private List<string> _entries = new();
+    private List<string> _guids = new();
     private Vector2 _scrollPos;
 
     private SearchField _searchField;
     private string _filter = "";
 
     private double _lastClickTime;
-    private string _lastClickEntry;
+    private string _lastClickGuid;
 
-    private string _pendingRemoveEntry;
+    private string _pendingRemoveGuid;
 
     private bool _reorderDragging;
     private int _dragFromIndex = -1;
@@ -53,7 +51,7 @@ public class FavoritesManager : EditorWindow
 
         DrawToolbar();
 
-        HandleExternalDragDrop();
+        HandleExternalDragDrop(new Rect(0, 0, position.width, position.height));
 
         using (var scroll = new EditorGUILayout.ScrollViewScope(_scrollPos))
         {
@@ -88,16 +86,21 @@ public class FavoritesManager : EditorWindow
     {
         int visibleIndex = 0;
 
-        for (int i = 0; i < _entries.Count; i++)
+        for (int i = 0; i < _guids.Count; i++)
         {
-            string entry = _entries[i];
+            string guid = _guids[i];
+            string path = AssetDatabase.GUIDToAssetPath(guid);
 
-            if (!TryResolveEntry(entry, out Object obj, out string path, out bool isSceneObj))
+            if (string.IsNullOrEmpty(path))
             {
-                // Assets that can't be resolved are gone — auto-remove them.
-                // Scene objects whose scene is closed resolve as null but shouldn't be removed.
-                if (!isSceneObj)
-                    _pendingRemoveEntry = entry;
+                _pendingRemoveGuid = guid;
+                continue;
+            }
+
+            Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+            if (!obj)
+            {
+                _pendingRemoveGuid = guid;
                 continue;
             }
 
@@ -109,41 +112,14 @@ public class FavoritesManager : EditorWindow
             if (_reorderDragging)
                 DrawDropIndicator(rowRect, _dragToIndex == i);
 
-            DrawRow(rowRect, i, entry, path, obj, isSceneObj, visibleIndex);
+            DrawRow(rowRect, i, guid, path, obj, visibleIndex);
             visibleIndex++;
         }
 
         Rect tail = EditorGUILayout.GetControlRect(false, 2f);
         if (_reorderDragging)
-            DrawDropIndicator(tail, _dragToIndex == _entries.Count);
+            DrawDropIndicator(tail, _dragToIndex == _guids.Count);
     }
-
-    // Returns true when the object is resolved. isSceneObj is set even when obj is null
-    // (scene object in a closed scene), so callers can skip rather than delete the entry.
-    private static bool TryResolveEntry(string entry, out Object obj, out string path, out bool isSceneObj)
-    {
-        obj = null;
-        path = null;
-        isSceneObj = false;
-
-        if (GlobalObjectId.TryParse(entry, out GlobalObjectId goid))
-        {
-            isSceneObj = goid.identifierType == 2;
-            obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(goid);
-            if (obj != null)
-                path = AssetDatabase.GetAssetPath(obj); // empty for scene objects
-            return obj != null || isSceneObj; // keep scene entries even when scene is closed
-        }
-
-        // Legacy: plain asset GUID stored by older versions
-        path = AssetDatabase.GUIDToAssetPath(entry);
-        if (string.IsNullOrEmpty(path)) return false;
-        obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-        return obj != null;
-    }
-
-    private static string GetEntryForObject(Object obj)
-        => GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
 
     private bool PassesFilter(Object obj, string path)
     {
@@ -152,18 +128,18 @@ public class FavoritesManager : EditorWindow
         string needle = _filter.Trim();
         if (needle.Length == 0) return true;
 
-        string haystack = obj ? $"{obj.name} {path}" : path ?? "";
+        string haystack = $"{obj.name} {path}";
         return haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    private void DrawRow(Rect rowRect, int index, string entry, string path, Object obj, bool isSceneObj, int visibleIndex)
+    private void DrawRow(Rect rowRect, int index, string guid, string path, Object obj, int visibleIndex)
     {
         Event evt = Event.current;
 
         Color baseStripe = (visibleIndex & 1) == 0 ? new Color(0, 0, 0, 0.06f) : new Color(0, 0, 0, 0.02f);
         EditorGUI.DrawRect(rowRect, baseStripe);
 
-        Color typeTint = GetTypeTint(obj, path, isSceneObj);
+        Color typeTint = GetTypeTint(obj, path);
         typeTint.a = 0.18f;
         EditorGUI.DrawRect(rowRect, typeTint);
 
@@ -175,7 +151,7 @@ public class FavoritesManager : EditorWindow
         Rect xRect = new Rect(contentRect.xMax - 20, contentRect.y + 1, 20, RowHeight - 2);
         Rect labelRect = new Rect(iconRect.xMax + 6, contentRect.y + 1, xRect.xMin - (iconRect.xMax + 10), RowHeight - 2);
 
-        Texture2D icon = obj ? GetIcon(entry, obj) : null;
+        Texture2D icon = GetIcon(guid, obj);
         if (icon)
             GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit, true);
 
@@ -185,20 +161,15 @@ public class FavoritesManager : EditorWindow
 
         if (GUI.Button(xRect, "X", EditorStyles.miniButton))
         {
-            _pendingRemoveEntry = entry;
+            _pendingRemoveGuid = guid;
             GUIUtility.ExitGUI();
             return;
         }
 
-        // Show "(closed)" when the scene object's scene isn't loaded
-        string label = obj ? obj.name : "(scene closed)";
-        using (new EditorGUI.DisabledScope(!obj))
+        if (GUI.Button(labelRect, obj.name, EditorStyles.label))
         {
-            if (GUI.Button(labelRect, label, EditorStyles.label) && obj)
-            {
-                HandleClick(entry, path, obj, isSceneObj);
-                evt.Use();
-            }
+            HandleClick(guid, path);
+            evt.Use();
         }
 
         HandleReorderDragStart(rowRect, index);
@@ -212,22 +183,13 @@ public class FavoritesManager : EditorWindow
             EditorGUI.DrawRect(r, new Color(0.3f, 0.6f, 1f, 0.9f));
     }
 
-    private void HandleClick(string entry, string path, Object obj, bool isSceneObj)
+    private void HandleClick(string guid, string path)
     {
-        bool isDoubleClick = entry == _lastClickEntry &&
+        bool isDoubleClick = guid == _lastClickGuid &&
                              EditorApplication.timeSinceStartup - _lastClickTime < 0.3;
 
-        _lastClickEntry = entry;
+        _lastClickGuid = guid;
         _lastClickTime = EditorApplication.timeSinceStartup;
-
-        if (isSceneObj)
-        {
-            Selection.activeObject = obj;
-            EditorGUIUtility.PingObject(obj);
-            if (isDoubleClick)
-                SceneView.FrameLastActiveSceneView();
-            return;
-        }
 
         string ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
 
@@ -239,15 +201,16 @@ public class FavoritesManager : EditorWindow
 
         if (isDoubleClick && ScriptExtensions.Contains(ext))
         {
-            AssetDatabase.OpenAsset(obj);
+            AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<Object>(path));
             return;
         }
 
         string folder = System.IO.Path.GetDirectoryName(path)?.Replace('\\', '/');
         RevealInProjectBrowser(folder);
 
-        EditorGUIUtility.PingObject(obj);
-        Selection.activeObject = obj;
+        var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
+        EditorGUIUtility.PingObject(asset);
+        Selection.activeObject = asset;
     }
 
     private static void RevealInProjectBrowser(string folderPath)
@@ -257,9 +220,9 @@ public class FavoritesManager : EditorWindow
         if (folder) Selection.activeObject = folder;
     }
 
-    private Texture2D GetIcon(string entry, Object obj)
+    private Texture2D GetIcon(string guid, Object obj)
     {
-        if (_iconCache.TryGetValue(entry, out Texture2D cached) && cached)
+        if (_iconCache.TryGetValue(guid, out Texture2D cached) && cached)
             return cached;
 
         Texture2D tex =
@@ -268,23 +231,18 @@ public class FavoritesManager : EditorWindow
             (obj ? AssetPreview.GetMiniTypeThumbnail(obj.GetType()) : null);
 
         if (tex)
-            _iconCache[entry] = tex;
+            _iconCache[guid] = tex;
 
         return tex;
     }
 
-    private static Color GetTypeTint(Object obj, string path, bool isSceneObj)
+    private static Color GetTypeTint(Object obj, string path)
     {
-        if (isSceneObj) return new Color(1f, 0.75f, 0.3f, 1f); // warm amber for scene objects
+        if (AssetDatabase.IsValidFolder(path)) return new Color(0.25f, 0.55f, 1f, 1f);
 
-        if (!string.IsNullOrEmpty(path) && AssetDatabase.IsValidFolder(path))
-            return new Color(0.25f, 0.55f, 1f, 1f);
-
-        string ext = string.IsNullOrEmpty(path) ? "" : System.IO.Path.GetExtension(path).ToLowerInvariant();
+        string ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
         if (ext == ".cs") return new Color(0.35f, 1f, 0.55f, 1f);
         if (ext == ".shader" || ext == ".hlsl" || ext == ".cginc" || ext == ".compute") return new Color(1f, 0.55f, 0.25f, 1f);
-
-        if (!obj) return new Color(0.5f, 0.5f, 0.5f, 1f);
 
         Type t = obj.GetType();
         if (typeof(Material).IsAssignableFrom(t)) return new Color(0.95f, 0.65f, 0.2f, 1f);
@@ -295,19 +253,15 @@ public class FavoritesManager : EditorWindow
         return new Color(0.7f, 0.7f, 0.7f, 1f);
     }
 
-    private void HandleExternalDragDrop()
+    private void HandleExternalDragDrop(Rect windowRect)
     {
+        if (_reorderDragging) return;
+
         Event evt = Event.current;
+        if (!windowRect.Contains(evt.mousePosition)) return;
+
         if (evt.type != EventType.DragUpdated && evt.type != EventType.DragPerform)
             return;
-
-        // If we're mid-reorder, cancel it — an external drag-drop takes priority.
-        if (_reorderDragging)
-        {
-            _reorderDragging = false;
-            _dragFromIndex = -1;
-            _dragToIndex = -1;
-        }
 
         bool hasRefs = DragAndDrop.objectReferences != null && DragAndDrop.objectReferences.Length > 0;
         DragAndDrop.visualMode = hasRefs ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected;
@@ -319,7 +273,10 @@ public class FavoritesManager : EditorWindow
             foreach (Object o in DragAndDrop.objectReferences)
             {
                 if (!o) continue;
-                _pendingAdd.Add(GetEntryForObject(o));
+                string path = AssetDatabase.GetAssetPath(o);
+                string guid = AssetDatabase.AssetPathToGUID(path);
+                if (!string.IsNullOrEmpty(guid))
+                    _pendingAdd.Add(guid);
             }
 
             ProcessPendingOperations();
@@ -367,7 +324,7 @@ public class FavoritesManager : EditorWindow
             if (evt.mousePosition.y < midY) _dragToIndex = index;
             else _dragToIndex = index + 1;
 
-            _dragToIndex = Mathf.Clamp(_dragToIndex, 0, _entries.Count);
+            _dragToIndex = Mathf.Clamp(_dragToIndex, 0, _guids.Count);
             Repaint();
         }
     }
@@ -383,13 +340,13 @@ public class FavoritesManager : EditorWindow
                 _dragFromIndex != _dragToIndex &&
                 _dragToIndex != _dragFromIndex + 1)
             {
-                string entry = _entries[_dragFromIndex];
-                _entries.RemoveAt(_dragFromIndex);
+                string guid = _guids[_dragFromIndex];
+                _guids.RemoveAt(_dragFromIndex);
 
                 int insertAt = _dragToIndex > _dragFromIndex ? _dragToIndex - 1 : _dragToIndex;
-                insertAt = Mathf.Clamp(insertAt, 0, _entries.Count);
+                insertAt = Mathf.Clamp(insertAt, 0, _guids.Count);
 
-                _entries.Insert(insertAt, entry);
+                _guids.Insert(insertAt, guid);
                 Save();
             }
 
@@ -410,7 +367,11 @@ public class FavoritesManager : EditorWindow
     private void AddFromSelection()
     {
         if (!Selection.activeObject) return;
-        _pendingAdd.Add(GetEntryForObject(Selection.activeObject));
+        string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+        string guid = AssetDatabase.AssetPathToGUID(path);
+        if (!string.IsNullOrEmpty(guid))
+            _pendingAdd.Add(guid);
+
         ProcessPendingOperations();
         Repaint();
     }
@@ -419,19 +380,19 @@ public class FavoritesManager : EditorWindow
     {
         bool modified = false;
 
-        if (_pendingRemoveEntry != null)
+        if (_pendingRemoveGuid != null)
         {
-            _entries.Remove(_pendingRemoveEntry);
-            _pendingRemoveEntry = null;
+            _guids.Remove(_pendingRemoveGuid);
+            _pendingRemoveGuid = null;
             modified = true;
         }
 
         if (_pendingAdd.Count > 0)
         {
-            foreach (string entry in _pendingAdd)
+            foreach (string guid in _pendingAdd)
             {
-                if (!_entries.Contains(entry))
-                    _entries.Add(entry);
+                if (!_guids.Contains(guid))
+                    _guids.Add(guid);
             }
             _pendingAdd.Clear();
             modified = true;
@@ -443,15 +404,11 @@ public class FavoritesManager : EditorWindow
 
     private void Load()
     {
-        // Try new key first, fall back to old key for migration
         string raw = EditorPrefs.GetString(PrefsKey, "");
-        if (string.IsNullOrEmpty(raw))
-            raw = EditorPrefs.GetString("FavoritesManager.Guids", "");
-
-        _entries = string.IsNullOrEmpty(raw)
+        _guids = string.IsNullOrEmpty(raw)
             ? new List<string>()
-            : raw.Split(',').Where(e => !string.IsNullOrEmpty(e)).ToList();
+            : raw.Split(',').Where(g => !string.IsNullOrEmpty(g)).ToList();
     }
 
-    private void Save() => EditorPrefs.SetString(PrefsKey, string.Join(",", _entries));
+    private void Save() => EditorPrefs.SetString(PrefsKey, string.Join(",", _guids));
 }

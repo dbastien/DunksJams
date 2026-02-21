@@ -26,7 +26,7 @@ Unity 6000 (URP) game project with custom systems and editor tooling.
 - Use EventManager + GameEvent for messaging when appropriate.
 - Managers inherit SingletonBehavior<T>, implement InitInternal(), and use [DisallowMultipleComponent].
 - Use DLog.Log() for logging, never Debug.Log().
-- Prefer global namespace unless integration requires otherwise.
+- Use the global namespace.
 - Private fields: _camelCase; public members: PascalCase.
 
 ## Code style
@@ -41,6 +41,7 @@ Unity 6000 (URP) game project with custom systems and editor tooling.
 - FSM (FiniteState<T>, FiniteStateMachine<T>), steering behaviors + flow-field pathfinding.
 - Tweening/easing, math/noise/DSP utilities, editor graph/GUI helpers.
 - Data structures: ring buffer, queues, LRU cache, spatial hashes, pools.
+- 2d & 3d object generation
 
 ## Unity specifics
 
